@@ -1,0 +1,46 @@
+#define NUM_PARTICLES 100.
+#define TIME_LOWERING .2
+#define BRIGHTNESS .001
+
+vec2 Hash12(float t){
+    float x = fract(sin(t*748.32)*367.34);
+    float y = fract(sin((t+x)*623.785)*292.45);
+
+    return vec2(x,y)-.5;
+}
+
+vec2 Hash12Polar(float t){
+    float a = fract(sin(t*748.31)*367.34)*6.2832;
+    float d = fract(sin((t+a)*623.785)*292.45);
+
+    return vec2(cos(a),sin(a))*d;
+}
+
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+
+
+    vec2 st = (fragCoord.xy-.5*iResolution.xy)/iResolution.y;
+
+    vec3 color = vec3(0.);
+
+    for(float j = 0.; j < 3.; j++){
+        for(float i = 0.; i < NUM_PARTICLES; i++){
+
+            float t = fract(iTime*TIME_LOWERING);
+            float bright = mix(BRIGHTNESS, 0.001, smoothstep(0.025, 0., t) );
+            bright *= abs(sin(t*20.+i));
+            bright *= smoothstep(1., .95, t);
+            vec2 dir = Hash12Polar(i+1.);
+            float dist = distance(st-dir*t, vec2(0, 0)+(Hash12Polar(j*i)/2.));
+
+            color += vec3(bright/dist, bright/dist/2., bright/dist);
+        }
+    }
+
+
+
+    fragColor = vec4(color,1.);
+
+}

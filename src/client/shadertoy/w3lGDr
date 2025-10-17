@@ -1,0 +1,220 @@
+// CC0: Evil fractal
+//  Not retired, just had a bit of health hiccup at start of the year
+//  Also, I try to complete demos which limits tinkering with shaders I suppose.
+
+//  This is the result of trying to find some effects for a demo. Not fitting that demo
+//  I thought I share it here.
+
+
+// It's a bit glitchy but that's why we keep it dark in here.
+
+// Undefine for Black&White mode which is also sweet
+// #define BW
+
+#define TIME        iTime
+#define RESOLUTION  iResolution
+
+const float
+    PI        = acos(-1.)
+  , TAU       = 2.*PI
+  ;
+
+const int
+  render1_max_steps = 100
+;
+
+const float
+  render1_tolerance   = 1E-3
+, render1_max_length  = 9.
+, render1_normal_eps  = 8E-3
+;
+
+const vec2
+  path_a = vec2(1./13., 1./17.)*TAU
+, path_b = vec2(0.707,1.0)
+;
+
+
+
+// License: WTFPL, author: sam hocevar, found: https://stackoverflow.com/a/17897228/418488
+const vec4 hsv2rgb_K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+// License: WTFPL, author: sam hocevar, found: https://stackoverflow.com/a/17897228/418488
+//  Macro version of above to enable compile-time constants
+#define HSV2RGB(c)  (c.z * mix(hsv2rgb_K.xxx, clamp(abs(fract(c.xxx + hsv2rgb_K.xyz) * 6.0 - hsv2rgb_K.www) - hsv2rgb_K.xxx, 0.0, 1.0), c.y))
+
+// License: Unknown, author: Matt Taylor (https://github.com/64), found: https://64.github.io/tonemapping/
+vec3 aces_approx(vec3 v) {
+  v = max(v, 0.0);
+  v *= 0.6;
+  float a = 2.51;
+  float b = 0.03;
+  float c = 2.43;
+  float d = 0.59;
+  float e = 0.14;
+  return clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0, 1.0);
+
+}
+
+float g_hitz;
+
+vec3 offset(float z) {
+  return vec3(path_b*sin(path_a*z), z);
+}
+
+vec3 doffset(float z) {
+  return vec3(path_a*path_b*cos(path_a*z), 1.0);
+}
+
+vec3 ddoffset(float z) {
+  return vec3(-path_a*path_a*path_b*sin(path_a*z), 0.0);
+}
+
+void warpWorld(inout vec3 p){
+  vec3 warp = offset(p.z);
+  vec3 dwarp = normalize(doffset(p.z));
+  p.xy -= warp.xy;
+  p -= dwarp*dot(vec3(p.xy, 0), dwarp)*0.5*vec3(1,1,-1);
+
+  vec2 ddo2 = normalize(vec2(1.0, 0.0)+4.0*ddoffset(p.z).xy);
+  mat2 rot2 = mat2(ddo2.x, ddo2.y, -ddo2.y, ddo2.x);
+  p.xy *= rot2;
+}
+
+// Some day I leanrn to spell this fractal name properly
+vec3 apolloian(vec3 p, float s) {
+  float scale = 1.0;
+
+  for(int i=0; i<5 ;i++) {
+    p        = -1.0 + 2.0*fract(0.5*p+0.5);
+    float r2 = dot(p,p);
+    float k  = s/r2;
+    p       *= k;
+    scale   *= k;
+  }
+
+  return abs(p)/scale-0.01;
+}
+
+
+
+float render1_df(vec3 p) {
+  warpWorld(p);
+
+  vec3 dd = apolloian(p, 1.1+0.3*length(p.xy));
+  float d0 = length(p.xy)-0.3;
+  float d1 = min(min(dd.x, dd.y), dd.z);
+  const float zz = 4.;
+  float d2 = -((fract(zz*(length(p.xy)-0.25))/zz)-0.2);
+  float d  = d1;
+  d = max(d, -d0);
+  d = max(d, d2);
+
+  float dhitz = dd.z;
+  dhitz = max(dhitz, -d0);
+  dhitz = max(dhitz, d2);
+
+  g_hitz = min(g_hitz, dhitz);
+
+  return d;
+}
+
+
+float render1_raymarch(vec3 ro, vec3 rd, float tinit) {
+  float t = tinit;
+  int i;
+  float sf = 0.707;
+  float pt = t;
+  for (i = 0; i < render1_max_steps; ++i) {
+    float d = render1_df(ro + rd*t);
+    if (d < render1_tolerance || t > render1_max_length) {
+      if (sf < 0.5) {
+        break;
+      };
+      sf = 0.125;
+      t = pt;
+    }
+    pt = t;
+    t += sf*d;
+  }
+  return t;
+}
+
+vec3 render1_normal(vec3 pos) {
+  const vec2 eps = vec2(render1_normal_eps, 0.0);
+  return normalize(vec3(
+      render1_df(pos+eps.xyy)-render1_df(pos-eps.xyy)
+    , render1_df(pos+eps.yxy)-render1_df(pos-eps.yxy)
+    , render1_df(pos+eps.yyx)-render1_df(pos-eps.yyx))
+    );
+}
+
+vec3 render1(vec3 ro, vec3 rd) {
+  g_hitz = 1E3;
+  float t1 = render1_raymarch(ro, rd, 0.1);
+  float hitz = g_hitz;
+
+  vec3 col = vec3(0.);
+  vec3 sp0 = offset(ro.z-2.0);
+
+  vec3 p1 = ro+rd*t1;
+  vec3 n1 = render1_normal(p1);
+  float fre = 1.0+dot(rd, n1);
+  fre *= fre;
+  fre *= fre;
+  fre = smoothstep(0.2, 0.0, fre);
+
+#ifndef BW
+  const vec3 lightCol1    = HSV2RGB(vec3(0.45, 0.8, 4.0));
+  const vec3 mistCol      = HSV2RGB(vec3(0.95, 0.9, 0.5));
+
+  vec3 r1 = reflect(rd, n1);
+  float flash = smoothstep(0.5, 0.707, sin(p1.z+0.5*p1.x));
+  vec3 ld01 = normalize(sp0-p1);
+
+  if (t1 < render1_max_length ) {
+    if (hitz > render1_tolerance) {
+      col += fre*mix(0.0, 1.0, flash)*lightCol1*pow(max(dot(ld01, r1),0.0),40.0);
+    }
+  }
+
+  col = mix(mistCol, col, exp(-1E-2*t1*t1));
+#else
+  col = vec3(fre);
+  col *= smoothstep(render1_max_length, render1_max_length-0.5,t1);
+#endif
+  return col;
+}
+
+vec3 effect(vec2 p, vec2 pp) {
+  // Loops after 442 sec.
+
+  float tm  = mod(TIME,442.0);
+
+  vec3 ro   = offset(tm);
+  vec3 dro  = doffset(tm);
+  vec3 ddro = ddoffset(tm);
+
+  vec3 ww = normalize(dro);
+  vec3 uu = normalize(cross(vec3(0,1,0)+4.*ddro, ww));
+  vec3 vv = cross(ww, uu);
+  float rdd = 1.+0.5*length(pp);
+  vec3 rd = normalize(-p.x*uu + p.y*vv + rdd*ww);
+
+  vec3 col = render1(ro, rd);
+
+  col = aces_approx(col);
+  col = sqrt(col);
+  return col;
+}
+
+
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+  vec2 q = fragCoord/RESOLUTION.xy;
+  vec2 p = -1. + 2. * q;
+  vec2 pp = p;
+  p.x *= RESOLUTION.x/RESOLUTION.y;
+  vec3 col = effect(p, pp);
+  fragColor = vec4(col,1.0);
+
+}

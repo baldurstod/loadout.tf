@@ -1,0 +1,103 @@
+{
+	"": "",
+	"Auroras": "XtGGRt",
+	"Beams": "XtVczV",
+	"Biomine": "4lyGzR",
+	"Blue": "WldSRn",
+	"Bokeh Paralax": "4s2yW1",
+	"Bubbles": "4dl3zn",
+	"Clouds 2D": "4tdSWr",
+	"Clover": "XsXGzn",
+	"Combustible Voronoi": "4tlSzl",
+	"Companion Cube": "ll23Rd",
+	"Crumpled Wave": "3ttSzr",
+	"Disk - intersection": "lsfGDB",
+	"Dodecahedron inner reflections": "7dKBDt",
+	"Dwarf": "3sjGDV",
+	"Entangled Illumination": "Xcc3Wn",
+	"Evil fractal": "w3lGDr",
+	"Flag DE": {
+		"name": "_flags",
+		"defines": {
+			"COUNTRY": 276
+		}
+	},
+	"Flag FR": {
+		"name": "_flags",
+		"defines": {
+			"COUNTRY": 250
+		}
+	},
+	"Flag RU": {
+		"name": "_flags",
+		"defines": {
+			"COUNTRY": 643
+		}
+	},
+	"Flag US": {
+		"name": "_flags",
+		"defines": {
+			"COUNTRY": 840
+		}
+	},
+	"Fractal pyramid": "tsXBzS",
+	"Fractal Tiling": "Ml2GWy",
+	"Fractal Traps": "ws3Bzl",
+	"Habitable Planet": "WdScRW",
+	"Hash star in Menger": "33sGDM",
+	"Heartwing Angel": "4l23zc",
+	"Hexagon cell uv": "lldfWH",
+	"Glow": "3s3GDn",
+	"God rays": "4ddXzN",
+	"Heeelix": "4sVczV",
+	"Infinite nested block": "7ldyRH",
+	"Iterations - inversion": "XdXGDS",
+	"Iterations - shiny": "MslXz8",
+	"Julia - Triangle Inequality": "wlXyDX",
+	"Kirby Jump": "lt2fD3",
+	"Kitties": "7lcyz8",
+	"Leizex": "XtycD1",
+	"Liberation of the True Self": "tlGfzd",
+	"Loading...": "XsfGWB",
+	"Magnetismic": "XlB3zV",
+	"Mechanical": "XslXW2",
+	"Neon stream": "sscyDB",
+	"Notebook drawings": "XtVGD1",
+	"Oblivion": "XtX3DH",
+	"Octagrams": "tlVGDt",
+	"Perspex Web Lattice": "Mld3Rn",
+	"Pink Stars Zoom": "X3fBzs",
+	"Phantom Star": "ttKGDt",
+	"Playing marble": "MtX3Ws",
+	"Pointless Structures": "fdXXDH",
+	"Power Packed Alliance 5": "MsXfzj",
+	"Quake logo": "4dKXDy",
+	"Raymarched Hexagonal Truchet": "4td3zj",
+	"Retro wave": "7lyGzh",
+	"Re-entry": "4dGyRh",
+	"Sand dunes": "Xtl3DX",
+	"Seascape": "Ms2SD1",
+	"Segmented rings": "NsKBWd",
+	"Shortest Cosmos": "ltl3WS",
+	"Smooth Noise Contours": "ldscWH",
+	"Sparkling Explosion": "7sjfRy",
+	"Sphere - antialias": "MsSSWV",
+	"Spiral Riders": "3sGfD3",
+	"Spring": "7t2cRd",
+	"Star Nest": "XlfGRj",
+	"Starry planes": "MfjyWK",
+	"Supah Halo": "fdSBDD",
+	"TF2 logo": "_tf2",
+	"Traced Minkowski Tube": "4lSXzh",
+	"Transparent Lattice": "Xd3SDs",
+	"Twisted Columns": "Xl2GRc",
+	"Voronoi - metrics": "MdSGRc",
+	"Water Caustic": "MdlXz8",
+	"Waves": "XdtcD4",
+	"Warp Speed": "3dVczw",
+	"Warped Extruded Skewed Grid": "wtfBDf",
+	"Warping - procedural 2": "lsl3RH",
+	"Warping - procedural 4": "MdSXzz",
+	"Worms": "XsjXR1",
+	"Worms 2": "llXGR4"
+}

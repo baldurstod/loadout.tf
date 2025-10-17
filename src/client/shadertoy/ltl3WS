@@ -1,0 +1,8 @@
+void mainImage(out vec4 o,vec2 i){
+    vec3 p;
+    for (float s=-1.,v; s++ < 2e3; p = abs(p)/v - .8 )
+        int(s)%10 < 1
+          ? o += v/1e3,
+            p = vec3(.1,.2, fract(.01*ceil(.1*s+iTime*25.)) ),
+            p.xy += s*i/3e6 : i,
+        v = dot(p,p);}

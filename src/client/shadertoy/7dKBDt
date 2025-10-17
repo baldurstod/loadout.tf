@@ -1,0 +1,428 @@
+// CC0: Dodecahedron inner reflections
+// I watched this and was pretty amazed: https://www.youtube.com/watch?v=qNoQXF2dKBs
+// I tried to create something like that but it's not as cool partly because I don't
+// know how to do a Rhombicosidodecahedron
+// But I think it's cool enough to share
+
+// Press left mouse button for some crappy camera control
+
+#define TAU         (2.0*PI)
+#define PHI         (sqrt(5.0)*0.5 + 0.5)
+
+#define RESOLUTION  iResolution
+
+#define TOLERANCE       0.001
+#define MAX_RAY_LENGTH  20.0
+#define MAX_RAY_MARCHES 60
+#define NORM_OFF        0.0001
+#define ROT(a)          mat2(cos(a), sin(a), -sin(a), cos(a))
+#define MAX_BOUNCES     5
+#define GDF(n)          d = max(d, abs(dot(p, GDFVectors[n])))
+
+const float initt = 0.5;
+
+int g_mat1 = 0;
+
+// License: WTFPL, author: sam hocevar, found: https://stackoverflow.com/a/17897228/418488
+const vec4 hsv2rgb_K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+vec3 hsv2rgb(vec3 c) {
+  vec3 p = abs(fract(c.xxx + hsv2rgb_K.xyz) * 6.0 - hsv2rgb_K.www);
+  return c.z * mix(hsv2rgb_K.xxx, clamp(p - hsv2rgb_K.xxx, 0.0, 1.0), c.y);
+}
+// License: WTFPL, author: sam hocevar, found: https://stackoverflow.com/a/17897228/418488
+//  Macro version of above to enable compile-time constants
+#define HSV2RGB(c)  (c.z * mix(hsv2rgb_K.xxx, clamp(abs(fract(c.xxx + hsv2rgb_K.xyz) * 6.0 - hsv2rgb_K.www) - hsv2rgb_K.xxx, 0.0, 1.0), c.y))
+
+
+// License: Unknown, author: nmz (twitter: @stormoid), found: https://www.shadertoy.com/view/NdfyRM
+vec3 sRGB(vec3 t) {
+  return mix(1.055*pow(t, vec3(1./2.4)) - 0.055, 12.92*t, step(t, vec3(0.0031308)));
+}
+
+// License: Unknown, author: Matt Taylor (https://github.com/64), found: https://64.github.io/tonemapping/
+vec3 aces_approx(vec3 v) {
+  v = max(v, 0.0);
+  v *= 0.6f;
+  float a = 2.51f;
+  float b = 0.03f;
+  float c = 2.43f;
+  float d = 0.59f;
+  float e = 0.14f;
+  return clamp((v*(a*v+b))/(v*(c*v+d)+e), 0.0f, 1.0f);
+}
+
+// License: Unknown, author: Unknown, found: don't remember
+float tanh_approx(float x) {
+  //  Found this somewhere on the interwebs
+  //  return tanh(x);
+  float x2 = x*x;
+  return clamp(x*(27.0 + x2)/(27.0+9.0*x2), -1.0, 1.0);
+}
+
+
+// http://mercury.sexy/hg_sdf/
+vec2 mod2(inout vec2 p, vec2 size) {
+  vec2 c = floor((p + size*0.5)/size);
+  p = mod(p + size*0.5,size) - size*0.5;
+  return c;
+}
+
+float circle(vec2 p, float r) {
+  return length(p) - r;
+}
+
+float sphere(vec3 p, float r) {
+  return length(p) - r;
+}
+
+// License: MIT, author: Inigo Quilez, found: https://iquilezles.org/articles/distfunctions/
+float boxFrame(vec3 p, vec3 b, float e) {
+       p = abs(p  )-b;
+  vec3 q = abs(p+e)-e;
+  return min(min(
+      length(max(vec3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),
+      length(max(vec3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),
+      length(max(vec3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));
+}
+
+// License: MIT, author: Inigo Quilez, found: https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+float box(vec2 p, vec2 b) {
+  vec2 d = abs(p)-b;
+  return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+}
+
+// License: MIT, author: Inigo Quilez, found: https://www.iquilezles.org/www/articles/smin/smin.htm
+float pmin(float a, float b, float k) {
+    float h = clamp( 0.5+0.5*(b-a)/k, 0.0, 1.0 );
+    return mix( b, a, h ) - k*h*(1.0-h);
+}
+
+float pmax(float a, float b, float k) {
+  return -pmin(-a, -b, k);
+}
+
+// License: MIT, author: Inigo Quilez, found: https://iquilezles.org/www/articles/intersectors/intersectors.htm
+float rayPlane(vec3 ro, vec3 rd, vec4 p) {
+  return -(dot(ro,p.xyz)+p.w)/dot(rd,p.xyz);
+}
+
+// License: MIT OR CC-BY-NC-4.0, author: mercury, found: https://mercury.sexy/hg_sdf/
+const vec3 GDFVectors[19] = vec3[](
+  normalize(vec3(1, 0, 0)),
+  normalize(vec3(0, 1, 0)),
+  normalize(vec3(0, 0, 1)),
+
+  normalize(vec3( 1,  1,  1)),
+  normalize(vec3(-1,  1,  1)),
+  normalize(vec3( 1, -1,  1)),
+  normalize(vec3( 1,  1, -1)),
+
+  normalize(vec3( 0       ,  1      , PHI+1.0 )),
+  normalize(vec3( 0       , -1      , PHI+1.0 )),
+  normalize(vec3( PHI+1.0 ,  0      , 1       )),
+  normalize(vec3(-PHI-1.0 ,  0      , 1       )),
+  normalize(vec3( 1       , PHI+1.0 , 0       )),
+  normalize(vec3(-1       , PHI+1.0 , 0       )),
+
+  normalize(vec3( 0   ,  PHI, 1   )),
+  normalize(vec3( 0   , -PHI, 1   )),
+  normalize(vec3( 1   ,  0  , PHI )),
+  normalize(vec3(-1   ,  0  , PHI )),
+  normalize(vec3( PHI ,  1  , 0   )),
+  normalize(vec3(-PHI ,  1  , 0   ))
+);
+
+/*
+float icosahedron(vec3 p, float r) {
+  p = abs(p);
+  float d = 0.0;
+  GDF(3);
+  GDF(7);
+  GDF(9);
+  GDF(11);
+  return d-r;
+}
+float truncatedIcosahedron(vec3 p, float r) {
+  p = abs(p);
+  float d = 0.0;
+  GDF(3);
+  GDF(7);
+  GDF(9);
+  GDF(11);
+  GDF(13);
+  GDF(15);
+  GDF(17);
+  return d-r;
+}
+*/
+
+float dodecahedron(vec3 p, float r) {
+  // Bound, not exact distance
+  p = abs(p);
+  float d = 0.0;
+  GDF(13);
+  GDF(15);
+  GDF(17);
+  return d-r;
+}
+
+float blobs(vec2 p) {
+  // Generates a grid of dots
+  vec2 bp = p;
+  vec2 bn = mod2(bp, vec2(3.0));
+
+  vec2 dp = p;
+  vec2 dn = mod2(dp, vec2(0.25));
+  float ddots = length(dp);
+
+  // Blobs
+  float dblobs = 1E6;
+  for (int i = 0; i < 5; ++i) {
+    float dd = circle(bp-1.0*vec2(sin(TIME+float(i)), sin(float(i*i)+TIME*sqrt(0.5))), 0.1);
+    dblobs = pmin(dblobs, dd, 0.35);
+  }
+
+  float d = 1E6;
+  d = min(d, ddots);
+  // Smooth min between blobs and dots makes it look somewhat amoeba like
+  d = pmin(d, dblobs, 0.35);
+  return d;
+}
+
+vec3 skyColor(vec3 ro, vec3 rd) {
+  const vec3 gcol = HSV2RGB(vec3(0.45, 0.6, 1.0));
+  vec3 col = clamp(vec3(0.0025/abs(rd.y))*gcol, 0.0, 1.0);
+
+  float tp0  = rayPlane(ro, rd, vec4(vec3(0.0, 1.0, 0.0), 4.0));
+  float tp1  = rayPlane(ro, rd, vec4(vec3(0.0, -1.0, 0.0), 6.0));
+  float tp = tp1;
+  tp = max(tp0,tp1);
+  if (tp > 0.0) {
+    vec3 pos  = ro + tp*rd;
+    const float fz = 0.25;
+    const float bz = 1.0/fz;
+    vec2 bpos = pos.xz/bz;
+    float db = blobs(bpos)*bz;
+    db = abs(db);
+    vec2 pp = pos.xz*fz;
+    float m = 0.5+0.25*(sin(3.0*pp.x+TIME*2.1)+sin(3.3*pp.y+TIME*2.0));
+    m *= m;
+    m *= m;
+    pp = fract(pp+0.5)-0.5;
+    float dp = pmin(abs(pp.x), abs(pp.y), 0.125);
+    dp = min(dp, db);
+    vec3 hsv = vec3(0.4+mix(0.15,0.0, m), tanh_approx(mix(50.0, 10.0, m)*dp), 1.0);
+    vec3 pcol = 1.5*hsv2rgb(hsv)*exp(-mix(30.0, 10.0, m)*dp);
+
+    float f = 1.0-tanh_approx(0.1*length(pos.xz));
+    col = mix(col, pcol , f);
+  }
+
+
+  if (tp1 > 0.0) {
+    vec3 pos  = ro + tp1*rd;
+    vec2 pp = pos.xz;
+    float db = box(pp, vec2(6.0, 9.0))-1.0;
+
+    col += vec3(2.0)*gcol*rd.y*smoothstep(0.25, 0.0, db);
+    col += vec3(0.8)*gcol*exp(-0.5*max(db, 0.0));
+  }
+
+
+  return col;
+}
+
+float dfExclusion(vec3 p) {
+  return sphere(p, 3.35);
+}
+
+float df0(vec3 p) {
+  float d0 = dodecahedron(p, 3.0);
+  float d = d0;
+  return d;
+}
+
+float df1(vec3 p) {
+  float d0 = -(df0(p)+0.05);
+  float d1 = boxFrame(p, vec3(1.1), 0.0)-0.1;
+  float d2 = sphere(p, 1.);
+
+  float d = d0;
+  g_mat1 = 0;
+  if (d1 < d) {
+    d = d1;
+    g_mat1 = 1;
+  }
+
+  if (d2 < d) {
+    d = d2;
+    g_mat1 = 0;
+  }
+
+  return d;
+}
+
+vec3 normal1(vec3 pos) {
+  vec2  eps = vec2(NORM_OFF,0.0);
+  vec3 nor;
+  nor.x = df1(pos+eps.xyy) - df1(pos-eps.xyy);
+  nor.y = df1(pos+eps.yxy) - df1(pos-eps.yxy);
+  nor.z = df1(pos+eps.yyx) - df1(pos-eps.yyx);
+  return normalize(nor);
+}
+
+float rayMarch1(vec3 ro, vec3 rd) {
+  float t = 0.0;
+  for (int i = 0; i < MAX_RAY_MARCHES; i++) {
+    if (t > MAX_RAY_LENGTH) {
+      t = MAX_RAY_LENGTH;
+      break;
+    }
+    float d = df1(ro + rd*t);
+    if (d < TOLERANCE) {
+      break;
+    }
+    t  += d;
+  }
+  return t;
+}
+
+vec3 normal0(vec3 pos) {
+  vec2  eps = vec2(NORM_OFF,0.0);
+  vec3 nor;
+  nor.x = df0(pos+eps.xyy) - df0(pos-eps.xyy);
+  nor.y = df0(pos+eps.yxy) - df0(pos-eps.yxy);
+  nor.z = df0(pos+eps.yyx) - df0(pos-eps.yyx);
+  return normalize(nor);
+}
+
+float rayMarch0(vec3 ro, vec3 rd) {
+  float t = 0.0;
+  for (int i = 0; i < MAX_RAY_MARCHES; i++) {
+    if (t > MAX_RAY_LENGTH) {
+      t = MAX_RAY_LENGTH;
+      break;
+    }
+    float d = df0(ro + rd*t);
+    if (d < TOLERANCE) {
+      break;
+    }
+    t  += d;
+  }
+  return t;
+}
+
+vec3 render1(vec3 ro, vec3 rd) {
+  vec3 agg = vec3(0.0, 0.0, 0.0);
+  float tagg = initt;
+  vec3 ragg = vec3(1.0);
+
+  for (int bounce = 0; bounce < MAX_BOUNCES; ++bounce) {
+    float mragg = max(max(ragg.x, ragg.y), ragg.z);
+    if (mragg < 0.1) break;
+    float st = rayMarch1(ro, rd);
+    tagg += st;
+    int mat = g_mat1;
+    vec3 sp = ro+rd*st;
+    float de = dfExclusion(sp);
+    vec3 sn = normal1(sp);
+
+    const vec3 lcol = vec3(1.0, 1.5, 2.0);
+
+    // Will never miss
+    switch(mat)
+    {
+    case 0:
+      if (de < 0.0) {
+        agg += ragg*0.5*lcol*exp(10.0*de);
+        ragg *= 0.9;
+      } else {
+        agg += ragg*lcol;
+        ragg = vec3(0.0);
+      }
+      break;
+    case 1:
+      agg += ragg*lcol;
+      ragg = vec3(0.);
+      break;
+    default:
+      break;
+    }
+
+    rd = reflect(rd, sn);
+    ro = sp+initt*rd;
+    tagg += initt;
+    ragg *= 0.8;
+  }
+
+  return agg*exp(-.5*vec3(0.3, 0.15, 0.1)*tagg);
+}
+
+vec3 render0(vec3 ro, vec3 rd) {
+  vec3 skyCol = skyColor(ro, rd);
+
+  vec3 col = skyCol;
+
+  float st = rayMarch0(ro, rd);
+  vec3 sp = ro+rd*st;
+  vec3 sn = normal0(sp);
+  float de = dfExclusion(sp);
+  float ptime = mod(TIME, 30.0);
+  float fi = mix(smoothstep(0.8, 1.0, sin(0.5*TAU*ptime*ptime))*step(4.0, ptime), 1.0, step(6.0, ptime));
+  if (st < MAX_RAY_LENGTH) {
+    float sfre = 1.0+dot(rd, sn);
+    sfre *= sfre;
+    sfre = mix(0.1, 1.0, sfre);
+    vec3 sref   = reflect(rd, sn);
+    vec3 srefr  = refract(rd, sn, 0.95);
+    vec3 ssky = sfre*skyColor(sp, sref);
+
+    if (de > 0.0) {
+      col = ssky;
+    } else {
+      col = 0.5*sfre*ssky;
+      vec3 col1 = (1.0-sfre)*render1(sp+srefr*initt, srefr);
+      col += fi*col1;
+    }
+
+  }
+
+  return col;
+}
+
+vec3 effect(vec2 p) {
+  vec3 ro = vec3(0.0, 4.0, 5.0);
+  vec3 la = vec3(0.0, 0.0, 0.0);
+  vec3 up = vec3(0.0, 1.0, 0.0);
+  if (iMouse.x > 0.0) {
+    // Get angle from mouse position
+    vec2 m = (2.0*iMouse.xy-iResolution.xy)/iResolution.y;
+    ro.xz *= ROT(-2.0*m.x);
+    ro.zy *= ROT(2.0*m.y);
+  } else {
+    ro.xz *= ROT(0.1*TIME);
+  }
+
+
+  vec3 ww = normalize(la - ro);
+  vec3 uu = normalize(cross(up, ww ));
+  vec3 vv = normalize(cross(ww,uu));
+  const float fov = tan(TAU/5.5);
+  vec3 rd = normalize(-p.x*uu + p.y*vv + fov*ww);
+
+  vec3 col = render0(ro, rd);
+
+  return col;
+}
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+  vec2 q = fragCoord/iResolution.xy;
+  vec2 p = -1. + 2. * q;
+  p.x *= RESOLUTION.x/RESOLUTION.y;
+  vec3 col = vec3(0.0);
+  col = effect(p);
+  col *= smoothstep(0.0, 4.0, TIME);
+  col = aces_approx(col);
+  col = sRGB(col);
+  fragColor = vec4(col, 1.0);
+}

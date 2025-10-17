@@ -1,0 +1,82 @@
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = fragCoord/iResolution.xy;
+
+    // Move (0,0) to the center of the screen --> Normalize in [-1,1]
+    uv = uv * 2.0 - 1.0;
+
+    // Adjust aspect ratio
+    uv.x *= iResolution.x / iResolution.y;
+
+    // Stars will spawn from the center of the screen
+    float cx = 0.0;
+    float cy = 0.0;
+
+    const int colorsSize = 3;
+    vec4 colors[colorsSize];
+    colors[0] = vec4(1, 0.7, 0.776, 1.0);
+    colors[1] = vec4(1.0, 0.87, 0.932, 1.0);
+    colors[2] = vec4(1.0, 0.55, 0.633, 1.0);
+
+    // Initialize to background color
+    fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+    // ----------- ATTRIBUTES -----------
+
+    int n = 5; // Number of points
+    float innerRadius = 0.2; // Sine function limits
+    float oscAmp = 1.5;
+    float starWidth = 0.105;
+    float growRate = 0.15;
+
+        // Animation
+    float cycleDuration = starWidth / growRate;
+    float progress = mod(iTime / cycleDuration, 1.0);
+    float smallestStar = progress * starWidth; // Linear growth
+
+        // Blurriness
+    float blurFactor = 0.01; // 0.3 mola :)
+    vec4 blendColor = vec4(1.0,1.0,1.0,1.0);
+
+    // -----------------------------------------
+
+    // Distance and angle from center to current point
+    float angle = atan(uv.y - cy, uv.x - cx);
+    float radius = length(uv - vec2(cx, cy));
+
+    // Find the first color
+    int currentIteration = (int(floor(iTime / cycleDuration)));
+        // inverse element of n = size - 1 - n
+    int colorCount = colorsSize - 1 - (currentIteration % colorsSize);
+
+    float currentRadius = smallestStar; // Start iterating on the smallest star
+
+    // Find inside which star it is
+    for (float i = 0.0; i < iResolution.y; i += starWidth) // TODO optimizar
+    {
+        float starRadius = currentRadius * (oscAmp + innerRadius * sin(float(n) * angle));
+        bool insideStar = radius < starRadius;
+
+        if (insideStar){
+
+            // Calculate distance from the edge of the star
+            float distToStarEdge = abs(radius - starRadius);
+
+            // Apply Gaussian smoothing based on the distance to the edge
+            float alpha = smoothstep(0.0, blurFactor, distToStarEdge);
+
+            vec4 currentColor = colors[colorCount % colorsSize];
+            vec4 nextColor = colors[(colorCount+1)%colorsSize];
+            fragColor = mix(nextColor, currentColor, alpha);
+
+           //fragColor = colors[colorCount % colorsSize];
+
+           break; // Exit loop after finding the matching star
+        }
+
+       colorCount++;
+
+       currentRadius += starWidth;
+    }
+}

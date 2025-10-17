@@ -1,0 +1,313 @@
+
+#ifndef COUNTRY
+	#define COUNTRY 250
+#endif
+// Yuchengzhong 2019
+// Hazel Quantock 2013
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+#define d_hash3f(x) vec3(((((((((uvec3( x * float(0xffffffffU))>>8U)^uvec3( x * float(0xffffffffU)).yzx)*1103515245U)>>8U)^(((uvec3( x * float(0xffffffffU))>>8U)^uvec3( x * float(0xffffffffU)).yzx)*1103515245U).yzx)*1103515245U)>>8U)^((((((uvec3( x * float(0xffffffffU))>>8U)^uvec3( x * float(0xffffffffU)).yzx)*1103515245U)>>8U)^(((uvec3( x * float(0xffffffffU))>>8U)^uvec3( x * float(0xffffffffU)).yzx)*1103515245U).yzx)*1103515245U).yzx)*1103515245U)/ float(0xffffffffU) + 1e-30
+#define JITTER 0.018
+
+const float tau = 6.28318530717958647692;
+vec2 view_Resolution;
+vec2 view_FragCoord;
+int view_Index;
+vec4 view_selectionRelativeMouse;
+
+
+// Gamma correction
+#define GAMMA (2.2)
+
+vec3 ToLinear( in vec3 col )
+{
+	// simulate a monitor, converting colour values into light values
+	return pow( col, vec3(GAMMA) );
+}
+
+vec3 ToGamma( in vec3 col )
+{
+	// convert back into colour values, so the correct light will come out of the monitor
+	return pow( col, vec3(1.0/GAMMA) );
+}
+void CamPolar( out vec3 pos, out vec3 ray, in vec3 origin, in vec2 rotation, in float distance, in float zoom ,in vec2 jitter)
+{
+	// get rotation coefficients
+	vec2 c = vec2(cos(rotation.x),cos(rotation.y));
+	vec4 s;
+	s.xy = vec2(sin(rotation.x),sin(rotation.y)); // worth testing if this is faster as sin or sqrt(1.0-cos);
+	s.zw = -s.xy;
+
+	// ray in view space
+	ray.xy = view_FragCoord.xy - view_Resolution.xy*.5 +jitter;
+	ray.z = view_Resolution.y*zoom;
+	ray = normalize(ray);
+
+	// rotate ray
+	ray.yz = ray.yz*c.xx + ray.zy*s.zx;
+	ray.xz = ray.xz*c.yy + ray.zx*s.yw;
+
+	// position camera
+	pos = origin - distance*vec3(c.x*s.y,s.z,c.x*c.y);
+}
+
+vec2 hash( vec2 p ) {
+	p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)));
+	return -1.0 + 2.0*fract(sin(p)*43758.5453123);
+}
+
+float noise( in vec2 p ) {
+	const float K1 = 0.366025404; // (sqrt(3)-1)/2;
+	const float K2 = 0.211324865; // (3-sqrt(3))/6;
+	vec2 i = floor(p + (p.x+p.y)*K1);
+	vec2 a = p - i + (i.x+i.y)*K2;
+	vec2 o = (a.x>a.y) ? vec2(1.0,0.0) : vec2(0.0,1.0); //vec2 of = 0.5 + 0.5*vec2(sign(a.x-a.y), sign(a.y-a.x));
+	vec2 b = a - o + K2;
+	vec2 c = a - 1.0 + 2.0*K2;
+	vec3 h = max(0.5-vec3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
+	vec3 n = h*h*h*h*vec3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
+	return dot(n, vec3(70.0));
+}
+
+
+vec4 Noise( in vec2 x )
+{
+	return vec4(noise(x)) / 10.;
+	/*vec2 p = floor(x);
+	vec2 f = fract(x);
+	f = f*f*(3.0-2.0*f);
+	vec2 uv = p + f;
+	vec4 rg = textureLod( noiseMap, (uv+0.5)/256.0, 0.0 ) / 10.;
+	return rg;*/
+}
+
+float DistanceField( vec3 pos );
+
+vec3 Normal( vec3 pos )
+{
+	vec3 jitter = d_hash3f(abs(pos));
+	const vec2 delta = vec2(0,0.05);
+	vec3 grad;
+	grad.x = DistanceField( pos+delta.yxx )-DistanceField( pos-delta.yxx );
+	grad.y = DistanceField( pos+delta.xyx )-DistanceField( pos-delta.xyx );
+	grad.z = DistanceField( pos+delta.xxy )-DistanceField( pos-delta.xxy );
+	return normalize(grad+JITTER*(jitter-0.5));
+}
+
+
+// ----------------------
+
+float RippleHeight( vec2 pos )
+{
+	vec2 p = pos+vec2(-1,.2)*TIME*2.0;
+
+	p += vec2(1,0)*Noise(p).y; // more natural looking ripples
+	float f = Noise(p).x-.5;
+	p *= 2.0;
+	p += vec2(0,-.5)*TIME;
+	f += (Noise(p).x-.5)*.2;
+	p *= 2.0;
+	p += vec2(-3,0)*TIME;
+	f += (Noise(p).x-.5)*.05;
+
+	f = f*(1.0-exp2(-abs(pos.x)));
+	return f*1.2;
+}
+
+float DistanceField( vec3 pos )
+{
+	return (RippleHeight(pos.xy)-pos.z)*.999;
+}
+
+// map a uv space onto a distorted surface
+vec2 UVMapping( vec2 target )
+{
+	vec2 uv = vec2(0);
+
+	const int n = 4;
+	const float fudge = 1.0;
+	vec2 d = target/float(n);
+	vec2 l;
+	l.x = RippleHeight( vec2(0,target.y) );
+	l.y = RippleHeight( vec2(target.x,0) );
+	for ( int i=0; i < n; i++ )
+	{
+		vec2 s;
+		s.x = RippleHeight( vec2(d.x*float(i),target.y) );
+		s.y = RippleHeight( vec2(target.x,d.y*float(i)) );
+		uv += sign(d)*sqrt(pow(fudge*(s-l),vec2(2.0))+d*d);
+		l = s;
+	}
+
+	return (uv+vec2(-.75,0.5))/vec2(1.5,1.0);
+}
+vec3 Star(vec2 uv,vec2 pos,float angle,float scale)
+{
+	uv -=pos;
+	uv *=mat2(sin(radians(angle) + vec4(1,0,2,1)*1.5707));
+	uv /=scale;
+	float a = mod(atan(uv.x,-uv.y),2.*0.6283185)-0.6283185;
+	vec2 preuv = length(uv) * vec2(cos(a),sin(a))*1.23606794;
+	preuv.y = abs(preuv.y);
+	preuv.x -= 0.5;
+	float value = -(0.3467647*preuv.x+preuv.y)*25.534033;//0.2467647,15.534033;
+	return vec3(clamp(value,0.,1.));
+}
+#if COUNTRY == 156//China
+	vec3 Pattern(vec2 uv ) {
+		uv = vec2(30.0*uv.x,20.0-uv.y*20.0);
+
+		vec3 colorGold = vec3(255.0,222.0,0.0)/255.0;
+		vec3 colorRed = vec3(222.0,41.0,16.0)/255.0;
+		vec3 colorSTAR = Star(uv,vec2(5,5),180.0,6.0);
+		colorSTAR = max(Star(uv,vec2(10,2),58.0,2.0),colorSTAR);
+		colorSTAR = max(Star(uv,vec2(12,4),91.0,2.0),colorSTAR);
+		colorSTAR = max(Star(uv,vec2(12,7),180.0,2.0),colorSTAR);
+		colorSTAR = max(Star(uv,vec2(10,9),58.0,2.0),colorSTAR);
+		float mask = float(colorSTAR.x>0.0);
+		// Output to screen
+		vec3 outcolor = mix(colorRed,colorGold,mask);
+		return outcolor;
+	}
+#endif
+#if COUNTRY == 250//France
+	vec3 Pattern(vec2 uv ) {
+		vec3 blue = vec3(0.,38.,84.)/255.;
+		vec3 red = vec3(206.,17.,38.)/255.;
+
+		vec3 outcolor = vec3(1.);
+		outcolor = mix(outcolor, blue, vec3(uv.x < 1./3.));
+		outcolor = mix(outcolor, red, vec3(uv.x > 2./3.));
+
+		return outcolor;
+	}
+#endif
+#if COUNTRY == 276//Germany
+	vec3 Pattern(vec2 uv ) {
+		vec3 gold = vec3(255.,204.,0.)/255.;
+		vec3 red = vec3(255.,0.,0.)/255.;
+
+		vec3 outcolor = vec3(0.);
+		outcolor = mix(outcolor, red, vec3(uv.y < 2./3.));
+		outcolor = mix(outcolor, gold, vec3(uv.y < 1./3.));
+
+		return outcolor;
+	}
+#endif
+#if COUNTRY == 643//Russia
+	vec3 Pattern(vec2 uv ) {
+		vec3 blue = vec3(0.,50.,160.)/255.;
+		vec3 red = vec3(218.,41.,28.)/255.;
+
+		vec3 outcolor = vec3(1.);
+		outcolor = mix(outcolor, blue, vec3(uv.y < 2./3.));
+		outcolor = mix(outcolor, red, vec3(uv.y < 1./3.));
+
+		return outcolor;
+	}
+#endif
+#if COUNTRY == 840//USA
+	vec3 Pattern(vec2 uv ) {
+		vec3 blue = vec3(10.,49.,97.)/255.;
+		vec3 red = vec3(179.,25.,66.)/255.;
+
+
+		vec3 starMask = vec3(0.);
+		float E = 7./130.;
+		float G2 = 4./60.;
+		for(int i=0;i<6;i++) {
+			for(int j=0;j<9;j++) {
+				float oddLine = mod(float(j), 2.);
+				if (!(oddLine == 1. && i == 5)) {
+					starMask += Star(uv,vec2(G2 * (float(i) + 0.5 + 0.5 * oddLine), 1. - E * (float(j) + 1.0)),0.,.0616);
+				}
+			}
+		}
+
+
+		vec3 outcolor = vec3(1.);
+		outcolor = mix(outcolor, red, vec3(mod(uv.y,1./6.5) < 1./13.));
+		outcolor = mix(outcolor, blue, vec3(uv.y > 6./13.) * vec3(uv.x < .4));
+		outcolor = mix(outcolor, vec3(1.0), starMask);
+		//outcolor = mix(outcolor, red, vec3(uv.y > 40./3.));
+
+		return outcolor;
+	}
+#endif
+/*vec3 Pattern(vec2 uv ) {
+	#if COUNTRY == 0
+	#elif COUNTRY == 156
+		return Pattern156(uv);
+	#if COUNTRY == 250
+		return Pattern250(uv);
+	#endif
+}*/
+
+
+// xyz = normal, w = transmission from far side
+vec4 Weave( vec2 uv )
+{
+	vec2 a = uv*vec2(3.0,2.0)*view_Resolution.y*0.85;
+	float h = (sin(a.x)+sin(a.y))*.25+.5;
+
+	h = h*.05; // transparency within the flag
+
+	// edges
+	h = max(h,smoothstep(.495,.5,abs(uv.x-.5)));
+	h = max(h,smoothstep(.495,.5,abs(uv.y-.5)));
+
+	return vec4(0,0,0,h);
+}
+#define SS 2
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+	view_Resolution = uResolution.xy;
+	view_FragCoord = fragCoord.xy;
+	view_Index = 1;
+	view_selectionRelativeMouse = vec4(0.0)/view_Resolution.xyxy;
+
+for(int x=0;x<SS;x++)
+{
+	vec3 seed = vec3(view_FragCoord,5*x);
+	vec3 jitter = d_hash3f(seed)-0.5;//vec2(x,y)/float(SS);
+	jitter*=0.5;
+	vec3 pos;
+	vec3 ray;
+
+	CamPolar( pos, ray, vec3(1.4,0,0), vec2(0.0,(sin(0.5*TIME))*3.1415926*0.10), 2.0, 0.5,jitter.xy );//if you like to move +-2.0*(view_selectionRelativeMouse.yx-0.5)
+
+
+	float t = 0.0;
+	float h = 1.0;
+	for ( int i=0; i < 10; i++ )
+	{
+		if ( h < .01 )
+		{
+			break;
+		}
+		float h = DistanceField( pos+t*ray );
+		t += h;
+	}
+	pos += t*ray;
+
+    vec3 colb = vec3(0.0);//texture( iChannel1, ray ).xyz;
+
+	vec2 uv = UVMapping( pos.xy );
+	vec3 col = Pattern( uv );
+	vec4 weave = Weave(uv);
+	vec3 normal = Normal( pos );
+
+	float nl = dot(normal,normalize(vec3(-1,1,-2)));
+	float l = max( nl, .0 );
+    vec3 r = reflect(ray,normal);
+
+    col *= 0.6*vec3(l)+pow(max(dot(-ray,normal),0.0),5.0)*0.4*max(dot(r,normal),0.0);//sss
+
+	col = mix( col, colb, weave.a );
+	fragColor += vec4(pow(col,vec3(1.0)),1.0);
+
+}
+    fragColor /=float(SS);
+
+
+    //fragColor *= 3.0;
+}

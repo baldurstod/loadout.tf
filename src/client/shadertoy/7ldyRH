@@ -1,0 +1,34 @@
+
+#define rot(a)       mat2(cos(a+vec4(0,-1.57,1.57,0)))     // rotation
+#define C(q)         max( q.x, max(q.y,q.z) )
+#define B(d,y,k,p)   r = abs( q+ vec3(6, y, 2.+4.*min(d,T-k)).p ), t = min(t, C(r) -2. )
+void mainImage(out vec4 O, vec2 U)
+{
+    vec3  R = iResolution;
+    float t=9., d, T = mod(iTime,8.);
+    vec3  D = normalize(vec3(U+U, -4.*R.y) - R),           // ray direction
+          p = vec3(0,0,20.), q, a, r,                      // marching point along ray
+          M = iMouse.z > 0. ? .5*(iMouse.xyz/R -.5)
+              :  0.*vec3( 10,4,0)/1e2 * cos(iTime + vec3(0,11,0));
+    p.z *= exp2(-fract(T/8.));                             // zoom
+    for (O=vec4(1); O.x > 0. && t > .01; O-=.01)           // march scene
+        q = p,
+        q.xy *= rot(.5*iTime),
+        q.yz *= rot(.78-6.*M.y),                           // rotations
+        q.xz *= rot(.78-6.*M.x),
+        t = C(q),                                          // main cube
+        a = 8.-abs(q),
+        t = max(t, -C(-a) ),                               // hollow cube
+        B(1.,6.,2.,xyz),                                   // flying bricks
+        B(0.,6.,3.,yzx),
+        B(0.,6.,4.,zxy),
+        B(0.,6.,5.,xyz),
+        B(0.,2.,6.,yzx),
+        B(0.,2.,7.,zxy),
+        B(0.,2.,8.,xyz),
+        p += .5*t*D;                                       // step forward = dist to obj
+
+ // O = texture(iChannel0, .1*(t==q.x||t==a.x ? q.yz : t==q.y||t==a.y ? q.xz : q.xy) ).rrrr;
+ // O *= t==q.x||t==a.x ? .5 : t==q.y||t==a.y ? .7 : 1.;
+    O *= O * 1.5 *exp2(-fract(T/8.)/5.) ;
+}
