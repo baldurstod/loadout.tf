@@ -4,5 +4,37 @@
 	"type": "module",
 	"scripts": {
 		"build": "rollup -c"
+	},
+	"dependencies": {
+		"@nlpjs/lang-en-min": "^5.0.0-alpha.5",
+		"@nlpjs/nlp": "^5.0.0-alpha.5",
+		"@zip.js/zip.js": "^2.8.8",
+		"gl-matrix": "^3.4.4",
+		"harmony-3d": "github:baldurstod/harmony-3d",
+		"harmony-3d-utils": "github:baldurstod/harmony-3d-utils",
+		"harmony-browser-utils": "github:baldurstod/harmony-browser-utils",
+		"harmony-svg": "github:baldurstod/harmony-svg",
+		"harmony-tf2-utils": "github:baldurstod/harmony-tf2-utils",
+		"harmony-types": "github:baldurstod/harmony-types",
+		"harmony-ui": "github:baldurstod/harmony-ui",
+		"harmony-utils": "github:baldurstod/harmony-utils",
+		"harmony-vpk": "github:baldurstod/harmony-vpk"
+	},
+	"devDependencies": {
+		"@rollup/plugin-commonjs": "^28.0.8",
+		"@rollup/plugin-image": "^3.0.3",
+		"@rollup/plugin-json": "^6.1.0",
+		"@rollup/plugin-node-resolve": "^16.0.3",
+		"@rollup/plugin-replace": "^6.0.2",
+		"@rollup/plugin-terser": "^0.4.4",
+		"@rollup/plugin-typescript": "^12.1.4",
+		"@types/dom-speech-recognition": "^0.0.7",
+		"eslint": "^9.38.0",
+		"rollup": "^4.52.4",
+		"rollup-plugin-copy": "^3.5.0",
+		"rollup-plugin-import-css": "^4.0.2",
+		"tslib": "^2.8.1",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.46.1"
 	}
 }
