@@ -1,0 +1,24 @@
+{
+	"http": {
+		"port": 0,
+		"https_key_file": "./var/key.pem",
+		"https_cert_file": "./var/cert.pem"
+	},
+	"patreon": {
+		"client_id": "",
+		"client_secret": "",
+		"redirect_url": "",
+		"creator_id": "",
+		"creator_cents": 10000000
+	},
+	"sessions": {
+		"connect_uri": "mongodb://localhost:27017",
+		"db_name": "",
+		"collection": "",
+		"secret": "",
+		"session_name": "session"
+	},
+	"steam": {
+		"api_key": ""
+	}
+}
