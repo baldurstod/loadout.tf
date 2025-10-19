@@ -1,0 +1,56 @@
+:host {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	z-index: 5;
+	display: flex;
+	pointer-events: none;
+	/*filter: var(--background-invert-filter);*/
+	background-color: var(--main-bg-color-dark);
+}
+
+.button {
+	margin: 0.1rem;
+	cursor: pointer;
+	pointer-events: all;
+	height: 2.8rem;
+	width: 2.8rem;
+}
+
+@media screen and (max-width: 1500px) {
+	.button {
+		height: 2rem;
+		width: 2rem;
+	}
+}
+
+.button>svg {
+	height: 100%;
+	width: 100%;
+}
+
+.button.disabled {
+	opacity: 50%;
+}
+
+.button-extension {
+	height: 30px;
+	width: 30px;
+	background-size: 100%;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+@media screen and (max-width: 999px) {
+	.loadout-application-main {
+		flex-direction: column;
+	}
+
+	.button-sfm,
+	.button-3d,
+	.button-bug,
+	.button-extension,
+	.button-export-fbx {
+		display: none;
+	}
+}

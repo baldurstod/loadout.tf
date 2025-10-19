@@ -1,8 +1,8 @@
-import { createElement, createShadowRoot, I18n } from 'harmony-ui';
+import { createShadowRoot, I18n } from 'harmony-ui';
 import mainCSS from '../../css/main.css';
-import { LoadoutPanel } from './loadoutpanel';
-import { AdPanel } from './adpanel';
 import { ENABLE_PATREON_BASE } from '../bundleoptions';
+import { AdPanel } from './adpanel';
+import { LoadoutPanel } from './loadoutpanel';
 
 const AD_DELAY = 1000;
 

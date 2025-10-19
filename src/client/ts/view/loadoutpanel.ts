@@ -2,11 +2,13 @@ import { createShadowRoot } from 'harmony-ui';
 import { SidePanel } from './sidepanel';
 import { Viewer } from './viewer';
 import loadoutCSS from '../../css/loadout.css';
+import { Toolbar } from './toolbar';
 
 export class LoadoutPanel {
 	#shadowRoot?: ShadowRoot;
 	#sidePanel = new SidePanel();
 	#viewer = new Viewer();
+	#toolbar = new Toolbar();
 
 	#initHTML(): HTMLElement {
 		this.#shadowRoot = createShadowRoot('div', {
@@ -15,6 +17,7 @@ export class LoadoutPanel {
 			childs: [
 				this.#sidePanel.getHTMLElement(),
 				this.#viewer.getHTMLElement(),
+				this.#toolbar.getHTMLElement(),
 			],
 		});
 

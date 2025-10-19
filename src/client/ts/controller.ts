@@ -10,6 +10,20 @@ export enum ControllerEvent {
 	OverrideTextures = 'overridetextures',
 	ShowBadge = 'showbadge',
 	ImportFile = 'importfile',
+	//HideAllPanels = 'hideallpanels',
+	ShowPanel = 'showpanel',
+	TogglePanel = 'togglepanel',
+	ShareLoadout = 'shareloadout',
+	SavePicture = 'savepicture',
+	ExportSfm = 'exportsfm',
+	ExportFbx = 'exportfbx',
+	Export3d = 'export3d',
+	ToggleFacialPanel = 'togglefacialpanel',
+	ShowBugNotification = 'showbugnotification',
+	ShowAboutNotification = 'showaboutotification',
+	ShowOptionsManager = 'showoptionsmanager',
+	SetAnimSpeed = 'setanimspeed',
+	LoginPatreon = 'loginpatreon',
 }
 
 export type SetBackgroundType = {

@@ -60,3 +60,5 @@ export const SCOUT_BLUE_PANTS_DEST = '/img/misc/scout_blue.vtf';
 export const BROADCAST_CHANNEL_NAME = 'internal_notification';
 
 export const ACE_EDITOR_URI = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js';
+
+export const SHADERTOY_DIRECTORY = './shadertoy/';
