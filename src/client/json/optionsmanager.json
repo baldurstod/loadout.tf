@@ -1,0 +1,770 @@
+{
+	"categories": [
+		"app.lang",
+		"app",
+		"engine",
+		"app.css.variables"
+	],
+	"options": [
+		{
+			"name": "app.css.theme",
+			"type": "list",
+			"default": "",
+			"datalist": [
+				"",
+				"dark",
+				"light"
+			]
+		},
+		{
+			"name": "app.backgroundcolor",
+			"type": "color",
+			"default": "#13385DFF"
+		},
+		{
+			"name": "app.backgroundcolor.red",
+			"type": "color",
+			"default": ""
+		},
+		{
+			"name": "app.backgroundcolor.blu",
+			"type": "color",
+			"default": ""
+		},
+		{
+			"name": "app.lang",
+			"type": "list",
+			"default": "english",
+			"datalist": [
+				"english",
+				"german",
+				"french",
+				"italian",
+				"korean",
+				"spanish",
+				"schinese",
+				"tchinese",
+				"russian",
+				"thai",
+				"japanese",
+				"portuguese",
+				"polish",
+				"danish",
+				"dutch",
+				"finnish",
+				"norwegian",
+				"swedish",
+				"hungarian",
+				"czech",
+				"romanian",
+				"turkish",
+				"brazilian",
+				"bulgarian",
+				"greek",
+				"ukrainian"
+			]
+		},
+		{
+			"name": "app.audio.mute.master",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "warpaints.texture.size",
+			"type": "list",
+			"default": 1024,
+			"datalist": [
+				256,
+				512,
+				1024,
+				2048
+			]
+		},
+		{
+			"name": "app.characters.highlightselected",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.picture.size",
+			"type": "string",
+			"default": null
+		},
+		{
+			"name": "app.items.displayfilters",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.items.filter.filterallclass",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.items.filter.halloween",
+			"type": "ternary"
+		},
+		{
+			"name": "app.items.filter.paintable",
+			"type": "ternary"
+		},
+		{
+			"name": "app.items.filter.warpaintable",
+			"type": "ternary"
+		},
+		{
+			"name": "app.items.filter.displaymedals",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.items.filter.displayweapons",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.items.filter.displaycosmetics",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.items.filter.displaytaunts",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.loadout.team",
+			"type": "list",
+			"default": "RED",
+			"datalist": [
+				"RED",
+				"BLU"
+			]
+		},
+		{
+			"name": "app.map.rendermap",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.cameras.orbit.position",
+			"type": "string",
+			"default": "0 -500 40"
+		},
+		{
+			"name": "app.cameras.orbit.target",
+			"type": "string",
+			"default": "0 0 40"
+		},
+		{
+			"name": "app.cameras.orbit.verticalfov",
+			"type": "range",
+			"min": 1,
+			"max": 120,
+			"default": 10
+		},
+		{
+			"name": "app.cameras.orbit.zoom",
+			"type": "number",
+			"default": 10
+		},
+		{
+			"name": "app.cameras.orbit.nearplane",
+			"type": "number",
+			"default": 10
+		},
+		{
+			"name": "app.cameras.orbit.farplane",
+			"type": "number",
+			"default": 5000
+		},
+		{
+			"name": "app.cameras.orbit.quaternion",
+			"type": "string",
+			"default": "-1 0 0 1"
+		},
+		{
+			"name": "app.cameras.orbit.saveposition",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.cameras.orbit.polarrotation",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.cameras.orbit.orthographic",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "engine.shaders.customshaders",
+			"type": "map",
+			"default": {}
+		},
+		{
+			"name": "engine.shaders.customincludes",
+			"type": "map",
+			"default": {}
+		},
+		{
+			"name": "engine.debug.showfps",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "engine.render.silhouettemode",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "engine.render.silhouettecolor",
+			"type": "color",
+			"default": "#FFFFFFFF"
+		},
+		{
+			"name": "app.items.sort.ascending",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.items.sort.type",
+			"type": "list",
+			"default": "index",
+			"datalist": [
+				"index",
+				"name",
+				"slot"
+			]
+		},
+		{
+			"name": "app.items.filter.collection.sort.type",
+			"type": "list",
+			"default": "name",
+			"datalist": [
+				"index",
+				"name"
+			]
+		},
+		{
+			"name": "app.items.filter.collection",
+			"type": "string",
+			"default": ""
+		},
+		{
+			"name": "app.items.filter.text",
+			"type": "string",
+			"default": ""
+		},
+		{
+			"name": "app.items.filter.restoretext",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.items.warpaints.filter.text",
+			"type": "string",
+			"default": ""
+		},
+		{
+			"name": "app.items.warpaints.filter.restoretext",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.items.warpaints.sort.ascending",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.items.warpaints.sort.type",
+			"type": "list",
+			"default": "index",
+			"datalist": [
+				"index",
+				"name"
+			]
+		},
+		{
+			"name": "app.items.detail.display",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.items.filter.displayexcludedcount",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.items.pinned",
+			"type": "array",
+			"default": []
+		},
+		{
+			"name": "app.css.variables.mini-character-icon-width",
+			"type": "string",
+			"default": "60px"
+		},
+		{
+			"name": "app.css.variables.item-manager-item-size",
+			"type": "string",
+			"default": "150px"
+		},
+		{
+			"name": "app.css.variables.font-size",
+			"type": "string",
+			"default": "0.8em"
+		},
+		{
+			"name": "app.css.variables.harmony-2d-manipulator-corner-bg-color",
+			"type": "string",
+			"default": ""
+		},
+		{
+			"name": "app.css.variables.harmony-2d-manipulator-side-bg-color",
+			"type": "string",
+			"default": ""
+		},
+		{
+			"name": "app.css.variables.harmony-2d-manipulator-rotate-bg-color",
+			"type": "string",
+			"default": ""
+		},
+		{
+			"name": "app.css.variables.harmony-2d-manipulator-radius",
+			"type": "string",
+			"default": ""
+		},
+		{
+			"name": "app.shortcuts.video.togglerecording",
+			"type": "shortcut",
+			"default": "SHIFT+R"
+		},
+		{
+			"name": "app.shortcuts.currentcamera.reset",
+			"type": "shortcut",
+			"default": "SHIFT+C"
+		},
+		{
+			"name": "app.shortcuts.itemlist.open",
+			"type": "shortcut",
+			"default": "SHIFT+I"
+		},
+		{
+			"name": "app.shortcuts.picture",
+			"type": "shortcut",
+			"default": "SHIFT+P"
+		},
+		{
+			"name": "app.shortcuts.warpaints.openeditor",
+			"type": "shortcut",
+			"default": "SHIFT+W"
+		},
+		{
+			"name": "engine.shadereditor.recompiledelay",
+			"type": "integer",
+			"default": "1000",
+			"min": "1"
+		},
+		{
+			"name": "app.lights.renderlights",
+			"type": "boolean",
+			"default": "true"
+		},
+		{
+			"name": "app.lights.rotatewithcamera",
+			"type": "boolean",
+			"default": "true"
+		},
+		{
+			"name": "app.lights.ambient.color",
+			"type": "color",
+			"default": "#FFFFFFFF"
+		},
+		{
+			"name": "app.lights.ambient.intensity",
+			"type": "number",
+			"default": "1.0"
+		},
+		{
+			"name": "app.lights.pointlights.count",
+			"type": "integer",
+			"default": "1"
+		},
+		{
+			"name": "app.lights.pointlights.0.color",
+			"type": "color",
+			"default": "#FFFFFFFF"
+		},
+		{
+			"name": "app.lights.pointlights.0.intensity",
+			"type": "number",
+			"default": "1.0"
+		},
+		{
+			"name": "app.lights.pointlights.0.position",
+			"type": "vec3",
+			"default": "-150 -250 50"
+		},
+		{
+			"name": "app.lights.pointlights.0.visible",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.lights.pointlights.0.castshadows",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.lights.pointlights.1.color",
+			"type": "color",
+			"default": "#FFFFFFFF"
+		},
+		{
+			"name": "app.lights.pointlights.1.intensity",
+			"type": "number",
+			"default": "0.3"
+		},
+		{
+			"name": "app.lights.pointlights.1.position",
+			"type": "vec3",
+			"default": "0 250 0"
+		},
+		{
+			"name": "app.lights.pointlights.1.visible",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.lights.pointlights.1.castshadows",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.lights.pointlights.2.color",
+			"type": "color",
+			"default": "#FFFFFFFF"
+		},
+		{
+			"name": "app.lights.pointlights.2.intensity",
+			"type": "number",
+			"default": "0.3"
+		},
+		{
+			"name": "app.lights.pointlights.2.position",
+			"type": "vec3",
+			"default": "0 250 0"
+		},
+		{
+			"name": "app.lights.pointlights.2.visible",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.lights.pointlights.2.castshadows",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.lights.customlights",
+			"type": "string",
+			"default": "{\"constructor\":\"Group\",\"name\":\"Custom lights\",\"visible\":true,\"children\":[{\"constructor\":\"AmbientLight\",\"id\":\"23c6951e-47bf-4215-a633-cbd854235853\",\"castshadow\":false,\"color\":{\"0\":1,\"1\":1,\"2\":1},\"intensity\":1,\"shadowtexturesize\":1024},{\"constructor\":\"PointLight\",\"id\":\"362a3a44-4d3f-40cb-be93-6e62c524ef4b\",\"position\":{\"0\":0,\"1\":-500,\"2\":100},\"castshadow\":false,\"color\":{\"0\":2,\"1\":1,\"2\":1},\"intensity\":\"0.3\",\"shadowtexturesize\":1024,\"range\":\"1000\"},{\"constructor\":\"PointLight\",\"id\":\"7364a97c-d51d-4530-affe-6a15abcbf41b\",\"position\":{\"0\":250,\"1\":250,\"2\":250},\"castshadow\":false,\"color\":{\"0\":1,\"1\":1,\"2\":1},\"intensity\":\"1.5\",\"shadowtexturesize\":1024,\"range\":\"1000\"},{\"constructor\":\"PointLight\",\"id\":\"66c4f27a-a57f-41e5-90b9-19a1f5f84be4\",\"position\":{\"0\":-500,\"1\":100,\"2\":200},\"castshadow\":false,\"color\":{\"0\":1,\"1\":1,\"2\":1},\"intensity\":\"1.2\",\"shadowtexturesize\":1024,\"range\":\"1000\"}]}"
+		},
+		{
+			"name": "app.lights.usecustomlights",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.sceneexplorer.misc.serialized",
+			"type": "string",
+			"default": "{\"constructor\":\"Group\",\"name\":\"Serialized datas\",\"visible\":true}"
+		},
+		{
+			"name": "app.sceneexplorer.skeleton.jointradius",
+			"type": "number",
+			"default": 1
+		},
+		{
+			"name": "app.videorecording.bitrate",
+			"type": "integer",
+			"default": 2500000
+		},
+		{
+			"name": "engine.shaders.defines.source1_specular_strength",
+			"type": "number",
+			"default": "0.1"
+		},
+		{
+			"name": "engine.shaders.defines.skip_light_warp",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "engine.shaders.defines.skip_self_illum_fresnel",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "engine.shaders.defines.skip_gamma_to_linear",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "engine.shadows.quality",
+			"type": "list",
+			"default": 1024,
+			"datalist": [
+				256,
+				512,
+				1024,
+				2048,
+				4096,
+				8192
+			]
+		},
+		{
+			"name": "app.options.version",
+			"type": "integer",
+			"default": "0",
+			"editable": false
+		},
+		{
+			"name": "app.effects.renderparticles",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "engine.shortcuts.manipulator.size.increase",
+			"type": "shortcut",
+			"default": "PLUS"
+		},
+		{
+			"name": "engine.shortcuts.manipulator.size.decrease",
+			"type": "shortcut",
+			"default": "-"
+		},
+		{
+			"name": "engine.shortcuts.manipulator.mode.translation",
+			"type": "shortcut",
+			"default": "ALT+T"
+		},
+		{
+			"name": "engine.shortcuts.manipulator.mode.rotation",
+			"type": "shortcut",
+			"default": "ALT+R"
+		},
+		{
+			"name": "engine.shortcuts.manipulator.mode.scale",
+			"type": "shortcut",
+			"default": "ALT+S"
+		},
+		{
+			"name": "engine.shortcuts.manipulator.axis.orientation",
+			"type": "shortcut",
+			"default": "ALT+O"
+		},
+		{
+			"name": "engine.shortcuts.manipulator.toggle.x",
+			"type": "shortcut",
+			"default": "ALT+X"
+		},
+		{
+			"name": "engine.shortcuts.manipulator.toggle.y",
+			"type": "shortcut",
+			"default": "ALT+Y"
+		},
+		{
+			"name": "engine.shortcuts.manipulator.toggle.z",
+			"type": "shortcut",
+			"default": "ALT+Z"
+		},
+		{
+			"name": "app.postprocessing.enabled",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.postprocessing.pixelate.enabled",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.postprocessing.pixelate.horizontaltiles",
+			"type": "number",
+			"default": 50
+		},
+		{
+			"name": "app.postprocessing.pixelate.pixelstyle",
+			"type": "list",
+			"default": 0,
+			"datalist": [
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			]
+		},
+		{
+			"name": "app.postprocessing.saturate.enabled",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.postprocessing.saturate.saturation",
+			"type": "number",
+			"default": 0.0
+		},
+		{
+			"name": "app.postprocessing.crosshatch.enabled",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.postprocessing.palette.enabled",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.postprocessing.grain.enabled",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.postprocessing.grain.intensity",
+			"type": "number",
+			"default": 0.2
+		},
+		{
+			"name": "app.postprocessing.sketch.enabled",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.postprocessing.oldmovie.enabled",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.shortcuts.printful.refreshtemplate",
+			"type": "shortcut",
+			"default": "F8"
+		},
+		{
+			"name": "app.objexporter.exporttextures",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.objexporter.singlemesh",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.objexporter.askoptions",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "app.objexporter.subdivide",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.objexporter.subdivide.iterations",
+			"type": "integer",
+			"min": 1,
+			"max": 5,
+			"default": 1
+		},
+		{
+			"name": "app.character.autoselectanim",
+			"type": "boolean",
+			"default": true
+		},
+		{
+			"name": "engine.particles.speed",
+			"type": "range",
+			"min": 0,
+			"max": 2,
+			"default": 1
+		},
+		{
+			"name": "engine.particles.simulationsteps",
+			"type": "integer",
+			"min": 1,
+			"max": 10,
+			"default": 1
+		},
+		{
+			"name": "engine.particles.usefixedrate",
+			"type": "list",
+			"default": "yes",
+			"datalist": [
+				"no",
+				"yes"
+			]
+		},
+		{
+			"name": "engine.particles.simulationrate",
+			"type": "integer",
+			"default": 60
+		},
+		{
+			"name": "app.ui.class.menuorder",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.characters.scout.bluepants",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.cameras.orbit.replicate",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.repositories.import.overridemodels",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.warpainteditor.filter.node",
+			"type": "string",
+			"default": ""
+		},
+		{
+			"name": "app.loadout.presets",
+			"type": "string",
+			"protected": true,
+			"default": "{}"
+		},
+		{
+			"name": "app.usespeechrecognition",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.engine.source1.newanimationsystem",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.warpaints.texture.save.png",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.warpaints.texture.save.vtf",
+			"type": "boolean",
+			"default": false
+		}
+	]
+}

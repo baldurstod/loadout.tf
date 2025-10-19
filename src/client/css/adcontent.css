@@ -1,0 +1,10 @@
+:host{
+	width: 300px;
+}
+
+@media screen and (max-width: 999px) {
+	:host{
+		height: 150px;
+		width: unset;
+	}
+}

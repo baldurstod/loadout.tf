@@ -1,16 +1,17 @@
 import { vec3 } from 'gl-matrix';
 import { Composer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, HALF_PI, OrbitControl, WebGLStats } from 'harmony-3d';
-import { createElement } from 'harmony-ui';
+import { createElement, createShadowRoot } from 'harmony-ui';
 import { loadoutCamera, loadoutScene } from '../loadout/scene';
+import viewerCSS from '../../css/viewer.css';
 
 export class Viewer {
-	#htmlElement!: HTMLElement;
+	#shadowRoot?: ShadowRoot;
+	//#htmlElement!: HTMLElement;
 	#htmlCanvas!: HTMLCanvasElement;
 	#orbitControl;
 	#composer?: Composer;
 
 	constructor() {
-		this.#initHTML();
 		this.#orbitControl = new OrbitControl(loadoutCamera);
 		loadoutCamera.setPosition([100, 0, 40]);
 		this.#orbitControl.setTargetPosition([0, 0, 40]);
@@ -18,18 +19,28 @@ export class Viewer {
 	}
 
 	#initHTML(): HTMLElement {
-		this.#htmlElement = createElement('div', {
-			class: 'viewer',
+		this.#htmlCanvas = Graphics.addCanvas(undefined, {
+			name: 'main_canvas',
+			scene: {
+				scene: loadoutScene,
+				composer: this.#composer,
+			},
+			autoResize: true
+		});
+
+		this.#shadowRoot = createShadowRoot('div', {
+			class:'Viewer',
+			adoptStyle: viewerCSS,
 			childs: [
-				this.#htmlCanvas = createElement('canvas') as HTMLCanvasElement,
+				this.#htmlCanvas,
 			],
-		})
-		return this.#htmlElement;
+		});
+		return this.#shadowRoot?.host as HTMLElement;
 	}
 
 	#initRenderer(): void {
 		Graphics.initCanvas({
-			canvas: this.#htmlCanvas,
+			useOffscreenCanvas: true,
 			autoResize: true,
 			webGL: {
 				alpha: true,
@@ -37,8 +48,6 @@ export class Viewer {
 				premultipliedAlpha: false
 			}
 		});
-
-		Graphics.clearColor([0.5, 0.5, 0.5, 1]);
 
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, (event: Event) => {
 			WebGLStats.tick();
@@ -53,8 +62,8 @@ export class Viewer {
 		Graphics.play();
 	}
 
-	get htmlElement(): HTMLElement {
-		return this.#htmlElement;
+	getHTMLElement(): HTMLElement {
+		return this.#shadowRoot?.host as (HTMLElement | undefined) ?? this.#initHTML();
 	}
 
 	setCameraTarget(target: vec3): void {

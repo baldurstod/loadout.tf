@@ -1,0 +1,107 @@
+.misc {
+	display: flex;
+	flex-direction: column;
+	padding: 5px;
+	overflow: hidden;
+}
+
+.loadout-application-options-background .content>div {
+	/*display: table-row;*/
+	margin: 5px;
+}
+
+/*
+.loadout-application-options-background label{
+	padding-right: 5px;
+}*/
+
+.loadout-application-options-graphics {
+	display: flex;
+	flex-direction: column;
+}
+
+harmony-switch {
+	width: 25rem;
+}
+
+select {
+	height: 2em;
+	box-sizing: border-box;
+}
+
+.option-line {
+	display: block;
+	width: 100%;
+	padding: 5px;
+}
+
+input {
+	height: 2em;
+	box-sizing: border-box;
+	vertical-align: middle;
+}
+
+.option-button {
+	background-color: var(--main-bg-color-bright);
+	color: var(--main-text-color-dark2);
+	border-radius: 1px;
+	display: inline-block;
+	cursor: pointer;
+	padding: 4px;
+	color: white;
+	pointer-events: all;
+	margin: 4px;
+}
+
+.graphic-options {
+	display: flex;
+	flex-direction: column;
+}
+
+.graphic-options>* {
+	padding: 0.2rem;
+}
+
+.option-button {
+	background-color: var(--main-bg-color-bright);
+	color: var(--main-text-color-dark2);
+	border-radius: 1px;
+	display: inline-block;
+	cursor: pointer;
+	padding: 4px;
+	color: white;
+	pointer-events: all;
+	margin: 4px;
+}
+
+.option-input-mtt-url {
+	width: calc(100% - 10px);
+}
+
+.option-language-authors {
+	display: inline-block;
+}
+
+.option-steam-profile-button {
+	background-image: url('./css/img/steam.png');
+	height: 30px;
+	width: 30px;
+	background-size: 100%;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.loadout-application-mtt-error {
+	color: red;
+	font-size: 1.5em;
+}
+
+.pose-parameters {
+	display: flex;
+	flex-direction: column;
+}
+
+.command-list {
+	font-size: 2rem;
+	color: var(--theme-text-color);
+}

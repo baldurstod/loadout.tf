@@ -3,7 +3,8 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"build": "rollup -c"
+		"build": "rollup -c",
+		"lint": "clear && npx eslint ./src/"
 	},
 	"dependencies": {
 		"@nlpjs/lang-en-min": "^5.0.0-alpha.5",
