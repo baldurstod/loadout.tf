@@ -7,7 +7,7 @@ import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
-import { ENABLE_PATREON_BASE, PRODUCTION } from './bundleoptions';
+import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL } from './constants';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { loadoutCamera, loadoutOrbitControl, loadoutScene } from './loadout/scene';
@@ -34,6 +34,8 @@ class Application {
 	#lightsContainer = new Group({ name: 'Lights' });
 	#ambientLight = new AmbientLight();
 	#pointLights: PointLight[] = [];
+	#documentStyleSheet = new CSSStyleSheet();
+	#playing = true;
 
 	static {
 		defineHarmonySwitch();
@@ -44,6 +46,8 @@ class Application {
 	}
 
 	constructor() {
+		this.#updatedocumentStyleSheet();
+		document.adoptedStyleSheets.push(this.#documentStyleSheet);
 		this.#initGraphics();
 		this.#initListeners();
 		//this.#initHTML();
@@ -474,6 +478,7 @@ class Application {
 
 		//this.#htmlCSSTheme?.select(theme, true);
 	}
+
 	#startupRenderer(): void {
 		const animate = (event: Event): void => {
 			WebGLStats.tick();
@@ -512,5 +517,8 @@ class Application {
 		//ContextObserver.observe(GraphicsEvents, this.#firstPersonCamera);
 	}
 
+	#updatedocumentStyleSheet(): void {
+		this.#documentStyleSheet.replaceSync(`html{--playing: ${this.#playing ? 1 : 0};--poweruser: ${ENABLE_PATREON_POWERUSER ? 1 : 0}}`);
+	}
 }
 new Application();

@@ -41,6 +41,27 @@
 	background-position: center;
 }
 
+@container style(--playing: 1) {
+	.button-pause {
+		display: none;
+	}
+}
+
+@container style(--playing: 0) {
+	.button-play {
+		display: none;
+	}
+}
+
+@container style(--poweruser: 0) {
+
+	.button-sfm,
+	.button-3d,
+	.button-export-fbx {
+		opacity: 50%;
+	}
+}
+
 @media screen and (max-width: 999px) {
 	.loadout-application-main {
 		flex-direction: column;

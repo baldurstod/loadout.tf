@@ -9,11 +9,6 @@ import extensionIcon from '../../img/extension_icon.png';
 
 export class Toolbar {
 	#shadowRoot?: ShadowRoot;
-	#htmlPauseButton?: HTMLElement;
-	#htmlPlayButton?: HTMLElement;
-	#htmlExportFBXButton!: HTMLElement;
-	#htmlExport3DButton!: HTMLElement;
-	#htmlExportSfmButton!: HTMLElement;
 
 	#initHTML(): HTMLElement {
 		this.#shadowRoot = createShadowRoot('div', {
@@ -24,15 +19,15 @@ export class Toolbar {
 				createButton('canvas', '#hide_all_panels', overscanSVG, () => this.#showPanel(Panel.None)),
 				createButton('item-list', '#show_item_list', playlistAddSVG, () => this.#showPanel(Panel.Items)),
 				createButton('effects', '#show_unusual_effects', fireSVG, () => this.#togglePanel(Panel.Effects)),
-				this.#htmlPauseButton = createButton('pause', '#pause', pauseSVG, () => this.#setAnimSpeed(0)),
-				this.#htmlPlayButton = createButton('play', '#play', playSVG, () => this.#setAnimSpeed(1)),
+				createButton('pause', '#pause', pauseSVG, () => this.#setAnimSpeed(0)),
+				createButton('play', '#play', playSVG, () => this.#setAnimSpeed(1)),
 				createButton('facials', '#facial_animations', sentimentExcitedSVG, () => Controller.dispatchEvent(ControllerEvent.ToggleFacialPanel)),
 				createButton('share', '#share_current_loadout', shareSVG, () => Controller.dispatchEvent(ControllerEvent.ShareLoadout)),
 				createButton('picture', '#save_picture', photoCameraSVG, () => Controller.dispatchEvent(ControllerEvent.SavePicture)),
-				this.#htmlExportSfmButton = createButton('sfm', '#export_for_sfm', sfmLogoSVG, () => Controller.dispatchEvent(ControllerEvent.ExportSfm)),
+				createButton('sfm', '#export_for_sfm', sfmLogoSVG, () => Controller.dispatchEvent(ControllerEvent.ExportSfm)),
 
-				this.#htmlExportFBXButton = createButton('export-fbx', '#export_fbx', viewInArSVG, () => Controller.dispatchEvent(ControllerEvent.ExportFbx)),
-				this.#htmlExport3DButton = createButton('3d', '#export_for_3d_print', print3dSVG, () => Controller.dispatchEvent(ControllerEvent.Export3d)),
+				createButton('export-fbx', '#export_fbx', viewInArSVG, () => Controller.dispatchEvent(ControllerEvent.ExportFbx)),
+				createButton('3d', '#export_for_3d_print', print3dSVG, () => Controller.dispatchEvent(ControllerEvent.Export3d)),
 				createButton('bug', '#report_bug', bugReportSVG, () => Controller.dispatchEvent(ControllerEvent.ShowBugNotification)),
 				createButton('extension', '#accurate_skins_extension', undefined, () => window.open(ACCURATE_SKINS_EXTENSION_LINK, '_blank'), extensionIcon),
 				createButton('options', '#options', settingsSVG, () => this.#togglePanel(Panel.Options)),
@@ -42,7 +37,7 @@ export class Toolbar {
 			]
 		});
 
-		hide(this.#htmlPlayButton);
+		//hide(this.#htmlPlayButton);
 
 		return this.#shadowRoot.host as HTMLElement;
 	}
@@ -56,6 +51,7 @@ export class Toolbar {
 	}
 
 	#setAnimSpeed(speed: number): void {
+		/*
 		const play = this.#htmlPlayButton;
 		const pause = this.#htmlPauseButton;
 		if (play && pause) {
@@ -67,6 +63,7 @@ export class Toolbar {
 				hide(pause);
 			}
 		}
+		*/
 
 		Controller.dispatchEvent<number>(ControllerEvent.SetAnimSpeed, { detail: speed });
 	}
