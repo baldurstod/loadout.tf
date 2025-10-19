@@ -1,7 +1,7 @@
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from "harmony-browser-utils";
 import { createElement, createShadowRoot, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, HTMLHarmonyColorPickerElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabGroupElement } from "harmony-ui";
 import { TESTING } from "../bundleoptions";
-import { Controller, ControllerEvents, SetBackgroundType, ShowBadge } from "../controller";
+import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from "../controller";
 import optionsCSS from '../../css/options.css';
 import { BackgroundType } from "../enums";
 import { loadoutScene } from "../loadout/scene";
@@ -100,13 +100,13 @@ export class OptionsPanel {
 		createElement('harmony-switch', {
 			parent: htmlMiscOptions,
 			'data-i18n': '#use_bots',
-			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvents.UseBots, { detail: event.detail.state }),
+			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvent.UseBots, { detail: event.detail.state }),
 		});
 
 		createElement('harmony-switch', {
 			parent: htmlMiscOptions,
 			'data-i18n': '#show_competitive_stage',
-			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvents.ShowCompetitiveStage, { detail: event.detail.state }),
+			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvent.ShowCompetitiveStage, { detail: event.detail.state }),
 		});
 
 		this.#htmlMuteSounds = createElement('harmony-switch', {
@@ -161,9 +161,9 @@ export class OptionsPanel {
 				change: (event: InputEvent) => {
 					(event.target as HTMLInputElement).blur();
 					//this.#mapStartup((event.target as HTMLInputElement).value);
-					Controller.dispatchEvent<string>(ControllerEvents.ChangeMap, { detail: (event.target as HTMLInputElement).value });
+					Controller.dispatchEvent<string>(ControllerEvent.ChangeMap, { detail: (event.target as HTMLInputElement).value });
 				},
-				focus: () => Controller.dispatchEvent<void>(ControllerEvents.InitMapList),
+				focus: () => Controller.dispatchEvent<void>(ControllerEvent.InitMapList),
 				keydown: (event: MouseEvent) => event.stopPropagation(),
 			}
 		}) as HTMLInputElement;
@@ -180,7 +180,7 @@ export class OptionsPanel {
 		createElement('harmony-switch', {
 			parent: htmlVideoOptions,
 			'data-i18n': '#record_video',
-			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvents.ToggleVideo, { detail: event.detail.state }),
+			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvent.ToggleVideo, { detail: event.detail.state }),
 		}) as HTMLHarmonySwitchElement;
 
 		const htmlRecordVideoSize = createElement('div');
@@ -214,7 +214,7 @@ export class OptionsPanel {
 		const htmlBackgroundTypeLabel = createElement('label', { class: 'space-after', i18n: '#background_type' });
 
 		const htmlBackgroundSelect = createElement('select', {
-			$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvents.SetBackgroundType, { detail: { type: (event.target as HTMLSelectElement).value as BackgroundType } }),
+			$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvent.SetBackgroundType, { detail: { type: (event.target as HTMLSelectElement).value as BackgroundType } }),
 			/*
 			events: {
 				change: (event: Event) => this.#setBackgroundType(Number((event.target as HTMLSelectElement).value))
@@ -238,7 +238,7 @@ export class OptionsPanel {
 			childs: [
 				createElement('label', { class: 'space-after', i18n: '#shadertoy' }),
 				this.#htmlShaderToyList = createElement('select', {
-					$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvents.SetBackgroundType, { detail: { type: BackgroundType.ShaderToy, param: (event.target as HTMLSelectElement).value } }),
+					$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvent.SetBackgroundType, { detail: { type: BackgroundType.ShaderToy, param: (event.target as HTMLSelectElement).value } }),
 					/*
 					events: {
 						change: (event: Event) => { this.#setBackgroundType(BACKGROUND_TYPE_SHADERTOY, (event.target as HTMLSelectElement).value) }
@@ -257,7 +257,7 @@ export class OptionsPanel {
 				createElement('input', {
 					type: 'file',
 					accept: 'image/*',
-					$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvents.SetBackgroundType, { detail: { type: BackgroundType.Picture, param: (event.target as HTMLInputElement).files } }),
+					$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvent.SetBackgroundType, { detail: { type: BackgroundType.Picture, param: (event.target as HTMLInputElement).files } }),
 					/*
 					events: {
 						change: (event: InputEvent) => this.#setBackgroundType(BACKGROUND_TYPE_PICTURE, (event.target as HTMLInputElement).files)
@@ -296,7 +296,7 @@ export class OptionsPanel {
 								return;
 							}
 
-							Controller.dispatchEvent<File>(ControllerEvents.OverrideTextures, { detail: file });
+							Controller.dispatchEvent<File>(ControllerEvent.OverrideTextures, { detail: file });
 
 							/*
 							const reader = new ZipReader(new BlobReader(file));
@@ -352,7 +352,7 @@ export class OptionsPanel {
 							i18n: '#badge_level',
 						}),
 						this.#htmlBadgeLevel = createElement('select', {
-							$change: () => Controller.dispatchEvent<ShowBadge>(ControllerEvents.ShowBadge, { detail: { tier: Number(this.#htmlBadgeTier.value), level: Number(this.#htmlBadgeLevel.value) } }),
+							$change: () => Controller.dispatchEvent<ShowBadge>(ControllerEvent.ShowBadge, { detail: { tier: Number(this.#htmlBadgeTier.value), level: Number(this.#htmlBadgeLevel.value) } }),
 							/*
 							events: {
 								change: () => this.#showBadge(Number(this.#htmlBadgeLevel.value), Number(this.#htmlBadgeTier.value)),
@@ -367,7 +367,7 @@ export class OptionsPanel {
 							i18n: '#badge_tier',
 						}),
 						this.#htmlBadgeTier = createElement('select', {
-							$change: () => Controller.dispatchEvent<ShowBadge>(ControllerEvents.ShowBadge, { detail: { tier: Number(this.#htmlBadgeTier.value), level: Number(this.#htmlBadgeLevel.value) } }),
+							$change: () => Controller.dispatchEvent<ShowBadge>(ControllerEvent.ShowBadge, { detail: { tier: Number(this.#htmlBadgeTier.value), level: Number(this.#htmlBadgeLevel.value) } }),
 							/*
 							events: {
 								change: () => this.#showBadge(Number(this.#htmlBadgeLevel.value), Number(this.#htmlBadgeTier.value)),

@@ -5,7 +5,7 @@ import htmlCSS from '../../css/html.css';
 import varsCSS from '../../css/vars.css';
 import { ENABLE_PATREON_POWERUSER } from '../bundleoptions';
 import { TF2_WARPAINT_DEFINITIONS_URL } from '../constants';
-import { Controller, ControllerEvents } from '../controller';
+import { Controller, ControllerEvent } from '../controller';
 import { CharacterSelector } from './characterselector';
 import { MainPanel } from './mainpanel';
 import { OptionsPanel } from './optionspanel';
@@ -109,7 +109,7 @@ export class ApplicationPanel {
 			if (item.kind === "file") {
 				const file = item.getAsFile();
 				if (file) {
-					Controller.dispatchEvent<File>(ControllerEvents.ImportFile, { detail: file });
+					Controller.dispatchEvent<File>(ControllerEvent.ImportFile, { detail: file });
 					//this.#importModels2(file, this.#htmlOverrideGameModels.state as boolean);
 				}
 			}

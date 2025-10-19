@@ -1,6 +1,6 @@
 import { BackgroundType } from "./enums";
 
-export enum ControllerEvents {
+export enum ControllerEvent {
 	UseBots = 'usebots',
 	ShowCompetitiveStage = 'showcompetitivestage',
 	ChangeMap = 'changemap',
@@ -25,15 +25,15 @@ export type ShowBadge = {
 export class Controller {
 	static readonly eventTarget = new EventTarget();
 
-	static addEventListener(type: ControllerEvents, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean): void {
+	static addEventListener(type: ControllerEvent, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean): void {
 		this.eventTarget.addEventListener(type, callback, options);
 	}
 
-	static dispatchEvent<T>(type: ControllerEvents, options?: CustomEventInit<T>): boolean {
+	static dispatchEvent<T>(type: ControllerEvent, options?: CustomEventInit<T>): boolean {
 		return this.eventTarget.dispatchEvent(new CustomEvent<T>(type, options));
 	}
 
-	static removeEventListener(type: ControllerEvents, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean): void {
+	static removeEventListener(type: ControllerEvent, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean): void {
 		this.eventTarget.removeEventListener(type, callback, options);
 	}
 }
