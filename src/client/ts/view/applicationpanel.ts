@@ -9,7 +9,6 @@ import { Controller, ControllerEvent } from '../controller';
 import { CharacterSelector } from './characterselector';
 import { MainPanel } from './mainpanel';
 import { OptionsPanel } from './optionspanel';
-import { Viewer } from './viewer';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);

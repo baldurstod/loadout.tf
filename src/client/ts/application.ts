@@ -2,7 +2,7 @@ import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicT
 import { PaintDoneEvent, TextureCombinerEventTarget, WarpaintEditor } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
-import { I18n, I18nTranslation, createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle } from 'harmony-ui';
+import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
 import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
@@ -10,12 +10,11 @@ import optionsmanager from '../json/optionsmanager.json';
 import { ENABLE_PATREON_BASE, PRODUCTION } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL } from './constants';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
-import { loadoutCamera, loadoutScene } from './loadout/scene';
+import { loadoutCamera, loadoutOrbitControl, loadoutScene } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
 import { CharacterSelector } from './view/characterselector';
 import { OptionsPanel } from './view/optionspanel';
-import { Viewer } from './view/viewer';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -26,7 +25,6 @@ class Application {
 	#appAdPanel = new AdPanel();
 	#appCharacterSelector = new CharacterSelector();
 	#appOptions = new OptionsPanel();
-	#appViewer = new Viewer();
 
 	#translations = new Map<string, I18nTranslation>();
 	#broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
@@ -82,7 +80,7 @@ class Application {
 			if (OptionsManager.getItem('app.warpaints.texture.save.vtf')) {
 				paintDone.node.saveVTF(name + '.vtf');
 			}
-		})
+		});
 	}
 
 	/*
@@ -157,7 +155,8 @@ class Application {
 				loadoutCamera.setPosition(event.data.position);
 				break;
 			case 'target_position':
-				this.#appViewer.setCameraTarget(event.data.position);
+				//this.#appViewer.setCameraTarget(event.data.position);
+				loadoutOrbitControl.target.setPosition(event.data.position);
 				break;
 		}
 	}
@@ -195,7 +194,7 @@ class Application {
 	#beforeUnload(): void {
 		if (OptionsManager.getItem('app.cameras.orbit.saveposition')) {
 			OptionsManager.setItem('app.cameras.orbit.position', (loadoutCamera.getPosition() as number[]).join(' '));
-			OptionsManager.setItem('app.cameras.orbit.target', (this.#appViewer.getCameraTarget() as number[]).join(' '));
+			OptionsManager.setItem('app.cameras.orbit.target', (loadoutOrbitControl.target.getPosition() as number[]).join(' '));
 		}
 
 		/*
@@ -475,8 +474,8 @@ class Application {
 
 		//this.#htmlCSSTheme?.select(theme, true);
 	}
-	#startupRenderer() {
-		let animate = (event: Event) => {
+	#startupRenderer(): void {
+		const animate = (event: Event): void => {
 			WebGLStats.tick();
 			/*if (this.#composer?.enabled) {
 				this.#composer.render((event as CustomEvent).detail.delta, {});
