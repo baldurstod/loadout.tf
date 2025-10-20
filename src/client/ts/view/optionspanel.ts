@@ -1,13 +1,13 @@
-import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from "harmony-browser-utils";
-import { createElement, createShadowRoot, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, HTMLHarmonyColorPickerElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabGroupElement } from "harmony-ui";
-import { TESTING } from "../bundleoptions";
-import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from "../controller";
+import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
+import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabGroupElement } from 'harmony-ui';
 import optionsCSS from '../../css/options.css';
-import { BackgroundType } from "../enums";
-import { loadoutScene } from "../loadout/scene";
+import { TESTING } from '../bundleoptions';
+import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
+import { BackgroundType, Panel } from '../enums';
+import { loadoutScene } from '../loadout/scene';
+import { DynamicPanel } from './dynamicpanel';
 
-export class OptionsPanel {
-	#shadowRoot?: ShadowRoot;
+export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;
 	#htmlLanguageSelector?: HTMLSelectElement;
 	#htmlColorPicker?: HTMLHarmonyColorPickerElement;
@@ -20,27 +20,25 @@ export class OptionsPanel {
 	#htmlBadgeLevel!: HTMLSelectElement;
 	#htmlBadgeTier!: HTMLSelectElement;
 
-	#initHTML(): HTMLElement {
+	constructor() {
+		super(Panel.Options, []);
+		hide(this.getShadowRoot());
+	}
+
+	protected override initHTML(): void {
 		defineHarmonyTab();
 		defineHarmonyTabGroup();
 		defineHarmonyFileInput();
 		defineHarmonyColorPicker();
 
-		this.#shadowRoot = createShadowRoot('div', {
-			class: 'options',
-		});
-
-
 		this.#htmlTabGroup = createElement('harmony-tab-group', {
-			parent: this.#shadowRoot,
+			parent: this.getShadowRoot(),
 			class: 'loadout-application-options',
 			adoptStyles: [optionsCSS],
 		}) as HTMLHarmonyTabGroupElement;
 
 
 		this.#initHTMLGeneralOptions();
-
-		return this.#shadowRoot.host as HTMLElement;
 	}
 
 	#initHTMLGeneralOptions(): void {
@@ -491,8 +489,4 @@ export class OptionsPanel {
 		Controller.dispatchEvent(new CustomEvent(event));
 	}
 	*/
-
-	getHTMLElement(): HTMLElement {
-		return this.#shadowRoot?.host as (HTMLElement | undefined) ?? this.#initHTML();
-	}
 }

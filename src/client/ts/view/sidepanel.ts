@@ -1,19 +1,15 @@
-import { createShadowRoot } from 'harmony-ui';
+import { ItemsPanel } from './itemspanel';
+import { OptionsPanel } from './optionspanel';
+import { StaticPanel } from './staticpanel';
 
-export class SidePanel {
-	#shadowRoot?: ShadowRoot;
+export class SidePanel extends StaticPanel {
+	#optionsPanel = new OptionsPanel();
+	#itemsPanel = new ItemsPanel();
 
-	#initHTML(): HTMLElement {
-		this.#shadowRoot = createShadowRoot('div', {
-			class:'SidePanel',
-			hidden:true,
-		});
-
-		return this.#shadowRoot.host as HTMLElement;
-	}
-
-
-	getHTMLElement(): HTMLElement {
-		return this.#shadowRoot?.host as (HTMLElement | undefined) ?? this.#initHTML();
+	protected override initHTML(): void {
+		this.getShadowRoot().append(
+			this.#optionsPanel.getHTMLElement(),
+			this.#itemsPanel.getHTMLElement(),
+		);
 	}
 }

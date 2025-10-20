@@ -8,7 +8,6 @@ import { TF2_WARPAINT_DEFINITIONS_URL } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { CharacterSelector } from './characterselector';
 import { MainPanel } from './mainpanel';
-import { OptionsPanel } from './optionspanel';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -17,7 +16,6 @@ export class ApplicationPanel {
 	#shadowRoot!: ShadowRoot;
 	//#appAdPanel = new AdPanel();
 	#appCharacterSelector = new CharacterSelector();
-	#appOptions = new OptionsPanel();
 	#mainContent = new MainPanel();
 
 	static {
