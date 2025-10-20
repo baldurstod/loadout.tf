@@ -1,4 +1,4 @@
-import { ColorBackground, Composer, FullScreenQuad, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, WebGLStats } from 'harmony-3d';
+import { ColorBackground, Composer, FullScreenQuad, Graphics, setCustomIncludeSource, ShaderManager, ShaderToyMaterial } from 'harmony-3d';
 import { JSONObject } from 'harmony-types';
 import { createShadowRoot } from 'harmony-ui';
 import viewerCSS from '../../css/viewer.css';
@@ -128,6 +128,7 @@ export class Viewer {
 
 
 	#initRenderer(): void {
+		/*
 		Graphics.initCanvas({
 			useOffscreenCanvas: true,
 			autoResize: true,
@@ -137,18 +138,25 @@ export class Viewer {
 				premultipliedAlpha: false
 			}
 		});
-
-		GraphicsEvents.addEventListener(GraphicsEvent.Tick, (event: Event) => {
-			WebGLStats.tick();
-			if (this.#composer?.enabled) {
-				this.#composer.render((event as CustomEvent<GraphicTickEvent>).detail.delta, {});
-			} else {
-				Graphics.render(loadoutScene, loadoutScene.activeCamera!, (event as CustomEvent<GraphicTickEvent>).detail.delta, {});
-			}
-		});
+		*/
+		/*
+				GraphicsEvents.addEventListener(GraphicsEvent.Tick, (event: Event) => {
+					WebGLStats.tick();
+						Graphics.renderMultiCanvas((event as CustomEvent<GraphicTickEvent>).detail.delta);
+						/**
+					} else {
+						if (this.#composer?.enabled) {
+							this.#composer.render((event as CustomEvent<GraphicTickEvent>).detail.delta, {});
+						} else {
+							Graphics.render(loadoutScene, loadoutScene.activeCamera!, (event as CustomEvent<GraphicTickEvent>).detail.delta, {});
+						}
+					}
+					* /
+				});
+				*/
 
 		//ContextObserver.observe(GraphicsEvents, loadoutCamera);
-		Graphics.play();
+		//Graphics.play();
 	}
 
 	getHTMLElement(): HTMLElement {

@@ -11,6 +11,8 @@ import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bun
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL } from './constants';
 import { Controller, ControllerEvent } from './controller';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
+import { CharacterManager } from './loadout/characters/charactermanager';
+import { Tf2Class } from './loadout/characters/characters';
 import { loadoutCamera, loadoutOrbitControl, loadoutScene } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
@@ -102,6 +104,12 @@ class Application {
 		});
 
 		Controller.addEventListener(ControllerEvent.ToggleOptionsManager, () => OptionsManager.showOptionsManager());
+
+		Controller.addEventListener(ControllerEvent.SelectCharacter, (event: Event) => {
+			const tf2Class = (event as CustomEvent<Tf2Class>).detail;
+
+			CharacterManager.selectCharacter(tf2Class);
+		});
 	}
 
 	/*

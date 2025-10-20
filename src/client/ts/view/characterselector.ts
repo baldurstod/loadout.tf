@@ -1,6 +1,7 @@
 import { createElement } from 'harmony-ui';
 import characterSelectorCSS from '../../css/characterselector.css';
-import { CharactersList, CharactersType } from '../loadout/characters/characters';
+import { Controller, ControllerEvent } from '../controller';
+import { CharactersList, CharactersType, Tf2Class } from '../loadout/characters/characters';
 import { StaticPanel } from './staticpanel';
 
 export class CharacterSelector extends StaticPanel {
@@ -15,18 +16,18 @@ export class CharacterSelector extends StaticPanel {
 		this.#htmlCharacterSelectorPanel = createElement('div', { class: 'humans', });
 		this.#htmlBotsSelectorPanel = createElement('div', { class: 'bots', });
 
-		for (const [, character] of CharactersList) {
+		for (const [tf2Class, character] of CharactersList) {
 			if (character.bot) {
-				this.#htmlBotsSelectorPanel.append(this.#createMiniIcon(character));
+				this.#htmlBotsSelectorPanel.append(this.#createMiniIcon(tf2Class, character));
 			} else {
-				this.#htmlCharacterSelectorPanel.append(this.#createMiniIcon(character));
+				this.#htmlCharacterSelectorPanel.append(this.#createMiniIcon(tf2Class, character));
 			}
 		}
 
 		this.getShadowRoot().append(this.#htmlCharacterSelectorPanel, this.#htmlBotsSelectorPanel);
 	}
 
-	#createMiniIcon(character: CharactersType): HTMLElement {
+	#createMiniIcon(tf2Class: Tf2Class, character: CharactersType): HTMLElement {
 		//let htmlcharacterIconDiv = createElement('div', {class:'character-manager-character-icon'});
 		const iconName = character.name.toLowerCase();
 		return createElement('img', {
@@ -34,11 +35,11 @@ export class CharacterSelector extends StaticPanel {
 			style: `order: var(--tf2-class-order-${iconName}, unset)`,
 			class: 'character-manager-character-icon',
 			src: character.icon,
-			/*
-			events: {
-				click: () => this.selectCharacter(character),
-			},
-			*/
+			$click: () => this.#selectCharacter(tf2Class),
 		});
+	}
+
+	#selectCharacter(character: Tf2Class): void {
+		Controller.dispatchEvent<Tf2Class>(ControllerEvent.SelectCharacter, { detail: character });
 	}
 }

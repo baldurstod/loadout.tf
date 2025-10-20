@@ -8,7 +8,6 @@ export enum LoadoutEvents {
 	CharacterSelected = 'characterselected',
 }
 
-
 export type CharacterSelected = {
 	character: Tf2Class,
 };
