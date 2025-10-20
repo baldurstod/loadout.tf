@@ -18,7 +18,7 @@ export class Character {
 		this.#readyPromiseResolve = resolve;
 	});
 	#loaded = false;
-	#visible? = false;
+	#visible = true;
 
 	constructor(characterClass: Tf2Class) {
 		this.characterClass = characterClass;
@@ -47,8 +47,14 @@ export class Character {
 		//modelLayer.addEntity(this.characterModel);
 	}
 
-	async getModel() {
+	async getModel(): Promise<Source1ModelInstance | null> {
 		await this.#ready;
 		return this.#model;
+	}
+
+	setVisible(visble: boolean): void {
+		this.#visible = visble;
+		this.#model?.setVisible(visble);
+
 	}
 }

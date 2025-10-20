@@ -16,7 +16,6 @@ import { Tf2Class } from './loadout/characters/characters';
 import { loadoutCamera, loadoutOrbitControl, loadoutScene } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
-import { OptionsPanel } from './view/optionspanel';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -25,7 +24,6 @@ class Application {
 	#appView = new ApplicationPanel();
 	#shadowRoot?: ShadowRoot;
 	#appAdPanel = new AdPanel();
-	#appOptions = new OptionsPanel();
 
 	#translations = new Map<string, I18nTranslation>();
 	#broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);

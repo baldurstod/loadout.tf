@@ -1,11 +1,12 @@
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
-import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabGroupElement } from 'harmony-ui';
+import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement } from 'harmony-ui';
 import optionsCSS from '../../css/options.css';
 import { TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, Panel } from '../enums';
 import { loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
+import { SceneExplorer, ShaderEditor } from 'harmony-3d';
 
 export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;
@@ -19,6 +20,8 @@ export class OptionsPanel extends DynamicPanel {
 	#htmlPictureBackground?: HTMLElement;
 	#htmlBadgeLevel!: HTMLSelectElement;
 	#htmlBadgeTier!: HTMLSelectElement;
+	#htmlSceneExplorerTab?: HTMLHarmonyTabElement;
+	#shaderEditor = new ShaderEditor();
 
 	constructor() {
 		super(Panel.Options, []);
@@ -39,6 +42,8 @@ export class OptionsPanel extends DynamicPanel {
 
 
 		this.#initHTMLGeneralOptions();
+		this.#initHtmlSceneExplorer();
+		this.#initHtmlShaderEditor();
 	}
 
 	#initHTMLGeneralOptions(): void {
@@ -385,6 +390,24 @@ export class OptionsPanel extends DynamicPanel {
 			createElement('option', { innerHTML: String(i), value: i, parent: this.#htmlBadgeTier })
 		}
 		/**************** Casual badge ****************/
+	}
+
+	#initHtmlSceneExplorer(): void {
+		this.#htmlSceneExplorerTab = createElement('harmony-tab', {
+			'data-i18n': '#scene_explorer',
+			parent: this.#htmlTabGroup,
+			child: new SceneExplorer().htmlElement,
+		}) as HTMLHarmonyTabElement;
+	}
+
+	#initHtmlShaderEditor(): void {
+		const htmlShaderEditorTab = createElement('harmony-tab', { 'data-i18n': '#shader_editor' });
+		this.#htmlTabGroup?.append(htmlShaderEditorTab);
+
+		htmlShaderEditorTab.addEventListener('activated', () => {
+			this.#shaderEditor.initEditor({ aceUrl: './assets/js/ace-builds/src-min/ace.js', displayCustomShaderButtons: true });
+			htmlShaderEditorTab.append(this.#shaderEditor);
+		});
 	}
 
 	/*
