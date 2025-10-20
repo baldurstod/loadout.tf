@@ -1,11 +1,11 @@
 import { bugReportSVG, fireSVG, manufacturingSVG, moreHorizSVG, overscanSVG, patreonLogoSVG, pauseSVG, photoCameraSVG, playlistAddSVG, playSVG, print3dSVG, sentimentExcitedSVG, settingsSVG, sfmLogoSVG, shareSVG, viewInArSVG } from 'harmony-svg';
-import { createElement, createShadowRoot, hide, show } from 'harmony-ui';
+import { createElement, createShadowRoot } from 'harmony-ui';
 import toolbarCSS from '../../css/toolbar.css';
+import extensionIcon from '../../img/extension_icon.png';
 import { TESTING } from '../bundleoptions';
 import { ACCURATE_SKINS_EXTENSION_LINK } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
-import extensionIcon from '../../img/extension_icon.png';
 
 export class Toolbar {
 	#shadowRoot?: ShadowRoot;
@@ -42,11 +42,11 @@ export class Toolbar {
 		return this.#shadowRoot.host as HTMLElement;
 	}
 
-	#showPanel(panel: Panel) :void{
+	#showPanel(panel: Panel): void {
 		Controller.dispatchEvent<Panel>(ControllerEvent.ShowPanel, { detail: panel });
 	}
 
-	#togglePanel(panel: Panel):void {
+	#togglePanel(panel: Panel): void {
 		Controller.dispatchEvent<Panel>(ControllerEvent.TogglePanel, { detail: panel });
 	}
 

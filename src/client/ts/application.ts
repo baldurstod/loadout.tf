@@ -9,6 +9,7 @@ import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
 import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL } from './constants';
+import { Controller, ControllerEvent } from './controller';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { loadoutCamera, loadoutOrbitControl, loadoutScene } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
@@ -84,6 +85,15 @@ class Application {
 			if (OptionsManager.getItem('app.warpaints.texture.save.vtf')) {
 				paintDone.node.saveVTF(name + '.vtf');
 			}
+		});
+
+		Controller.addEventListener(ControllerEvent.SetAnimSpeed, (event: Event) => {
+			const speed = (event as CustomEvent<number>).detail;
+
+			Graphics.speed = speed;
+			this.#playing = speed != 0;
+
+			this.#updatedocumentStyleSheet();
 		});
 	}
 

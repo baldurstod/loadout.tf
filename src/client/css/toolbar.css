@@ -42,13 +42,13 @@
 }
 
 @container style(--playing: 1) {
-	.button-pause {
+	.button-play {
 		display: none;
 	}
 }
 
 @container style(--playing: 0) {
-	.button-play {
+	.button-pause {
 		display: none;
 	}
 }
