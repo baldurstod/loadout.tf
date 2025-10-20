@@ -1,0 +1,31 @@
+:host {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	z-index: 10;
+	overflow: hidden;
+}
+
+.character-icon {
+	height: 100%;
+	width: var(--mini-character-icon-width);
+	display: inline-block;
+	cursor: pointer;
+}
+
+.humans,
+.bots {
+	display: flex;
+}
+
+@container style(--use-bots: 1) {
+	.humans {
+		display: none;
+	}
+}
+
+@container style(--use-bots: 0) {
+	.bots {
+		display: none;
+	}
+}

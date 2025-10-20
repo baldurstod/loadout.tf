@@ -14,7 +14,6 @@ import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { loadoutCamera, loadoutOrbitControl, loadoutScene } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
-import { CharacterSelector } from './view/characterselector';
 import { OptionsPanel } from './view/optionspanel';
 
 documentStyle(htmlCSS);
@@ -24,7 +23,6 @@ class Application {
 	#appView = new ApplicationPanel();
 	#shadowRoot?: ShadowRoot;
 	#appAdPanel = new AdPanel();
-	#appCharacterSelector = new CharacterSelector();
 	#appOptions = new OptionsPanel();
 
 	#translations = new Map<string, I18nTranslation>();
@@ -36,7 +34,9 @@ class Application {
 	#ambientLight = new AmbientLight();
 	#pointLights: PointLight[] = [];
 	#documentStyleSheet = new CSSStyleSheet();
+	#menuOrderStyleSheet = new CSSStyleSheet();
 	#playing = true;
+	#useBots = false;
 
 	static {
 		defineHarmonySwitch();
@@ -48,7 +48,7 @@ class Application {
 
 	constructor() {
 		this.#updatedocumentStyleSheet();
-		document.adoptedStyleSheets.push(this.#documentStyleSheet);
+		document.adoptedStyleSheets.push(this.#documentStyleSheet, this.#menuOrderStyleSheet);
 		this.#initGraphics();
 		this.#initListeners();
 		//this.#initHTML();
@@ -95,6 +95,13 @@ class Application {
 
 			this.#updatedocumentStyleSheet();
 		});
+
+		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => {
+			this.#useBots = (event as CustomEvent<boolean>).detail;
+			this.#updatedocumentStyleSheet();
+		});
+
+		Controller.addEventListener(ControllerEvent.ToggleOptionsManager, () => OptionsManager.showOptionsManager());
 	}
 
 	/*
@@ -407,9 +414,11 @@ class Application {
 		OptionsManagerEvents.addEventListener('engine.particles.simulationsteps', (event: Event) => Source1ParticleSystem.setSimulationSteps((event as CustomEvent).detail.value));
 		OptionsManagerEvents.addEventListener('engine.particles.simulationrate', (event: Event) => this.#setParticlesRate());
 		OptionsManagerEvents.addEventListener('engine.particles.usefixedrate', (event: Event) => this.#setParticlesRate());
+		*/
 
 		OptionsManagerEvents.addEventListener('app.ui.class.menuorder', (event: Event) => this.#setClassOrder((event as CustomEvent).detail.value));
 
+		/*
 		OptionsManagerEvents.addEventListener('app.characters.scout.bluepants', (event: Event) => this.#setScoutBluePants((event as CustomEvent).detail.value));
 
 		OptionsManagerEvents.addEventListener('app.warpainteditor.filter.node', (event: Event) => new WarpaintEditor().getGui().setNodeFilter((event as CustomEvent).detail.value));
@@ -528,7 +537,22 @@ class Application {
 	}
 
 	#updatedocumentStyleSheet(): void {
-		this.#documentStyleSheet.replaceSync(`html{--playing: ${this.#playing ? 1 : 0};--poweruser: ${ENABLE_PATREON_POWERUSER ? 1 : 0}}`);
+		this.#documentStyleSheet.replaceSync(`html{
+--playing: ${this.#playing ? 1 : 0};
+--use-bots: ${this.#useBots ? 1 : 0};
+--poweruser: ${ENABLE_PATREON_POWERUSER ? 1 : 0}
+}`);
+	}
+
+	#setClassOrder(menuOrder: boolean): void {
+		const order: Record<string, number> = { scout: 0, sniper: 7, soldier: 1, demoman: 3, medic: 6, heavy: 4, pyro: 2, spy: 8, engineer: 5 };
+		let variables = '';
+		if (menuOrder) {
+			for (const npc in order) {
+				variables += `--tf2-class-order-${npc}: ${String(order[npc])};`;
+			}
+		}
+		this.#menuOrderStyleSheet.replaceSync(`html{${variables}}`);
 	}
 }
 new Application();

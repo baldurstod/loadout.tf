@@ -21,7 +21,7 @@ export enum ControllerEvent {
 	ToggleFacialPanel = 'togglefacialpanel',
 	ShowBugNotification = 'showbugnotification',
 	ShowAboutNotification = 'showaboutotification',
-	ShowOptionsManager = 'showoptionsmanager',
+	ToggleOptionsManager = 'toggleoptionsmanager',
 	SetAnimSpeed = 'setanimspeed',
 	LoginPatreon = 'loginpatreon',
 }

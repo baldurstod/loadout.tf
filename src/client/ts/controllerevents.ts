@@ -1,4 +1,4 @@
-import { Characters } from './loadout/characters/characters';
+import { Tf2Class } from './loadout/characters/characters';
 
 export const EVENT_ADD_ITEM = 'add-item';
 export const EVENT_REFRESH_WEAPON_UNUSUAL = 'refresh-weapon-unusual';
@@ -10,5 +10,5 @@ export enum LoadoutEvents {
 
 
 export type CharacterSelected = {
-	character: Characters,
+	character: Tf2Class,
 };

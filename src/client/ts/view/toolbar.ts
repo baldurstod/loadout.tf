@@ -32,7 +32,7 @@ export class Toolbar extends StaticPanel {
 			createButton('bug', '#report_bug', bugReportSVG, () => Controller.dispatchEvent(ControllerEvent.ShowBugNotification)),
 			createButton('extension', '#accurate_skins_extension', undefined, () => window.open(ACCURATE_SKINS_EXTENSION_LINK, '_blank'), extensionIcon),
 			createButton('options', '#options', settingsSVG, () => this.#togglePanel(Panel.Options)),
-			createButton('advanced', '#advanced_options', manufacturingSVG, () => Controller.dispatchEvent(ControllerEvent.ShowOptionsManager)),
+			createButton('advanced', '#advanced_options', manufacturingSVG, () => Controller.dispatchEvent(ControllerEvent.ToggleOptionsManager)),
 			createButton('about', '#about', moreHorizSVG, () => Controller.dispatchEvent(ControllerEvent.ShowAboutNotification)),
 			createButton('patreon', '#patreon', patreonLogoSVG, () => Controller.dispatchEvent(ControllerEvent.LoginPatreon)),
 		);
