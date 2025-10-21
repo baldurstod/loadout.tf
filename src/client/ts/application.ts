@@ -1,5 +1,5 @@
 import { vec4 } from 'gl-matrix';
-import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, MergeRepository, PointLight, Repositories, Source1MaterialManager, Source1ModelManager, Source1ParticleControler, Source2ModelManager, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, MergeRepository, PointLight, Repositories, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source2ModelManager, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombinerEventTarget, WarpaintEditor } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
@@ -10,14 +10,14 @@ import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
 import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bundleoptions';
-import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL } from './constants';
+import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_COMPETITIVE_STAGE, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL } from './constants';
 import { Controller, ControllerEvent } from './controller';
 import { CameraType } from './enums';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
 import { Team } from './loadout/enums';
-import { loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera } from './loadout/scene';
+import { addTF2Model, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
 
@@ -37,6 +37,7 @@ class Application {
 	#lightsContainer = new Group({ name: 'Lights' });
 	#ambientLight = new AmbientLight();
 	#pointLights: PointLight[] = [];
+	#competitiveStage?: Source1ModelInstance;
 	#documentStyleSheet = new CSSStyleSheet();
 	#menuOrderStyleSheet = new CSSStyleSheet();
 	#playing = true;
@@ -117,8 +118,9 @@ class Application {
 		});
 
 		Controller.addEventListener(ControllerEvent.SelectCamera, (event: Event) => setActiveCamera((event as CustomEvent<CameraType>).detail));
-
 		Controller.addEventListener(ControllerEvent.ResetCamera, () => this.#resetCamera());
+
+		Controller.addEventListener(ControllerEvent.ShowCompetitiveStage, (event: Event) => this.#showCompetitiveStage((event as CustomEvent<boolean>).detail));
 	}
 
 	/*
@@ -660,6 +662,25 @@ class Application {
 
 	setPerspectiveCameraTarget(target: string): void {
 		orbitCameraControl.target.setPosition(stringToVec3(target));
+	}
+
+	async #showCompetitiveStage(show: boolean): Promise<void> {
+		if (show) {
+			const prop = this.#competitiveStage || await addTF2Model(TF2_COMPETITIVE_STAGE);
+			if (!prop) {
+				return;
+			}
+			prop.name = 'Competitive stage';
+			prop.setPosition([0, -20, -36]);
+			prop.quaternion = [0, 0, -1, 1];
+			this.#competitiveStage = prop;
+			prop.setVisible(true);
+		} else {
+			const prop = this.#competitiveStage;
+			if (prop) {
+				prop.setVisible(false);
+			}
+		}
 	}
 }
 new Application();
