@@ -45,6 +45,7 @@ export class OptionsPanel extends DynamicPanel {
 
 		this.#initHTMLGeneralOptions();
 		this.#initHtmlCameraOptions();
+		this.#initHtmlGraphicOptions();
 		this.#initHtmlSceneExplorer();
 		this.#initHtmlShaderEditor();
 		this.#initLanguages();
@@ -449,7 +450,71 @@ export class OptionsPanel extends DynamicPanel {
 				}),
 			],
 		});
+	}
 
+	#initHtmlGraphicOptions(): void {
+		const htmlGraphicOptionsTab = createElement('harmony-tab', {
+			class: 'loadout-application-options-graphics',
+			parent: this.#htmlTabGroup,
+			'data-i18n': '#graphic_options',
+		});
+
+
+		const htmlGraphicOptions = createElement('group', { i18n: { title: '#general', }, class: 'graphic-options' });
+		const htmlPostProcessingOptions = createElement('group', { i18n: { title: '#post_processing', }, class: 'graphic-options' });
+		htmlGraphicOptionsTab.append(htmlGraphicOptions, htmlPostProcessingOptions);
+
+		const addToggleSwitch = (label: string, optionName: string, parent: HTMLElement) => {
+			const sw = createElement('harmony-switch', {
+				'data-i18n': label,
+				parent: parent,
+				$change: () => OptionsManager.setItem(optionName, sw.state),
+			}) as HTMLHarmonySwitchElement;
+			OptionsManagerEvents.addEventListener(optionName, (event: Event) => { sw.state = (event as CustomEvent).detail.value });
+		}
+
+		addToggleSwitch('#highlight_selected_character', 'app.characters.highlightselected', htmlGraphicOptions);
+		addToggleSwitch('#silhouette', 'engine.render.silhouettemode', htmlGraphicOptions);
+		addToggleSwitch('#use_lighting', 'app.lights.renderlights', htmlGraphicOptions);
+		addToggleSwitch('#render_map', 'app.map.rendermap', htmlGraphicOptions);
+		addToggleSwitch('#render_particle_effects', 'app.effects.renderparticles', htmlGraphicOptions);
+		addToggleSwitch('#scout_blue_pants', 'app.characters.scout.bluepants', htmlGraphicOptions);
+
+		const htmlShadowQuality = createElement('select', {
+			$input: () => OptionsManager.setItem('engine.shadows.quality', htmlShadowQuality.value)
+		}) as HTMLSelectElement;
+		const qualities: { [key: string]: string } = {
+			'256': '#very_low',
+			'512': '#low',
+			'1024': '#normal',
+			'2048': '#high',
+			'4096': '#very_high',
+			'8192': '#ultra',
+		};
+
+		let arr = Object.keys(qualities);
+		let qualityName;
+		while (qualityName = arr.shift()) {
+			let qualityCaption = qualities[qualityName];
+
+			let option = createElement('option', { i18n: qualityCaption, value: qualityName });
+			//option.innerHTML = langCaption;
+			htmlShadowQuality.appendChild(option);
+			/*if (currentlang == qualityName) {
+				option.selected = 'selected';
+			}*/
+		}
+		OptionsManagerEvents.addEventListener('engine.shadows.quality', (event: Event) => htmlShadowQuality.value = (event as CustomEvent).detail.value);
+		htmlGraphicOptions.append(htmlShadowQuality);
+
+		addToggleSwitch('#enable_post_processing', 'app.postprocessing.enabled', htmlPostProcessingOptions);
+		addToggleSwitch('#post_processing_grain', 'app.postprocessing.grain.enabled', htmlPostProcessingOptions);
+		addToggleSwitch('#post_processing_saturation', 'app.postprocessing.saturate.enabled', htmlPostProcessingOptions);
+		addToggleSwitch('#post_processing_crosshatch', 'app.postprocessing.crosshatch.enabled', htmlPostProcessingOptions);
+		addToggleSwitch('#post_processing_palette', 'app.postprocessing.palette.enabled', htmlPostProcessingOptions);
+		addToggleSwitch('#post_processing_pixelate', 'app.postprocessing.pixelate.enabled', htmlPostProcessingOptions);
+		addToggleSwitch('#post_processing_sketch', 'app.postprocessing.sketch.enabled', htmlPostProcessingOptions);
+		addToggleSwitch('#post_processing_old_movie', 'app.postprocessing.oldmovie.enabled', htmlPostProcessingOptions);
 	}
 
 	#initHtmlSceneExplorer(): void {

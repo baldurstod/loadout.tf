@@ -289,9 +289,10 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.polarrotation', (event: Event) => this.polarRotation = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.orthographic', (event: Event) => this.cameraProjection = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.replicate', (event: Event) => this.#replicateCamera = (event as CustomEvent).detail.value);
-
-		OptionsManagerEvents.addEventListener('engine.render.silhouettemode', (event: Event) => this.silhouetteMode = (event as CustomEvent).detail.value);
-		OptionsManagerEvents.addEventListener('engine.render.silhouettecolor', (event: Event) => this.silhouetteColor = (event as CustomEvent).detail.value);
+		*/
+		OptionsManagerEvents.addEventListener('engine.render.silhouettemode', (event: Event) => this.setSilhouetteMode((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('engine.render.silhouettecolor', (event: Event) => this.setSilhouetteColor((event as CustomEvent).detail.value));
+		/*
 
 
 		let func = (event: Event) => ShortcutHandler.setShortcut((event as CustomEvent).detail.context ?? 'loadout,3dview,scene-explorer', (event as CustomEvent).detail.name, (event as CustomEvent).detail.value);
@@ -672,7 +673,7 @@ class Application {
 			}
 			prop.name = 'Competitive stage';
 			prop.setPosition([0, -20, -36]);
-			prop.quaternion = [0, 0, -1, 1];
+			prop.setQuaternion([0, 0, -1, 1]);
 			this.#competitiveStage = prop;
 			prop.setVisible(true);
 		} else {
@@ -681,6 +682,19 @@ class Application {
 				prop.setVisible(false);
 			}
 		}
+	}
+
+	setSilhouetteMode(silhouetteMode: boolean): void {
+		if (silhouetteMode) {
+			Graphics.setIncludeCode('silhouetteMode', '#define SILHOUETTE_MODE');
+		} else {
+			Graphics.setIncludeCode('silhouetteMode', '#undef SILHOUETTE_MODE');
+		}
+	}
+
+	setSilhouetteColor(silhouetteColor: string): void {
+		const rgb = hexToRgba(vec4.create(), silhouetteColor);
+		Graphics.setIncludeCode('silhouetteColor', `#define SILHOUETTE_COLOR vec4(${rgb[0]},${rgb[1]},${rgb[2]},${rgb[3]})`);
 	}
 }
 new Application();
