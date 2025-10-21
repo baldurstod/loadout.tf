@@ -55,6 +55,14 @@ export class Character {
 	setVisible(visble: boolean): void {
 		this.#visible = visble;
 		this.#model?.setVisible(visble);
-
 	}
+
+	setTeam(team: Team): void {
+		this.#team = team;
+	}
+
+	getTeam(): Team {
+		return this.#team;
+	}
+
 }

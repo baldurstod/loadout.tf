@@ -1,3 +1,4 @@
+import { vec4 } from 'gl-matrix';
 import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, MergeRepository, PointLight, Repositories, Source1MaterialManager, Source1ModelManager, Source1ParticleControler, Source2ModelManager, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombinerEventTarget, WarpaintEditor } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
@@ -13,7 +14,8 @@ import { Controller, ControllerEvent } from './controller';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
-import { loadoutCamera, loadoutOrbitControl, loadoutScene } from './loadout/scene';
+import { Team } from './loadout/enums';
+import { loadoutCamera, loadoutColorBackground, loadoutOrbitControl, loadoutScene } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
 
@@ -37,6 +39,9 @@ class Application {
 	#menuOrderStyleSheet = new CSSStyleSheet();
 	#playing = true;
 	#useBots = false;
+	#backgroundColor = vec4.create();
+	#backgroundColorRed?: vec4;
+	#backgroundColorBlu?: vec4;
 
 	static {
 		defineHarmonySwitch();
@@ -255,10 +260,10 @@ class Application {
 
 	#initOptions(): void {
 		OptionsManagerEvents.addEventListener('app.css.theme', (event: Event) => this.setCssTheme((event as CustomEvent<OptionsManagerEvent>).detail.value as string));
-		/*
-		OptionsManagerEvents.addEventListener('app.backgroundcolor', (event: Event) => this.setBackgroundColor((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('app.backgroundcolor', (event: Event) => this.#setBackgroundColor((event as CustomEvent).detail.value));
 		OptionsManagerEvents.addEventListener('app.backgroundcolor.red', (event: Event) => this.#setBackGroundColorRed((event as CustomEvent).detail.value));
 		OptionsManagerEvents.addEventListener('app.backgroundcolor.blu', (event: Event) => this.#setBackGroundColorBlu((event as CustomEvent).detail.value));
+		/*
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.verticalFov = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.language = (event as CustomEvent).detail.value);
 
@@ -560,5 +565,66 @@ class Application {
 		}
 		this.#menuOrderStyleSheet.replaceSync(`html{${variables}}`);
 	}
+
+	#setBackgroundColor(hex: string): void {
+		if (hex) {
+			const rgba = hexToRgba(this.#backgroundColor, hex);
+			loadoutColorBackground.setColor(rgba);
+			/*
+			if (hex.toLowerCase() != this.#htmlColorPicker?.getColor().getHex()/*.substring(0, 7)* /) {
+				this.#htmlColorPicker?.setHex(hex.toLowerCase());
+			}
+			*/
+		}
+	}
+
+	#setBackGroundColorRed(hex: string): void {
+		if (hex) {
+			this.#backgroundColorRed = hexToRgba(vec4.create(), hex);
+		} else {
+			this.#backgroundColorRed = undefined;
+		}
+		this.#setTeamBackground();
+	}
+
+	#setBackGroundColorBlu(hex: string): void {
+		if (hex) {
+			this.#backgroundColorBlu = hexToRgba(vec4.create(), hex);
+		} else {
+			this.#backgroundColorBlu = undefined;
+		}
+		this.#setTeamBackground();
+	}
+
+	changeTeam(team: Team): void {
+		//const team: Teams = skin == 'RED' ? 0 : 1;
+		// TODO
+		//TextureCombiner.setTeam(team);
+		//CharacterManager.setSkin(team);
+		//CharacterManager.setTeam(team);
+		this.#setTeamBackground();
+	}
+
+	#setTeamBackground(): void {
+		if (CharacterManager.getTeam() == Team.Red) {
+			loadoutColorBackground.setColor(this.#backgroundColorRed ?? this.#backgroundColor);
+		} else {
+			loadoutColorBackground.setColor(this.#backgroundColorBlu ?? this.#backgroundColor);
+		}
+	}
+
 }
 new Application();
+
+function hexToRgba(out: vec4, hex: string): vec4 {
+	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	if (result && result.length > 4) {
+		vec4.set(out,
+			parseInt(result[1]!, 16) / 255.0,
+			parseInt(result[2]!, 16) / 255.0,
+			parseInt(result[3]!, 16) / 255.0,
+			parseInt(result[4]!, 16) / 255.0,
+		);
+	}
+	return out
+}

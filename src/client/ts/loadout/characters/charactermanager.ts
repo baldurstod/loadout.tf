@@ -2,6 +2,7 @@ import { vec3 } from 'gl-matrix';
 import { getSceneExplorer } from 'harmony-3d';
 import { uint } from 'harmony-types';
 import { startAnim } from '../../constants';
+import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
 import { Character } from './character';
 import { CharactersList, Tf2Class } from './characters';
@@ -17,6 +18,7 @@ export class CharacterManager {
 	static #currentSlot = 0;
 	static #unusedCharacters: Character[] = [];
 	static #currentCharacter: Character | null = null;
+	static #team: Team = Team.Red;
 
 	static selectCharacter(characterClass: Tf2Class, slotId?: uint): Character {
 		const characterTemplate = CharactersList.get(characterClass)!;
@@ -32,6 +34,7 @@ export class CharacterManager {
 		slot.character = character;
 		// set the character visible
 		character.setVisible(true);
+		character.setTeam(this.#team);
 
 		(async (): Promise<void> => {
 			const modelName = characterTemplate.model;
@@ -82,7 +85,6 @@ export class CharacterManager {
 	}
 
 	static #removeCharacter(slot: CharacterSlot): void {
-		//const slot = this.#characterSlots[slotId];
 		const character = slot?.character;
 		if (character) {
 			character.setVisible(false);
@@ -106,5 +108,17 @@ export class CharacterManager {
 		}
 
 		return this.#characterSlots[this.#characterSlots.length - 1]!;
+	}
+
+	static setTeam(team: Team): void {
+		this.#team = team;
+		const character = this.#currentCharacter;
+		if (character) {
+			character.setTeam(team);
+		}
+	}
+
+	static getTeam(): Team {
+		return this.#team;
 	}
 }

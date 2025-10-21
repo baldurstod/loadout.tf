@@ -5,7 +5,6 @@
 	z-index: 5;
 	display: flex;
 	pointer-events: none;
-	/*filter: var(--background-invert-filter);*/
 	background-color: var(--main-bg-color-dark);
 }
 
