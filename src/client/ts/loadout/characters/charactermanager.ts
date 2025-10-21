@@ -2,28 +2,36 @@ import { vec3 } from 'gl-matrix';
 import { getSceneExplorer } from 'harmony-3d';
 import { uint } from 'harmony-types';
 import { startAnim } from '../../constants';
+import { ItemManager } from '../items/itemmanager';
 import { Character } from './character';
 import { CharactersList, Tf2Class } from './characters';
 
 type CharacterSlot = {
-	character?: Character;
+	character: Character | null;
 	position?: vec3;
 	orientation?: vec3;
 }
 
 export class CharacterManager {
-	static #characterSlot: CharacterSlot[] = [{}];
+	static #characterSlots: CharacterSlot[] = [{ character: null }];
 	static #currentSlot = 0;
 	static #unusedCharacters: Character[] = [];
 	static #currentCharacter: Character | null = null;
 
-	static selectCharacter(characterClass: Tf2Class, slot?: uint): Character | null {
-		if (slot !== undefined && slot >= this.#characterSlot.length) {
-			return null;
-		}
-
+	static selectCharacter(characterClass: Tf2Class, slotId?: uint): Character {
 		const characterTemplate = CharactersList.get(characterClass)!;
 		const character = this.#getUnusedCharacter(characterClass) ?? new Character(characterClass);
+		const slot = this.#getSlot(slotId);
+
+		if (slot.character?.characterClass == characterClass) {
+			// the same character is selected again
+			return character;
+		}
+
+		this.#removeCharacter(slot);
+		slot.character = character;
+		// set the character visible
+		character.setVisible(true);
 
 		(async (): Promise<void> => {
 			const modelName = characterTemplate.model;
@@ -32,7 +40,6 @@ export class CharacterManager {
 			const model = await character.getModel();
 			if (model) {
 				model.sourceModel.mdl.addExternalMdl('models/player/loadout_tf/' + modelName.toLowerCase().replace(/bots\/[^\/]*\/bot_/, 'player/') + '_loadout_tf_animations.mdl');
-				//characterCM.classIndex = this.characters[character.npc].classIndex;
 				if (model) {
 					model.playSequence(startAnim);
 					model.setAnimation(0, startAnim, 1);
@@ -58,7 +65,7 @@ export class CharacterManager {
 
 	static #setCurrentCharacter(character: Character): void {
 		this.#currentCharacter = character;
-		//new ItemManager().setCurrentCharacter(character);
+		ItemManager.setCurrentCharacter(character);
 		//EffectManager.setCurrentCharacter(character);
 
 		(async (): Promise<void> => {
@@ -72,5 +79,32 @@ export class CharacterManager {
 
 			}
 		})();
+	}
+
+	static #removeCharacter(slot: CharacterSlot): void {
+		//const slot = this.#characterSlots[slotId];
+		const character = slot?.character;
+		if (character) {
+			character.setVisible(false);
+			this.#unusedCharacters.push(character);
+			slot.character = null;
+		}
+	}
+
+	static #getSlot(slotId?: uint): CharacterSlot {
+		if (slotId !== undefined) {
+			const slot = this.#characterSlots[slotId];
+			if (slot) {
+				return slot;
+			}
+		}
+
+		for (const slot of this.#characterSlots) {
+			if (!slot.character) {
+				return slot;
+			}
+		}
+
+		return this.#characterSlots[this.#characterSlots.length - 1]!;
 	}
 }
