@@ -1,5 +1,5 @@
 import { vec4 } from 'gl-matrix';
-import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, MergeRepository, PointLight, Repositories, Source1MaterialManager, Source1ModelManager, Source1ParticleControler, Source2ModelManager, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, MergeRepository, PointLight, Repositories, Source1MaterialManager, Source1ModelManager, Source1ParticleControler, Source2ModelManager, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombinerEventTarget, WarpaintEditor } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
@@ -17,7 +17,7 @@ import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
 import { Team } from './loadout/enums';
-import { loadoutColorBackground, loadoutOrbitControl, loadoutScene, orbitCamera, setActiveCamera } from './loadout/scene';
+import { loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
 
@@ -194,7 +194,7 @@ class Application {
 				break;
 			case 'target_position':
 				//this.#appViewer.setCameraTarget(event.data.position);
-				loadoutOrbitControl.target.setPosition(event.data.position);
+				orbitCameraControl.target.setPosition(event.data.position);
 				break;
 		}
 	}
@@ -232,7 +232,7 @@ class Application {
 	#beforeUnload(): void {
 		if (OptionsManager.getItem('app.cameras.orbit.saveposition')) {
 			OptionsManager.setItem('app.cameras.orbit.position', (orbitCamera.getPosition() as number[]).join(' '));
-			OptionsManager.setItem('app.cameras.orbit.target', (loadoutOrbitControl.target.getPosition() as number[]).join(' '));
+			OptionsManager.setItem('app.cameras.orbit.target', (orbitCameraControl.target.getPosition() as number[]).join(' '));
 		}
 
 		/*
@@ -276,10 +276,10 @@ class Application {
 		OptionsManagerEvents.addEventListener('warpaints.texture.size', (event: Event) => TextureCombiner.setTextureSize((event as CustomEvent).detail.value));
 		*/
 		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => this.setTeam(Number((event as CustomEvent).detail.value)));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.position', (event: Event) => this.setPerspectiveCameraPosition((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.quaternion', (event: Event) => this.setPerspectiveCameraQuaternion((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.target', (event: Event) => this.setPerspectiveCameraTarget((event as CustomEvent).detail.value));
 		/*
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.position', (event: Event) => this.perspectiveCameraPosition = (event as CustomEvent).detail.value);
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.quaternion', (event: Event) => this.perspectiveCameraQuaternion = (event as CustomEvent).detail.value);
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.target', (event: Event) => this.perspectiveCameraTarget = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.perspectiveCameraVerticalFov = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.zoom', (event: Event) => this.orbitCameraZoom = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.nearplane', (event: Event) => this.perspectiveCameraNearPlane = (event as CustomEvent).detail.value);
@@ -648,6 +648,18 @@ class Application {
 
 	setVerticalFov(fov: number): void {
 		orbitCamera.verticalFov = fov;
+	}
+
+	setPerspectiveCameraPosition(position: string): void {
+		orbitCamera.setPosition(stringToVec3(position));
+	}
+
+	setPerspectiveCameraQuaternion(quaternion: string): void {
+		orbitCamera.setQuaternion(stringToQuat(quaternion));
+	}
+
+	setPerspectiveCameraTarget(target: string): void {
+		orbitCameraControl.target.setPosition(stringToVec3(target));
 	}
 }
 new Application();

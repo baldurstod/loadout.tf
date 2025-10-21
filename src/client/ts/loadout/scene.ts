@@ -5,7 +5,7 @@ export const loadoutScene = new Scene();
 export const loadoutColorBackground = new ColorBackground();
 export const orbitCamera = new Camera({ name: 'Orbit camera', nearPlane: 10, farPlane: 5000, autoResize: true });
 export const firstPersonCamera = new Camera({ nearPlane: 5, farPlane: 1000, verticalFov: 90, name: 'First person camera', autoResize: true });
-export const loadoutOrbitControl = new OrbitControl(orbitCamera);
+export const orbitCameraControl = new OrbitControl(orbitCamera);
 export let activeCamera = orbitCamera;
 new SceneExplorer().setScene(loadoutScene);
 loadoutScene.activeCamera = orbitCamera;
@@ -14,11 +14,11 @@ loadoutScene.background = loadoutColorBackground;
 
 export function setPolarRotation(polarRotation: boolean): void {
 	if (polarRotation) {
-		loadoutOrbitControl.minPolarAngle = -Infinity;
-		loadoutOrbitControl.maxPolarAngle = Infinity;
+		orbitCameraControl.minPolarAngle = -Infinity;
+		orbitCameraControl.maxPolarAngle = Infinity;
 	} else {
-		loadoutOrbitControl.minPolarAngle = HALF_PI;
-		loadoutOrbitControl.maxPolarAngle = HALF_PI;
+		orbitCameraControl.minPolarAngle = HALF_PI;
+		orbitCameraControl.maxPolarAngle = HALF_PI;
 	}
 }
 
