@@ -28,12 +28,11 @@ export class CharacterSelector extends StaticPanel {
 	}
 
 	#createMiniIcon(tf2Class: Tf2Class, character: CharactersType): HTMLElement {
-		//let htmlcharacterIconDiv = createElement('div', {class:'character-manager-character-icon'});
 		const iconName = character.name.toLowerCase();
 		return createElement('img', {
 			//parent: htmlcharacterIconDiv,
 			style: `order: var(--tf2-class-order-${iconName}, unset)`,
-			class: 'character-manager-character-icon',
+			class: 'character-icon',
 			src: character.icon,
 			$click: () => this.#selectCharacter(tf2Class),
 		});
