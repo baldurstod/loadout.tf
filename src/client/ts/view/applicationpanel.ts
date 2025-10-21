@@ -6,7 +6,6 @@ import varsCSS from '../../css/vars.css';
 import { ENABLE_PATREON_POWERUSER } from '../bundleoptions';
 import { TF2_WARPAINT_DEFINITIONS_URL } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
-import { CharacterSelector } from './characterselector';
 import { MainPanel } from './mainpanel';
 
 documentStyle(htmlCSS);
@@ -14,8 +13,6 @@ documentStyle(varsCSS);
 
 export class ApplicationPanel {
 	#shadowRoot!: ShadowRoot;
-	//#appAdPanel = new AdPanel();
-	#appCharacterSelector = new CharacterSelector();
 	#mainContent = new MainPanel();
 
 	static {

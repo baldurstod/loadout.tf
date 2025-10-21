@@ -10,7 +10,7 @@ export class ItemsPanel extends DynamicPanel {
 		hide(this.getShadowRoot());
 	}
 
-	protected initHTML(): void {
+	protected override initHTML(): void {
 		// Do stuff
 	}
 }

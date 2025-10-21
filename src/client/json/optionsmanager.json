@@ -135,10 +135,10 @@
 		{
 			"name": "app.loadout.team",
 			"type": "list",
-			"default": "RED",
+			"default": 0,
 			"datalist": [
-				"RED",
-				"BLU"
+				["RED", 0],
+				["BLU", 1]
 			]
 		},
 		{

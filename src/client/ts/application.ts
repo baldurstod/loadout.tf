@@ -268,8 +268,9 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.language = (event as CustomEvent).detail.value);
 
 		OptionsManagerEvents.addEventListener('warpaints.texture.size', (event: Event) => TextureCombiner.setTextureSize((event as CustomEvent).detail.value));
-		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => this.changeTeam((event as CustomEvent).detail.value));
-
+		*/
+		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => this.setTeam(Number((event as CustomEvent).detail.value)));
+		/*
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.position', (event: Event) => this.perspectiveCameraPosition = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.quaternion', (event: Event) => this.perspectiveCameraQuaternion = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.target', (event: Event) => this.perspectiveCameraTarget = (event as CustomEvent).detail.value);
@@ -596,12 +597,11 @@ class Application {
 		this.#setTeamBackground();
 	}
 
-	changeTeam(team: Team): void {
-		//const team: Teams = skin == 'RED' ? 0 : 1;
+	setTeam(team: Team): void {
 		// TODO
 		//TextureCombiner.setTeam(team);
 		//CharacterManager.setSkin(team);
-		//CharacterManager.setTeam(team);
+		CharacterManager.setTeam(team);
 		this.#setTeamBackground();
 	}
 

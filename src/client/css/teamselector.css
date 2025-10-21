@@ -1,0 +1,7 @@
+.team {
+	width: 64px;
+	height: 64px;
+	background-size: 100% auto;
+	display: inline-block;
+	cursor: pointer;
+}

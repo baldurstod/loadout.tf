@@ -1,34 +1,29 @@
-import { createShadowRoot } from 'harmony-ui';
 import loadoutCSS from '../../css/loadout.css';
+import { CharacterControlPanel } from './charactercontrolpanel';
 import { CharacterSelector } from './characterselector';
 import { SidePanel } from './sidepanel';
+import { StaticPanel } from './staticpanel';
 import { Toolbar } from './toolbar';
 import { Viewer } from './viewer';
 
-export class LoadoutPanel {
-	#shadowRoot?: ShadowRoot;
+export class LoadoutPanel extends StaticPanel {
 	#sidePanel = new SidePanel();
 	#viewer = new Viewer();
 	#toolbar = new Toolbar();
-	#appCharacterSelector = new CharacterSelector();
+	#characterSelector = new CharacterSelector();
+	#characterControlPanel = new CharacterControlPanel();
 
-	#initHTML(): HTMLElement {
-		this.#shadowRoot = createShadowRoot('div', {
-			class: 'LoadoutPanel',
-			adoptStyle: loadoutCSS,
-			childs: [
-				this.#sidePanel.getHTMLElement(),
-				this.#viewer.getHTMLElement(),
-				this.#toolbar.getHTMLElement(),
-				this.#appCharacterSelector.getHTMLElement(),
-			],
-		});
-
-		return this.#shadowRoot.host as HTMLElement;
+	constructor() {
+		super([loadoutCSS]);
 	}
 
-
-	getHTMLElement(): HTMLElement {
-		return this.#shadowRoot?.host as (HTMLElement | undefined) ?? this.#initHTML();
+	protected override initHTML(): void {
+		this.getShadowRoot().append(
+			this.#sidePanel.getHTMLElement(),
+			this.#viewer.getHTMLElement(),
+			this.#toolbar.getHTMLElement(),
+			this.#characterSelector.getHTMLElement(),
+			this.#characterControlPanel.getHTMLElement(),
+		);
 	}
 }

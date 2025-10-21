@@ -19,6 +19,8 @@ export class Character {
 	});
 	#loaded = false;
 	#visible = true;
+	#zombieSkin = false;
+	#isInvulnerable = false;
 
 	constructor(characterClass: Tf2Class) {
 		this.characterClass = characterClass;
@@ -57,8 +59,26 @@ export class Character {
 		this.#model?.setVisible(visble);
 	}
 
-	setTeam(team: Team): void {
+	async setTeam(team: Team): Promise<void> {
 		this.#team = team;
+
+		for (const item of this.#items) {
+			await item.setTeam(team);
+		}
+		await this.#refreshSkin();
+
+		await this.#ready;
+		if (this.#model) {
+			this.#model.materialsParams.team = this.#team;
+		}
+	}
+
+	async #refreshSkin(): Promise<void> {
+		await this.#ready;
+		if (this.#model) {
+			const zombieSkinOffset = (this.characterClass == Tf2Class.Spy ? 22 : 4);
+			await this.#model.setSkin(String(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0)));
+		}
 	}
 
 	getTeam(): Team {
