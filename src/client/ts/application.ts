@@ -18,6 +18,8 @@ import { Team } from './loadout/enums';
 import { loadoutCamera, loadoutColorBackground, loadoutOrbitControl, loadoutScene } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
+import { ItemManager } from './loadout/items/itemmanager';
+import { JSONObject } from 'harmony-types';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -265,7 +267,9 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.backgroundcolor.blu', (event: Event) => this.#setBackGroundColorBlu((event as CustomEvent).detail.value));
 		/*
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.verticalFov = (event as CustomEvent).detail.value);
-		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.language = (event as CustomEvent).detail.value);
+		*/
+		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.setLang((event as CustomEvent).detail.value));
+		/*
 
 		OptionsManagerEvents.addEventListener('warpaints.texture.size', (event: Event) => TextureCombiner.setTextureSize((event as CustomEvent).detail.value));
 		*/
@@ -613,6 +617,29 @@ class Application {
 		}
 	}
 
+	setLang(lang: string) {
+		//ItemManager.lang = lang;
+
+		this.#getLanguage(lang).then(json => {
+			I18n.setOptions({ translations: [json as I18nTranslation] });
+			I18n.setLang(lang);
+		});
+	}
+
+	async #getLanguage(lang: string) {
+		if (this.#translations.has(lang)) {
+			return this.#translations.get(lang);
+		}
+
+		const p = new Promise<JSONObject>(async resolve => {
+			const response = await fetch(`/json/i18n/${lang}.json`);
+
+			const json = await response.json();
+			resolve(json);
+		});
+		this.#translations.set(lang, await p as I18nTranslation);
+		return p;
+	}
 }
 new Application();
 

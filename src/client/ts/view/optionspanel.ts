@@ -44,6 +44,7 @@ export class OptionsPanel extends DynamicPanel {
 		this.#initHTMLGeneralOptions();
 		this.#initHtmlSceneExplorer();
 		this.#initHtmlShaderEditor();
+		this.#initLanguages();
 	}
 
 	#initHTMLGeneralOptions(): void {
@@ -70,6 +71,7 @@ export class OptionsPanel extends DynamicPanel {
 			class: 'language-selector',
 			$input: () => OptionsManager.setItem('app.lang', this.#htmlLanguageSelector!.value),
 		}) as HTMLSelectElement;
+		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#htmlLanguageSelector!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
 
 		const languageAuthors = createElement('div', { class: 'option-language-authors' });
 		/*I18n.addEventListener('translationsloaded', () => {
@@ -469,4 +471,52 @@ export class OptionsPanel extends DynamicPanel {
 		Controller.dispatchEvent(new CustomEvent(event));
 	}
 	*/
+	#initLanguages(): void {
+		const currentlang = OptionsManager.getItem('app.lang');
+		const langs: Record<string, string> = {
+			'english': 'English',
+			'german': 'Deutsch',
+			'french': 'Français',
+			'italian': 'Italiano',
+			'korean': '한국어',
+			'spanish': 'Español',
+			'schinese': '简体中文',
+			'tchinese': '繁體中文',
+			'russian': 'Русский',
+			'thai': 'ไทย',
+			'japanese': '日本語',
+			'portuguese': 'Português',
+			'polish': 'Polski',
+			'danish': 'Dansk',
+			'dutch': 'Nederlands',
+			'finnish': 'Suomi',
+			'norwegian': 'Norsk',
+			'swedish': 'Svenska',
+			'hungarian': 'Magyar',
+			'czech': 'čeština',
+			'romanian': 'Română',
+			'turkish': 'Türkçe',
+			'brazilian': 'Português-Brasil',
+			'bulgarian': 'български',
+			'greek': 'Ελληνικά',
+			'ukrainian': 'Українська'
+		};
+
+		const arr = Object.keys(langs);
+		let langName;
+		while (langName = arr.shift()) {
+			let langCaption = langs[langName];
+
+			const option = createElement('option', { value: langName, innerText: langCaption }) as HTMLOptionElement;
+			this.#htmlLanguageSelector?.appendChild(option);
+			if (currentlang == langName) {
+				option.selected = true;
+			}
+		}
+	}
+	setLang(lang: string) {
+		if (this.#htmlLanguageSelector) {
+			this.#htmlLanguageSelector.value = lang;
+		}
+	}
 }
