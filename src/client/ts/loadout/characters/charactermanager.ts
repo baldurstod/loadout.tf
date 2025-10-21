@@ -47,7 +47,7 @@ export class CharacterManager {
 
 	static #getUnusedCharacter(characterClass: Tf2Class): Character | null {
 		for (let i = 0; i < this.#unusedCharacters.length; i++) {
-			const character = this.#unusedCharacters[i];
+			const character = this.#unusedCharacters[i]!;
 			if (character.characterClass == characterClass) {
 				this.#unusedCharacters.splice(i, 1);
 				return character;
