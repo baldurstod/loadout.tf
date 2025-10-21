@@ -1,3 +1,4 @@
+import { SceneExplorer, ShaderEditor } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement } from 'harmony-ui';
 import optionsCSS from '../../css/options.css';
@@ -6,7 +7,6 @@ import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../co
 import { BackgroundType, Panel } from '../enums';
 import { loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
-import { SceneExplorer, ShaderEditor } from 'harmony-3d';
 
 export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;
@@ -68,9 +68,7 @@ export class OptionsPanel extends DynamicPanel {
 		const htmlLanguageLabel = createElement('label', { class: 'space-after', i18n: '#language' });
 		this.#htmlLanguageSelector = createElement('select', {
 			class: 'language-selector',
-			events: {
-				input: () => OptionsManager.setItem('app.lang', this.#htmlLanguageSelector!.value)
-			}
+			$input: () => OptionsManager.setItem('app.lang', this.#htmlLanguageSelector!.value),
 		}) as HTMLSelectElement;
 
 		const languageAuthors = createElement('div', { class: 'option-language-authors' });
@@ -83,9 +81,7 @@ export class OptionsPanel extends DynamicPanel {
 		});*/
 		htmlLanguage.append(htmlLanguageLabel, this.#htmlLanguageSelector, languageAuthors);
 		this.#htmlColorPicker = createElement('harmony-color-picker', {
-			events: {
-				change: (event: CustomEvent) => OptionsManager.setItem('app.backgroundcolor', (event).detail.hex.toUpperCase()),
-			},
+			$change: (event: CustomEvent) => OptionsManager.setItem('app.backgroundcolor', (event).detail.hex.toUpperCase()),
 		}) as HTMLHarmonyColorPickerElement;
 
 		this.#htmlCSSTheme = createElement('harmony-radio', {
@@ -95,9 +91,7 @@ export class OptionsPanel extends DynamicPanel {
 				createElement('button', { 'i18n': '#browser_theme', value: '' }),
 				createElement('button', { 'i18n': '#dark_theme', value: 'dark' }),
 			],
-			events: {
-				change: (event: CustomEvent) => OptionsManager.setItem('app.css.theme', (event).detail.value),
-			},
+			$change: (event: CustomEvent) => OptionsManager.setItem('app.css.theme', (event).detail.value),
 		}) as HTMLHarmonyRadioElement;
 
 		createElement('harmony-switch', {
@@ -114,17 +108,13 @@ export class OptionsPanel extends DynamicPanel {
 
 		this.#htmlMuteSounds = createElement('harmony-switch', {
 			'data-i18n': '#mute_sounds',
-			events: {
-				change: () => OptionsManager.setItem('app.audio.mute.master', this.#htmlMuteSounds.state),
-			},
+			$change: () => OptionsManager.setItem('app.audio.mute.master', this.#htmlMuteSounds.state),
 		}) as HTMLHarmonySwitchElement;
 		OptionsManagerEvents.addEventListener('app.audio.mute.master', (event: Event) => this.#htmlMuteSounds.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
 
 		const htmlSpeech: HTMLHarmonySwitchElement = createElement('harmony-switch', {
 			'data-i18n': '#speech_recognition',
-			events: {
-				change: () => OptionsManager.setItem('app.usespeechrecognition', htmlSpeech.state),
-			},
+			$change: () => OptionsManager.setItem('app.usespeechrecognition', htmlSpeech.state),
 		}) as HTMLHarmonySwitchElement;
 		OptionsManagerEvents.addEventListener('app.usespeechrecognition', (event: Event) => htmlSpeech.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
 
@@ -149,9 +139,7 @@ export class OptionsPanel extends DynamicPanel {
 					min: 0.01,
 					max: 1,
 					step: 0.01,
-					events: {
-						input: (event: Event) => OptionsManager.setItem('engine.particles.speed', (event.target as HTMLInputElement).value),
-					}
+					$input: (event: Event) => OptionsManager.setItem('engine.particles.speed', (event.target as HTMLInputElement).value),
 				}),
 			],
 		});
@@ -160,15 +148,13 @@ export class OptionsPanel extends DynamicPanel {
 		const htmlMapLabel = createElement('label', { class: 'space-after', i18n: '#map' });
 		const htmlMapInput: HTMLInputElement = createElement('input', {
 			list: 'loadout-application-map-list',
-			events: {
-				change: (event: InputEvent) => {
-					(event.target as HTMLInputElement).blur();
-					//this.#mapStartup((event.target as HTMLInputElement).value);
-					Controller.dispatchEvent<string>(ControllerEvent.ChangeMap, { detail: (event.target as HTMLInputElement).value });
-				},
-				focus: () => Controller.dispatchEvent<void>(ControllerEvent.InitMapList),
-				keydown: (event: MouseEvent) => event.stopPropagation(),
-			}
+			$change: (event: InputEvent) => {
+				(event.target as HTMLInputElement).blur();
+				//this.#mapStartup((event.target as HTMLInputElement).value);
+				Controller.dispatchEvent<string>(ControllerEvent.ChangeMap, { detail: (event.target as HTMLInputElement).value });
+			},
+			$focus: () => Controller.dispatchEvent<void>(ControllerEvent.InitMapList),
+			$keydown: (event: MouseEvent) => event.stopPropagation(),
 		}) as HTMLInputElement;
 		const htmlMapList: HTMLDataListElement = createElement('datalist', { id: 'loadout-application-map-list' }) as HTMLDataListElement;
 		htmlMap.append(htmlMapLabel, htmlMapInput, htmlMapList);
@@ -190,10 +176,8 @@ export class OptionsPanel extends DynamicPanel {
 		const htmlRecordVideoSizeLabel = createElement('label', { class: 'space-after', i18n: '#picture_size' });
 		const htmlRecordVideoSizeInput = createElement('input', {
 			list: 'loadout-application-options-size-list',
-			events: {
-				input: (event: InputEvent) => OptionsManager.setItem('app.picture.size', (event.target as HTMLInputElement).value),
-				keydown: (event: MouseEvent) => event.stopPropagation(),
-			}
+			$input: (event: InputEvent) => OptionsManager.setItem('app.picture.size', (event.target as HTMLInputElement).value),
+			$keydown: (event: MouseEvent) => event.stopPropagation(),
 		});
 		const htmlRecordVideoSizeList = createElement('datalist', { id: 'loadout-application-options-size-list' });
 		const list = ['', '128*128', '184*184', '1600*900', '1920*1080', '2560*1440', '3840*2160'];
@@ -218,11 +202,6 @@ export class OptionsPanel extends DynamicPanel {
 
 		const htmlBackgroundSelect = createElement('select', {
 			$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvent.SetBackgroundType, { detail: { type: (event.target as HTMLSelectElement).value as BackgroundType } }),
-			/*
-			events: {
-				change: (event: Event) => this.#setBackgroundType(Number((event.target as HTMLSelectElement).value))
-			}
-			*/
 		});
 		//htmlBackgroundSelect.addEventListener('change', (event) => this.#setBackgroundType(event.target.value));
 		const backgroundOptions = new Map<BackgroundType, string>([[BackgroundType.None, '#none'], [BackgroundType.SolidColor, '#solidcolor'], [BackgroundType.ShaderToy, '#shadertoy'], [BackgroundType.Picture, '#picture']]);
@@ -242,11 +221,6 @@ export class OptionsPanel extends DynamicPanel {
 				createElement('label', { class: 'space-after', i18n: '#shadertoy' }),
 				this.#htmlShaderToyList = createElement('select', {
 					$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvent.SetBackgroundType, { detail: { type: BackgroundType.ShaderToy, param: (event.target as HTMLSelectElement).value } }),
-					/*
-					events: {
-						change: (event: Event) => { this.#setBackgroundType(BACKGROUND_TYPE_SHADERTOY, (event.target as HTMLSelectElement).value) }
-					}
-					*/
 				}) as HTMLSelectElement,
 				//this.#htmlShaderToyLink = createElement('a', { target: '_blank' }) as HTMLLinkElement,
 			],
@@ -261,11 +235,6 @@ export class OptionsPanel extends DynamicPanel {
 					type: 'file',
 					accept: 'image/*',
 					$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvent.SetBackgroundType, { detail: { type: BackgroundType.Picture, param: (event.target as HTMLInputElement).files } }),
-					/*
-					events: {
-						change: (event: InputEvent) => this.#setBackgroundType(BACKGROUND_TYPE_PICTURE, (event.target as HTMLInputElement).files)
-					}
-					*/
 				}),
 			],
 		});
@@ -291,50 +260,48 @@ export class OptionsPanel extends DynamicPanel {
 				createElement('input', {
 					type: 'file',
 					parent: htmlGeneralOptionsTab,
-					events: {
-						change: (evt: InputEvent) => {
-							htmlLoadedFiles.innerText = '';
-							const file = (evt.target as HTMLInputElement).files?.[0];
-							if (!file) {
-								return;
-							}
+					$change: (evt: InputEvent) => {
+						htmlLoadedFiles.innerText = '';
+						const file = (evt.target as HTMLInputElement).files?.[0];
+						if (!file) {
+							return;
+						}
 
-							Controller.dispatchEvent<File>(ControllerEvent.OverrideTextures, { detail: file });
+						Controller.dispatchEvent<File>(ControllerEvent.OverrideTextures, { detail: file });
 
-							/*
-							const reader = new ZipReader(new BlobReader(file));
+						/*
+						const reader = new ZipReader(new BlobReader(file));
 
-							const entries = await reader.getEntries();
-							let loadedFiles = 0;
-							if (entries.length) {
-								for (const entry of entries) {
-									if (entry.directory) {
-										continue;
-									}
-									let filename = entry.filename
-									if (entry.directory || !filename.endsWith('.vtf') || (!filename.includes('materials/') && !filename.includes('materials\\'))) {
-										continue;
-									}
-									if (filename.includes('materials/')) {
-										filename = filename.substring(filename.indexOf('materials/'));
-									}
-									if (filename.includes('materials\\')) {
-										filename = filename.substring(filename.indexOf('materials\\'));
-									}
-
-									console.info(filename)
-
-									const blob = await entry.getData(new BlobWriter())
-									this.#zipEntries.set(filename.toLowerCase(), blob);
-									++loadedFiles;
-
+						const entries = await reader.getEntries();
+						let loadedFiles = 0;
+						if (entries.length) {
+							for (const entry of entries) {
+								if (entry.directory) {
+									continue;
 								}
-								htmlLoadedFiles.innerText = loadedFiles + ' files loaded';
+								let filename = entry.filename
+								if (entry.directory || !filename.endsWith('.vtf') || (!filename.includes('materials/') && !filename.includes('materials\\'))) {
+									continue;
+								}
+								if (filename.includes('materials/')) {
+									filename = filename.substring(filename.indexOf('materials/'));
+								}
+								if (filename.includes('materials\\')) {
+									filename = filename.substring(filename.indexOf('materials\\'));
+								}
+
+								console.info(filename)
+
+								const blob = await entry.getData(new BlobWriter())
+								this.#zipEntries.set(filename.toLowerCase(), blob);
+								++loadedFiles;
+
 							}
-							*/
-						},
-						keydown: (event: Event) => event.stopPropagation(),
-					}
+							htmlLoadedFiles.innerText = loadedFiles + ' files loaded';
+						}
+						*/
+					},
+					$keydown: (event: Event) => event.stopPropagation(),
 				}),
 				htmlLoadedFiles = createElement('span'),
 			]
@@ -356,11 +323,6 @@ export class OptionsPanel extends DynamicPanel {
 						}),
 						this.#htmlBadgeLevel = createElement('select', {
 							$change: () => Controller.dispatchEvent<ShowBadge>(ControllerEvent.ShowBadge, { detail: { tier: Number(this.#htmlBadgeTier.value), level: Number(this.#htmlBadgeLevel.value) } }),
-							/*
-							events: {
-								change: () => this.#showBadge(Number(this.#htmlBadgeLevel.value), Number(this.#htmlBadgeTier.value)),
-							}
-								*/
 						}) as HTMLSelectElement,
 					],
 				}),
@@ -371,11 +333,6 @@ export class OptionsPanel extends DynamicPanel {
 						}),
 						this.#htmlBadgeTier = createElement('select', {
 							$change: () => Controller.dispatchEvent<ShowBadge>(ControllerEvent.ShowBadge, { detail: { tier: Number(this.#htmlBadgeTier.value), level: Number(this.#htmlBadgeLevel.value) } }),
-							/*
-							events: {
-								change: () => this.#showBadge(Number(this.#htmlBadgeLevel.value), Number(this.#htmlBadgeTier.value)),
-							}
-							*/
 						}) as HTMLSelectElement,
 					],
 				}),

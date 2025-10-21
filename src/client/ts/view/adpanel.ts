@@ -1,9 +1,9 @@
 import { addNotification, NotificationType } from 'harmony-browser-utils';
 import { createElement, createShadowRoot, I18n, I18nEvents } from 'harmony-ui';
 import { setTimeoutPromise } from 'harmony-utils';
-import { ADSBYGOOGLE_INS, ADSBYGOOGLE_SRC } from '../googleconstants';
 import adCSS from '../../css/ad.css';
 import adContentCSS from '../../css/adcontent.css';
+import { ADSBYGOOGLE_INS, ADSBYGOOGLE_SRC } from '../googleconstants';
 
 const AD_DELAY = 1000;
 
@@ -22,9 +22,7 @@ export class AdPanel {
 						this.#htmlHeader1 = createElement('div'/*, { i18n: '#advertisement', class: 'title' }*/),
 						this.#htmlHeader2 = createElement('div'/*, { i18n: '#how_to_remove' }*/)
 					],
-					events: {
-						click: () => addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10),
-					},
+					$click: () => addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10),
 				}),
 				this.#htmlAdContent = createShadowRoot('div', {
 					adoptStyles: [adContentCSS],
@@ -62,6 +60,6 @@ export class AdPanel {
 	}
 
 	getHTMLElement(): HTMLElement {
-		return this.#shadowRoot?.host as (HTMLElement | undefined)  ?? this.#initHTML();
+		return this.#shadowRoot?.host as (HTMLElement | undefined) ?? this.#initHTML();
 	}
 }
