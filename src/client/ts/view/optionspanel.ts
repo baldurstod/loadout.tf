@@ -464,7 +464,7 @@ export class OptionsPanel extends DynamicPanel {
 		const htmlPostProcessingOptions = createElement('group', { i18n: { title: '#post_processing', }, class: 'graphic-options' });
 		htmlGraphicOptionsTab.append(htmlGraphicOptions, htmlPostProcessingOptions);
 
-		const addToggleSwitch = (label: string, optionName: string, parent: HTMLElement) => {
+		const addToggleSwitch = (label: string, optionName: string, parent: HTMLElement): void => {
 			const sw = createElement('harmony-switch', {
 				'data-i18n': label,
 				parent: parent,
@@ -483,7 +483,7 @@ export class OptionsPanel extends DynamicPanel {
 		const htmlShadowQuality = createElement('select', {
 			$input: () => OptionsManager.setItem('engine.shadows.quality', htmlShadowQuality.value)
 		}) as HTMLSelectElement;
-		const qualities: { [key: string]: string } = {
+		const qualities: Record<string, string> = {
 			'256': '#very_low',
 			'512': '#low',
 			'1024': '#normal',
@@ -492,12 +492,12 @@ export class OptionsPanel extends DynamicPanel {
 			'8192': '#ultra',
 		};
 
-		let arr = Object.keys(qualities);
+		const arr = Object.keys(qualities);
 		let qualityName;
 		while (qualityName = arr.shift()) {
-			let qualityCaption = qualities[qualityName];
+			const qualityCaption = qualities[qualityName];
 
-			let option = createElement('option', { i18n: qualityCaption, value: qualityName });
+			const option = createElement('option', { i18n: qualityCaption, value: qualityName });
 			//option.innerHTML = langCaption;
 			htmlShadowQuality.appendChild(option);
 			/*if (currentlang == qualityName) {

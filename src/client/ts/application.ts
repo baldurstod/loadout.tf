@@ -1,5 +1,5 @@
 import { vec4 } from 'gl-matrix';
-import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, MergeRepository, PointLight, Repositories, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source2ModelManager, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, MergeRepository, PointLight, Repositories, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombinerEventTarget, WarpaintEditor } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
@@ -45,6 +45,7 @@ class Application {
 	#backgroundColor = vec4.create();
 	#backgroundColorRed?: vec4;
 	#backgroundColorBlu?: vec4;
+	#map?: SourceBSP;
 
 	static {
 		defineHarmonySwitch();
@@ -120,7 +121,7 @@ class Application {
 		Controller.addEventListener(ControllerEvent.SelectCamera, (event: Event) => setActiveCamera((event as CustomEvent<CameraType>).detail));
 		Controller.addEventListener(ControllerEvent.ResetCamera, () => this.#resetCamera());
 
-		Controller.addEventListener(ControllerEvent.ShowCompetitiveStage, (event: Event) => this.#showCompetitiveStage((event as CustomEvent<boolean>).detail));
+		Controller.addEventListener(ControllerEvent.ShowCompetitiveStage, (event: Event) => void (async (): Promise<void> => this.#showCompetitiveStage((event as CustomEvent<boolean>).detail))());
 	}
 
 	/*
@@ -350,16 +351,16 @@ class Application {
 			quat.identity(this.#lightsContainer._quaternion);
 		});
 
-		OptionsManagerEvents.addEventListener('app.characters.highlightselected', (event) => this.showHighLights(true));
+		*/
+		OptionsManagerEvents.addEventListener('app.characters.highlightselected', () => this.showHighLights(true));
 
 		OptionsManagerEvents.addEventListener('app.lights.renderlights', (event: Event) => {
-			if ((event as CustomEvent).detail.value) {
+			if ((event as CustomEvent<OptionsManagerEvent>).detail.value as boolean) {
 				Graphics.removeIncludeCode('renderlights');
 			} else {
 				Graphics.setIncludeCode('renderlights', '#define SKIP_LIGHTING');
 			}
 		});
-
 
 		OptionsManagerEvents.addEventListener('app.map.rendermap', (event: Event) => {
 			if (this.#map) {
@@ -367,6 +368,7 @@ class Application {
 			}
 		});
 
+		/*
 
 		OptionsManagerEvents.addEventListener('app.effects.renderparticles', (event: Event) => Source1ParticleControler.renderSystems = (event as CustomEvent).detail.value);
 
@@ -695,6 +697,15 @@ class Application {
 	setSilhouetteColor(silhouetteColor: string): void {
 		const rgb = hexToRgba(vec4.create(), silhouetteColor);
 		Graphics.setIncludeCode('silhouetteColor', `#define SILHOUETTE_COLOR vec4(${rgb[0]},${rgb[1]},${rgb[2]},${rgb[3]})`);
+	}
+
+	showHighLights(show: boolean) {
+		show = show && OptionsManager.getItem('app.characters.highlightselected');
+		if (show) {
+			Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
+		} else {
+			Graphics.setIncludeCode('showHighLights', '#undef RENDER_HIGHLIGHT');
+		}
 	}
 }
 new Application();
