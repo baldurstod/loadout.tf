@@ -1,13 +1,15 @@
 import { Camera, ColorBackground, HALF_PI, OrbitControl, Scene, SceneExplorer, Source1ModelInstance, Source1ModelManager } from 'harmony-3d';
+import { CameraType } from '../enums';
 
 export const loadoutScene = new Scene();
 export const loadoutColorBackground = new ColorBackground();
-export const loadoutCamera = new Camera({ nearPlane: 10, farPlane: 5000, autoResize: true });
-export const loadoutOrbitControl = new OrbitControl(loadoutCamera);
-
+export const orbitCamera = new Camera({ name: 'Orbit camera', nearPlane: 10, farPlane: 5000, autoResize: true });
+export const firstPersonCamera = new Camera({ nearPlane: 5, farPlane: 1000, verticalFov: 90, name: 'First person camera', autoResize: true });
+export const loadoutOrbitControl = new OrbitControl(orbitCamera);
+export let activeCamera = orbitCamera;
 new SceneExplorer().setScene(loadoutScene);
-loadoutScene.activeCamera = loadoutCamera;
-loadoutScene.addChild(loadoutCamera);
+loadoutScene.activeCamera = orbitCamera;
+loadoutScene.addChild(orbitCamera);
 loadoutScene.background = loadoutColorBackground;
 
 export function setPolarRotation(polarRotation: boolean): void {
@@ -37,4 +39,31 @@ export async function addTF2Model(path: string, repository?: string, name?: stri
 	}
 	model.frame = 0.;
 	return model;
+}
+
+export function setActiveCamera(cameraType: CameraType): void {
+	let camera: Camera;
+	switch (cameraType) {
+		case CameraType.Orbit:
+			camera = orbitCamera;
+			break;
+		case CameraType.FreeFly:
+			camera = orbitCamera;
+			//this.#setActiveCameraControl(this.#orbitCameraControl);
+			break;
+			/*
+		case 'freefly':
+			this.camera = this.#orbitCamera;
+			this.#setActiveCameraControl(this.#firstPersonCameraControl)
+			break;
+			*/
+		case CameraType.FirstPerson:
+			camera = firstPersonCamera;
+//			this.#setActiveCameraControl()
+			break;
+	}
+
+
+	activeCamera = camera;
+	camera.setActiveCamera();
 }

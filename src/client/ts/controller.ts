@@ -25,6 +25,8 @@ export enum ControllerEvent {
 	SetAnimSpeed = 'setanimspeed',
 	LoginPatreon = 'loginpatreon',
 	SelectCharacter = 'selectcharacter',
+	SelectCamera = 'selectcamera',
+	ResetCamera = 'resetcamera',
 }
 
 export type SetBackgroundType = {

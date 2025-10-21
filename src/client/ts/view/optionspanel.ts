@@ -4,7 +4,7 @@ import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, define
 import optionsCSS from '../../css/options.css';
 import { TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
-import { BackgroundType, Panel } from '../enums';
+import { BackgroundType, CameraType, Panel } from '../enums';
 import { loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -21,6 +21,8 @@ export class OptionsPanel extends DynamicPanel {
 	#htmlBadgeLevel!: HTMLSelectElement;
 	#htmlBadgeTier!: HTMLSelectElement;
 	#htmlSceneExplorerTab?: HTMLHarmonyTabElement;
+	#htmlVerticalFovSlider?: HTMLInputElement;
+	#htmlVerticalFovValue?: HTMLLabelElement;
 	#shaderEditor = new ShaderEditor();
 
 	constructor() {
@@ -42,6 +44,7 @@ export class OptionsPanel extends DynamicPanel {
 
 
 		this.#initHTMLGeneralOptions();
+		this.#initHtmlCameraOptions();
 		this.#initHtmlSceneExplorer();
 		this.#initHtmlShaderEditor();
 		this.#initLanguages();
@@ -351,6 +354,104 @@ export class OptionsPanel extends DynamicPanel {
 		/**************** Casual badge ****************/
 	}
 
+	#initHtmlCameraOptions(): void {
+		const htmlCameraOptionsTab = createElement('harmony-tab', {
+			parent: this.#htmlTabGroup,
+			'data-i18n': '#camera_options'
+		});
+
+		const cameraTypeRadioGroup = createElement('harmony-radio') as HTMLHarmonyRadioElement;
+		const cameraTypeOrbit = createElement('button', { i18n: '#camera_type_orbit', value: CameraType.Orbit });
+		const cameraTypeFreefly = createElement('button', { i18n: '#camera_type_freefly', value: CameraType.FreeFly });
+		const cameraTypeFps = createElement('button', { i18n: '#camera_type_fps', value: CameraType.FirstPerson });
+
+		cameraTypeRadioGroup.addEventListener('change', (event: Event) => {
+			if ((event as CustomEvent).detail.state) {
+				Controller.dispatchEvent<CameraType>(ControllerEvent.ImportFile, { detail: (event as CustomEvent).detail.value });
+			}
+		});
+		/*
+				cameraTypeOrbit.addEventListener('activated', () => {this.camera = this.#orbitCamera;this.#setActiveCameraControl(this.#orbitCameraControl)});
+				cameraTypeFreefly.addEventListener('activated', () => {this.camera = this.#orbitCamera;this.#setActiveCameraControl(this.#firstPersonCameraControl);});
+				cameraTypeFps.addEventListener('activated', () => {this.camera = this.#firstPersonCamera;this.#setActiveCameraControl()});
+		*/
+
+
+		cameraTypeRadioGroup.append(cameraTypeOrbit);
+		cameraTypeRadioGroup.append(cameraTypeFreefly);
+		cameraTypeRadioGroup.append(cameraTypeFps);
+		const line = createElement('div', { class: 'option-line' });
+		line.append(cameraTypeRadioGroup);
+		htmlCameraOptionsTab.append(line);
+
+		let htmlOrtho: HTMLHarmonySwitchElement;
+		createElement('div', {
+			class: 'option-line',
+			parent: htmlCameraOptionsTab,
+			childs: [
+				htmlOrtho = createElement('harmony-switch', {
+					'data-i18n': '#orthorgraphic_view',
+					$change: () => OptionsManager.setItem('app.cameras.orbit.orthographic', htmlOrtho.state),
+				}) as HTMLHarmonySwitchElement,
+			],
+		});
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.orthographic', (event: Event) => htmlOrtho.state = (event as CustomEvent).detail.value);
+
+		createElement('div', {
+			class: 'option-line',
+			parent: htmlCameraOptionsTab,
+			childs: [
+				createElement('label', { i18n: '#vertical_fov' }),
+				this.#htmlVerticalFovSlider = createElement('input', {
+					type: 'range',
+					min: 10,
+					max: 120,
+					$input: (event: InputEvent) => OptionsManager.setItem('app.cameras.orbit.verticalfov', (event.target as HTMLInputElement).value),
+				}) as HTMLInputElement,
+				this.#htmlVerticalFovValue = createElement('label') as HTMLLabelElement,
+			],
+		});
+
+		let htmlFreeRotation: HTMLHarmonySwitchElement;
+		createElement('div', {
+			class: 'option-line',
+			parent: htmlCameraOptionsTab,
+			childs: [
+				htmlFreeRotation = createElement('harmony-switch', {
+					'data-i18n': '#free_rotation',
+					$change: (event: CustomEvent) => OptionsManager.setItem('app.cameras.orbit.polarrotation', (event.target as HTMLHarmonySwitchElement).state),
+				}) as HTMLHarmonySwitchElement,
+			],
+		});
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.polarrotation', (event: Event) => htmlFreeRotation.state = (event as CustomEvent).detail.value);
+
+		let htmlReplicate: HTMLHarmonySwitchElement;
+		createElement('div', {
+			class: 'option-line',
+			parent: htmlCameraOptionsTab,
+			childs: [
+				htmlReplicate = createElement('harmony-switch', {
+					'data-i18n': '#replicate_camera',
+					$change: (event: CustomEvent) => OptionsManager.setItem('app.cameras.orbit.replicate', (event.target as HTMLHarmonySwitchElement).state),
+				}) as HTMLHarmonySwitchElement,
+			],
+		});
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.replicate', (event: Event) => htmlReplicate.state = (event as CustomEvent).detail.value);
+
+		createElement('div', {
+			class: 'option-line',
+			parent: htmlCameraOptionsTab,
+			childs: [
+				createElement('div', {
+					class: 'option-button',
+					i18n: '#reset_camera',
+					$click: () => Controller.dispatchEvent<void>(ControllerEvent.ResetCamera),
+				}),
+			],
+		});
+
+	}
+
 	#initHtmlSceneExplorer(): void {
 		this.#htmlSceneExplorerTab = createElement('harmony-tab', {
 			'data-i18n': '#scene_explorer',
@@ -505,7 +606,7 @@ export class OptionsPanel extends DynamicPanel {
 		const arr = Object.keys(langs);
 		let langName;
 		while (langName = arr.shift()) {
-			let langCaption = langs[langName];
+			const langCaption = langs[langName];
 
 			const option = createElement('option', { value: langName, innerText: langCaption }) as HTMLOptionElement;
 			this.#htmlLanguageSelector?.appendChild(option);
@@ -514,7 +615,8 @@ export class OptionsPanel extends DynamicPanel {
 			}
 		}
 	}
-	setLang(lang: string) {
+
+	setLang(lang: string): void {
 		if (this.#htmlLanguageSelector) {
 			this.#htmlLanguageSelector.value = lang;
 		}

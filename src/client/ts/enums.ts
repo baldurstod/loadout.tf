@@ -12,3 +12,9 @@ export enum Panel {
 	Options = 'options',
 	Effects = 'effects',
 }
+
+export enum CameraType {
+	FirstPerson = 'FirstPerson',
+	Orbit = 'orbit',
+	FreeFly = 'freefly',
+}

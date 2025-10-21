@@ -5,7 +5,7 @@ import viewerCSS from '../../css/viewer.css';
 import { SHADERTOY_DIRECTORY } from '../constants';
 import { Controller, ControllerEvent, SetBackgroundType } from '../controller';
 import { BackgroundType } from '../enums';
-import { loadoutCamera, loadoutOrbitControl, loadoutScene } from '../loadout/scene';
+import { orbitCamera, loadoutOrbitControl, loadoutScene } from '../loadout/scene';
 
 export class Viewer {
 	#shadowRoot?: ShadowRoot;
@@ -20,7 +20,7 @@ export class Viewer {
 	constructor() {
 		this.#initListeners();
 		//this.#orbitControl = new OrbitControl(loadoutCamera);
-		loadoutCamera.setPosition([100, 0, 40]);
+		orbitCamera.setPosition([100, 0, 40]);
 		loadoutOrbitControl.setTargetPosition([0, 0, 40]);
 		this.#initRenderer();
 	}

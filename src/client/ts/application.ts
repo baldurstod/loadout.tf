@@ -3,6 +3,7 @@ import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicT
 import { PaintDoneEvent, TextureCombinerEventTarget, WarpaintEditor } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
+import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
 import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
@@ -11,15 +12,14 @@ import optionsmanager from '../json/optionsmanager.json';
 import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL } from './constants';
 import { Controller, ControllerEvent } from './controller';
+import { CameraType } from './enums';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
 import { Team } from './loadout/enums';
-import { loadoutCamera, loadoutColorBackground, loadoutOrbitControl, loadoutScene } from './loadout/scene';
+import { loadoutColorBackground, loadoutOrbitControl, loadoutScene, orbitCamera, setActiveCamera } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
-import { ItemManager } from './loadout/items/itemmanager';
-import { JSONObject } from 'harmony-types';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -115,6 +115,10 @@ class Application {
 
 			CharacterManager.selectCharacter(tf2Class);
 		});
+
+		Controller.addEventListener(ControllerEvent.SelectCamera, (event: Event) => setActiveCamera((event as CustomEvent<CameraType>).detail));
+
+		Controller.addEventListener(ControllerEvent.ResetCamera, () => this.#resetCamera());
 	}
 
 	/*
@@ -186,7 +190,7 @@ class Application {
 		}
 		switch (event.data.message) {
 			case 'camera_position':
-				loadoutCamera.setPosition(event.data.position);
+				orbitCamera.setPosition(event.data.position);
 				break;
 			case 'target_position':
 				//this.#appViewer.setCameraTarget(event.data.position);
@@ -227,7 +231,7 @@ class Application {
 
 	#beforeUnload(): void {
 		if (OptionsManager.getItem('app.cameras.orbit.saveposition')) {
-			OptionsManager.setItem('app.cameras.orbit.position', (loadoutCamera.getPosition() as number[]).join(' '));
+			OptionsManager.setItem('app.cameras.orbit.position', (orbitCamera.getPosition() as number[]).join(' '));
 			OptionsManager.setItem('app.cameras.orbit.target', (loadoutOrbitControl.target.getPosition() as number[]).join(' '));
 		}
 
@@ -265,9 +269,7 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.backgroundcolor', (event: Event) => this.#setBackgroundColor((event as CustomEvent).detail.value));
 		OptionsManagerEvents.addEventListener('app.backgroundcolor.red', (event: Event) => this.#setBackGroundColorRed((event as CustomEvent).detail.value));
 		OptionsManagerEvents.addEventListener('app.backgroundcolor.blu', (event: Event) => this.#setBackGroundColorBlu((event as CustomEvent).detail.value));
-		/*
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.verticalFov = (event as CustomEvent).detail.value);
-		*/
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.setVerticalFov(Number((event as CustomEvent).detail.value)));
 		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.setLang((event as CustomEvent).detail.value));
 		/*
 
@@ -482,7 +484,7 @@ class Application {
 		OptionsManager.resetItem('app.cameras.orbit.position');
 		OptionsManager.resetItem('app.cameras.orbit.quaternion');
 		OptionsManager.resetItem('app.cameras.orbit.target');
-		loadoutScene.addChild(loadoutCamera);
+		loadoutScene.addChild(orbitCamera);
 	}
 
 	#setupAnalytics(): void {
@@ -617,7 +619,7 @@ class Application {
 		}
 	}
 
-	setLang(lang: string) {
+	setLang(lang: string): void {
 		//ItemManager.lang = lang;
 
 		this.#getLanguage(lang).then(json => {
@@ -626,19 +628,26 @@ class Application {
 		});
 	}
 
-	async #getLanguage(lang: string) {
-		if (this.#translations.has(lang)) {
-			return this.#translations.get(lang);
+	async #getLanguage(lang: string): Promise<JSONObject> {
+		const translation = this.#translations.get(lang);
+		if (translation) {
+			return translation;
 		}
 
-		const p = new Promise<JSONObject>(async resolve => {
-			const response = await fetch(`/json/i18n/${lang}.json`);
+		const p = new Promise<JSONObject>(resolve => {
+			void (async (): Promise<void> => {
+				const response = await fetch(`/json/i18n/${lang}.json`);
 
-			const json = await response.json();
-			resolve(json);
+				const json = await response.json();
+				resolve(json);
+			})();
 		});
 		this.#translations.set(lang, await p as I18nTranslation);
 		return p;
+	}
+
+	setVerticalFov(fov: number): void {
+		orbitCamera.verticalFov = fov;
 	}
 }
 new Application();

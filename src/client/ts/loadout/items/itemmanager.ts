@@ -1,4 +1,3 @@
-import { Source1ModelInstance } from 'harmony-3d';
 import { Character } from '../characters/character';
 
 export class ItemManager {
@@ -9,7 +8,7 @@ export class ItemManager {
 		this.#currentCharacter = character;
 	}
 
-	setLang(lang: string) {
+	setLang(lang: string): void {
 		this.#lang = lang;
 	}
 
