@@ -122,9 +122,9 @@ class Application {
 		Controller.addEventListener(ControllerEvent.SelectCamera, (event: Event) => setActiveCamera((event as CustomEvent<CameraType>).detail));
 		Controller.addEventListener(ControllerEvent.ResetCamera, () => this.#resetCamera());
 
-		Controller.addEventListener(ControllerEvent.ShowCompetitiveStage, (event: Event) => void (async (): Promise<void> => this.#showCompetitiveStage((event as CustomEvent<boolean>).detail))());
+		Controller.addEventListener(ControllerEvent.ShowCompetitiveStage, (event: Event) => { this.#showCompetitiveStage((event as CustomEvent<boolean>).detail); return; });
 
-		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier));
+		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => { Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier); return; });
 	}
 
 	/*

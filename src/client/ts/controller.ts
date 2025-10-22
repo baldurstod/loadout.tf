@@ -27,6 +27,7 @@ export enum ControllerEvent {
 	SelectCharacter = 'selectcharacter',
 	SelectCamera = 'selectcamera',
 	ResetCamera = 'resetcamera',
+	SetItemFilter = 'setitemfilter',
 }
 
 export type SetBackgroundType = {
@@ -37,6 +38,12 @@ export type SetBackgroundType = {
 export type ShowBadge = {
 	tier: number;
 	level: number;
+}
+
+export type SetItemFilter = {
+	name: 'name' | 'selected' | 'workshop' | 'hideConflict' | 'tournamentMedals' | 'showMultiClass' | 'showOneClass' | 'showAllClass' | 'doNotFilterPerClass'
+	| 'pinned' | 'paintable' | 'warpaintable' | 'halloween' | 'displayMedals' | 'displayWeapons' | 'displayCosmetics' | 'displayTaunts' | 'collection';
+	value: string | boolean | undefined;
 }
 
 export class Controller {

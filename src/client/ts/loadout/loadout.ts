@@ -20,7 +20,7 @@ export class Loadout {
 
 			if (this.#badgeModel) {
 				this.#badgeModel.skin = String(Math.floor((level - 1) / 25) + (tier - 1) * 6);
-				let stars = (level - 1) % 5 + 1;
+				const stars = (level - 1) % 5 + 1;
 				const bullets = Math.floor(((level - 1) % 25) / 5);
 				const plates = Math.floor(((level - 1) % 25) / 5) - 1;
 				const banner = ((level - 1) % 25) > 14;

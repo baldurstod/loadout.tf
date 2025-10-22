@@ -11,6 +11,7 @@ export enum Panel {
 	Printful = 'printful',
 	Options = 'options',
 	Effects = 'effects',
+	Presets = 'presets',
 }
 
 export enum CameraType {

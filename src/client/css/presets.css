@@ -1,0 +1,15 @@
+:host {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.inner {
+	position: absolute;
+	background-color: chartreuse;
+	width: 70%;
+	height: 70%;
+	top: 15%;
+	left: 15%;
+
+}

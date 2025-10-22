@@ -1,5 +1,69 @@
-:host{
-	width: 200px;
-	height: 100%;;
+:host {
+	height: 100%;
 	background-color: red;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+}
+
+.line-active {
+	flex: 0;
+	background-color: blue;
+	display: flex;
+}
+
+.line-filters {
+	flex: 1;
+	background-color: blueviolet;
+}
+
+.line-name-filter {
+	flex: 1;
+	background-color: green;
+}
+
+.items {
+	flex: 1;
+	background-color: darkcyan;
+}
+
+.active-items {
+	flex: 1;
+}
+
+.preset-button {
+	border-radius: 0.1rem;
+	display: inline-block;
+	cursor: pointer;
+	padding: 0.25rem;
+	color: white;
+	pointer-events: all;
+	margin: 0.25rem;
+	background-color: var(--harmony-ui-accent-primary);
+	font-size: 2rem;
+	display: flex;
+	align-items: center;
+	padding: 1rem;
+}
+
+.filter-misc-container {
+	flex-wrap: wrap;
+	display: flex;
+	box-sizing: border-box;
+	pointer-events: all;
+	overflow: auto;
+	position: relative;
+}
+
+.filter-misc-container>harmony-switch,
+.filter-misc-container>harmony-radio {
+	--item-manager-filter-misc-container-margin: 0.25rem;
+	flex-basis: calc((100% - 6 * var(--item-manager-filter-misc-container-margin)) / 3);
+	margin: var(--item-manager-filter-misc-container-margin);
+	width: 100%;
+}
+
+#filter-text>input {
+	width: 100%;
+	height: 100%;
 }

@@ -3,12 +3,13 @@ import { Effect } from '../effects/effect';
 import { Team } from '../enums';
 import { Item } from '../items/item';
 import { addTF2Model } from '../scene';
-import { Tf2Class } from './characters';
+import { CharactersList, Tf2Class } from './characters';
 
 export class Character {
 	readonly characterClass: Tf2Class;
+	readonly name: string;
+	readonly items = new Set<Item>();
 	#model: Source1ModelInstance | null = null;
-	#items = new Set<Item>();
 	#effects = new Set<Effect>();
 	#tauntEffect: Effect | null = null;
 	#killstreakEffect: Effect | null = null;
@@ -24,6 +25,7 @@ export class Character {
 
 	constructor(characterClass: Tf2Class) {
 		this.characterClass = characterClass;
+		this.name = CharactersList.get(characterClass)!.name;
 	}
 
 	async loadModel(name: string): Promise<void> {
@@ -62,7 +64,7 @@ export class Character {
 	async setTeam(team: Team): Promise<void> {
 		this.#team = team;
 
-		for (const item of this.#items) {
+		for (const item of this.items) {
 			await item.setTeam(team);
 		}
 		await this.#refreshSkin();

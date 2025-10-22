@@ -121,4 +121,8 @@ export class CharacterManager {
 	static getTeam(): Team {
 		return this.#team;
 	}
+
+	static getCurrentCharacter():Character | null {
+		return this.#currentCharacter;
+	}
 }
