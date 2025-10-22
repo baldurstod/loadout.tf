@@ -1,21 +1,24 @@
-import { ColorBackground, Composer, FullScreenQuad, Graphics, setCustomIncludeSource, ShaderManager, ShaderToyMaterial } from 'harmony-3d';
+import { CanvasAttributes, ColorBackground, Composer, FullScreenQuad, Graphics, setCustomIncludeSource, ShaderManager, ShaderToyMaterial } from 'harmony-3d';
+import { OptionsManager } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
 import { createShadowRoot } from 'harmony-ui';
 import viewerCSS from '../../css/viewer.css';
-import { SHADERTOY_DIRECTORY } from '../constants';
+import { RECORDER_DEFAULT_FILENAME, SHADERTOY_DIRECTORY } from '../constants';
 import { Controller, ControllerEvent, SetBackgroundType } from '../controller';
 import { BackgroundType } from '../enums';
-import { orbitCamera, orbitCameraControl, loadoutScene } from '../loadout/scene';
+import { loadoutScene, orbitCamera, orbitCameraControl } from '../loadout/scene';
 
 export class Viewer {
 	#shadowRoot?: ShadowRoot;
 	//#htmlElement!: HTMLElement;
 	#htmlCanvas!: HTMLCanvasElement;
+	#mainCanvas: CanvasAttributes | null = null;
 	//#orbitControl;
 	#composer?: Composer;
 	#solidColorBackground = new ColorBackground();
 	#shaderToyBackground?: FullScreenQuad;
 	#shaderToyList?: JSONObject;
+	#recording = false;
 
 	constructor() {
 		this.#initListeners();
@@ -26,7 +29,7 @@ export class Viewer {
 	}
 
 	#initHTML(): HTMLElement {
-		this.#htmlCanvas = Graphics.addCanvas(undefined, {
+		this.#mainCanvas = Graphics.addCanvas(undefined, {
 			name: 'main_canvas',
 			scene: {
 				scene: loadoutScene,
@@ -34,6 +37,13 @@ export class Viewer {
 			},
 			autoResize: true
 		});
+
+		if (this.#mainCanvas) {
+			this.#htmlCanvas = this.#mainCanvas.canvas;
+		} else {
+			// TODO: display error
+		}
+
 
 		this.#shadowRoot = createShadowRoot('div', {
 			class: 'Viewer',
@@ -51,7 +61,7 @@ export class Viewer {
 			const param = (event as CustomEvent<SetBackgroundType>).detail.param;
 			switch (type) {
 				case BackgroundType.None:
-					loadoutScene.background = undefined;
+					loadoutScene.background = null;
 					break;
 				case BackgroundType.None:
 					this.#setupShaderToyBackground(param as string);
@@ -60,7 +70,10 @@ export class Viewer {
 				default:
 					break;
 			}
+		});
 
+		Controller.addEventListener(ControllerEvent.ToggleVideo, (event: Event) => {
+			this.#toggleVideo((event as CustomEvent<boolean>).detail);
 		});
 	}
 
@@ -126,6 +139,45 @@ export class Viewer {
 		}
 	}
 
+	#toggleVideo(recording: boolean): void {
+		this.#recording = recording;
+		if (recording) {
+			this.#startRecording();
+		} else {
+			this.stopRecording();
+		}
+	}
+
+	#startRecording(): void {
+		Graphics.startRecording(60, OptionsManager.getItem('app.videorecording.bitrate'), this.#htmlCanvas);
+		if (this.#mainCanvas) {
+			const pictureSize = this.#getPictureSize();
+			if (pictureSize) {
+				this.#mainCanvas.autoResize = false;
+				this.#mainCanvas.width = pictureSize.w;
+				this.#mainCanvas.height = pictureSize.h;
+			}
+		}
+	}
+
+	stopRecording(fileName = RECORDER_DEFAULT_FILENAME): void {
+		Graphics.stopRecording(fileName);
+		if (this.#mainCanvas) {
+			this.#mainCanvas.autoResize = true;
+		}
+	}
+
+	#getPictureSize(): { w: number, h: number } | null {
+		const option = OptionsManager.getItem('app.picture.size');
+		if (option) {
+			const regexSize = /(\d*)[\*|x|\X](\d*)/i;
+			const result = regexSize.exec(option);
+			if (result && result[1] && result[2]) {
+				return { w: Number(result[1]), h: Number(result[2]) };
+			}
+		}
+		return null;
+	}
 
 	#initRenderer(): void {
 		/*

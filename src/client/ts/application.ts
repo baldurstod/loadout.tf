@@ -699,7 +699,7 @@ class Application {
 		Graphics.setIncludeCode('silhouetteColor', `#define SILHOUETTE_COLOR vec4(${rgb[0]},${rgb[1]},${rgb[2]},${rgb[3]})`);
 	}
 
-	showHighLights(show: boolean) {
+	showHighLights(show: boolean): void {
 		show = show && OptionsManager.getItem('app.characters.highlightselected');
 		if (show) {
 			Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
