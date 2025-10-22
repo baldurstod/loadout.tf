@@ -272,16 +272,16 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.backgroundcolor', (event: Event) => this.#setBackgroundColor((event as CustomEvent).detail.value));
 		OptionsManagerEvents.addEventListener('app.backgroundcolor.red', (event: Event) => this.#setBackGroundColorRed((event as CustomEvent).detail.value));
 		OptionsManagerEvents.addEventListener('app.backgroundcolor.blu', (event: Event) => this.#setBackGroundColorBlu((event as CustomEvent).detail.value));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.setVerticalFov(Number((event as CustomEvent).detail.value)));
-		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.setLang((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.#setVerticalFov(Number((event as CustomEvent).detail.value)));
+		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#setLang((event as CustomEvent).detail.value));
 		/*
 
 		OptionsManagerEvents.addEventListener('warpaints.texture.size', (event: Event) => TextureCombiner.setTextureSize((event as CustomEvent).detail.value));
 		*/
 		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => this.setTeam(Number((event as CustomEvent).detail.value)));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.position', (event: Event) => this.setPerspectiveCameraPosition((event as CustomEvent).detail.value));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.quaternion', (event: Event) => this.setPerspectiveCameraQuaternion((event as CustomEvent).detail.value));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.target', (event: Event) => this.setPerspectiveCameraTarget((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.position', (event: Event) => this.#setPerspectiveCameraPosition((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.quaternion', (event: Event) => this.#setPerspectiveCameraQuaternion((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.target', (event: Event) => this.#setPerspectiveCameraTarget((event as CustomEvent).detail.value));
 		/*
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.perspectiveCameraVerticalFov = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.zoom', (event: Event) => this.orbitCameraZoom = (event as CustomEvent).detail.value);
@@ -291,8 +291,8 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.orthographic', (event: Event) => this.cameraProjection = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.replicate', (event: Event) => this.#replicateCamera = (event as CustomEvent).detail.value);
 		*/
-		OptionsManagerEvents.addEventListener('engine.render.silhouettemode', (event: Event) => this.setSilhouetteMode((event as CustomEvent).detail.value));
-		OptionsManagerEvents.addEventListener('engine.render.silhouettecolor', (event: Event) => this.setSilhouetteColor((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('engine.render.silhouettemode', (event: Event) => this.#setSilhouetteMode((event as CustomEvent).detail.value));
+		OptionsManagerEvents.addEventListener('engine.render.silhouettecolor', (event: Event) => this.#setSilhouetteColor((event as CustomEvent).detail.value));
 		/*
 
 
@@ -352,7 +352,7 @@ class Application {
 		});
 
 		*/
-		OptionsManagerEvents.addEventListener('app.characters.highlightselected', () => this.showHighLights(true));
+		OptionsManagerEvents.addEventListener('app.characters.highlightselected', () => this.#showHighLights(true));
 
 		OptionsManagerEvents.addEventListener('app.lights.renderlights', (event: Event) => {
 			if ((event as CustomEvent<OptionsManagerEvent>).detail.value as boolean) {
@@ -624,7 +624,7 @@ class Application {
 		}
 	}
 
-	setLang(lang: string): void {
+	#setLang(lang: string): void {
 		//ItemManager.lang = lang;
 
 		this.#getLanguage(lang).then(json => {
@@ -651,19 +651,19 @@ class Application {
 		return p;
 	}
 
-	setVerticalFov(fov: number): void {
+	#setVerticalFov(fov: number): void {
 		orbitCamera.verticalFov = fov;
 	}
 
-	setPerspectiveCameraPosition(position: string): void {
+	#setPerspectiveCameraPosition(position: string): void {
 		orbitCamera.setPosition(stringToVec3(position));
 	}
 
-	setPerspectiveCameraQuaternion(quaternion: string): void {
+	#setPerspectiveCameraQuaternion(quaternion: string): void {
 		orbitCamera.setQuaternion(stringToQuat(quaternion));
 	}
 
-	setPerspectiveCameraTarget(target: string): void {
+	#setPerspectiveCameraTarget(target: string): void {
 		orbitCameraControl.target.setPosition(stringToVec3(target));
 	}
 
@@ -686,7 +686,7 @@ class Application {
 		}
 	}
 
-	setSilhouetteMode(silhouetteMode: boolean): void {
+	#setSilhouetteMode(silhouetteMode: boolean): void {
 		if (silhouetteMode) {
 			Graphics.setIncludeCode('silhouetteMode', '#define SILHOUETTE_MODE');
 		} else {
@@ -694,12 +694,12 @@ class Application {
 		}
 	}
 
-	setSilhouetteColor(silhouetteColor: string): void {
+	#setSilhouetteColor(silhouetteColor: string): void {
 		const rgb = hexToRgba(vec4.create(), silhouetteColor);
 		Graphics.setIncludeCode('silhouetteColor', `#define SILHOUETTE_COLOR vec4(${rgb[0]},${rgb[1]},${rgb[2]},${rgb[3]})`);
 	}
 
-	showHighLights(show: boolean): void {
+	#showHighLights(show: boolean): void {
 		show = show && OptionsManager.getItem('app.characters.highlightselected');
 		if (show) {
 			Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
