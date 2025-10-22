@@ -11,12 +11,13 @@ import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
 import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_COMPETITIVE_STAGE, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL } from './constants';
-import { Controller, ControllerEvent } from './controller';
+import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType } from './enums';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
 import { Team } from './loadout/enums';
+import { Loadout } from './loadout/loadout';
 import { addTF2Model, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
@@ -122,6 +123,8 @@ class Application {
 		Controller.addEventListener(ControllerEvent.ResetCamera, () => this.#resetCamera());
 
 		Controller.addEventListener(ControllerEvent.ShowCompetitiveStage, (event: Event) => void (async (): Promise<void> => this.#showCompetitiveStage((event as CustomEvent<boolean>).detail))());
+
+		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier));
 	}
 
 	/*
