@@ -4,12 +4,12 @@ import { Panel } from '../enums';
 import { DynamicPanel } from './dynamicpanel';
 import { PresetsPanel } from './presetspanel';
 import { Controller, ControllerEvent, SetItemFilter } from '../controller';
-import { OptionsManager } from 'harmony-browser-utils';
+import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
 
 export class ItemsPanel extends DynamicPanel {
 	#htmlActiveItems?: HTMLElement;
-	#htmlFiltersContainer?: HTMLElement;
+	//#htmlFiltersContainer?: HTMLElement;
 	#htmlNameFilterContainer?: HTMLElement;
 	#htmlItems?: HTMLElement;
 	#htmlSortType?: HTMLSelectElement;
@@ -52,7 +52,7 @@ export class ItemsPanel extends DynamicPanel {
 		let htmlSortDirection: HTMLHarmonyToggleButtonElement;
 		let htmlShowWarpaintable: HTMLHarmonySwitchElement;
 		let htmlCollapsableFiltersButton: HTMLHarmonySwitchElement;
-		this.#htmlFiltersContainer = createElement('div', {
+		const htmlCollapsableFiltersContainer = createElement('div', {
 			class: 'line-filters',
 			parent: shadowRoot,
 			childs: [
@@ -267,7 +267,7 @@ export class ItemsPanel extends DynamicPanel {
 					id: 'filter-input-datalist'
 				}) as HTMLDataListElement,
 				this.#htmlFilterInput = createElement('input', {
-					id: 'itemlist-filter-text',
+					class: 'filter-text',
 					list: 'filter-input-datalist',
 					$change: (event: Event) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { name: 'name', value: (event.target as HTMLInputElement).value } }),
 					$keyup: (event: Event) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { name: 'name', value: (event.target as HTMLInputElement).value } }),
@@ -282,6 +282,8 @@ export class ItemsPanel extends DynamicPanel {
 				}) as HTMLHarmonySwitchElement,
 			],
 		});
+
+		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; htmlCollapsableFiltersContainer.style.maxHeight = value ? '400px' : '0px' });
 
 		this.#htmlItems = createElement('div', {
 			class: 'items',

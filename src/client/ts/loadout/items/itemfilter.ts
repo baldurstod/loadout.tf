@@ -11,7 +11,7 @@ export class ItemFilter {
 	showOneClass = true;
 	showAllClass = true;
 	doNotFilterPerClass = false;
-	pinned: Array<string> = [];
+	pinned: string[] = [];
 	paintable?: boolean;
 	warpaintable?: boolean;
 	halloween?: boolean;
@@ -21,7 +21,7 @@ export class ItemFilter {
 	displayTaunts = true;
 	collection?: string;
 
-	matchFilter(item: any/*TODO: improve type*/, excludedItems: { e: number }, currentCharacter: Character | undefined, activeItems2: { [key: string]: any /*TODO: better type*/ }): Array<boolean> {
+	matchFilter(item: any/*TODO: improve type*/, excludedItems: { e: number }, currentCharacter: Character | undefined, activeItems2: Record<string, any>): boolean[] {
 		let ret = false;
 		let highlightConflict = false;
 		let isWeapon = false;
@@ -43,7 +43,7 @@ export class ItemFilter {
 
 		if (!this.doNotFilterPerClass && currentCharacter && item.used_by_classes) {
 			let match = false;
-			for (let c in item.used_by_classes) {
+			for (const c in item.used_by_classes) {
 				if (c == currentCharacter.name.toLowerCase()) {
 					match = true;
 					break;
@@ -57,7 +57,7 @@ export class ItemFilter {
 			}
 		}
 
-		let f = this.name;
+		const f = this.name;
 		let positive = false;
 		if (f && f != '') {
 			const filterArray = f.split(';');
@@ -71,8 +71,8 @@ export class ItemFilter {
 					exclude = true;
 					f = f.slice(1);
 				}
-				let keywords = item.keywords;
-				let itemName = item.name;
+				const keywords = item.keywords;
+				const itemName = item.name;
 				if (keywords && (keywords.toLowerCase().includes(f))) {
 					if (exclude) {
 						return [false];
@@ -164,7 +164,7 @@ export class ItemFilter {
 			return [false];
 		}
 
-		let useByClasses = Object.keys(item.used_by_classes).length;
+		const useByClasses = Object.keys(item.used_by_classes).length;
 		if (!this.showOneClass && useByClasses == 1) {
 			++excludedItems.e;
 			return [false];
@@ -186,7 +186,7 @@ export class ItemFilter {
 		}
 
 		if (this.selected && currentCharacter) {
-			for (let itemId of currentCharacter.items.keys()) {
+			for (const itemId of currentCharacter.items.keys()) {
 				if (itemId == item.id) {
 					return [true];
 				}
@@ -208,7 +208,7 @@ export class ItemFilter {
 		}
 
 		if ((this.hideConflict != undefined) && currentCharacter) {
-			for (let characterItem of currentCharacter.items.values()) {
+			for (const characterItem of currentCharacter.items.values()) {
 				if (characterItem.id != item.id) {
 					const equipRegions = item.equip_regions;
 					//console.log(equipRegions);
@@ -226,26 +226,24 @@ export class ItemFilter {
 				}*/
 			}
 
-			let arr = [];
-			let it = null;
-			let list2 = activeItems2;
-			for (let i in list2) {
+			const arr = [];
+			const list2 = activeItems2;
+			for (const i in list2) {
 				arr.push(list2[i]);
 			}
 
 			let equip1;
 			let equip2;
 
-			for (let i = 0; i < arr.length; i++) {
-				it = arr[i];
+			for (const it of arr) {
 				equip1 = it.equip_regions;
 				if (it.id != item.id) {
 					if (equip1) {
 						equip2 = item.equip_regions;
 						if (equip2) {
-							for (let k = 0; k < equip1.length; k++) {
-								for (let l = 0; l < equip2.length; l++) {
-									if (hasConflict(equip1[k], equip2[l])) {
+							for (const k of equip1) {
+								for (const l of equip2) {
+									if (hasConflict(k, l)) {
 										++excludedItems.e;
 										return [false];
 									}

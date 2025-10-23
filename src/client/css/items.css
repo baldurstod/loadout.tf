@@ -13,13 +13,21 @@
 }
 
 .line-filters {
-	flex: 1;
+	flex: 0;
 	background-color: blueviolet;
+	flex-flow: column;
+	transition: 0.2s;
+	display: flex;
 }
 
 .line-name-filter {
-	flex: 1;
+	flex: 0;
 	background-color: green;
+	display: flex;
+}
+
+.filter-text {
+	flex: 1;
 }
 
 .items {

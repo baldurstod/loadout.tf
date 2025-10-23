@@ -3,7 +3,7 @@ const equipConflicts: Record<string, string[]> = {
 	'whole_head': ['hat', 'face', 'glasses'],
 }
 
-export function hasConflict(equipRegions1: Array<string>, equipRegions2: Array<string>): boolean {
+export function hasConflict(equipRegions1: string[], equipRegions2: string[]): boolean {
 	if (!equipRegions1 || !equipRegions2) {
 		return false;
 	}
@@ -17,19 +17,19 @@ export function hasConflict(equipRegions1: Array<string>, equipRegions2: Array<s
 				return true;
 			}
 
-			let eq1 = equipConflicts[region1];
-			let eq2 = equipConflicts[region2];
+			const eq1 = equipConflicts[region1];
+			const eq2 = equipConflicts[region2];
 			if (eq1) {
-				for (let k = 0; k < eq1.length; k++) {
-					if (eq1[k] == region2) {
+				for (const k of eq1) {
+					if (k == region2) {
 						return true;
 					}
 				}
 			}
 
 			if (eq2) {
-				for (let l = 0; l < eq2.length; l++) {
-					if (region1 == eq2[l]) {
+				for (const l of eq2) {
+					if (l == region1) {
 						return true;
 					}
 				}

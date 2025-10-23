@@ -28,7 +28,7 @@ export class Item {
 		//await this.#refreshPaint();
 	}
 
-	getEquipRegions(): Array<string> {
+	getEquipRegions(): string[] {
 		return this.#itemTemplate.equipRegions;
 	}
 }

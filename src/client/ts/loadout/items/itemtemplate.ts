@@ -7,12 +7,12 @@ export class ItemTemplate {
 		this.#definition = definition;
 	}
 
-	get name() {
+	get name(): string {
 		return this.#definition.name as string ?? '';
 	}
 
 	getModel(npc: string): string | null {
-		function convertDemo(npc: string) {
+		function convertDemo(npc: string): string {
 			if (npc == 'demoman') {
 				return 'demo';
 			} else {
@@ -21,21 +21,21 @@ export class ItemTemplate {
 		}
 		npc = npc.replace(/bot_/, '');
 
-		let modelPlayerPerClass = this.#definition.model_player_per_class as { [key: string]: string }/*TODO: improve type*/;
+		const modelPlayerPerClass = this.#definition.model_player_per_class as Record<string, string>/*TODO: improve type*/;
 
 		if (modelPlayerPerClass) {
 			if (modelPlayerPerClass[npc]) {
 				return modelPlayerPerClass[npc] ?? null;
 			}
 
-			let basename = modelPlayerPerClass['basename'];
+			const basename = modelPlayerPerClass['basename'];
 			if (basename) {
-				let usedByClasses = this.#definition.used_by_classes as { [key: string]: string }/*TODO: improve type*/;
+				const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
 				if (usedByClasses) {
 					if (usedByClasses[npc] == "1") {
 						return basename.replace(/%s/g, convertDemo(npc));
 					} else {
-						let arr = Object.keys(usedByClasses);
+						const arr = Object.keys(usedByClasses);
 						if (arr.length > 0) {
 							return basename.replace(/%s/g, convertDemo(arr[0]!));
 						}
@@ -44,19 +44,19 @@ export class ItemTemplate {
 			}
 		}
 
-		let modelPlayer = this.#definition.model_player as string/*TODO: improve type*/;
+		const modelPlayer = this.#definition.model_player as string/*TODO: improve type*/;
 		if (modelPlayer) {
 			return modelPlayer;
 		}
 
-		let customTauntPropPerClass = this.#definition.custom_taunt_prop_per_class as { [key: string]: string }/*TODO: improve type*/;
+		const customTauntPropPerClass = this.#definition.custom_taunt_prop_per_class as Record<string, string>/*TODO: improve type*/;
 		if (customTauntPropPerClass?.[npc]) {
 			return customTauntPropPerClass[npc] ?? null;
 		}
 
 		// Look for the first model_player_per_class
 		if (modelPlayerPerClass) {
-			let arr = Object.keys(modelPlayerPerClass);
+			const arr = Object.keys(modelPlayerPerClass);
 			if (arr.length > 0) {
 				return modelPlayerPerClass[arr[0]!] ?? null;
 			}
@@ -64,12 +64,13 @@ export class ItemTemplate {
 		return null;
 	}
 
-	getModelBlue(npc: string) {
-		let modelPlayerPerClassBlue = this.#definition.model_player_per_class_blue as { [key: string]: string }/*TODO: improve type*/;
+	getModelBlue(npc: string): string | null {
+		const modelPlayerPerClassBlue = this.#definition.model_player_per_class_blue as Record<string, string>/*TODO: improve type*/;
 
 		if (modelPlayerPerClassBlue) {
-			return modelPlayerPerClassBlue[npc];
+			return modelPlayerPerClassBlue[npc] ?? null;
 		}
+		return null;
 	}
 
 	get imageInventory(): string | null {
@@ -81,12 +82,12 @@ export class ItemTemplate {
 	}
 
 	get redSkin(): number {
-		let skinRed = Number(this.#definition.skin_red as string);
+		const skinRed = Number(this.#definition.skin_red as string);
 		return isNaN(skinRed) ? 0 : skinRed;
 	}
 
 	get bluSkin(): number {
-		let skinBlu = Number(this.#definition.skin_blu as string);
+		const skinBlu = Number(this.#definition.skin_blu as string);
 		return isNaN(skinBlu) ? 1 : skinBlu;
 	}
 
@@ -115,9 +116,9 @@ export class ItemTemplate {
 	}
 
 	getItemSlot(npc: string): string | null {
-		let usedByClasses = this.#definition.used_by_classes as { [key: string]: string }/*TODO: improve type*/;
+		const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
 		if (usedByClasses) {
-			let usedByClass = usedByClasses[npc];
+			const usedByClass = usedByClasses[npc];
 			if (usedByClass == 'primary' || usedByClass == 'secondary') {
 				return usedByClass;
 			}
