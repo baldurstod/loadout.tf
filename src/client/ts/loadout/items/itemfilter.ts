@@ -69,9 +69,9 @@ export class ItemFilter {
 					exclude = true;
 					f = f.slice(1);
 				}
-				const keywords: string = item.keywords;
+				//const keywords: string = item.keywords;
 				const itemName = item.name;
-				if (keywords && (keywords.toLowerCase().includes(f))) {
+				if (item.hasKeyword(f)) {
 					if (exclude) {
 						return ItemFilterResult.ExcludedClass;
 					}

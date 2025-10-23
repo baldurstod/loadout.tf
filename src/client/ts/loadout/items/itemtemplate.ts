@@ -3,13 +3,13 @@ import { CharactersList, Tf2Class } from '../characters/characters';
 
 export class ItemTemplate {
 	#definition: JSONObject/*TODO: improve type*/;
-	readonly keywords = '';
+	#keywords = new Set<string>();
 
 	constructor(definition: JSONObject/*TODO: improve type*/) {
 		this.#definition = definition;
 	}
 
-	getItemDefinitionIndex():string {
+	getItemDefinitionIndex(): string {
 		return this.#definition.id as string;
 	}
 
@@ -231,7 +231,7 @@ export class ItemTemplate {
 	}
 
 	isTournamentMedal(): boolean {
-		return this.#definition.isTournamentMedal as boolean/*TODO: improve type*/;
+		return this.#definition.is_tournament_medal as boolean/*TODO: improve type*/;
 	}
 
 	isPaintable(): boolean {
@@ -252,5 +252,26 @@ export class ItemTemplate {
 
 	getCollection(): string {
 		return this.#definition.collection as string;
+	}
+
+	getGrade(): string {
+		return this.#definition.grade as string;
+	}
+
+	getHide(): boolean {
+		return this.#definition.hide == 1;
+	}
+
+	addKeyword(keyword: string): void {
+		this.#keywords.add(keyword.toLowerCase());
+	}
+
+	hasKeyword(search: string): boolean {
+		for (const keyword of this.#keywords) {
+			if (keyword.includes(search)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
