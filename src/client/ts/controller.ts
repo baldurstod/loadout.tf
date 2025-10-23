@@ -28,6 +28,7 @@ export enum ControllerEvent {
 	SelectCamera = 'selectcamera',
 	ResetCamera = 'resetcamera',
 	SetItemFilter = 'setitemfilter',
+	ItemsLoaded = 'itemsloaded',
 }
 
 export type SetBackgroundType = {

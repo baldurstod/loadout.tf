@@ -4,9 +4,9 @@ import { CharactersList, Tf2Class } from '../characters/characters';
 export class ItemTemplate {
 	#definition: JSONObject/*TODO: improve type*/;
 	#keywords = new Set<string>();
-	readonly id:string;
+	readonly id: string;
 
-	constructor(id:string, definition: JSONObject/*TODO: improve type*/) {
+	constructor(id: string, definition: JSONObject/*TODO: improve type*/) {
 		this.#definition = definition;
 		this.id = id;
 	}
@@ -23,6 +23,19 @@ export class ItemTemplate {
 			}
 		}
 		return false;
+	}
+
+	getUsedByClasses(): Set<string> {
+		const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
+		if (usedByClasses) {
+			const used = new Set<string>;
+			for (const usedByClass in usedByClasses) {
+				if (usedByClasses[usedByClass] == '1') {
+					used.add(usedByClass);
+				}
+			}
+		}
+		return new Set();
 	}
 
 	classCount(): number {

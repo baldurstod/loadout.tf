@@ -64,6 +64,7 @@ export class ItemManager {
 							this.#initItems2(json.items);
 							this.#initEffects(json.systems);
 							console.info(this.#itemTemplates);
+							Controller.dispatchEvent<void>(ControllerEvent.ItemsLoaded);
 							resolve();
 						}
 					})

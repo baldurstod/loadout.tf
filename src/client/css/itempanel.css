@@ -33,6 +33,15 @@
 .items {
 	flex: 1;
 	background-color: darkcyan;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-content: baseline;
+	position: relative;
+	height: 100%;
+	overflow: auto;
+	overflow-x: hidden;
+	padding-bottom: 300px;
 }
 
 .active-items {

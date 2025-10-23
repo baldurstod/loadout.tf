@@ -1,11 +1,14 @@
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, toggle } from 'harmony-ui';
-import itemsCSS from '../../css/items.css';
+import itemPanelCSS from '../../css/itempanel.css';
+import itemCSS from '../../css/item.css';
 import { Panel } from '../enums';
 import { DynamicPanel } from './dynamicpanel';
 import { PresetsPanel } from './presetspanel';
 import { Controller, ControllerEvent, SetItemFilter } from '../controller';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
+import { ItemManager } from '../loadout/items/itemmanager';
+export { ItemManagerItem } from './itemmanageritem';
 
 export class ItemsPanel extends DynamicPanel {
 	#htmlActiveItems?: HTMLElement;
@@ -20,8 +23,14 @@ export class ItemsPanel extends DynamicPanel {
 	#updatingPresets = false;
 
 	constructor() {
-		super(Panel.Items, [itemsCSS]);
+		super(Panel.Items, [itemPanelCSS, itemCSS]);
 		hide(this.getShadowRoot());
+		this.#initListeners();
+	}
+
+
+	#initListeners(): void {
+		Controller.addEventListener(ControllerEvent.ItemsLoaded, (event: Event) => this.#refreshItems());
 	}
 
 	protected override initHTML(): void {
@@ -291,5 +300,22 @@ export class ItemsPanel extends DynamicPanel {
 		});
 
 		this.getShadowRoot().append(this.#presetsPanel.getHTMLElement());
+	}
+
+	#refreshItems(): void {
+		// Ensure html is initialized
+		this.getHTMLElement();
+		this.#htmlItems!.replaceChildren();
+
+		for (const item of ItemManager.getFilteredItems()) {
+
+			createElement('item-manager-item', {
+				properties: {
+					item: item,
+				},
+				parent: this.#htmlItems,
+				//$click: (event: Event) => (event.currentTarget == event.target) && this.#selectItem(item, event.target as ItemManagerItem)
+			});
+		}
 	}
 }
