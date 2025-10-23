@@ -63,6 +63,7 @@ export class ItemManager {
 						if (json) {
 							this.#initItems2(json.items);
 							this.#initEffects(json.systems);
+							console.info(this.#itemTemplates);
 							resolve();
 						}
 					})
@@ -102,7 +103,7 @@ export class ItemManager {
 			//let keywords = '';
 			const itemDefinition = itemList[itemIndex] as JSONObject;
 			itemDefinition.is_tournament_medal = tournamentMedals;
-			const itemTemplate = new ItemTemplate(itemDefinition);
+			const itemTemplate = new ItemTemplate(itemIndex, itemDefinition);
 			//item.id = itemIndex;
 
 			this.#itemTemplates.add(itemTemplate);

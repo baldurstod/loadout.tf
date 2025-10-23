@@ -4,13 +4,11 @@ import { CharactersList, Tf2Class } from '../characters/characters';
 export class ItemTemplate {
 	#definition: JSONObject/*TODO: improve type*/;
 	#keywords = new Set<string>();
+	readonly id:string;
 
-	constructor(definition: JSONObject/*TODO: improve type*/) {
+	constructor(id:string, definition: JSONObject/*TODO: improve type*/) {
 		this.#definition = definition;
-	}
-
-	getItemDefinitionIndex(): string {
-		return this.#definition.id as string;
+		this.id = id;
 	}
 
 	get name(): string {
@@ -99,10 +97,6 @@ export class ItemTemplate {
 
 	get imageInventory(): string | null {
 		return this.#definition.image_inventory as (string | undefined) ?? null;
-	}
-
-	get id(): string {
-		return this.#definition.id as string ?? '';
 	}
 
 	get redSkin(): number {
