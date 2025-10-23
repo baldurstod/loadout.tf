@@ -1,14 +1,38 @@
 import { JSONObject } from 'harmony-types';
+import { CharactersList, Tf2Class } from '../characters/characters';
 
 export class ItemTemplate {
 	#definition: JSONObject/*TODO: improve type*/;
+	readonly keywords = '';
 
 	constructor(definition: JSONObject/*TODO: improve type*/) {
 		this.#definition = definition;
 	}
 
+	getItemDefinitionIndex():string {
+		return this.#definition.id as string;
+	}
+
 	get name(): string {
 		return this.#definition.name as string ?? '';
+	}
+
+	isUsedByClass(characterClass: Tf2Class): boolean {
+		const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
+		if (usedByClasses) {
+			if (usedByClasses[CharactersList.get(characterClass)!.name] == '1') {
+				return true
+			}
+		}
+		return false;
+	}
+
+	classCount(): number {
+		const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
+		if (usedByClasses) {
+			return Object.keys(usedByClasses).length;
+		}
+		return 0;
 	}
 
 	getModel(npc: string): string | null {
@@ -32,7 +56,7 @@ export class ItemTemplate {
 			if (basename) {
 				const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
 				if (usedByClasses) {
-					if (usedByClasses[npc] == "1") {
+					if (usedByClasses[npc] == '1') {
 						return basename.replace(/%s/g, convertDemo(npc));
 					} else {
 						const arr = Object.keys(usedByClasses);
@@ -208,5 +232,25 @@ export class ItemTemplate {
 
 	isTournamentMedal(): boolean {
 		return this.#definition.isTournamentMedal as boolean/*TODO: improve type*/;
+	}
+
+	isPaintable(): boolean {
+		return this.#definition.paintable == '1';
+	}
+
+	isWarPaintable(): boolean {
+		return this.#definition.paintkit_base == '1';
+	}
+
+	isHalloweenRestricted(): boolean {
+		return this.#definition.holiday_restriction == 'halloween_or_fullmoon';
+	}
+
+	getItemTypeName(): string {
+		return this.#definition.item_type_name as string;
+	}
+
+	getCollection(): string {
+		return this.#definition.collection as string;
 	}
 }

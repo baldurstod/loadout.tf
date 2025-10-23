@@ -1,11 +1,13 @@
 import { Controller, ControllerEvent, SetItemFilter } from '../../controller';
 import { Character } from '../characters/character';
 import { ItemFilter } from './itemfilter';
+import { ItemTemplate } from './itemtemplate';
 
 export class ItemManager {
 	static #filters = new ItemFilter();
 	static #currentCharacter: Character | null = null;
 	static #lang = 'english';
+	static #items = new Set<ItemTemplate>();
 
 	static {
 		this.#initListeners();
@@ -26,10 +28,14 @@ export class ItemManager {
 
 	static setItemFilter(filter: SetItemFilter): void {
 		this.#filters.setAttribute(filter.name, filter.value);
-
 	}
 
 
+	static getItems(): Set<ItemTemplate> {
+		return new Set<ItemTemplate>(this.#items);
+	}
 
-
+	static getFilteredItems(): Set<ItemTemplate> {
+		return new Set<ItemTemplate>(this.#items);
+	}
 }

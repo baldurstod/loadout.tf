@@ -1,5 +1,14 @@
-import { Character } from '../characters/character';
+import { CharactersList, Tf2Class } from '../characters/characters';
 import { hasConflict } from './hasconflict';
+import { Item } from './item';
+import { ItemTemplate } from './itemtemplate';
+
+export enum ItemFilterResult {
+	Ok,
+	ExcludedClass,
+	ExcludedFilter,
+	Conflicting,
+}
 
 export class ItemFilter {
 	name?: string;
@@ -21,12 +30,13 @@ export class ItemFilter {
 	displayTaunts = true;
 	collection?: string;
 
-	matchFilter(item: any/*TODO: improve type*/, excludedItems: { e: number }, currentCharacter: Character | undefined, activeItems2: Record<string, any>): boolean[] {
+	matchFilter(item: ItemTemplate, excludedItems: { e: number }, characterClass: Tf2Class | null, activeItems: Set<Item>): ItemFilterResult {
 		let ret = false;
 		let highlightConflict = false;
 		let isWeapon = false;
 		let isTaunt = false;
-		switch (item.item_slot) {
+		const name = characterClass ? CharactersList.get(characterClass)!.name : 'scout';
+		switch (item.getItemSlot(name)) {
 			case 'primary':
 			case 'secondary':
 			case 'melee':
@@ -41,20 +51,8 @@ export class ItemFilter {
 				break;
 		}
 
-		if (!this.doNotFilterPerClass && currentCharacter && item.used_by_classes) {
-			let match = false;
-			for (const c in item.used_by_classes) {
-				if (c == currentCharacter.name.toLowerCase()) {
-					match = true;
-					break;
-				}
-			}
-			/*if (item.usedby.indexOf(filter.className.toLowerCase()) == -1) {
-				return false;
-			}*/
-			if (!match) {
-				return [false];
-			}
+		if (!this.doNotFilterPerClass && characterClass && item.isUsedByClass(characterClass)) {
+			return ItemFilterResult.ExcludedClass;
 		}
 
 		const f = this.name;
@@ -71,11 +69,11 @@ export class ItemFilter {
 					exclude = true;
 					f = f.slice(1);
 				}
-				const keywords = item.keywords;
+				const keywords: string = item.keywords;
 				const itemName = item.name;
 				if (keywords && (keywords.toLowerCase().includes(f))) {
 					if (exclude) {
-						return [false];
+						return ItemFilterResult.ExcludedClass;
 					}
 					ret = true;
 				} else {
@@ -85,7 +83,7 @@ export class ItemFilter {
 				}
 				if (itemName.toLowerCase().includes(f)) {
 					if (exclude) {
-						return [false];
+						return ItemFilterResult.ExcludedClass;
 					}
 					ret = true;
 				} else {
@@ -104,23 +102,23 @@ export class ItemFilter {
 		}
 
 		if (!ret || !positive) {
-			return [false];
+			return ItemFilterResult.ExcludedClass;
 		}
 
-		if (!isWeapon && this.paintable !== undefined && ((this.paintable && item.paintable == undefined) || (!this.paintable && item.paintable == '1'))) {
+		if (!isWeapon && this.paintable != item.isPaintable()) {
 			++excludedItems.e;
-			return [false];
+			return ItemFilterResult.ExcludedFilter;
 		}
 
-		if (isWeapon && this.warpaintable !== undefined && ((this.warpaintable && item.paintkit_base == undefined) || (!this.warpaintable && item.paintkit_base == '1'))) {
+		if (isWeapon && this.warpaintable != item.isWarPaintable()) {
 			++excludedItems.e;
-			return [false];
+			return ItemFilterResult.ExcludedFilter;
 		}
 
 		//if (this.halloween !== undefined && (this.halloween && item.holiday_restriction == 'halloween_or_fullmoon')) {
-		if (!isWeapon && this.halloween !== undefined && ((this.halloween && item.holiday_restriction == undefined) || (!this.halloween && item.holiday_restriction == 'halloween_or_fullmoon'))) {
+		if (!isWeapon && this.halloween != item.isHalloweenRestricted()) {
 			++excludedItems.e;
-			return [false];
+			return ItemFilterResult.ExcludedFilter;
 		}
 
 		let filterWeapon = true;
@@ -129,7 +127,7 @@ export class ItemFilter {
 		let filterTaunt = true;
 		let isMedal = false;
 
-		const itemTypeName = item.item_type_name;
+		const itemTypeName = item.getItemTypeName();
 		if (itemTypeName == 'Community Medal' || itemTypeName == 'Tournament Medal' || itemTypeName == 'Badge' || itemTypeName == 'Medallion' || itemTypeName == 'Func_Medal') {
 			isMedal = true;
 		}
@@ -161,61 +159,61 @@ export class ItemFilter {
 
 		if (filterWeapon && filterMedal && filterCosmetic && filterTaunt) {
 			++excludedItems.e;
-			return [false];
+			return ItemFilterResult.ExcludedFilter;
 		}
 
-		const useByClasses = Object.keys(item.used_by_classes).length;
+		const useByClasses = item.classCount();
 		if (!this.showOneClass && useByClasses == 1) {
 			++excludedItems.e;
-			return [false];
+			return ItemFilterResult.ExcludedFilter;
 		}
 		if (!this.showMultiClass && useByClasses > 1 && useByClasses < 9) {
 			++excludedItems.e;
-			return [false];
+			return ItemFilterResult.ExcludedFilter;
 		}
 		if (!this.showAllClass && useByClasses == 9) {
 			++excludedItems.e;
-			return [false];
+			return ItemFilterResult.ExcludedFilter;
 		}
 
 		if (this.selected) {
 			const itemId = item.id;
 			if (this.pinned.indexOf(itemId) > -1) {
-				return [true];
+				return ItemFilterResult.Ok;
 			}
 		}
 
-		if (this.selected && currentCharacter) {
-			for (const itemId of currentCharacter.items.keys()) {
-				if (itemId == item.id) {
-					return [true];
+		if (this.selected) {
+			for (const itemId of activeItems) {
+				if (itemId.id == item.id) {
+					return ItemFilterResult.Ok;
 				}
 			}
 			++excludedItems.e;
-			return [false];
+			return ItemFilterResult.ExcludedFilter;
 		}
 
 		if (this.collection) {
-			if (this.collection != item.collection) {
+			if (this.collection != item.getCollection()) {
 				++excludedItems.e;
-				return [false];
+				return ItemFilterResult.ExcludedFilter;
 			}
 		}
 
-		if (this.tournamentMedals != (item.isTournamentMedal == true)) {
+		if (this.tournamentMedals != (item.isTournamentMedal() == true)) {
 			++excludedItems.e;
-			return [false];
+			return ItemFilterResult.ExcludedFilter;
 		}
 
-		if ((this.hideConflict != undefined) && currentCharacter) {
-			for (const characterItem of currentCharacter.items.values()) {
+		if (this.hideConflict != undefined) {
+			for (const characterItem of activeItems) {
 				if (characterItem.id != item.id) {
-					const equipRegions = item.equip_regions;
+					const equipRegions = item.equipRegions;
 					//console.log(equipRegions);
 					if (hasConflict(characterItem.getEquipRegions(), equipRegions)) {
 						if (this.hideConflict) {
 							++excludedItems.e;
-							return [false];
+							return ItemFilterResult.ExcludedFilter;
 						} else {
 							highlightConflict = true;
 						}
@@ -227,35 +225,42 @@ export class ItemFilter {
 			}
 
 			const arr = [];
-			const list2 = activeItems2;
-			for (const i in list2) {
-				arr.push(list2[i]);
+			for (const activeItem of activeItems) {
+				arr.push(activeItem);
 			}
 
-			let equip1;
-			let equip2;
+			let equip1: string[];
+			let equip2: string[];
 
 			for (const it of arr) {
-				equip1 = it.equip_regions;
+				equip1 = it.getEquipRegions();
 				if (it.id != item.id) {
 					if (equip1) {
-						equip2 = item.equip_regions;
+						equip2 = item.equipRegions;
 						if (equip2) {
-							for (const k of equip1) {
-								for (const l of equip2) {
-									if (hasConflict(k, l)) {
-										++excludedItems.e;
-										return [false];
-									}
-								}
+							//for (const k of equip1) {
+							//for (const l of equip2) {
+							if (hasConflict(equip1, equip2)) {
+								++excludedItems.e;
+								return ItemFilterResult.ExcludedFilter;
 							}
+							//}
+							//}
 						}
 					}
 				}
 			}
 		}
 
-		return [this.workshop == (item.isWorkshop ? true : false), highlightConflict];
+		if (this.workshop != item.isWorkshop()) {
+			return ItemFilterResult.ExcludedClass;
+		}
+
+		if (highlightConflict) {
+			return ItemFilterResult.Conflicting;
+		}
+
+		return ItemFilterResult.Ok;
 	}
 
 	setAttribute(name: string, value: boolean | string | undefined): void {
