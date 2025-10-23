@@ -5,6 +5,7 @@ import { Character } from '../characters/character';
 import { ItemFilter } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
 import { EffectTemplate } from './effecttemplate';
+import { Panel } from '../../enums';
 
 export class ItemManager {
 	static #filters = new ItemFilter();
@@ -32,6 +33,12 @@ export class ItemManager {
 
 	static #initListeners(): void {
 		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.setItemFilter((event as CustomEvent<SetItemFilter>).detail));
+
+		Controller.addEventListener(ControllerEvent.ShowPanel, (event: Event) => {
+			if ((event as CustomEvent<Panel>).detail == Panel.Items) {
+				this.#initItems();
+			}
+		});
 	}
 
 	static setItemFilter(filter: SetItemFilter): void {
@@ -50,7 +57,7 @@ export class ItemManager {
 	static #initItems(): Promise<void> {
 		if (!this.#loadItemsPromise) {
 			this.#loadItemsPromise = new Promise((resolve) => {
-				let url = `${TF2_REPOSITORY}generated/items/items_${this.#lang}.json`;
+				const url = `${TF2_REPOSITORY}generated/items/items_${this.#lang}.json`;
 				fetch(new Request(url)).then((response) => {
 					response.json().then((json) => {
 						if (json) {
@@ -93,7 +100,7 @@ export class ItemManager {
 
 		for (const itemIndex in itemList) {
 			//let keywords = '';
-			let itemDefinition = itemList[itemIndex] as JSONObject;
+			const itemDefinition = itemList[itemIndex] as JSONObject;
 			itemDefinition.is_tournament_medal = tournamentMedals;
 			const itemTemplate = new ItemTemplate(itemDefinition);
 			//item.id = itemIndex;
@@ -109,7 +116,7 @@ export class ItemManager {
 			}
 
 
-			let it: any/*TODO:better type*/ = {};
+			const it: any/*TODO:better type*/ = {};
 			//it.view = this.#createItemView(item, it);
 			it.item = itemTemplate;
 			/*

@@ -171,7 +171,7 @@ export class ItemTemplate {
 	}
 
 	get equipRegions(): string[] {
-		return this.#definition.equip_regions as string[];
+		return this.#definition.equip_regions as (string[] | undefined) ?? [];
 	}
 
 	get setItemTintRGB(): string {
