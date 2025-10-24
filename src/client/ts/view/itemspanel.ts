@@ -157,7 +157,7 @@ export class ItemsPanel extends DynamicPanel {
 							},
 							class: 'large',
 							'data-i18n': '#show_halloween_restricted_items',
-							$change: (event: CustomEvent) => OptionsManager.setItem('app.items.filter.halloween', (event.target as HTMLHarmonySwitchElement).state),
+							$change: (event: CustomEvent<OptionsManagerEvent>) => OptionsManager.setItem('app.items.filter.halloween', (event.target as HTMLHarmonySwitchElement).state),
 						}) as HTMLHarmonySwitchElement,
 						htmlShowPaintable = createElement('harmony-switch', {
 							attributes: {
@@ -165,7 +165,7 @@ export class ItemsPanel extends DynamicPanel {
 							},
 							class: 'large',
 							'data-i18n': '#show_paintable_items',
-							$change: (event: CustomEvent) => OptionsManager.setItem('app.items.filter.paintable', (event.target as HTMLHarmonySwitchElement).state),
+							$change: (event: CustomEvent<OptionsManagerEvent>) => OptionsManager.setItem('app.items.filter.paintable', (event.target as HTMLHarmonySwitchElement).state),
 						}) as HTMLHarmonySwitchElement,
 						htmlShowWarpaintable = createElement('harmony-switch', {
 							attributes: {
@@ -173,7 +173,7 @@ export class ItemsPanel extends DynamicPanel {
 							},
 							class: 'large',
 							'data-i18n': '#show_warpaintable_items',
-							$change: (event: CustomEvent) => OptionsManager.setItem('app.items.filter.warpaintable', (event.target as HTMLHarmonySwitchElement).state),
+							$change: (event: CustomEvent<OptionsManagerEvent>) => OptionsManager.setItem('app.items.filter.warpaintable', (event.target as HTMLHarmonySwitchElement).state),
 						}) as HTMLHarmonySwitchElement,
 					],
 				}),
@@ -238,7 +238,6 @@ export class ItemsPanel extends DynamicPanel {
 			],
 		});
 
-		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; htmlCollapsableFiltersContainer.style.maxHeight = value ? '400px' : '0px' });
 
 		this.#htmlItems = createElement('div', {
 			class: 'items',
@@ -246,6 +245,31 @@ export class ItemsPanel extends DynamicPanel {
 		});
 
 		this.getShadowRoot().append(this.#presetsPanel.getHTMLElement());
+
+
+		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; htmlCollapsableFiltersContainer.style.maxHeight = value ? '400px' : '0px' });
+
+		OptionsManagerEvents.addEventListener('app.items.filter.restoretext', (event: Event) => { if ((event as CustomEvent<OptionsManagerEvent>).detail.value) { this.#htmlFilterInput!.value = OptionsManager.getItem('app.items.filter.text'); } });
+
+		OptionsManagerEvents.addEventListener('app.items.filter.displaymedals', (event: Event) => { let value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlTypeRadio.select('medals', value as boolean); /*this.#setFilterMedals(value); */ });
+		OptionsManagerEvents.addEventListener('app.items.filter.displayweapons', (event: Event) => { let value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlTypeRadio.select('weapons', value as boolean); /*this.#setFilterWeapons(value);*/ });
+		OptionsManagerEvents.addEventListener('app.items.filter.displaycosmetics', (event: Event) => { let value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlTypeRadio.select('cosmetics', value as boolean);/* this.#setFilterCosmetics(value);*/ });
+		OptionsManagerEvents.addEventListener('app.items.filter.displaytaunts', (event: Event) => { let value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlTypeRadio.select('taunts', value as boolean); /*this.#setFilterTaunts(value); */ });
+
+		OptionsManagerEvents.addEventListener('app.items.filter.filterallclass', (event: Event) => { let value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlSwitchFilterPerClass.state = value as boolean | undefined; /*this.#applyFilter();*/ });
+
+		OptionsManagerEvents.addEventListener('app.items.sort.type', (event: Event) => this.#htmlSortType!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
+
+		OptionsManagerEvents.addEventListener('app.items.filter.collection', (event: Event) => this.#htmlFilterCollection!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
+
+		OptionsManagerEvents.addEventListener('app.items.sort.ascending', (event: Event) => htmlSortDirection.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+
+		//OptionsManagerEvents.addEventListener('app.items.warpaints.sort.type', (event: Event) => this.#htmlWarpaintsSortType.value = (event as CustomEvent<OptionsManagerEvent>).detail.value);
+		//OptionsManagerEvents.addEventListener('app.items.warpaints.sort.ascending', (event: Event) => this.#htmlWarpaintsSortDirection.state = ascending);
+
+		OptionsManagerEvents.addEventListener('app.items.filter.halloween', (event: Event) => { let value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlShowHalloween.state = value as boolean | undefined; });
+		OptionsManagerEvents.addEventListener('app.items.filter.paintable', (event: Event) => htmlShowPaintable.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean | undefined);
+		OptionsManagerEvents.addEventListener('app.items.filter.warpaintable', (event: Event) => htmlShowWarpaintable.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean | undefined);
 	}
 
 	#refreshItems(): void {
