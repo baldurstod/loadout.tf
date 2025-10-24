@@ -1,11 +1,12 @@
+import { OptionsManager } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
 import { TF2_REPOSITORY } from '../../constants';
-import { Controller, ControllerEvent, SetItemFilter } from '../../controller';
+import { Controller, ControllerEvent, ItemPinned, SetItemFilter } from '../../controller';
+import { Panel } from '../../enums';
 import { Character } from '../characters/character';
+import { EffectTemplate } from './effecttemplate';
 import { ItemFilter } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
-import { EffectTemplate } from './effecttemplate';
-import { Panel } from '../../enums';
 
 export class ItemManager {
 	static #filters = new ItemFilter();
@@ -33,6 +34,8 @@ export class ItemManager {
 
 	static #initListeners(): void {
 		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.setItemFilter((event as CustomEvent<SetItemFilter>).detail));
+
+		Controller.addEventListener(ControllerEvent.ItemPinned, (event: Event) => this.#pinItem((event as CustomEvent<ItemPinned>).detail.item, (event as CustomEvent<ItemPinned>).detail.pinned));
 
 		Controller.addEventListener(ControllerEvent.ShowPanel, (event: Event) => {
 			if ((event as CustomEvent<Panel>).detail == Panel.Items) {
@@ -161,5 +164,19 @@ export class ItemManager {
 	}
 
 	static #initEffects(systemList: JSONObject): void {
+	}
+
+	static #pinItem(item: ItemTemplate, isPinned: boolean): void {
+		const pinned: string[] = OptionsManager.getItem('app.items.pinned') ?? [];
+		const index = pinned.indexOf(item.id);
+		if (isPinned) {
+			if (index == -1) {
+				pinned.push(item.id);
+			}
+		} else {
+			pinned.splice(index, 1);
+		}
+
+		OptionsManager.setItem('app.items.pinned', pinned);
 	}
 }

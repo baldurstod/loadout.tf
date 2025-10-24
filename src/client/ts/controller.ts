@@ -1,4 +1,5 @@
 import { BackgroundType } from "./enums";
+import { ItemTemplate } from "./loadout/items/itemtemplate";
 
 export enum ControllerEvent {
 	UseBots = 'usebots',
@@ -29,6 +30,7 @@ export enum ControllerEvent {
 	ResetCamera = 'resetcamera',
 	SetItemFilter = 'setitemfilter',
 	ItemsLoaded = 'itemsloaded',
+	ItemPinned = 'itempinned',
 }
 
 export type SetBackgroundType = {
@@ -45,6 +47,11 @@ export type SetItemFilter = {
 	name: 'name' | 'selected' | 'workshop' | 'hideConflict' | 'tournamentMedals' | 'showMultiClass' | 'showOneClass' | 'showAllClass' | 'doNotFilterPerClass'
 	| 'pinned' | 'paintable' | 'warpaintable' | 'halloween' | 'displayMedals' | 'displayWeapons' | 'displayCosmetics' | 'displayTaunts' | 'collection';
 	value: string | boolean | undefined;
+}
+
+export type ItemPinned = {
+	item: ItemTemplate;
+	pinned: boolean;
 }
 
 export class Controller {
