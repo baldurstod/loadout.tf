@@ -44,6 +44,7 @@ item-manager-item {
 	display: inline-block;
 	position: relative;
 }
+
 /*
 
 .item-manager-item-selected {
@@ -72,7 +73,7 @@ item-manager-item {
 }
 
 */
-.item-manager-item-img {
+.item-image {
 	position: absolute;
 	text-align: center;
 	display: inline-block;
@@ -81,6 +82,7 @@ item-manager-item {
 	overflow: hidden;
 	pointer-events: none;
 }
+
 /*
 
 .item-manager-item-icon-unusual {
@@ -196,9 +198,9 @@ item-manager-item {
 .item-manager-item-icon-texture>input {
 	opacity: 0;
 	display: block;
-}
+}*/
 
-.item-manager-item-detail {
+.detail {
 	min-height: 100px;
 	min-width: 100%;
 	background-color: var(--theme-popup-bg-color);
@@ -211,7 +213,7 @@ item-manager-item {
 	left: 0px;
 }
 
-.item-manager-item-detail-title {
+.detail-title {
 	white-space: nowrap;
 	font-size: calc(2.5 * var(--font-size));
 	color: var(--theme-text-color);
@@ -222,7 +224,7 @@ item-manager-item {
 	color: var(--theme-text-color-warning);
 }
 
-.item-manager-item-detail-class {
+.detail-class {
 	height: 30px;
 	width: 30px;
 	background-size: 100% auto;
@@ -262,18 +264,18 @@ item-manager-item.interfering {
 	background-color: rgba(255, 255, 100, 0.5) !important;
 }
 
-.item-manager-item-detail-wiki-link {
+.detail-wiki-link {
 	display: block;
 }
 
-.item-manager-item-detail-steammarket-link {
+.steammarket-link {
 	display: block;
 }
 
-.item-manager-item-detail>.pin-switch {
+.detail>.pin-switch {
 	width: 100%;
 }
-
+/*
 .item-manager-painkits-outer {
 	position: absolute;
 	top: 0px;
@@ -514,7 +516,7 @@ harmony-radio>button {
 	padding: 1rem;
 }
 
-.filter3{
+.filter3 {
 	display: flex;
 }
 

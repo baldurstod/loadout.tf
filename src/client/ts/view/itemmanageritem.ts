@@ -1,6 +1,6 @@
 import { Source1TextureManager, TextureManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
-import { createElement, defineHarmonySwitch, hide, HTMLHarmonySwitchElement, show } from 'harmony-ui';
+import { createElement, defineHarmonySwitch, hide, HTMLHarmonySwitchElement, isVisible, show } from 'harmony-ui';
 import filterAllMotdPNG from '../../img/class_icon/filter_all_motd.png';
 import filterDemoMotdPNG from '../../img/class_icon/filter_demo_motd.png';
 import filterEngineerMotdPNG from '../../img/class_icon/filter_engineer_motd.png';
@@ -48,7 +48,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 	#detail?: HTMLElement;
 	#it: any/*TODO: imrpove type*/;
 	#itemNameDiv?: HTMLElement;
-	#itemIconDiv?: HTMLElement;
+	#itemIconDiv?: HTMLImageElement;
 	#detailTimeout?: ReturnType<typeof setTimeout>;
 	#htmlPinned?: HTMLHarmonySwitchElement;
 
@@ -101,9 +101,11 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			const imageInventory = this.#item.imageInventory;
 			if (imageInventory) {
 				if (imageInventory?.substring(0, 4) == 'http') {
-					this.#itemIconDiv!.style.backgroundImage = 'url(\'' + imageInventory + '\')';
+					//this.#itemIconDiv!.style.backgroundImage = 'url(\'' + imageInventory + '\')';
+					this.#itemIconDiv!.src = imageInventory;
 				} else {
-					this.#itemIconDiv!.style.backgroundImage = 'url(\'' + inventoryPath + imageInventory.toLowerCase() + '.png\')';
+					//this.#itemIconDiv!.style.backgroundImage = 'url(\'' + inventoryPath + imageInventory.toLowerCase() + '.png\')';
+					this.#itemIconDiv!.src = inventoryPath + imageInventory.toLowerCase() + '.png';
 				}
 			}
 			this.#initialized = true;
@@ -118,10 +120,13 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 	}
 
 	#showDetail2(): void {
+		if (this.#detail && isVisible(this.#detail)) {
+			show(this.#detail);
+		}
 		if (this.#item && this.#visible && !this.#detailInitialized) {
-			this.#detail = createElement('div', { class: 'item-manager-item-detail' });
-			this.append(this.#detail);
 			this.#detailInitialized = true;
+			this.#detail = createElement('div', { class: 'detail' });
+			this.append(this.#detail);
 			this.#createDetail();
 		}
 		show(this.#detail);
@@ -207,25 +212,25 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		}
 
 		if (item.isWorkshop) {
-			const detailWorkshopLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#workshop' }) as HTMLLinkElement;
+			const detailWorkshopLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#workshop' }) as HTMLAnchorElement;
 			detailWorkshopLink.href = encodeURI(`${WORKSHOP_URL}${item.id}`);
 			detailWorkshopLink.target = '_blank';
 			this.#detail!.append(detailWorkshopLink);
 
 			if (item.creatorid64) {
-				const detailCreatorLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#creator' }) as HTMLLinkElement;
+				const detailCreatorLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#creator' }) as HTMLAnchorElement;
 				detailCreatorLink.href = encodeURI(`${STEAM_PROFILE_URL}${item.creatorid64}`);
 				detailCreatorLink.target = '_blank';
 				this.#detail!.append(detailCreatorLink);
 			}
 
 		} else {
-			const detailWikiLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#official_wiki' }) as HTMLLinkElement;
+			const detailWikiLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#official_wiki' }) as HTMLAnchorElement;
 			detailWikiLink.href = encodeURI(`https://wiki.teamfortress.com/wiki/${linkName}`);
 			detailWikiLink.target = '_blank';
 			this.#detail!.append(detailWikiLink);
 
-			const detailSteamLink = createElement('a', { class: 'item-manager-item-detail-steammarket-link capitalize', i18n: '#steam_market' }) as HTMLLinkElement;
+			const detailSteamLink = createElement('a', { class: 'item-manager-item-detail-steammarket-link capitalize', i18n: '#steam_market' }) as HTMLAnchorElement;
 			detailSteamLink.href = `https://steamcommunity.com/market/search?appid=440&q=${linkName}`;
 			detailSteamLink.target = '_blank';
 			this.#detail!.append(detailSteamLink);
@@ -296,9 +301,8 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		this.setAttribute('title', this.#item.name);
 		this.addEventListener('mouseover', () => { this.#showDetail(); });
 		this.addEventListener('mouseleave', () => { this.#hideDetail(); });
-		this.#itemNameDiv = createElement('div', { class: 'item-name' });
-		this.#itemIconDiv = createElement('div', { class: 'item-manager-item-img' });
-		this.append(this.#itemIconDiv, this.#itemNameDiv);
+		this.#itemIconDiv = createElement('img', { class: 'item-image', parent: this, });
+		this.#itemNameDiv = createElement('div', { class: 'item-name', parent: this, });
 
 		const item = this.#item;
 		if (item.paintable == '1') {
@@ -338,7 +342,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		}
 
 		if (item.can_customize_texture == '1') {
-			function ProcessBackgroundImageUrlDrop(event: Event) {
+			function ProcessBackgroundImageUrlDrop(event: Event): void {
 				event.preventDefault();
 				let files: FileList | null = null;
 				if (event.target) {
@@ -358,9 +362,9 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 
 					// Closure to capture the file information.
 					reader.onload = (() => {
-						return (e) => {
+						return (e): void => {
 							const image = new Image();
-							image.onload = function () {
+							image.onload = (): void => {
 								//let customTextureName = 'testCustomTexture2' + (this.customTextureId++);
 								//it.setCustomTexture(customTextureName);
 

@@ -30,7 +30,7 @@ export class ItemsPanel extends DynamicPanel {
 
 
 	#initListeners(): void {
-		Controller.addEventListener(ControllerEvent.ItemsLoaded, (event: Event) => this.#refreshItems());
+		Controller.addEventListener(ControllerEvent.ItemsLoaded, () => this.#refreshItems());
 	}
 
 	protected override initHTML(): void {
