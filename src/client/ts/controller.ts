@@ -32,6 +32,7 @@ export enum ControllerEvent {
 	ItemsLoaded = 'itemsloaded',
 	ItemPinned = 'itempinned',
 	FiltersUpdated = 'filtersupdated',
+	ShowWeaponUnusualEffectSelector = 'showweaponunusualeffectselector',
 }
 
 export type SetBackgroundType = {

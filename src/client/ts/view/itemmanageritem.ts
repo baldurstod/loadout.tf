@@ -21,7 +21,6 @@ import viewmodeUnusualVtfPNG from '../../img/items/viewmode_unusual.vtf.png';
 import { inventoryPath, STEAM_PROFILE_URL } from '../constants';
 import { Controller, ControllerEvent, ItemPinned } from '../controller';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { ItemManager } from '../loadout/items/itemmanager';
 import { ItemTemplate } from '../loadout/items/itemtemplate';
 
 export const ItemManagerItemEventTarget = new EventTarget();
@@ -278,10 +277,9 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 	}
 
 	#addPaintKitButton(): void {
-		const item = this.#item;
 		const div2 = createElement('img', {
+			class: 'warpaint-icon',
 			src: paintkitBundle03PNG,
-			class: 'item-manager-item-icon-warpaint'
 		});
 		this.append(div2);
 		div2.addEventListener('click', (event) => {
@@ -291,12 +289,15 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 
 		// unusual effect
 		const div3 = createElement('img', {
+			class: 'unusual-icon',
 			src: viewmodeUnusualVtfPNG,
-			class: 'item-manager-item-icon-unusual'
 		});
 		this.append(div3);
 		//div3.itemName = item;
-		div3.addEventListener('click', event => { ItemManager.showWeaponUnusualEffectSelector(item); event.stopPropagation(); });
+		div3.addEventListener('click', event => {
+			Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ShowWeaponUnusualEffectSelector, { detail: this.#item });
+			event.stopPropagation();
+		});
 	}
 
 	#createHTML(): void {
@@ -309,8 +310,8 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		const itemTemplate = this.#item!;
 		if (itemTemplate.isPaintable()) {
 			const div2 = createElement('img', {
+				class: 'paint-icon',
 				src: paintcanPNG,
-				class: 'item-manager-item-icon-paint'
 			});
 			this.append(div2);
 			//div2.itemName = item;
@@ -326,7 +327,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 
 		if (itemTemplate.attachedModelsFestive) {
 			const divFestive = createElement('img', {
-				class: 'item-manager-item-icon-festivizer',
+				class: 'festivizer-icon',
 				src: festivizerPNG,
 				i18n: {
 					title: '#festivizer',
@@ -385,7 +386,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			}
 
 			createElement('div', {
-				class: 'item-manager-item-icon-texture',
+				class: 'decal-icon',
 				parent: this,
 				childs: [
 					createElement('img', {
@@ -409,8 +410,8 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			|| (itemSlot == 'secondary')
 		) {
 			const div2 = createElement('img', {
+				class: 'crit-icon',
 				src: mvmPowCritPNG,
-				class: 'item-manager-item-icon-crit'
 			});
 			this.append(div2);
 			//div2.itemName = item;
@@ -426,8 +427,8 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		//const itemSlot = itemTemplate.item_slot;
 		if (itemSlot && (itemSlot.indexOf('melee') != -1 || itemSlot.indexOf('pda') != -1 || itemSlot.indexOf('pda2') != -1 || itemSlot.indexOf('primary') != -1 || itemSlot.indexOf('secondary') != -1)) {
 			const div2 = createElement('img', {
+				class: 'sheen-icon',
 				src: paintcanPNG,
-				class: 'item-manager-item-icon-sheen'
 			});
 			this.append(div2);
 			//div2.itemName = item;
@@ -439,8 +440,8 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 
 		if (itemTemplate.isHalloweenRestricted()) {
 			const div2 = createElement('img', {
+				class: 'spooky-icon',
 				src: viewmodeSpookyPNG,
-				class: 'item-manager-item-icon-spooky'
 			});
 			this.append(div2);
 		}
