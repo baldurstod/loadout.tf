@@ -1,9 +1,23 @@
 import { Source1ModelInstance } from 'harmony-3d';
 import { TF2_CASUAL_BADGE } from '../constants';
-import { addTF2Model } from './scene';
+import { Controller, ControllerEvent } from '../controller';
+import { CharacterManager } from './characters/charactermanager';
+import { Item } from './items/item';
+import { ItemManager } from './items/itemmanager';
+import { ItemTemplate } from './items/itemtemplate';
+import { addTF2Model, loadoutScene } from './scene';
 
 export class Loadout {
 	static #badgeModel: Source1ModelInstance | null = null;
+	static #items = new Map<string, Item>();
+
+	static {
+		this.#initListeners();
+	}
+
+	static #initListeners(): void {
+		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
+	}
 
 	static async showBadge(level: number, tier: number): Promise<void> {
 		if (level) {
@@ -36,6 +50,52 @@ export class Loadout {
 			if (this.#badgeModel) {
 				this.#badgeModel.setVisible(false);
 			}
+		}
+	}
+
+	static async addItem(id: string, style: number = 0): Promise<Item | null> {
+		const template = ItemManager.getTemplate(id);
+		if (!template) {
+			return null;
+		}
+
+		let item = this.#items.get(template.id);
+		if (item) {
+			return item;
+		}
+
+		item = new Item(template);
+		this.#items.set(template.id, item);
+		item.loadModel();
+
+		loadoutScene.addChild(await item.getModel());
+
+		return null;
+	}
+
+	static async  removeItem(id: string, style: number = 0): Promise<void> {
+		const item = this.#items.get(id);
+		if (item) {
+			await item.remove();
+			this.#items.delete(id);
+		}
+	}
+
+	static async toggleItem(id: string, style: number = 0): Promise<void> {
+		if (this.#items.has(id)) {
+			await this.removeItem(id);
+		} else {
+			await this.addItem(id);
+		}
+	}
+
+	static #handleItemClicked(template: ItemTemplate): void {
+		const currentCharacter = CharacterManager.getCurrentCharacter();
+
+		if (currentCharacter) {
+			currentCharacter.toggleItem(template);
+		} else {
+			this.toggleItem(template.id);
 		}
 	}
 }

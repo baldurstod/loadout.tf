@@ -102,6 +102,7 @@ export class Character {
 			const item = new Item(template, this);
 			this.items.set(template.id, item);
 			item.loadModel();
+			(await this.getModel())?.addChild(await item.getModel());
 		}
 	}
 }

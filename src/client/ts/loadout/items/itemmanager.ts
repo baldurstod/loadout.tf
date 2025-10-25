@@ -8,13 +8,12 @@ import { EffectTemplate } from './effecttemplate';
 import { Item } from './item';
 import { ItemFilter, ItemFilterResult } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
-import { CharacterManager } from '../characters/charactermanager';
 
 export class ItemManager {
 	static #filters = new ItemFilter();
 	static #currentCharacter: Character | null = null;
 	static #lang = 'english';
-	static #itemTemplates = new Set<ItemTemplate>();
+	static #itemTemplates = new Map<string, ItemTemplate>();
 	static #loadItemsPromise?: Promise<void>;
 	static #loadMedalsPromise?: Promise<void>;
 	static #systemList = new Map<string, EffectTemplate>();
@@ -38,7 +37,7 @@ export class ItemManager {
 		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.setItemFilter((event as CustomEvent<SetItemFilter>).detail));
 
 		Controller.addEventListener(ControllerEvent.ItemPinned, (event: Event) => this.#pinItem((event as CustomEvent<ItemPinned>).detail.item, (event as CustomEvent<ItemPinned>).detail.pinned));
-		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
+		//Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
 
 		Controller.addEventListener(ControllerEvent.ShowPanel, (event: Event) => {
 			if ((event as CustomEvent<Panel>).detail == Panel.Items) {
@@ -52,14 +51,18 @@ export class ItemManager {
 		Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated);
 	}
 
-	static getItems(): Set<ItemTemplate> {
-		return new Set<ItemTemplate>(this.#itemTemplates);
+	static getItems(): Map<string, ItemTemplate> {
+		return new Map<string, ItemTemplate>(this.#itemTemplates);
+	}
+
+	static getTemplate(id: string): ItemTemplate | null {
+		return this.#itemTemplates.get(id) ?? null;
 	}
 
 	static getFilteredItems(): Set<ItemTemplate> {
 		const filteredItems = new Set<ItemTemplate>();
 
-		for (const itemTemplate of this.#itemTemplates) {
+		for (const [, itemTemplate] of this.#itemTemplates) {
 			const match = this.#filters.matchFilter(itemTemplate, { e: 0 }, null, new Set<Item>)
 			if (match == ItemFilterResult.Ok) {
 				filteredItems.add(itemTemplate);
@@ -121,7 +124,7 @@ export class ItemManager {
 			const itemTemplate = new ItemTemplate(itemIndex, itemDefinition);
 			//item.id = itemIndex;
 
-			this.#itemTemplates.add(itemTemplate);
+			this.#itemTemplates.set(itemIndex, itemTemplate);
 
 			const collection = itemTemplate.getCollection();
 			if (collection) {
@@ -191,11 +194,17 @@ export class ItemManager {
 		OptionsManager.setItem('app.items.pinned', pinned);
 	}
 
-	static #handleItemClicked(item: ItemTemplate): void {
+	/*
+	static #handleItemClicked(template: ItemTemplate): void {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
-			currentCharacter.toggleItem(item);
+			currentCharacter.toggleItem(template);
+		} else {
+			//const item = new Item(template);
+			//item.loadModel();
+			Loadout.addItem(template.id);
 		}
 	}
+	*/
 }

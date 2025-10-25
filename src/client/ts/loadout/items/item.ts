@@ -1,7 +1,7 @@
 import { Source1ModelInstance } from 'harmony-3d';
 import { Character } from '../characters/character';
 import { Team } from '../enums';
-import { addTF2Model } from '../scene';
+import { addTF2Model, loadoutScene } from '../scene';
 import { ItemTemplate } from './itemtemplate';
 
 export class Item {
@@ -232,7 +232,6 @@ export class Item {
 		this.#refreshSkin();
 	}
 
-
 	async loadModel(): Promise<void> {
 		if (this.#loaded) {
 			return;
@@ -260,10 +259,21 @@ export class Item {
 		this.#model.name = this.#itemTemplate.name;
 		//this.#model.setVisible(this.#visible);
 
-		(await this.#character?.getModel())?.addChild(this.#model);
+		/*
+		if (this.#character) {
+			(await this.#character.getModel())?.addChild(this.#model);
+		} else {
+			loadoutScene.addChild(this.#model);
+		}
+		*/
 	}
 
-	async remove():Promise<void> {
+	async getModel(): Promise<Source1ModelInstance | null> {
+		await this.#ready;
+		return this.#model;
+	}
+
+	async remove(): Promise<void> {
 		await this.#ready;
 		this.#model?.remove();
 	}
