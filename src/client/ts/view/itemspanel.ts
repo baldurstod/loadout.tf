@@ -6,6 +6,7 @@ import itemPanelCSS from '../../css/itempanel.css';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
 import { ItemManager } from '../loadout/items/itemmanager';
+import { ItemTemplate } from '../loadout/items/itemtemplate';
 import { DynamicPanel } from './dynamicpanel';
 import { PresetsPanel } from './presetspanel';
 export { ItemManagerItem } from './itemmanageritem';
@@ -330,7 +331,11 @@ export class ItemsPanel extends DynamicPanel {
 					item: item,
 				},
 				parent: this.#htmlItems,
-				//$click: (event: Event) => (event.currentTarget == event.target) && this.#selectItem(item, event.target as ItemManagerItem)
+				$click: (event: Event) => {
+					if (event.currentTarget == event.target) {
+						Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ItemClicked, { detail: item });
+					}
+				},
 			});
 		}
 	}

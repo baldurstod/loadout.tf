@@ -7,7 +7,7 @@ import { ItemTemplate } from './itemtemplate';
 export class Item {
 	id = '';
 	#itemTemplate: ItemTemplate;
-	#character: Character;
+	#character?: Character;
 	#model: Source1ModelInstance | null = null;
 	#team = Team.Red;
 	#killCount?: number;
@@ -15,9 +15,14 @@ export class Item {
 	#refreshingSkin = false;
 	#showFestivizer = false;
 	#critBoost = false;
+	#loaded = false;
 	#festivizerModel?: Source1ModelInstance | null;
+	#readyPromiseResolve!: (value: any) => void;
+	#ready = new Promise<boolean>((resolve) => {
+		this.#readyPromiseResolve = resolve;
+	});
 
-	constructor(itemTemplate: ItemTemplate, character: Character) {
+	constructor(itemTemplate: ItemTemplate, character?: Character) {
 		this.#itemTemplate = itemTemplate;
 		this.#character = character;
 		/*
@@ -227,4 +232,39 @@ export class Item {
 		this.#refreshSkin();
 	}
 
+
+	async loadModel(): Promise<void> {
+		if (this.#loaded) {
+			return;
+		}
+		this.#loaded = true;
+		const path = this.#itemTemplate.getModel('scout');
+		if (!path) {
+			// TODO: display error
+			return;
+		}
+
+		this.#model = await addTF2Model(path, this.getRepository());
+		if (!this.#model) {
+			this.#readyPromiseResolve(false);
+			return;
+		}
+		this.#readyPromiseResolve(true);
+		this.#model.setFlexes();
+		this.#model.setPoseParameter('move_x', 1);
+		this.#model.setPoseParameter('move_y', 0.5);
+		this.#model.setPoseParameter('body_yaw', 0.5);
+		this.#model.setPoseParameter('body_pitch', 0.3);
+		this.#model.setPoseParameter('r_arm', 0);
+		this.#model.setPoseParameter('r_hand_grip', 0);
+		this.#model.name = this.#itemTemplate.name;
+		//this.#model.setVisible(this.#visible);
+
+		(await this.#character?.getModel())?.addChild(this.#model);
+	}
+
+	async remove():Promise<void> {
+		await this.#ready;
+		this.#model?.remove();
+	}
 }

@@ -8,6 +8,7 @@ import { EffectTemplate } from './effecttemplate';
 import { Item } from './item';
 import { ItemFilter, ItemFilterResult } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
+import { CharacterManager } from '../characters/charactermanager';
 
 export class ItemManager {
 	static #filters = new ItemFilter();
@@ -37,6 +38,7 @@ export class ItemManager {
 		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.setItemFilter((event as CustomEvent<SetItemFilter>).detail));
 
 		Controller.addEventListener(ControllerEvent.ItemPinned, (event: Event) => this.#pinItem((event as CustomEvent<ItemPinned>).detail.item, (event as CustomEvent<ItemPinned>).detail.pinned));
+		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
 
 		Controller.addEventListener(ControllerEvent.ShowPanel, (event: Event) => {
 			if ((event as CustomEvent<Panel>).detail == Panel.Items) {
@@ -187,5 +189,13 @@ export class ItemManager {
 		}
 
 		OptionsManager.setItem('app.items.pinned', pinned);
+	}
+
+	static #handleItemClicked(item: ItemTemplate): void {
+		const currentCharacter = CharacterManager.getCurrentCharacter();
+
+		if (currentCharacter) {
+			currentCharacter.toggleItem(item);
+		}
 	}
 }

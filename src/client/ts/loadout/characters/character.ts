@@ -4,6 +4,7 @@ import { Team } from '../enums';
 import { Item } from '../items/item';
 import { addTF2Model } from '../scene';
 import { CharactersList, Tf2Class } from './characters';
+import { ItemTemplate } from '../items/itemtemplate';
 
 export class Character {
 	readonly characterClass: Tf2Class;
@@ -91,4 +92,16 @@ export class Character {
 		return this.items.get(itemId);
 	}
 
+	async toggleItem(template: ItemTemplate): Promise<void> {
+		const existingItem = this.items.get(template.id);
+
+		if (existingItem) {
+			existingItem.remove();
+			this.items.delete(template.id);
+		} else {
+			const item = new Item(template, this);
+			this.items.set(template.id, item);
+			item.loadModel();
+		}
+	}
 }

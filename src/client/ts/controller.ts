@@ -31,6 +31,7 @@ export enum ControllerEvent {
 	SetItemFilter = 'setitemfilter',
 	ItemsLoaded = 'itemsloaded',
 	ItemPinned = 'itempinned',
+	ItemClicked = 'itemclicked',
 	FiltersUpdated = 'filtersupdated',
 	ShowWeaponUnusualEffectSelector = 'showweaponunusualeffectselector',
 }
