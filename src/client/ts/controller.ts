@@ -31,6 +31,7 @@ export enum ControllerEvent {
 	SetItemFilter = 'setitemfilter',
 	ItemsLoaded = 'itemsloaded',
 	ItemPinned = 'itempinned',
+	FiltersUpdated = 'filtersupdated',
 }
 
 export type SetBackgroundType = {
@@ -43,9 +44,30 @@ export type ShowBadge = {
 	level: number;
 }
 
+
+export enum ItemFilterAttribute {
+	Name,
+	Selected,
+	Workshop,
+	HideConflict,
+	TournamentMedals,
+	ShowMultiClass,
+	ShowOneClass,
+	ShowAllClass,
+	DoNotFilterPerClass,
+	Paintable,
+	Warpaintable,
+	Halloween,
+	DisplayMedals,
+	DisplayWeapons,
+	DisplayCosmetics,
+	DisplayTaunts,
+	Collection,
+}
 export type SetItemFilter = {
-	name: 'name' | 'selected' | 'workshop' | 'hideConflict' | 'tournamentMedals' | 'showMultiClass' | 'showOneClass' | 'showAllClass' | 'doNotFilterPerClass'
-	| 'pinned' | 'paintable' | 'warpaintable' | 'halloween' | 'displayMedals' | 'displayWeapons' | 'displayCosmetics' | 'displayTaunts' | 'collection';
+	attribute: ItemFilterAttribute;
+	/*'name' | 'selected' | 'workshop' | 'hideConflict' | 'tournamentMedals' | 'showMultiClass' | 'showOneClass' | 'showAllClass' | 'doNotFilterPerClass'
+	| 'pinned' | 'paintable' | 'warpaintable' | 'halloween' | 'displayMedals' | 'displayWeapons' | 'displayCosmetics' | 'displayTaunts' | 'collection';*/
 	value: string | boolean | undefined;
 }
 

@@ -1,3 +1,4 @@
+import { ItemFilterAttribute } from '../../controller';
 import { CharactersList, Tf2Class } from '../characters/characters';
 import { hasConflict } from './hasconflict';
 import { Item } from './item';
@@ -105,18 +106,18 @@ export class ItemFilter {
 			return ItemFilterResult.ExcludedClass;
 		}
 
-		if (!isWeapon && this.paintable != item.isPaintable()) {
+		if (!isWeapon && this.paintable !== undefined && this.paintable != item.isPaintable()) {
 			++excludedItems.e;
 			return ItemFilterResult.ExcludedFilter;
 		}
 
-		if (isWeapon && this.warpaintable != item.isWarPaintable()) {
+		if (isWeapon && this.warpaintable !== undefined && this.warpaintable != item.isWarPaintable()) {
 			++excludedItems.e;
 			return ItemFilterResult.ExcludedFilter;
 		}
 
 		//if (this.halloween !== undefined && (this.halloween && item.holiday_restriction == 'halloween_or_fullmoon')) {
-		if (!isWeapon && this.halloween != item.isHalloweenRestricted()) {
+		if (this.halloween !== undefined && this.halloween != item.isHalloweenRestricted()) {
 			++excludedItems.e;
 			return ItemFilterResult.ExcludedFilter;
 		}
@@ -263,7 +264,63 @@ export class ItemFilter {
 		return ItemFilterResult.Ok;
 	}
 
-	setAttribute(name: string, value: boolean | string | undefined): void {
+	setAttribute(attribute: ItemFilterAttribute, value: boolean | string | undefined): void {
+		switch (attribute) {
+			case ItemFilterAttribute.Name:
+				this.name = value as string;
+				break;
+			case ItemFilterAttribute.Selected:
+				this.selected = value as boolean;
+				break;
+			case ItemFilterAttribute.Workshop:
+				this.workshop = value as boolean;
+				break;
+			case ItemFilterAttribute.HideConflict:
+				this.hideConflict = value as boolean;
+				break;
+			case ItemFilterAttribute.TournamentMedals:
+				this.tournamentMedals = value as boolean;
+				break;
+			case ItemFilterAttribute.ShowMultiClass:
+				this.showMultiClass = value as boolean;
+				break;
+			case ItemFilterAttribute.ShowOneClass:
+				this.showOneClass = value as boolean;
+				break;
+			case ItemFilterAttribute.ShowAllClass:
+				this.showAllClass = value as boolean;
+				break;
+			case ItemFilterAttribute.DoNotFilterPerClass:
+				this.doNotFilterPerClass = value as boolean;
+				break;
+			case ItemFilterAttribute.Paintable:
+				this.paintable = value as boolean;
+				break;
+			case ItemFilterAttribute.Warpaintable:
+				this.warpaintable = value as boolean;
+				break;
+			case ItemFilterAttribute.Halloween:
+				this.halloween = value as boolean;
+				break;
+			case ItemFilterAttribute.DisplayMedals:
+				this.displayMedals = value as boolean;
+				break;
+			case ItemFilterAttribute.DisplayWeapons:
+				this.displayWeapons = value as boolean;
+				break;
+			case ItemFilterAttribute.DisplayCosmetics:
+				this.displayCosmetics = value as boolean;
+				break;
+			case ItemFilterAttribute.DisplayTaunts:
+				this.displayTaunts = value as boolean;
+				break;
+			case ItemFilterAttribute.Collection:
+				this.collection = value as string;
+				break;
+			default:
+				throw attribute;
+				break;
+		}
 
 	}
 }

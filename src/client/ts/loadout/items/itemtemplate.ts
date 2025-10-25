@@ -234,7 +234,7 @@ export class ItemTemplate {
 	}
 
 	isWorkshop(): boolean {
-		return this.#definition.is_workshop as boolean/*TODO: improve type*/;
+		return this.#definition.is_workshop as boolean ?? false;
 	}
 
 	isTournamentMedal(): boolean {

@@ -65,6 +65,7 @@ item-manager-item {
 	white-space: nowrap;
 	overflow: hidden;
 	color: white;
+	text-align: center;
 }
 
 /*

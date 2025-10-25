@@ -5,7 +5,8 @@ import { Controller, ControllerEvent, ItemPinned, SetItemFilter } from '../../co
 import { Panel } from '../../enums';
 import { Character } from '../characters/character';
 import { EffectTemplate } from './effecttemplate';
-import { ItemFilter } from './itemfilter';
+import { Item } from './item';
+import { ItemFilter, ItemFilterResult } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
 
 export class ItemManager {
@@ -45,16 +46,24 @@ export class ItemManager {
 	}
 
 	static setItemFilter(filter: SetItemFilter): void {
-		this.#filters.setAttribute(filter.name, filter.value);
+		this.#filters.setAttribute(filter.attribute, filter.value);
+		Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated);
 	}
-
 
 	static getItems(): Set<ItemTemplate> {
 		return new Set<ItemTemplate>(this.#itemTemplates);
 	}
 
 	static getFilteredItems(): Set<ItemTemplate> {
-		return new Set<ItemTemplate>(this.#itemTemplates);
+		const filteredItems = new Set<ItemTemplate>();
+
+		for (const itemTemplate of this.#itemTemplates) {
+			const match = this.#filters.matchFilter(itemTemplate, { e: 0 }, null, new Set<Item>)
+			if (match == ItemFilterResult.Ok) {
+				filteredItems.add(itemTemplate);
+			}
+		}
+		return filteredItems;
 	}
 
 	static #initItems(): Promise<void> {
