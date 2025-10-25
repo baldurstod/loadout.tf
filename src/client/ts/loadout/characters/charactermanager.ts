@@ -122,7 +122,17 @@ export class CharacterManager {
 		return this.#team;
 	}
 
-	static getCurrentCharacter():Character | null {
+	static getCurrentCharacter(): Character | null {
 		return this.#currentCharacter;
 	}
+
+	static setCustomTexture(itemId: string, customTextureName: string): void {
+		const currentCharacter = this.getCurrentCharacter();
+		if (currentCharacter) {
+			const item = currentCharacter.getItemById(itemId);
+			if (item) {
+				item.setCustomTexture(customTextureName);
+			}
+		}
+	};
 }

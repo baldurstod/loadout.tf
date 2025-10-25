@@ -86,8 +86,8 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		if (this.#item && this.#visible && !this.#initialized) {
 			this.#createHTML();
 
-			if (this.#item.title) {
-				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + WORKSHOP_URL + item.id + '\' >' + item.title + '</a>';
+			if (this.#item.isWorkshop()) {
+				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + WORKSHOP_URL + this.#item.id + '\' >' + this.#item.name + '</a>';
 				this.#itemNameDiv!.classList.add('workshop-item');
 			} else {
 				this.#itemNameDiv!.innerHTML = this.#item.name;
@@ -133,7 +133,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		this.#detail!.style.left = '0px';
 		//this.#detail.style.right = 'unset';
 		const pinned = OptionsManager.getItem('app.items.pinned');
-		const index = pinned.indexOf(this.#item.id);
+		const index = pinned.indexOf(this.#item!.id);
 		this.#htmlPinned!.state = (index != -1);
 
 		if (this.parentElement) {
@@ -199,19 +199,20 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			this.#detail!.append(createElement('div', { class: 'item-detail-grade capitalize', i18n: '#item_grade_' + itemGrade }));
 		}
 
-		if (item.equip_regions) {
+		if (item.equipRegions) {
 			const equipRegionHtml = createElement('div', { class: 'item-detail-equip-region capitalize' });
-			equipRegionHtml.innerHTML = item.equip_regions.join(', ');
+			equipRegionHtml.innerHTML = item.equipRegions.join(', ');
 			this.#detail!.append(equipRegionHtml);
 		}
 
-		if (item.item_slot) {
+		const itemSlot = item.getItemSlot('scout'/*TODO: use the current class*/);
+		if (itemSlot) {
 			const itemSlotHtml = createElement('div', { class: 'item-detail-item-slot capitalize' });
-			itemSlotHtml.innerHTML = item.item_slot
+			itemSlotHtml.innerText = itemSlot;
 			this.#detail!.append(itemSlotHtml);
 		}
 
-		if (item.isWorkshop) {
+		if (item.isWorkshop()) {
 			const detailWorkshopLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#workshop' }) as HTMLAnchorElement;
 			detailWorkshopLink.href = encodeURI(`${WORKSHOP_URL}${item.id}`);
 			detailWorkshopLink.target = '_blank';
@@ -238,7 +239,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 
 
 
-		if (item.weapon_uses_stattrak_module) {
+		if (item.weaponUsesStattrakModule) {
 			const divStattrak = createElement('input', {
 				class: 'capitalize',
 				i18n: { placeholder: '#stat_clock', },
@@ -247,7 +248,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			this.#detail!.append(divStattrak);
 			//divStattrak.itemName = item;
 			divStattrak.addEventListener('input', event => {
-				const i = CharacterManager.getCurrentCharacter().getItemById(item.id);
+				const i = CharacterManager.getCurrentCharacter()?.getItemById(item.id);
 				if (i) {
 					i.toggleStattrak(Number((event.target as HTMLInputElement).value));
 				}
@@ -299,14 +300,14 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 	}
 
 	#createHTML(): void {
-		this.setAttribute('title', this.#item.name);
+		this.setAttribute('title', this.#item!.name);
 		this.addEventListener('mouseover', () => { this.#showDetail(); });
 		this.addEventListener('mouseleave', () => { this.#hideDetail(); });
-		this.#itemIconDiv = createElement('img', { class: 'item-image', parent: this, });
+		this.#itemIconDiv = createElement('img', { class: 'item-image', parent: this, }) as HTMLImageElement;
 		this.#itemNameDiv = createElement('div', { class: 'item-name', parent: this, });
 
-		const item = this.#item;
-		if (item.paintable == '1') {
+		const itemTemplate = this.#item!;
+		if (itemTemplate.isPaintable()) {
 			const div2 = createElement('img', {
 				src: paintcanPNG,
 				class: 'item-manager-item-icon-paint'
@@ -314,16 +315,16 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			this.append(div2);
 			//div2.itemName = item;
 			div2.addEventListener('click', event => {
-				ItemManagerItemEventTarget.dispatchEvent(new CustomEvent('paintclick', { detail: item }));
+				ItemManagerItemEventTarget.dispatchEvent(new CustomEvent('paintclick', { detail: itemTemplate }));
 				event.stopPropagation();
 			});
 		}
 
-		if (item.paintkit_base == '1') {
+		if (itemTemplate.isWarPaintable()) {
 			this.#addPaintKitButton();
 		}
 
-		if (item.attached_models_festive) {
+		if (itemTemplate.attachedModelsFestive) {
 			const divFestive = createElement('img', {
 				class: 'item-manager-item-icon-festivizer',
 				src: festivizerPNG,
@@ -334,15 +335,15 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			this.append(divFestive);
 			//divFestive.itemName = item;
 			divFestive.addEventListener('click', event => {
-				const i = CharacterManager.getCurrentCharacter().getItemById(item.id);
-				if (i) {
-					i.toggleFestivizer();
+				const item = CharacterManager.getCurrentCharacter()?.getItemById(itemTemplate.id);
+				if (item) {
+					item.toggleFestivizer();
 				}
 				event.stopPropagation();
 			});
 		}
 
-		if (item.can_customize_texture == '1') {
+		if (itemTemplate.canCustomizeTexture()) {
 			function ProcessBackgroundImageUrlDrop(event: Event): void {
 				event.preventDefault();
 				let files: FileList | null = null;
@@ -372,7 +373,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 								const { name: textureName, texture: texture } = Source1TextureManager.addInternalTexture('tf2'/*TODO: get repository from item*/);
 								TextureManager.fillTextureWithImage(texture.getFrame(0)!, image);
 								//Source1TextureManager.addInternalTexture3(textureName, image);
-								CharacterManager.setCustomTexture(item.id, textureName);
+								CharacterManager.setCustomTexture(itemTemplate.id, textureName);
 							}
 							image.src = (e.target as FileReader).result as string;
 						};
@@ -401,10 +402,11 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			});
 		}
 
+		const itemSlot = itemTemplate.getItemSlot('scout'/*TODO: fix class*/);
 		if (
-			(item.item_slot == 'melee')
-			|| (item.item_slot == 'primary')
-			|| (item.item_slot == 'secondary')
+			(itemSlot == 'melee')
+			|| (itemSlot == 'primary')
+			|| (itemSlot == 'secondary')
 		) {
 			const div2 = createElement('img', {
 				src: mvmPowCritPNG,
@@ -413,15 +415,15 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			this.append(div2);
 			//div2.itemName = item;
 			div2.addEventListener('click', event => {
-				const i = CharacterManager.getCurrentCharacter().getItemById(item.id);
-				if (i) {
-					i.critBoost();
+				const item = CharacterManager.getCurrentCharacter()?.getItemById(itemTemplate.id);
+				if (item) {
+					item.critBoost();
 				}
 				event.stopPropagation();
 			});
 		}
 
-		const itemSlot = item.item_slot;
+		//const itemSlot = itemTemplate.item_slot;
 		if (itemSlot && (itemSlot.indexOf('melee') != -1 || itemSlot.indexOf('pda') != -1 || itemSlot.indexOf('pda2') != -1 || itemSlot.indexOf('primary') != -1 || itemSlot.indexOf('secondary') != -1)) {
 			const div2 = createElement('img', {
 				src: paintcanPNG,
@@ -430,12 +432,12 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			this.append(div2);
 			//div2.itemName = item;
 			div2.addEventListener('click', event => {
-				ItemManagerItemEventTarget.dispatchEvent(new CustomEvent('sheenclick', { detail: item }));
+				ItemManagerItemEventTarget.dispatchEvent(new CustomEvent('sheenclick', { detail: itemTemplate }));
 				event.stopPropagation();
 			});
 		}
 
-		if (item.holiday_restriction == 'halloween_or_fullmoon') {
+		if (itemTemplate.isHalloweenRestricted()) {
 			const div2 = createElement('img', {
 				src: viewmodeSpookyPNG,
 				class: 'item-manager-item-icon-spooky'

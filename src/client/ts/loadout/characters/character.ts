@@ -8,7 +8,7 @@ import { CharactersList, Tf2Class } from './characters';
 export class Character {
 	readonly characterClass: Tf2Class;
 	readonly name: string;
-	readonly items = new Set<Item>();
+	readonly items = new Map<string, Item>();
 	#model: Source1ModelInstance | null = null;
 	#effects = new Set<Effect>();
 	#tauntEffect: Effect | null = null;
@@ -64,7 +64,7 @@ export class Character {
 	async setTeam(team: Team): Promise<void> {
 		this.#team = team;
 
-		for (const item of this.items) {
+		for (const [, item] of this.items) {
 			await item.setTeam(team);
 		}
 		await this.#refreshSkin();
@@ -85,6 +85,10 @@ export class Character {
 
 	getTeam(): Team {
 		return this.#team;
+	}
+
+	getItemById(itemId: string): Item | undefined {
+		return this.items.get(itemId);
 	}
 
 }

@@ -5,6 +5,7 @@ export class ItemTemplate {
 	#definition: JSONObject/*TODO: improve type*/;
 	#keywords = new Set<string>();
 	readonly id: string;
+	readonly creatorid64?: string;
 
 	constructor(id: string, definition: JSONObject/*TODO: improve type*/) {
 		this.#definition = definition;
@@ -280,5 +281,9 @@ export class ItemTemplate {
 			}
 		}
 		return false;
+	}
+
+	canCustomizeTexture(): boolean {
+		return this.#definition.can_customize_texture == '1';
 	}
 }
