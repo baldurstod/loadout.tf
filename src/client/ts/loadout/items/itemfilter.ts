@@ -52,7 +52,7 @@ export class ItemFilter {
 				break;
 		}
 
-		if (!this.doNotFilterPerClass && characterClass && item.isUsedByClass(characterClass)) {
+		if (!this.doNotFilterPerClass && characterClass !== null && !item.isUsedByClass(characterClass)) {
 			return ItemFilterResult.ExcludedClass;
 		}
 

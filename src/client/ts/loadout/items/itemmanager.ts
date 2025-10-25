@@ -4,6 +4,7 @@ import { TF2_REPOSITORY } from '../../constants';
 import { Controller, ControllerEvent, ItemPinned, SetItemFilter } from '../../controller';
 import { Panel } from '../../enums';
 import { Character } from '../characters/character';
+import { Tf2Class } from '../characters/characters';
 import { EffectTemplate } from './effecttemplate';
 import { Item } from './item';
 import { ItemFilter, ItemFilterResult } from './itemfilter';
@@ -12,6 +13,7 @@ import { ItemTemplate } from './itemtemplate';
 export class ItemManager {
 	static #filters = new ItemFilter();
 	static #currentCharacter: Character | null = null;
+	static #characterClass: Tf2Class | null = null;
 	static #lang = 'english';
 	static #itemTemplates = new Map<string, ItemTemplate>();
 	static #loadItemsPromise?: Promise<void>;
@@ -27,6 +29,11 @@ export class ItemManager {
 
 	static setCurrentCharacter(character: Character): void {
 		this.#currentCharacter = character;
+	}
+
+	static setCharacterClass(characterClass: Tf2Class): void {
+		this.#characterClass = characterClass;
+		Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated);
 	}
 
 	static setLang(lang: string): void {
@@ -63,7 +70,7 @@ export class ItemManager {
 		const filteredItems = new Set<ItemTemplate>();
 
 		for (const [, itemTemplate] of this.#itemTemplates) {
-			const match = this.#filters.matchFilter(itemTemplate, { e: 0 }, null, new Set<Item>)
+			const match = this.#filters.matchFilter(itemTemplate, { e: 0 }, this.#characterClass, new Set<Item>)
 			if (match == ItemFilterResult.Ok) {
 				filteredItems.add(itemTemplate);
 			}

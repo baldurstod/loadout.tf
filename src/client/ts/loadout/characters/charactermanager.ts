@@ -68,7 +68,7 @@ export class CharacterManager {
 
 	static #setCurrentCharacter(character: Character): void {
 		this.#currentCharacter = character;
-		ItemManager.setCurrentCharacter(character);
+		ItemManager.setCharacterClass(character.characterClass);
 		//EffectManager.setCurrentCharacter(character);
 
 		(async (): Promise<void> => {
