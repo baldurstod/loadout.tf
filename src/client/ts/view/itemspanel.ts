@@ -361,15 +361,26 @@ export class ItemsPanel extends DynamicPanel {
 				htmlItem?.classList.remove('item-selected');
 			}
 		}
-		this.#refreshActiveList();
+		this.#refreshActiveListAndConflicts();
 	}
 
-	#refreshActiveList(): void {
+	#refreshActiveListAndConflicts(): void {
 		const selectedItems = ItemManager.getSelectedItems();
+		const conflictingItems = ItemManager.getConflictingItems();
 
+		// Set conficting for the item list
+		for (const [id, htmlItem] of this.#htmlItems) {
+			if (conflictingItems.has(id)) {
+				htmlItem?.classList.add('item-interfere');
+			} else {
+				htmlItem?.classList.remove('item-interfere');
+			}
+		}
+
+		// Add active items icons
 		this.#htmlActiveItems?.replaceChildren();
-		for (const selectedItem of selectedItems) {
-			const template = ItemManager.getTemplate(selectedItem);
+		for (const selectedItemId of selectedItems) {
+			const template = ItemManager.getTemplate(selectedItemId);
 			if (template) {
 
 				const imageInventory = template.imageInventory;
@@ -382,12 +393,30 @@ export class ItemsPanel extends DynamicPanel {
 					}
 				}
 
-				createElement('img', {
+				const htmlActiveItem = createElement('img', {
 					class: 'active-item',
 					parent: this.#htmlActiveItems,
 					src: src,
 					$click: () => Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ItemClicked, { detail: template }),
-				})
+				});
+
+				if (conflictingItems.has(selectedItemId)) {
+					htmlActiveItem?.classList.add('item-interfere');
+				} else {
+					htmlActiveItem?.classList.remove('item-interfere');
+				}
+
+			}
+		}
+	}
+
+	#refreshConflicts(): void {
+		const conflictingItems = ItemManager.getConflictingItems();
+		for (const [id, htmlItem] of this.#htmlItems) {
+			if (conflictingItems.has(id)) {
+				htmlItem?.classList.add('item-interfere');
+			} else {
+				htmlItem?.classList.remove('item-interfere');
 			}
 		}
 	}
@@ -399,6 +428,6 @@ export class ItemsPanel extends DynamicPanel {
 		} else {
 			htmlItem?.classList.remove('item-selected');
 		}
-		this.#refreshActiveList();
+		this.#refreshActiveListAndConflicts();
 	}
 }

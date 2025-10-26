@@ -80,7 +80,6 @@ export class CharacterManager {
 				if (!selectedEntity || !selectedEntity.isParent(model)) { // Only switch entity if not parent of currently selected entity
 					getSceneExplorer().selectEntity(model);
 				}
-
 			}
 		})();
 	}

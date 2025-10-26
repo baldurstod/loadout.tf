@@ -4,7 +4,6 @@ import { TF2_REPOSITORY } from '../../constants';
 import { Controller, ControllerEvent, ItemPinned, SetItemFilter } from '../../controller';
 import { Panel } from '../../enums';
 import { Character } from '../characters/character';
-import { Tf2Class } from '../characters/characters';
 import { EffectTemplate } from './effecttemplate';
 import { Item } from './item';
 import { ItemFilter, ItemFilterResult } from './itemfilter';
@@ -89,6 +88,25 @@ export class ItemManager {
 			}
 
 			return selectedItems;
+		} else {
+			return new Set<string>();
+		}
+	}
+
+	static getConflictingItems(): Set<string> {
+		if (this.#currentCharacter) {
+			const conflictingItems = new Set<string>();
+
+			for (const [id1, item1] of this.#currentCharacter.items) {
+				for (const [id2, item2] of this.#currentCharacter.items) {
+					if (item1 != item2 && item1.isConflicting(item2)) {
+						conflictingItems.add(id1);
+						conflictingItems.add(id2);
+					}
+				}
+			}
+
+			return conflictingItems;
 		} else {
 			return new Set<string>();
 		}

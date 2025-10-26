@@ -49,11 +49,10 @@ item-manager-item {
 	background-color: rgba(0, 85, 170, 0.5);
 }
 
-/*
-.item-manager-item-interfere {
+
+.item-interfere {
 	background-color: rgba(255, 255, 100, 0.5);
 }
-	*/
 
 .item-name {
 	position: absolute;
@@ -396,6 +395,7 @@ item-manager-item.interfering {
 	overflow: hidden;
 	cursor: pointer;
 }
+
 /*
 .item-manager-filter-misc-container {
 	flex-wrap: wrap;

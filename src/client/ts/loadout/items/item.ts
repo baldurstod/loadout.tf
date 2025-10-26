@@ -3,6 +3,7 @@ import { Character } from '../characters/character';
 import { Team } from '../enums';
 import { addTF2Model } from '../scene';
 import { ItemTemplate } from './itemtemplate';
+import { hasConflict } from './hasconflict';
 
 export class Item {
 	readonly id: string;
@@ -277,5 +278,9 @@ export class Item {
 	async remove(): Promise<void> {
 		await this.#ready;
 		this.#model?.remove();
+	}
+
+	isConflicting(other: Item): boolean {
+		return hasConflict(this.getEquipRegions(), other.getEquipRegions());
 	}
 }
