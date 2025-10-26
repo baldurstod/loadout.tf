@@ -12,6 +12,8 @@ import { ItemTemplate } from '../loadout/items/itemtemplate';
 import { DynamicPanel } from './dynamicpanel';
 import { ItemManagerItem } from './itemmanageritem';
 import { PresetsPanel } from './presetspanel';
+import { PaintPanel } from './paintpanel';
+import { CharacterManager } from '../loadout/characters/charactermanager';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class ItemsPanel extends DynamicPanel {
@@ -25,6 +27,7 @@ export class ItemsPanel extends DynamicPanel {
 	#htmlFilterInput?: HTMLInputElement;
 	#htmlconflictingItems?: HTMLElement;
 	#presetsPanel = new PresetsPanel();
+	#paintPanel = new PaintPanel();
 	#updatingPresets = false;
 	#htmlItems = new Map<string, ItemManagerItem>();
 
@@ -40,6 +43,7 @@ export class ItemsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.FiltersUpdated, () => this.#refreshItems());
 		Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, true));
 		Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, false));
+		Controller.addEventListener(ControllerEvent.PaintClick, (event: Event) => this.#handlePaintClick((event as CustomEvent<ItemTemplate>).detail));
 	}
 
 	protected override initHTML(): void {
@@ -298,7 +302,10 @@ export class ItemsPanel extends DynamicPanel {
 		});
 		//this.#htmlItemSelectorPanelInterfere = createElement('div', { class: 'item-manager-interfere', i18n: '#interfere_warning', hidden: true }),
 
-		this.getShadowRoot().append(this.#presetsPanel.getHTMLElement());
+		this.getShadowRoot().append(
+			this.#presetsPanel.getHTMLElement(),
+			this.#paintPanel.getHTMLElement(),
+		);
 
 
 		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; htmlCollapsableFiltersContainer.style.maxHeight = value ? '400px' : '0px' });
@@ -433,5 +440,26 @@ export class ItemsPanel extends DynamicPanel {
 			htmlItem?.classList.remove('item-selected');
 		}
 		this.#refreshActiveListAndConflicts();
+	}
+
+	#handlePaintClick(template: ItemTemplate): void {
+		/*
+		const htmlItem = this.#htmlItems.get(item.id);
+		if (added) {
+			htmlItem?.classList.add('item-selected');
+		} else {
+			htmlItem?.classList.remove('item-selected');
+		}
+		this.#refreshActiveListAndConflicts();
+		*/
+		//show(this.#paintPanel.getHTMLElement());
+		const character = CharacterManager.getCurrentCharacter();
+		if (!character) {
+			return;
+		}
+		const item = character.getItemById(template.id);
+		if (item) {
+			this.#paintPanel.selectPaint(item);
+		}
 	}
 }

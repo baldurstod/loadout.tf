@@ -1,193 +1,198 @@
 [
 	{
+		"id": 0,
+		"name": "Indubitably Green",
+		"tint_red": 0
+	},
+	{
 		"id": 1,
 		"name": "Indubitably Green",
-		"tint1": 7511618
+		"tint_red": 7511618
 	},
 	{
 		"id": 2,
 		"name": "Zepheniah's Greed",
-		"tint1": 4345659
+		"tint_red": 4345659
 	},
 	{
 		"id": 3,
 		"name": "Noble Hatter's Violet",
-		"tint1": 5322826
+		"tint_red": 5322826
 	},
 	{
 		"id": 4,
 		"name": "Color No. 216-190-216",
-		"tint1": 14204632
+		"tint_red": 14204632
 	},
 	{
 		"id": 5,
 		"name": "A Deep Commitment to Purple",
-		"tint1": 8208497
+		"tint_red": 8208497
 	},
 	{
 		"id": 6,
 		"name": "Mann Co. Orange",
-		"tint1": 13595446
+		"tint_red": 13595446
 	},
 	{
 		"id": 7,
 		"name": "Muskelmannbraun",
-		"tint1": 10843461
+		"tint_red": 10843461
 	},
 	{
 		"id": 8,
 		"name": "Peculiarly Drab Tincture",
-		"tint1": 12955537
+		"tint_red": 12955537
 	},
 	{
 		"id": 9,
 		"name": "Radigan Conagher Brown",
-		"tint1": 6901050
+		"tint_red": 6901050
 	},
 	{
 		"id": 10,
 		"name": "Ye Olde Rustic Colour",
-		"tint1": 8154199
+		"tint_red": 8154199
 	},
 	{
 		"id": 11,
 		"name": "Australium Gold",
-		"tint1": 15185211
+		"tint_red": 15185211
 	},
 	{
 		"id": 12,
 		"name": "Aged Moustache Grey",
-		"tint1": 8289918
+		"tint_red": 8289918
 	},
 	{
 		"id": 13,
 		"name": "An Extraordinary Abundance of Tinge",
-		"tint1": 15132390
+		"tint_red": 15132390
 	},
 	{
 		"id": 14,
 		"name": "A Distinctive Lack of Hue",
-		"tint1": 1315860
+		"tint_red": 1315860
 	},
 	{
 		"id": 15,
 		"name": "Pink as Hell",
-		"tint1": 16738740
+		"tint_red": 16738740
 	},
 	{
 		"id": 16,
 		"name": "Pink as Hell",
-		"tint1": 16738740
+		"tint_red": 16738740
 	},
 	{
 		"id": 17,
 		"name": "A Color Similar to Slate",
-		"tint1": 3100495
+		"tint_red": 3100495
 	},
 	{
 		"id": 18,
 		"name": "The Bitter Taste of Defeat and Lime",
-		"tint1": 3329330
+		"tint_red": 3329330
 	},
 	{
 		"id": 19,
 		"name": "The Color of a Gentlemann's Business Pants",
-		"tint1": 15787660
+		"tint_red": 15787660
 	},
 	{
 		"id": 20,
 		"name": "Dark Salmon Injustice",
-		"tint1": 15308410
+		"tint_red": 15308410
 	},
 	{
 		"id": 21,
 		"name": "A Mann's Mint",
-		"tint1": 12377523
+		"tint_red": 12377523
 	},
 	{
 		"id": 22,
 		"name": "After Eight",
-		"tint1": 2960676
+		"tint_red": 2960676
 	},
 	{
 		"id": 101,
 		"name": "Team Spirit",
-		"tint1": 12073019,
-		"tint2": 5801378,
+		"tint_red": 12073019,
+		"tint_blu": 5801378,
 		"team": true
 	},
 	{
 		"id": 102,
 		"name": "Operator's Overalls",
-		"tint1": 4732984,
-		"tint2": 3686984,
+		"tint_red": 4732984,
+		"tint_blu": 3686984,
 		"team": true
 	},
 	{
 		"id": 103,
 		"name": "Waterlogged Lab Coat",
-		"tint1": 11049612,
-		"tint2": 8626083,
+		"tint_red": 11049612,
+		"tint_blu": 8626083,
 		"team": true
 	},
 	{
 		"id": 104,
 		"name": "Balaclavas Are Forever",
-		"tint1": 3874595,
-		"tint2": 1581885,
+		"tint_red": 3874595,
+		"tint_blu": 1581885,
 		"team": true
 	},
 	{
 		"id": 105,
 		"name": "An Air of Debonair",
-		"tint1": 6637376,
-		"tint2": 2636109,
+		"tint_red": 6637376,
+		"tint_blu": 2636109,
 		"team": true
 	},
 	{
 		"id": 106,
 		"name": "The Value of Teamwork",
-		"tint1": 8400928,
-		"tint2": 2452877,
+		"tint_red": 8400928,
+		"tint_blu": 2452877,
 		"team": true
 	},
 	{
 		"id": 107,
 		"name": "Cream Spirit",
-		"tint1": 12807213,
-		"tint2": 12091445,
+		"tint_red": 12807213,
+		"tint_blu": 12091445,
 		"team": true
 	},
 	{
 		"id": 201,
 		"name": "Putrescent Pigmentation",
-		"tint1": 13158400,
+		"tint_red": 13158400,
 		"spell": true
 	},
 	{
 		"id": 202,
 		"name": "Die Job",
-		"tint1": 16776960,
+		"tint_red": 16776960,
 		"spell": true
 	},
 	{
 		"id": 203,
 		"name": "Chromatic Corruption",
-		"tint1": 8208497,
+		"tint_red": 8208497,
 		"spell": true
 	},
 	{
 		"id": 204,
 		"name": "Spectral Spectrum",
-		"tint1": 12073019,
-		"tint2": 5801378,
+		"tint_red": 12073019,
+		"tint_blu": 5801378,
 		"team": true,
 		"spell": true
 	},
 	{
 		"id": 205,
 		"name": "Sinister Staining",
-		"tint1": 8421376,
+		"tint_red": 8421376,
 		"spell": true
 	}
 ]

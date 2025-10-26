@@ -146,6 +146,16 @@ item-manager-item {
 	cursor: pointer;
 }
 
+.paint-icon.non-paintable {
+	display: none;
+}
+
+@container style(--all-paintable: 1) {
+	.paint-icon.non-paintable {
+		display: unset;
+	}
+}
+
 .sheen-icon {
 	position: absolute;
 	width: 15%;
@@ -357,6 +367,7 @@ item-manager-item.interfering {
 	text-align: center;
 	flex: 0;
 }
+
 /*
 
 .item-manager-filtered {

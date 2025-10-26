@@ -1,5 +1,4 @@
 import { BackgroundType } from "./enums";
-import { Item } from "./loadout/items/item";
 import { ItemTemplate } from "./loadout/items/itemtemplate";
 
 export enum ControllerEvent {
@@ -37,6 +36,7 @@ export enum ControllerEvent {
 	ShowWeaponUnusualEffectSelector = 'showweaponunusualeffectselector',
 	ItemAdded = 'itemadded',
 	ItemRemoved = 'itemremoved',
+	PaintClick = 'paintclick',
 }
 
 export type SetBackgroundType = {

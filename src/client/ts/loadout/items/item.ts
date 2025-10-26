@@ -1,9 +1,11 @@
 import { Source1ModelInstance } from 'harmony-3d';
+import { Paint } from '../../paints/paints';
+import { colorToVec3 } from '../../utils/colors';
 import { Character } from '../characters/character';
 import { Team } from '../enums';
 import { addTF2Model } from '../scene';
-import { ItemTemplate } from './itemtemplate';
 import { hasConflict } from './hasconflict';
+import { ItemTemplate } from './itemtemplate';
 
 export class Item {
 	readonly id: string;
@@ -18,6 +20,7 @@ export class Item {
 	#critBoost = false;
 	#loaded = false;
 	#festivizerModel?: Source1ModelInstance | null;
+	#paint: Paint | null = null;
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
 		this.#readyPromiseResolve = resolve;
@@ -282,5 +285,43 @@ export class Item {
 
 	isConflicting(other: Item): boolean {
 		return hasConflict(this.getEquipRegions(), other.getEquipRegions());
+	}
+
+	setPaint(paint: Paint | null): void {
+		this.#paint = paint;
+		if (this.#model) {
+			if (paint == null) {
+				this.#model.tint = null;
+				if (this.#team == Team.Red) {
+					if (this.#itemTemplate.setItemTintRGB) {
+						this.#model.tint = colorToVec3(Number(this.#itemTemplate.setItemTintRGB));
+					}
+				} else {
+					if (this.#itemTemplate.setItemTintRGB2) {
+						this.#model.tint = colorToVec3(Number(this.#itemTemplate.setItemTintRGB2));
+					}
+				}
+			} else {
+				this.#refreshPaint();
+			}
+		}
+	}
+
+	getPaint(): Paint | null {
+		return this.#paint;
+	}
+
+	async #refreshPaint(): Promise<void> {
+		await this.#ready;
+		if (this.#model) {
+			//this.#sourceModel.tint = null;
+			if (this.#paint != null) {
+				this.#model.tint = this.#paint.getTint(this.#team);
+				/*
+				if (paint && this.#paintId != DEFAULT_PAINT_ID) {
+				}
+				*/
+			}
+		}
 	}
 }

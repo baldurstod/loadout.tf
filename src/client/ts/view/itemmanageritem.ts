@@ -308,18 +308,15 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		this.#itemNameDiv = createElement('div', { class: 'item-name', parent: this, });
 
 		const itemTemplate = this.#item!;
-		if (itemTemplate.isPaintable()) {
-			const div2 = createElement('img', {
-				class: 'paint-icon',
-				src: paintcanPNG,
-			});
-			this.append(div2);
-			//div2.itemName = item;
-			div2.addEventListener('click', event => {
-				ItemManagerItemEventTarget.dispatchEvent(new CustomEvent('paintclick', { detail: itemTemplate }));
+		createElement('img', {
+			class: `paint-icon ${itemTemplate.isPaintable() ? 'paintable' : 'non-paintable'}`,
+			parent: this,
+			src: paintcanPNG,
+			$click: (event: Event) => {
+				Controller.dispatchEvent<ItemTemplate>(ControllerEvent.PaintClick, { detail: this.#item });
 				event.stopPropagation();
-			});
-		}
+			},
+		});
 
 		if (itemTemplate.isWarPaintable()) {
 			this.#addPaintKitButton();
