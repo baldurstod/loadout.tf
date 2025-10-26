@@ -13,7 +13,7 @@ import { ItemTemplate } from './itemtemplate';
 export class ItemManager {
 	static #filters = new ItemFilter();
 	static #currentCharacter: Character | null = null;
-	static #characterClass: Tf2Class | null = null;
+	//static #characterClass: Tf2Class | null = null;
 	static #lang = 'english';
 	static #itemTemplates = new Map<string, ItemTemplate>();
 	static #loadItemsPromise?: Promise<void>;
@@ -28,12 +28,15 @@ export class ItemManager {
 
 	static setCurrentCharacter(character: Character): void {
 		this.#currentCharacter = character;
+		Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated);
 	}
 
+	/*
 	static setCharacterClass(characterClass: Tf2Class): void {
 		this.#characterClass = characterClass;
 		Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated);
 	}
+	*/
 
 	static setLang(lang: string): void {
 		this.#lang = lang;
@@ -69,7 +72,7 @@ export class ItemManager {
 		const filteredItems = new Map<string, ItemTemplate>();
 
 		for (const [id, itemTemplate] of this.#itemTemplates) {
-			const match = this.#filters.matchFilter(itemTemplate, { e: 0 }, this.#characterClass, new Set<Item>)
+			const match = this.#filters.matchFilter(itemTemplate, { e: 0 }, this.#currentCharacter?.characterClass ?? null, new Set<Item>)
 			if (match == ItemFilterResult.Ok) {
 				filteredItems.set(id, itemTemplate);
 			}
