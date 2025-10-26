@@ -1,7 +1,7 @@
 import { Source1ModelInstance } from 'harmony-3d';
 import { Character } from '../characters/character';
 import { Team } from '../enums';
-import { addTF2Model, loadoutScene } from '../scene';
+import { addTF2Model } from '../scene';
 import { ItemTemplate } from './itemtemplate';
 
 export class Item {

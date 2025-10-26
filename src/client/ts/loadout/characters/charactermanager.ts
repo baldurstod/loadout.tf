@@ -20,8 +20,7 @@ export class CharacterManager {
 	static #currentCharacter: Character | null = null;
 	static #team: Team = Team.Red;
 
-	static selectCharacter(characterClass: Tf2Class, slotId?: uint): Character {
-		const characterTemplate = CharactersList.get(characterClass)!;
+	static async selectCharacter(characterClass: Tf2Class, slotId?: uint): Promise<Character> {
 		const character = this.#getUnusedCharacter(characterClass) ?? new Character(characterClass);
 		const slot = this.#getSlot(slotId);
 
@@ -36,7 +35,8 @@ export class CharacterManager {
 		character.setVisible(true);
 		character.setTeam(this.#team);
 
-		(async (): Promise<void> => {
+		const characterTemplate = CharactersList.get(characterClass);
+		if (characterTemplate) {
 			const modelName = characterTemplate.model;
 			character.loadModel(modelName);
 
@@ -48,7 +48,7 @@ export class CharacterManager {
 					model.setAnimation(0, startAnim, 1);
 				}
 			}
-		})();
+		}
 
 		this.#setCurrentCharacter(character);
 

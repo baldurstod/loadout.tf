@@ -3,9 +3,8 @@ import { TF2_CASUAL_BADGE } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { CharacterManager } from './characters/charactermanager';
 import { Item } from './items/item';
-import { ItemManager } from './items/itemmanager';
 import { ItemTemplate } from './items/itemtemplate';
-import { addTF2Model, loadoutScene } from './scene';
+import { addTF2Model } from './scene';
 
 export class Loadout {
 	static #badgeModel: Source1ModelInstance | null = null;
@@ -53,7 +52,8 @@ export class Loadout {
 		}
 	}
 
-	static async addItem(id: string, style: number = 0): Promise<Item | null> {
+	/*
+	static async addItem(id: string, style = 0): Promise<Item | null> {
 		const template = ItemManager.getTemplate(id);
 		if (!template) {
 			return null;
@@ -73,7 +73,7 @@ export class Loadout {
 		return null;
 	}
 
-	static async  removeItem(id: string, style: number = 0): Promise<void> {
+	static async removeItem(id: string, style = 0): Promise<void> {
 		const item = this.#items.get(id);
 		if (item) {
 			await item.remove();
@@ -88,14 +88,15 @@ export class Loadout {
 			await this.addItem(id);
 		}
 	}
+		*/
 
 	static #handleItemClicked(template: ItemTemplate): void {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
 			currentCharacter.toggleItem(template);
-		} else {
-			this.toggleItem(template.id);
+			//} else {
+			//this.toggleItem(template.id);
 		}
 	}
 }

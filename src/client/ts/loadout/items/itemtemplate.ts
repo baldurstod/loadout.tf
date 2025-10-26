@@ -19,7 +19,8 @@ export class ItemTemplate {
 	isUsedByClass(characterClass: Tf2Class): boolean {
 		const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
 		if (usedByClasses) {
-			if (usedByClasses[CharactersList.get(characterClass)!.name] == '1') {
+			const className = CharactersList.get(characterClass)?.name;
+			if (className === undefined || usedByClasses[className] == '1') {
 				return true
 			}
 		}

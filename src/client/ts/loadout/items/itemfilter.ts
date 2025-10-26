@@ -36,8 +36,12 @@ export class ItemFilter {
 		let highlightConflict = false;
 		let isWeapon = false;
 		let isTaunt = false;
-		const name = characterClass ? CharactersList.get(characterClass)!.name : 'scout';
-		switch (item.getItemSlot(name)) {
+		let name: string | undefined;
+		if (characterClass !== null) {
+			name = CharactersList.get(characterClass)?.name;
+		}
+
+		switch (item.getItemSlot(name ?? 'scout'/*TODO: fix that*/)) {
 			case 'primary':
 			case 'secondary':
 			case 'melee':
@@ -52,7 +56,7 @@ export class ItemFilter {
 				break;
 		}
 
-		if (!this.doNotFilterPerClass && characterClass !== null && !item.isUsedByClass(characterClass)) {
+		if (!this.doNotFilterPerClass && characterClass !== null && characterClass !== Tf2Class.None && !item.isUsedByClass(characterClass)) {
 			return ItemFilterResult.ExcludedClass;
 		}
 

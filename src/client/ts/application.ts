@@ -67,6 +67,7 @@ class Application {
 		this.#initLights();
 		this.#initOptions();
 		this.#setupAnalytics();
+		this.#initDefaultCharacter();
 	}
 
 	#initGraphics(): void {
@@ -709,6 +710,11 @@ class Application {
 		} else {
 			Graphics.setIncludeCode('showHighLights', '#undef RENDER_HIGHLIGHT');
 		}
+	}
+
+	async #initDefaultCharacter(): Promise<void> {
+		await Graphics.ready;
+		CharacterManager.selectCharacter(Tf2Class.None);
 	}
 }
 new Application();

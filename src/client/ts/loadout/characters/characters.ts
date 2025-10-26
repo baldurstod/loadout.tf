@@ -30,6 +30,7 @@ export enum Tf2Class {
 	EngineerBot = 108,
 
 	Random = 1000,
+	None = 1001,
 }
 
 export type CharactersType = { name: string, model: string, bot: boolean, icon: string };
@@ -53,4 +54,6 @@ export const CharactersList = new Map<Tf2Class, CharactersType>([
 	[Tf2Class.PyroBot, { name: 'pyro', bot: true, model: 'models/bots/pyro/bot_pyro', icon: pyro, }],
 	[Tf2Class.SpyBot, { name: 'spy', bot: true, model: 'models/bots/spy/bot_spy', icon: spy, }],
 	[Tf2Class.EngineerBot, { name: 'engineer', bot: true, model: 'models/bots/engineer/bot_engineer', icon: engineer, }],
+
+	[Tf2Class.None, { name: 'None', bot: false, model: 'models/empty', icon: engineer, }],
 ]);

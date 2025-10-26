@@ -26,7 +26,7 @@ export class Character {
 
 	constructor(characterClass: Tf2Class) {
 		this.characterClass = characterClass;
-		this.name = CharactersList.get(characterClass)!.name;
+		this.name = CharactersList.get(characterClass)?.name ?? '';
 	}
 
 	async loadModel(name: string): Promise<void> {
