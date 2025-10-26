@@ -92,17 +92,19 @@ export class Character {
 		return this.items.get(itemId);
 	}
 
-	async toggleItem(template: ItemTemplate): Promise<void> {
+	async toggleItem(template: ItemTemplate): Promise<[Item, boolean]> {
 		const existingItem = this.items.get(template.id);
 
 		if (existingItem) {
 			existingItem.remove();
 			this.items.delete(template.id);
+			return [existingItem, false];
 		} else {
 			const item = new Item(template, this);
 			this.items.set(template.id, item);
 			item.loadModel();
 			(await this.getModel())?.addChild(await item.getModel());
+			return [item, true];
 		}
 	}
 }

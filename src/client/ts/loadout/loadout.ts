@@ -90,13 +90,13 @@ export class Loadout {
 	}
 		*/
 
-	static #handleItemClicked(template: ItemTemplate): void {
+	static async #handleItemClicked(template: ItemTemplate): Promise<void> {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
-			currentCharacter.toggleItem(template);
-			//} else {
-			//this.toggleItem(template.id);
+			const addedItem = await currentCharacter.toggleItem(template);
+			const isAdded = addedItem[1];
+			Controller.dispatchEvent<Item>(isAdded ? ControllerEvent.ItemAdded : ControllerEvent.ItemRemoved, { detail: addedItem[0] });
 		}
 	}
 }

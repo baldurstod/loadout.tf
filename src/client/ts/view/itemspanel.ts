@@ -1,13 +1,15 @@
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
-import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, toggle } from 'harmony-ui';
+import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, show, toggle } from 'harmony-ui';
 import itemCSS from '../../css/item.css';
 import itemPanelCSS from '../../css/itempanel.css';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
+import { Item } from '../loadout/items/item';
 import { ItemManager } from '../loadout/items/itemmanager';
 import { ItemTemplate } from '../loadout/items/itemtemplate';
 import { DynamicPanel } from './dynamicpanel';
+import { ItemManagerItem } from './itemmanageritem';
 import { PresetsPanel } from './presetspanel';
 export { ItemManagerItem } from './itemmanageritem';
 
@@ -15,13 +17,14 @@ export class ItemsPanel extends DynamicPanel {
 	#htmlActiveItems?: HTMLElement;
 	//#htmlFiltersContainer?: HTMLElement;
 	#htmlNameFilterContainer?: HTMLElement;
-	#htmlItems?: HTMLElement;
+	#htmlItemsContainer?: HTMLElement;
 	#htmlSortType?: HTMLSelectElement;
 	#filterInputDataList?: HTMLDataListElement;
 	#htmlFilterCollection?: HTMLSelectElement;
 	#htmlFilterInput?: HTMLInputElement;
 	#presetsPanel = new PresetsPanel();
 	#updatingPresets = false;
+	#htmlItems = new Map<string, ItemManagerItem>();
 
 	constructor() {
 		super(Panel.Items, [itemPanelCSS, itemCSS]);
@@ -33,6 +36,8 @@ export class ItemsPanel extends DynamicPanel {
 	#initListeners(): void {
 		Controller.addEventListener(ControllerEvent.ItemsLoaded, () => this.#refreshItems());
 		Controller.addEventListener(ControllerEvent.FiltersUpdated, () => this.#refreshItems());
+		Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, true));
+		Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, false));
 	}
 
 	protected override initHTML(): void {
@@ -278,7 +283,7 @@ export class ItemsPanel extends DynamicPanel {
 		});
 
 
-		this.#htmlItems = createElement('div', {
+		this.#htmlItemsContainer = createElement('div', {
 			class: 'items',
 			parent: shadowRoot,
 		});
@@ -322,21 +327,40 @@ export class ItemsPanel extends DynamicPanel {
 	#refreshItems(): void {
 		// Ensure html is initialized
 		this.getHTMLElement();
-		this.#htmlItems!.replaceChildren();
+		//this.#htmlItemsContainer!.replaceChildren();
+		for (const [, htmlItem] of this.#htmlItems) {
+			hide(htmlItem);
+		}
 
-		for (const item of ItemManager.getFilteredItems()) {
+		for (const [id, item] of ItemManager.getFilteredItems()) {
+			let htmlItem = this.#htmlItems.get(id);
+			if (htmlItem) {
+				show(htmlItem);
+				continue;
+			}
 
-			createElement('item-manager-item', {
+			htmlItem = createElement('item-manager-item', {
 				properties: {
 					item: item,
 				},
-				parent: this.#htmlItems,
+				parent: this.#htmlItemsContainer,
 				$click: (event: Event) => {
 					if (event.currentTarget == event.target) {
 						Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ItemClicked, { detail: item });
 					}
 				},
-			});
+			}) as ItemManagerItem;
+
+			this.#htmlItems.set(id, htmlItem);
+		}
+	}
+
+	#handleItemAddedRemoved(item: Item, added: boolean): void {
+		const htmlItem = this.#htmlItems.get(item.id);
+		if (added) {
+			htmlItem?.classList.add('item-selected');
+		} else {
+			htmlItem?.classList.remove('item-selected');
 		}
 	}
 }

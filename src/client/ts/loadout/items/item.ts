@@ -5,7 +5,7 @@ import { addTF2Model } from '../scene';
 import { ItemTemplate } from './itemtemplate';
 
 export class Item {
-	id = '';
+	readonly id: string;
 	#itemTemplate: ItemTemplate;
 	#character?: Character;
 	#model: Source1ModelInstance | null = null;
@@ -25,6 +25,7 @@ export class Item {
 	constructor(itemTemplate: ItemTemplate, character?: Character) {
 		this.#itemTemplate = itemTemplate;
 		this.#character = character;
+		this.id = itemTemplate.id;
 		/*
 		this.#ready = new Promise((resolve, reject) => {
 			this.#readyPromiseResolve = resolve;

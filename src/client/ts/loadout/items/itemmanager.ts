@@ -65,13 +65,13 @@ export class ItemManager {
 		return this.#itemTemplates.get(id) ?? null;
 	}
 
-	static getFilteredItems(): Set<ItemTemplate> {
-		const filteredItems = new Set<ItemTemplate>();
+	static getFilteredItems(): Map<string, ItemTemplate> {
+		const filteredItems = new Map<string, ItemTemplate>();
 
-		for (const [, itemTemplate] of this.#itemTemplates) {
+		for (const [id, itemTemplate] of this.#itemTemplates) {
 			const match = this.#filters.matchFilter(itemTemplate, { e: 0 }, this.#characterClass, new Set<Item>)
 			if (match == ItemFilterResult.Ok) {
-				filteredItems.add(itemTemplate);
+				filteredItems.set(id, itemTemplate);
 			}
 		}
 		return filteredItems;
