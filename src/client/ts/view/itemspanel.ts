@@ -3,6 +3,7 @@ import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, show, toggle } from 'harmony-ui';
 import itemCSS from '../../css/item.css';
 import itemPanelCSS from '../../css/itempanel.css';
+import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
 import { Item } from '../loadout/items/item';
@@ -360,6 +361,35 @@ export class ItemsPanel extends DynamicPanel {
 				htmlItem?.classList.remove('item-selected');
 			}
 		}
+		this.#refreshActiveList();
+	}
+
+	#refreshActiveList(): void {
+		const selectedItems = ItemManager.getSelectedItems();
+
+		this.#htmlActiveItems?.replaceChildren();
+		for (const selectedItem of selectedItems) {
+			const template = ItemManager.getTemplate(selectedItem);
+			if (template) {
+
+				const imageInventory = template.imageInventory;
+				let src: string = '';
+				if (imageInventory) {
+					if (imageInventory && imageInventory.startsWith('http')) {
+						src = imageInventory;
+					} else {
+						src = inventoryPath + imageInventory.toLowerCase() + '.png';
+					}
+				}
+
+				createElement('img', {
+					class: 'active-item',
+					parent: this.#htmlActiveItems,
+					src: src,
+					$click: () => Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ItemClicked, { detail: template }),
+				})
+			}
+		}
 	}
 
 	#handleItemAddedRemoved(item: Item, added: boolean): void {
@@ -369,5 +399,6 @@ export class ItemsPanel extends DynamicPanel {
 		} else {
 			htmlItem?.classList.remove('item-selected');
 		}
+		this.#refreshActiveList();
 	}
 }

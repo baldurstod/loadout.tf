@@ -386,8 +386,8 @@ item-manager-item.interfering {
 	flex: 0 0 64px;
 	overflow-y: hidden;
 }
-
-.item-manager-active-item {
+*/
+.active-item {
 	text-align: center;
 	display: inline-block;
 	width: 5em;
@@ -396,7 +396,7 @@ item-manager-item.interfering {
 	overflow: hidden;
 	cursor: pointer;
 }
-
+/*
 .item-manager-filter-misc-container {
 	flex-wrap: wrap;
 }
