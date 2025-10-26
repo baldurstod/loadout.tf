@@ -37,8 +37,8 @@ export class CharacterManager {
 
 		const characterTemplate = CharactersList.get(characterClass);
 		if (characterTemplate) {
-			const modelName = characterTemplate.model;
-			character.loadModel(modelName);
+			const modelName = characterTemplate.name;
+			character.loadModel(characterTemplate.path, modelName);
 
 			const model = await character.getModel();
 			if (model) {

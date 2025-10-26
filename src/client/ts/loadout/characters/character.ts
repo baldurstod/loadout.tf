@@ -2,9 +2,9 @@ import { Source1ModelInstance } from 'harmony-3d';
 import { Effect } from '../effects/effect';
 import { Team } from '../enums';
 import { Item } from '../items/item';
+import { ItemTemplate } from '../items/itemtemplate';
 import { addTF2Model } from '../scene';
 import { CharactersList, Tf2Class } from './characters';
-import { ItemTemplate } from '../items/itemtemplate';
 
 export class Character {
 	readonly characterClass: Tf2Class;
@@ -29,12 +29,12 @@ export class Character {
 		this.name = CharactersList.get(characterClass)?.name ?? '';
 	}
 
-	async loadModel(name: string): Promise<void> {
+	async loadModel(path: string, name: string): Promise<void> {
 		if (this.#loaded) {
 			return;
 		}
 		this.#loaded = true;
-		this.#model = await addTF2Model(name);
+		this.#model = await addTF2Model(path);
 		if (!this.#model) {
 			this.#readyPromiseResolve(false);
 			return;
