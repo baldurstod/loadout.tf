@@ -80,6 +80,20 @@ export class ItemManager {
 		return filteredItems;
 	}
 
+	static getSelectedItems(): Set<string> {
+		if (this.#currentCharacter) {
+			const selectedItems = new Set<string>();
+
+			for (const [id] of this.#currentCharacter.items) {
+				selectedItems.add(id);
+			}
+
+			return selectedItems;
+		} else {
+			return new Set<string>();
+		}
+	}
+
 	static #initItems(): Promise<void> {
 		if (!this.#loadItemsPromise) {
 			this.#loadItemsPromise = new Promise((resolve) => {

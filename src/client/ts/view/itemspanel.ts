@@ -332,26 +332,33 @@ export class ItemsPanel extends DynamicPanel {
 			hide(htmlItem);
 		}
 
+		const selectedItems = ItemManager.getSelectedItems();
+
 		for (const [id, item] of ItemManager.getFilteredItems()) {
 			let htmlItem = this.#htmlItems.get(id);
 			if (htmlItem) {
 				show(htmlItem);
-				continue;
+			} else {
+				htmlItem = createElement('item-manager-item', {
+					properties: {
+						item: item,
+					},
+					parent: this.#htmlItemsContainer,
+					$click: (event: Event) => {
+						if (event.currentTarget == event.target) {
+							Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ItemClicked, { detail: item });
+						}
+					},
+				}) as ItemManagerItem;
+
+				this.#htmlItems.set(id, htmlItem);
 			}
 
-			htmlItem = createElement('item-manager-item', {
-				properties: {
-					item: item,
-				},
-				parent: this.#htmlItemsContainer,
-				$click: (event: Event) => {
-					if (event.currentTarget == event.target) {
-						Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ItemClicked, { detail: item });
-					}
-				},
-			}) as ItemManagerItem;
-
-			this.#htmlItems.set(id, htmlItem);
+			if (selectedItems.has(id)) {
+				htmlItem?.classList.add('item-selected');
+			} else {
+				htmlItem?.classList.remove('item-selected');
+			}
 		}
 	}
 
