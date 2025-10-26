@@ -15,7 +15,7 @@ export class Loadout {
 	}
 
 	static #initListeners(): void {
-		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
+		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail) });
 	}
 
 	static async showBadge(level: number, tier: number): Promise<void> {

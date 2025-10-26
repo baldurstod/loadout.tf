@@ -23,6 +23,7 @@ export class ItemsPanel extends DynamicPanel {
 	#filterInputDataList?: HTMLDataListElement;
 	#htmlFilterCollection?: HTMLSelectElement;
 	#htmlFilterInput?: HTMLInputElement;
+	#htmlconflictingItems?: HTMLElement;
 	#presetsPanel = new PresetsPanel();
 	#updatingPresets = false;
 	#htmlItems = new Map<string, ItemManagerItem>();
@@ -289,6 +290,14 @@ export class ItemsPanel extends DynamicPanel {
 			parent: shadowRoot,
 		});
 
+		this.#htmlconflictingItems = createElement('div', {
+			class: 'conflicting-items',
+			parent: shadowRoot,
+			i18n: '#interfere_warning',
+			hidden: true,
+		});
+		//this.#htmlItemSelectorPanelInterfere = createElement('div', { class: 'item-manager-interfere', i18n: '#interfere_warning', hidden: true }),
+
 		this.getShadowRoot().append(this.#presetsPanel.getHTMLElement());
 
 
@@ -377,6 +386,12 @@ export class ItemsPanel extends DynamicPanel {
 			}
 		}
 
+		if (conflictingItems.size > 0) {
+			show(this.#htmlconflictingItems);
+		} else {
+			hide(this.#htmlconflictingItems);
+		}
+
 		// Add active items icons
 		this.#htmlActiveItems?.replaceChildren();
 		for (const selectedItemId of selectedItems) {
@@ -384,7 +399,7 @@ export class ItemsPanel extends DynamicPanel {
 			if (template) {
 
 				const imageInventory = template.imageInventory;
-				let src: string = '';
+				let src = '';
 				if (imageInventory) {
 					if (imageInventory && imageInventory.startsWith('http')) {
 						src = imageInventory;
@@ -406,17 +421,6 @@ export class ItemsPanel extends DynamicPanel {
 					htmlActiveItem?.classList.remove('item-interfere');
 				}
 
-			}
-		}
-	}
-
-	#refreshConflicts(): void {
-		const conflictingItems = ItemManager.getConflictingItems();
-		for (const [id, htmlItem] of this.#htmlItems) {
-			if (conflictingItems.has(id)) {
-				htmlItem?.classList.add('item-interfere');
-			} else {
-				htmlItem?.classList.remove('item-interfere');
 			}
 		}
 	}
