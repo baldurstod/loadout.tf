@@ -41,6 +41,10 @@ export class ItemFilter {
 			name = CharactersList.get(characterClass)?.name;
 		}
 
+		if (item.getHide()) {
+			return ItemFilterResult.ExcludedFilter;
+		}
+
 		switch (item.getItemSlot(name ?? 'scout'/*TODO: fix that*/)) {
 			case 'primary':
 			case 'secondary':

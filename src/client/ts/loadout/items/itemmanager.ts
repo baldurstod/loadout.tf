@@ -24,7 +24,6 @@ export class ItemManager {
 
 	static {
 		this.#initListeners();
-
 	}
 
 	static setCurrentCharacter(character: Character): void {
