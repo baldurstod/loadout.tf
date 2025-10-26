@@ -37,10 +37,14 @@ export class Item {
 		*/
 	}
 
+	getTemplate(): ItemTemplate {
+		return this.#itemTemplate;
+	}
+
 	async setTeam(team: Team): Promise<void> {
 		this.#team = team;
 		// TODO
-		//await this.#refreshSkin();
+		await this.#refreshSkin();
 		//await this.#refreshSheen();
 		//await this.#refreshPaint();
 	}
@@ -75,11 +79,11 @@ export class Item {
 
 	async #refreshSkin(): Promise<void> {
 		// TODO
-		/*
 		if (this.#refreshingSkin) {
 			return;
 		}
 		this.#refreshingSkin = true;
+		/*
 		let skin = this.#team ? this.bluSkin : this.redSkin;
 
 
@@ -193,8 +197,8 @@ export class Item {
 			this.#stattrakModule.skin = String(skin % 2);
 		}
 
-		this.#refreshingSkin = false;
 		*/
+		this.#refreshingSkin = false;
 	}
 
 	getRepository(): string {

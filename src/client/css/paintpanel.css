@@ -16,3 +16,33 @@
 	background-color: var(--theme-popup-bg-color);
 	padding: 10px;
 }
+
+.paint {
+	width: 50px;
+	height: 50px;
+	display: inline-block;
+}
+
+.paint-header {
+	height: 50px;
+	width: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.paint-title {
+	font-size: 1.5em;
+	overflow: hidden;
+	color: var(--theme-text-color);
+	display: inline-block;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.selected-item {
+	width: 50px;
+	height: 50px;
+	display: inline-block;
+	background-size: 100% auto;
+	overflow: hidden;
+}

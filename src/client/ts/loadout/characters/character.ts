@@ -104,6 +104,7 @@ export class Character {
 			this.items.set(template.id, item);
 			item.loadModel();
 			(await this.getModel())?.addChild(await item.getModel());
+			await item.setTeam(this.#team);
 			return [item, true];
 		}
 	}

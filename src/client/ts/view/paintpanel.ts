@@ -7,6 +7,7 @@ import { Item } from '../loadout/items/item';
 import { getPaint, Paint, PaintDefinition, paintList } from '../paints/paints';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
+import { inventoryPath } from '../constants';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class PaintPanel extends DynamicPanel {
@@ -39,13 +40,13 @@ export class PaintPanel extends DynamicPanel {
 			parent: this.getShadowRoot(),
 		});
 
-		const paintsDivHeader = createElement('div', { class: 'paint-manager-paint-header' });
+		const paintsDivHeader = createElement('div', { class: 'paint-header' });
 
 		this.#htmlPaintsDivPaints = createElement('div');
 
-		this.#htmlItemIcon = createElement('div', { class: 'paint-manager-selected-item' });
+		this.#htmlItemIcon = createElement('div', { class: 'selected-item' });
 
-		this.#htmlPaintTitle = createElement('div', { class: 'paint-manager-paint-title' });
+		this.#htmlPaintTitle = createElement('div', { class: 'paint-title' });
 
 		//var colorText = createElement('input');
 		const closeButton = createElement('button', { class: 'cancelButton' });
@@ -76,7 +77,7 @@ export class PaintPanel extends DynamicPanel {
 		htmlPaintsDivInner.append(/*colorText, */closeButton, cancelButton, htmlVariablePaintTime);
 
 
-		this.getShadowRoot().addEventListener('click', (event: Event) => { this.#cancel(); event.stopPropagation(); });
+		this.getHTMLElement().addEventListener('click', (event: Event) => { this.#cancel(); event.stopPropagation(); });
 		htmlPaintsDivInner.addEventListener('click', event => { event.stopPropagation(); });
 		cancelButton.addEventListener('click', event => { this.#cancel(); event.stopPropagation(); });
 		closeButton.addEventListener('click', event => { this.hide(); event.stopPropagation(); });
@@ -86,7 +87,7 @@ export class PaintPanel extends DynamicPanel {
 	}
 
 	#createPaintView(paint: PaintDefinition): void {
-		const paintOption = createElement('div', { class: 'paint-manager-paint' });
+		const paintOption = createElement('div', { class: 'paint' });
 		paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 		OptionsManagerEvents.addEventListener('app.loadout.team', event => {
 			if ((event as CustomEvent).detail.value == 'RED') {
@@ -134,8 +135,22 @@ export class PaintPanel extends DynamicPanel {
 	}
 
 	selectPaint(item: Item): void {
+		this.getHTMLElement();
 		this.#currentItem = item;
 		this.#currentPaint = item.getPaint();
+
+
+		const image = item.getTemplate().imageInventory;
+		if (image) {
+			if (image.substring(0, 4) == 'http') {
+				this.#htmlItemIcon!.style.backgroundImage = 'url(\'' + image + '\')';
+			} else {
+				this.#htmlItemIcon!.style.backgroundImage = 'url(\'' + inventoryPath + image + '.png\')';
+			}
+		}
+
+
+
 		show(this.getHTMLElement());
 	}
 }
