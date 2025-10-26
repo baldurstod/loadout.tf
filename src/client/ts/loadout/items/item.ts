@@ -324,4 +324,8 @@ export class Item {
 			}
 		}
 	}
+
+	updatePaintColor(): void {
+		this.#refreshPaint();
+	}
 }

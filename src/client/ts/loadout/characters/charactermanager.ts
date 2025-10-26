@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import { getSceneExplorer } from 'harmony-3d';
+import { getSceneExplorer, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
 import { uint } from 'harmony-types';
 import { startAnim } from '../../constants';
 import { Team } from '../enums';
@@ -19,6 +19,10 @@ export class CharacterManager {
 	static #unusedCharacters: Character[] = [];
 	static #currentCharacter: Character | null = null;
 	static #team: Team = Team.Red;
+
+	static {
+		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.updatePaintColor());
+	}
 
 	static async selectCharacter(characterClass: Tf2Class, slotId?: uint): Promise<Character> {
 		const character = this.#getUnusedCharacter(characterClass) ?? new Character(characterClass);
@@ -132,6 +136,14 @@ export class CharacterManager {
 			const item = currentCharacter.getItemById(itemId);
 			if (item) {
 				item.setCustomTexture(customTextureName);
+			}
+		}
+	};
+
+	static updatePaintColor() {
+		for (const slot of this.#characterSlots) {
+			if (slot) {
+				slot.character?.updatePaintColor();
 			}
 		}
 	};

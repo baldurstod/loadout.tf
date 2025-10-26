@@ -107,4 +107,10 @@ export class Character {
 			return [item, true];
 		}
 	}
+
+	updatePaintColor(): void {
+		for (let [, item] of this.items) {
+			item.updatePaintColor();
+		}
+	}
 }
