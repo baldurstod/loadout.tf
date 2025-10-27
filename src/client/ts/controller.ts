@@ -30,6 +30,7 @@ export enum ControllerEvent {
 	SelectCamera = 'selectcamera',
 	ResetCamera = 'resetcamera',
 	SetItemFilter = 'setitemfilter',
+	SetItemSortAscending = 'setitemsortascending',
 	ItemsLoaded = 'itemsloaded',
 	ItemPinned = 'itempinned',
 	ItemClicked = 'itemclicked',

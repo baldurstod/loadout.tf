@@ -20,9 +20,11 @@ export class ItemManager {
 	static #systemList = new Map<string, EffectTemplate>();
 	static #itemCollections = new Set<string>();
 	static #equipRegions = new Set<string>();
+	static #sortingDirection = 1;
 
 	static {
 		this.#initListeners();
+		this.#setSortingType('index');
 	}
 
 	static setCurrentCharacter(character: Character): void {
@@ -43,6 +45,7 @@ export class ItemManager {
 
 	static #initListeners(): void {
 		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.setItemFilter((event as CustomEvent<SetItemFilter>).detail));
+		Controller.addEventListener(ControllerEvent.SetItemSortAscending, (event: Event) => this.#sortingDirection = (event as CustomEvent<boolean>).detail ? 1 : -1);
 
 		Controller.addEventListener(ControllerEvent.ItemPinned, (event: Event) => this.#pinItem((event as CustomEvent<ItemPinned>).detail.item, (event as CustomEvent<ItemPinned>).detail.pinned));
 		//Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
@@ -248,4 +251,78 @@ export class ItemManager {
 		}
 	}
 	*/
+
+	static #setSortingType(type: string/*TODO: create enum*/): void {
+		/*
+		if (this.#htmlSortType) {
+			this.#htmlSortType.value = type;
+		}
+		*/
+		switch (type) {
+			case 'name':
+				this.#sortByName();
+				break;
+			case 'index':
+				this.#sortByIndex();
+				break;
+			case 'slot':
+				this.#sortBySlot();
+				break;
+		}
+	}
+
+	static #sortByName(): void {
+		const self = this;
+		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
+			yield* [...this.entries()].sort(
+				(a, b) => {
+					const aname = a[1].name;
+					const bname = b[1].name;
+					return aname < bname ? -self.#sortingDirection : self.#sortingDirection;
+				}
+			);
+		}
+	}
+
+	static #sortBySlot(): void {
+		const self = this;
+		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
+			yield* [...this.entries()].sort(
+				(a, b) => {
+					const aSlot = a[1].getItemSlot() ?? '';
+					const bSlot = b[1].getItemSlot() ?? '';
+
+					if (aSlot < bSlot) {
+						return -self.#sortingDirection;
+					}
+					if (aSlot > bSlot) {
+						return self.#sortingDirection;
+					}
+					const aname = a[1].name;
+					const bname = b[1].name;
+					return aname < bname ? -self.#sortingDirection : self.#sortingDirection;
+				}
+			);
+		}
+	}
+
+	static #sortByIndex(): void {
+		const self = this;
+		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
+			yield* [...this.entries()].sort(
+				(a, b) => {
+					const aname = a[1].id;
+					const bname = b[1].id;
+					const aId = parseInt(aname, 10);
+					const bId = parseInt(bname, 10);
+
+					if (aId == bId) {
+						return 0;
+					}
+
+					return aId < bId ? -self.#sortingDirection : self.#sortingDirection;
+				}
+			);
+		}
+	}
 }

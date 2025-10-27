@@ -13,6 +13,10 @@ export default tseslint.config(
         // No Promise in harmony-3d rejects
         "allowForKnownSafePromises": [{ "from": "lib", "name": "Promise" }]
       }],
+      "@typescript-eslint/no-this-alias": ["error", {
+        // generator functions doen't exist as arrow functions
+        "allowedNames": ["self"]
+      }],
 
       "@typescript-eslint/no-explicit-any": "off",// Disable that for now
       "@typescript-eslint/no-unsafe-member-access": "off",// Disable that for now

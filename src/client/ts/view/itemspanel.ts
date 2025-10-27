@@ -253,7 +253,7 @@ export class ItemsPanel extends DynamicPanel {
 									],
 									//$change: (event: Event) => OptionsManager.setItem('app.items.sort.ascending', (event.target as HTMLHarmonyToggleButtonElement).state),
 									$change: (event: Event) => {
-										OptionsManager.setItem('app.items.sort.ascending', (event.target as HTMLSelectElement).value);
+										OptionsManager.setItem('app.items.sort.ascending', (event.target as HTMLHarmonyToggleButtonElement).state);
 										//Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Collection, value: (event.target as HTMLSelectElement).value } });
 									},
 								}) as HTMLHarmonyToggleButtonElement,
@@ -337,6 +337,13 @@ export class ItemsPanel extends DynamicPanel {
 		OptionsManagerEvents.addEventListener('app.items.filter.collection', (event: Event) => this.#htmlFilterCollection!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
 
 		OptionsManagerEvents.addEventListener('app.items.sort.ascending', (event: Event) => htmlSortDirection.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.items.sort.ascending', (event: Event) => {
+			const ascending = (event as CustomEvent).detail.value;
+			htmlSortDirection.state = ascending;
+			//this.#sortingDirection = ascending ? 1 : -1;
+			Controller.dispatchEvent<boolean>(ControllerEvent.SetItemSortAscending, { detail: ascending });
+			this.#refreshItems();
+		});
 
 		//OptionsManagerEvents.addEventListener('app.items.warpaints.sort.type', (event: Event) => this.#htmlWarpaintsSortType.value = (event as CustomEvent<OptionsManagerEvent>).detail.value);
 		//OptionsManagerEvents.addEventListener('app.items.warpaints.sort.ascending', (event: Event) => this.#htmlWarpaintsSortDirection.state = ascending);
@@ -360,6 +367,7 @@ export class ItemsPanel extends DynamicPanel {
 		for (const [id, item] of ItemManager.getFilteredItems()) {
 			let htmlItem = this.#htmlItems.get(id);
 			if (htmlItem) {
+				this.#htmlItemsContainer?.append(htmlItem);
 				show(htmlItem);
 			} else {
 				htmlItem = createElement('item-manager-item', {
