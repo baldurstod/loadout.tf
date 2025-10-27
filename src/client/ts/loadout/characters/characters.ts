@@ -55,7 +55,7 @@ export const CharactersList = new Map<Tf2Class, CharactersType>([
 	[Tf2Class.SpyBot, { name: 'spy', bot: true, path: 'models/bots/spy/bot_spy', icon: spy, }],
 	[Tf2Class.EngineerBot, { name: 'engineer', bot: true, path: 'models/bots/engineer/bot_engineer', icon: engineer, }],
 
-	[Tf2Class.None, { name: 'Dummy', bot: false, path: 'models/empty', icon: engineer, }],
+	[Tf2Class.None, { name: 'dummy', bot: false, path: 'models/empty', icon: engineer, }],
 ]);
 
 export const ClassRemovablePartsOff = ['heavy_hand_dex_bodygroup', 'robotarm_bodygroup', 'darts_bodygroup', 'spyMask', 'rocket', 'medal_bodygroup', 'demo_smiley'];

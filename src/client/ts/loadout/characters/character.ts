@@ -1,4 +1,5 @@
 import { Source1ModelInstance } from 'harmony-3d';
+import { OptionsManager } from 'harmony-browser-utils';
 import { Effect } from '../effects/effect';
 import { Team } from '../enums';
 import { Item } from '../items/item';
@@ -24,6 +25,8 @@ export class Character {
 	#visible = true;
 	#zombieSkin = false;
 	#isInvulnerable = false;
+	#userAnim = '';
+	#voicePose?: string;
 
 	constructor(characterClass: Tf2Class) {
 		this.characterClass = characterClass;
@@ -122,31 +125,29 @@ export class Character {
 		return this.#isInvulnerable;
 	}
 
-	#loadoutChanged() {
+	#loadoutChanged(): void {
 		// TODO
-		//this.#autoSelectAnim();
+		this.#autoSelectAnim();
 		//this.#processSoul();
 		this.#checkBodyGroups();
 		//Controller.dispatchEvent(new CustomEvent('loadout-changed', { detail: { character: this } }));
 	}
 
-	async #checkBodyGroups() {
+	async #checkBodyGroups(): Promise<void> {
 		await this.#ready;
 
-		let bodyGroupList;
-		let item;
 		let bodyGroupIndex: string;
 		let bodyGroup;
 		this.#renderBodyParts(true);
 		this.#model?.setVisible(this.#visible);
 		this.#model?.resetBodyPartModels();
 
-		for (let bodyGroupIndex = 0; bodyGroupIndex < ClassRemovablePartsOff.length; bodyGroupIndex++) {
-			this.renderBodyPart(ClassRemovablePartsOff[bodyGroupIndex]!, false);
+		for (const classRemovableParts of ClassRemovablePartsOff) {
+			this.renderBodyPart(classRemovableParts, false);
 		}
 
-		for (let [itemId, item] of this.items) {
-			let playerBodygroups = item.getTemplate().playerBodygroups;
+		for (const [, item] of this.items) {
+			const playerBodygroups = item.getTemplate().playerBodygroups;
 			if (playerBodygroups) {
 				for (bodyGroupIndex in playerBodygroups) {
 					bodyGroup = playerBodygroups[bodyGroupIndex];
@@ -154,7 +155,7 @@ export class Character {
 				}
 			}
 
-			let wmBodygroupOverride = item.getTemplate().wmBodygroupOverride;
+			const wmBodygroupOverride = item.getTemplate().wmBodygroupOverride;
 			if (wmBodygroupOverride) {
 				for (bodyGroupIndex in wmBodygroupOverride) {
 					bodyGroup = wmBodygroupOverride[bodyGroupIndex];
@@ -164,7 +165,7 @@ export class Character {
 		}
 	}
 
-	renderBodyPart(bodyPart: string, render: boolean) {
+	renderBodyPart(bodyPart: string, render: boolean): void {
 		this.#showBodyParts.set(bodyPart, render);
 		this.#model?.renderBodyPart(bodyPart, render);
 	}
@@ -179,5 +180,81 @@ export class Character {
 
 	setBodyPartModel(bodyPartId: string, modelId: number): void {
 		this.#model?.setBodyPartModel(bodyPartId, modelId);
+	}
+
+	setPose(pose: string): void {
+		this.#voicePose = pose;
+		this.#autoSelectAnim();
+	}
+
+	setUserAnim(userAnim: string): void {
+		this.#userAnim = userAnim;
+		if (userAnim) {
+			this.#playAnim(userAnim);
+		} else {
+			this.#autoSelectAnim();
+		}
+	}
+
+	async #playAnim(animName: string): Promise<void> {
+		await this.#ready;
+
+		this.#model?.playSequence(animName);
+		await this.#model?.setAnimation(0, animName, 1);
+	}
+
+	#autoSelectAnim(): void {
+		if (this.#userAnim) {
+			return;
+		}
+		const pose = this.#voicePose ?? 'stand';
+		if (OptionsManager.getItem('app.character.autoselectanim')) {
+			this.#playAnim(pose + '_secondary');
+		}
+		for (const [, item] of this.items) {
+			const animSlot = item.getTemplate().animSlot;
+			const itemSlot = item.getTemplate().getItemSlot(CharactersList.get(this.characterClass)?.name ?? 'scout'/*TODO: fix* scout*/);
+			if (itemSlot != 'action' && animSlot && animSlot.toLowerCase() != 'building') {
+				if (animSlot[0] == '#') {
+					//this.playAnim(animSlot.substring(1) + currentCharacter.npc.toLowerCase());
+				} else if (animSlot[0] == '!') {
+					this.#playAnim(animSlot.substring(1));
+				} else if (animSlot.toLowerCase() == 'primary2') {
+					this.#playAnim(pose + '_primary');
+				} else if (animSlot.toLowerCase() != 'force_not_used') {
+					this.#playAnim(pose + '_' + animSlot);
+				}
+			} else {
+				let slot;
+				switch (itemSlot) {
+					case 'primary':
+					case 'secondary':
+					case 'melee':
+					case 'pda':
+						slot = itemSlot;
+						break;
+					case 'building':
+						slot = 'sapper';
+						break;
+					case 'force_building':
+						slot = 'building';
+						break;
+				}
+
+				/*if (item.used_by_classes) {
+					for (let c in item.used_by_classes) {
+						if (c == currentCharacter.npc.toLowerCase()
+							&& isNaN(item.used_by_classes[c])) {
+							slot = item.used_by_classes[c];
+							break;
+						}
+					}
+				}*/
+				if (slot) {
+					this.#playAnim(pose + '_' + slot);
+				}
+
+			}
+		}
 	}
 }
