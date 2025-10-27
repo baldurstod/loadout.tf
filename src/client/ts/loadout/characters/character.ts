@@ -126,6 +126,14 @@ export class Character {
 		return this.#isInvulnerable;
 	}
 
+	async setInvulnerable(isInvulnerable: boolean): Promise<void> {
+		this.#isInvulnerable = isInvulnerable;
+		const promises: Promise<void>[] = [];
+		promises.push(this.#refreshSkin());
+		this.items.forEach(item => promises.push(item.setTeam(this.#team)));
+		await Promise.all(promises);
+	}
+
 	#loadoutChanged(): void {
 		this.#autoSelectAnim();
 		this.#processSoul();

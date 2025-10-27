@@ -2,7 +2,7 @@ import { vec3 } from 'gl-matrix';
 import { getSceneExplorer, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
 import { uint } from 'harmony-types';
 import { startAnim } from '../../constants';
-import { Controller, ControllerEvent } from '../../controller';
+import { Controller, ControllerEvent, SetInvulnerable } from '../../controller';
 import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
 import { Character } from './character';
@@ -20,9 +20,11 @@ export class CharacterManager {
 	static #unusedCharacters: Character[] = [];
 	static #currentCharacter: Character | null = null;
 	static #team: Team = Team.Red;
+	static #isInvulnerable = false;
 
 	static {
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.updatePaintColor());
+		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<SetInvulnerable>).detail.invulnerable, (event as CustomEvent<SetInvulnerable>).detail.applyToAll); return; },);
 	}
 
 	static async selectCharacter(characterClass: Tf2Class, slotId?: uint): Promise<Character> {
@@ -149,4 +151,18 @@ export class CharacterManager {
 			}
 		}
 	};
+
+	static async  #setInvulnerable(invulnerable: boolean, applyToAll: boolean): Promise<void> {
+		this.#isInvulnerable = invulnerable;
+		if (applyToAll) {
+
+			for (const slot of this.#characterSlots) {
+				if (slot) {
+					await slot.character?.setInvulnerable(invulnerable);
+				}
+			}
+		} else {
+			await this.getCurrentCharacter()?.setInvulnerable(invulnerable);
+		}
+	}
 }

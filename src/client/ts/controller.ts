@@ -38,6 +38,7 @@ export enum ControllerEvent {
 	ItemAdded = 'itemadded',
 	ItemRemoved = 'itemremoved',
 	PaintClick = 'paintclick',
+	SetInvulnerable = 'setinvulnerable',
 }
 
 export type SetBackgroundType = {
@@ -80,6 +81,11 @@ export type SetItemFilter = {
 export type ItemPinned = {
 	item: ItemTemplate;
 	pinned: boolean;
+}
+
+export type SetInvulnerable = {
+	invulnerable: boolean;
+	applyToAll: boolean;
 }
 
 export class Controller {
