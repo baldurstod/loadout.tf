@@ -204,7 +204,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			this.#detail!.append(equipRegionHtml);
 		}
 
-		const itemSlot = item.getItemSlot('scout'/*TODO: use the current class*/);
+		const itemSlot = item.getItemSlot();
 		if (itemSlot) {
 			const itemSlotHtml = createElement('div', { class: 'item-detail-item-slot capitalize' });
 			itemSlotHtml.innerText = itemSlot;
@@ -400,24 +400,24 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			});
 		}
 
-		const itemSlot = itemTemplate.getItemSlot('scout'/*TODO: fix class*/);
+		const itemSlot = itemTemplate.getItemSlot();
 		if (
 			(itemSlot == 'melee')
 			|| (itemSlot == 'primary')
 			|| (itemSlot == 'secondary')
 		) {
-			const div2 = createElement('img', {
+			createElement('img', {
 				class: 'crit-icon',
+				parent: this,
 				src: mvmPowCritPNG,
-			});
-			this.append(div2);
-			//div2.itemName = item;
-			div2.addEventListener('click', event => {
-				const item = CharacterManager.getCurrentCharacter()?.getItemById(itemTemplate.id);
-				if (item) {
-					item.critBoost();
+				$click: (event: Event) => {
+					const item = CharacterManager.getCurrentCharacter()?.getItemById(itemTemplate.id);
+					if (item) {
+						item.critBoost();
+					}
+					event.stopPropagation();
+
 				}
-				event.stopPropagation();
 			});
 		}
 

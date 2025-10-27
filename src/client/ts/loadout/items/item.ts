@@ -1,4 +1,4 @@
-import { Material, Source1MaterialManager, Source1ModelInstance } from 'harmony-3d';
+import { Material, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem } from 'harmony-3d';
 import { MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
 import { Paint } from '../../paints/paints';
 import { colorToVec3 } from '../../utils/colors';
@@ -23,6 +23,8 @@ export class Item {
 	#refreshingSkin = false;
 	#showFestivizer = false;
 	#critBoost = false;
+	#critBoostSysRed?: Source1ParticleSystem | null;
+	#critBoostSysBlu?: Source1ParticleSystem | null;
 	#loaded = false;
 	#paint: Paint | null = null;
 	#readyPromiseResolve!: (value: any) => void;
@@ -89,8 +91,7 @@ export class Item {
 		this.#refreshingSkin = true;
 
 		const skin = this.#team ? this.#itemTemplate.bluSkin : this.#itemTemplate.redSkin;
-		/*
-		// TODO
+
 		if (this.#critBoostSysRed) {
 			this.#critBoostSysRed.stop();
 			this.#critBoostSysRed.remove();
@@ -101,7 +102,7 @@ export class Item {
 			this.#critBoostSysBlu.stop();
 			this.#critBoostSysBlu.remove();
 			this.#critBoostSysBlu = null;
-		}*/
+		}
 
 		if (this.#model) {
 			await this.#ready;
@@ -136,14 +137,11 @@ export class Item {
 				}
 			}
 
-			/*
-
-			// TODO
 			if (this.#critBoost) {
 				let systemName = '';
 				let glowColor = null;
 				let sys = null;
-				if (this.#team == 0) {
+				if (this.#team == Team.Red) {
 					sys = this.#critBoostSysRed;
 					glowColor = [80, 8, 5];
 					systemName = 'critgun_weaponmodel_red';
@@ -158,14 +156,14 @@ export class Item {
 						sys = await Source1ParticleControler.createSystem('tf2', systemName);
 					}
 					sys.start();
-					this.#sourceModel.addChild(sys);
-					this.#sourceModel.attachSystem(sys, '');
-					this.#sourceModel.materialsParams['ModelGlowColor'] = glowColor;
+					this.#model.addChild(sys);
+					this.#model.attachSystem(sys, '');
+					this.#model.materialsParams['ModelGlowColor'] = glowColor;
 					if (this.#stattrakModule) {
 						this.#stattrakModule.materialsParams['ModelGlowColor'] = glowColor;
 					}
 				}
-				if (this.team == 0) {
+				if (this.#team == Team.Red) {
 					this.#critBoostSysRed = sys;
 				} else {
 					this.#critBoostSysBlu = sys;
@@ -177,7 +175,6 @@ export class Item {
 					this.#stattrakModule.materialsParams['ModelGlowColor'] = null;
 				}
 			}
-			*/
 		}
 
 		/*

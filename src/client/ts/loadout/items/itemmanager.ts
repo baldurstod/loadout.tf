@@ -197,7 +197,7 @@ export class ItemManager {
 				this.#equipRegions.add(equipRegion);
 			}
 
-			const itemSlot = itemTemplate.getItemSlot('scout');
+			const itemSlot = itemTemplate.getItemSlot();
 			if (itemSlot) {// TODO: slots per class
 				itemTemplate.addKeyword(itemSlot);
 				//this.addFilterOption(itemTemplate.item_slot as string);

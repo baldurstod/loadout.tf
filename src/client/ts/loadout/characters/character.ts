@@ -213,7 +213,7 @@ export class Character {
 		}
 		for (const [, item] of this.items) {
 			const animSlot = item.getTemplate().animSlot;
-			const itemSlot = item.getTemplate().getItemSlot(CharactersList.get(this.characterClass)?.name ?? 'scout'/*TODO: fix* scout*/);
+			const itemSlot = item.getTemplate().getItemSlotPerClass(CharactersList.get(this.characterClass)?.name ?? 'scout'/*TODO: fix* scout*/);
 			if (itemSlot != 'action' && animSlot && animSlot.toLowerCase() != 'building') {
 				if (animSlot[0] == '#') {
 					//this.playAnim(animSlot.substring(1) + currentCharacter.npc.toLowerCase());

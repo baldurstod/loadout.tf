@@ -45,7 +45,7 @@ export class ItemFilter {
 			return ItemFilterResult.ExcludedFilter;
 		}
 
-		switch (item.getItemSlot(name ?? 'scout'/*TODO: fix that*/)) {
+		switch (item.getItemSlotPerClass(name ?? 'scout'/*TODO: fix that*/)) {
 			case 'primary':
 			case 'secondary':
 			case 'melee':

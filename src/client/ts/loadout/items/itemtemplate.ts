@@ -148,7 +148,11 @@ export class ItemTemplate {
 		return this.#definition.anim_slot as string/*TODO: fix type*/;
 	}
 
-	getItemSlot(npc: string): string | null {
+	getItemSlot(): string | null {
+		return this.#definition.item_slot as string ?? null;
+	}
+
+	getItemSlotPerClass(npc: string): string | null {
 		const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
 		if (usedByClasses) {
 			const usedByClass = usedByClasses[npc];
