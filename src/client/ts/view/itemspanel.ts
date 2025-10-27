@@ -6,14 +6,14 @@ import itemPanelCSS from '../../css/itempanel.css';
 import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
+import { CharacterManager } from '../loadout/characters/charactermanager';
 import { Item } from '../loadout/items/item';
 import { ItemManager } from '../loadout/items/itemmanager';
 import { ItemTemplate } from '../loadout/items/itemtemplate';
 import { DynamicPanel } from './dynamicpanel';
 import { ItemManagerItem } from './itemmanageritem';
-import { PresetsPanel } from './presetspanel';
 import { PaintPanel } from './paintpanel';
-import { CharacterManager } from '../loadout/characters/charactermanager';
+import { PresetsPanel } from './presetspanel';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class ItemsPanel extends DynamicPanel {
@@ -263,7 +263,7 @@ export class ItemsPanel extends DynamicPanel {
 
 		const setNameFilter = (name: string): void => {
 			OptionsManager.setItem('app.items.filter.text', name);
-			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Name, value: name } });
+			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Name, value: name.toLowerCase().trim() } });
 		}
 
 		this.#htmlNameFilterContainer = createElement('div', {
@@ -276,8 +276,8 @@ export class ItemsPanel extends DynamicPanel {
 				this.#htmlFilterInput = createElement('input', {
 					class: 'filter-text',
 					list: 'filter-input-datalist',
-					$change: (event: Event) => setNameFilter((event.target as HTMLInputElement).value.toLowerCase().trim()),
-					$keyup: (event: Event) => setNameFilter((event.target as HTMLInputElement).value.toLowerCase().trim()),
+					$change: (event: Event) => setNameFilter((event.target as HTMLInputElement).value),
+					$keyup: (event: Event) => setNameFilter((event.target as HTMLInputElement).value),
 					$keydown: (event: Event) => event.stopPropagation(),
 				}) as HTMLInputElement,
 				htmlCollapsableFiltersButton = createElement('harmony-switch', {
@@ -313,7 +313,9 @@ export class ItemsPanel extends DynamicPanel {
 		//OptionsManagerEvents.addEventListener('app.items.filter.restoretext', (event: Event) => { if ((event as CustomEvent<OptionsManagerEvent>).detail.value) { this.#htmlFilterInput!.value = OptionsManager.getItem('app.items.filter.text'); } });
 		const populateName = (): void => {
 			if (OptionsManager.getItem('app.items.filter.restoretext')) {
-				this.#htmlFilterInput!.value = OptionsManager.getItem('app.items.filter.text');
+				const textFilter = OptionsManager.getItem('app.items.filter.text');
+				this.#htmlFilterInput!.value = textFilter;
+				setNameFilter(textFilter);
 			}
 		};
 		OptionsManagerEvents.addEventListener('app.items.filter.restoretext', () => populateName());
