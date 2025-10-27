@@ -1,6 +1,7 @@
 import { Material, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem } from 'harmony-3d';
 import { MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
 import { Paint } from '../../paints/paints';
+import { Sheen } from '../../paints/sheens';
 import { colorToVec3 } from '../../utils/colors';
 import { Character } from '../characters/character';
 import { Team } from '../enums';
@@ -27,6 +28,7 @@ export class Item {
 	#critBoostSysBlu?: Source1ParticleSystem | null;
 	#loaded = false;
 	#paint: Paint | null = null;
+	#sheen: Sheen | null = null;
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
 		this.#readyPromiseResolve = resolve;
@@ -51,8 +53,8 @@ export class Item {
 		this.#team = team;
 		// TODO
 		await this.#refreshSkin();
-		//await this.#refreshSheen();
-		//await this.#refreshPaint();
+		await this.#refreshSheen();
+		///await this.#refreshPaint();
 	}
 
 	getEquipRegions(): string[] {
@@ -353,5 +355,30 @@ export class Item {
 		void this.#festivizerModel?.setMaterialOverride(material);
 
 		void this.#stattrakModule?.setMaterialOverride(material);
+	}
+
+	setSheen(sheen: Sheen | null): void {
+		this.#sheen = sheen;
+		if (this.#model) {
+			if (sheen == null) {
+				//this.#model.sheen = null;
+			} else {
+				this.#refreshSheen();
+			}
+		} else {
+			// TODO: character sheen
+		}
+	}
+
+	getSheen(): Sheen | null {
+		return this.#sheen;
+	}
+
+	async #refreshSheen(): Promise<void> {
+		await this.#ready;
+		const sheen = this.#sheen;
+		if (sheen && this.#model) {
+			this.#model.sheen = sheen.getTint(this.#team);
+		}
 	}
 }

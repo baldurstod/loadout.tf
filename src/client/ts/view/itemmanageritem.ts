@@ -323,21 +323,20 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		}
 
 		if (itemTemplate.attachedModelsFestive) {
-			const divFestive = createElement('img', {
+			createElement('img', {
 				class: 'festivizer-icon',
+				parent: this,
 				src: festivizerPNG,
 				i18n: {
 					title: '#festivizer',
 				},
-			});
-			this.append(divFestive);
-			//divFestive.itemName = item;
-			divFestive.addEventListener('click', event => {
-				const item = CharacterManager.getCurrentCharacter()?.getItemById(itemTemplate.id);
-				if (item) {
-					item.toggleFestivizer();
-				}
-				event.stopPropagation();
+				$click: (event: Event) => {
+					const item = CharacterManager.getCurrentCharacter()?.getItemById(itemTemplate.id);
+					if (item) {
+						item.toggleFestivizer();
+					}
+					event.stopPropagation();
+				},
 			});
 		}
 
@@ -416,22 +415,20 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 						item.critBoost();
 					}
 					event.stopPropagation();
-
-				}
+				},
 			});
 		}
 
 		//const itemSlot = itemTemplate.item_slot;
 		if (itemSlot && (itemSlot.indexOf('melee') != -1 || itemSlot.indexOf('pda') != -1 || itemSlot.indexOf('pda2') != -1 || itemSlot.indexOf('primary') != -1 || itemSlot.indexOf('secondary') != -1)) {
-			const div2 = createElement('img', {
+			createElement('img', {
 				class: 'sheen-icon',
+				parent: this,
 				src: paintcanPNG,
-			});
-			this.append(div2);
-			//div2.itemName = item;
-			div2.addEventListener('click', event => {
-				ItemManagerItemEventTarget.dispatchEvent(new CustomEvent('sheenclick', { detail: itemTemplate }));
-				event.stopPropagation();
+				$click: (event: Event) => {
+					Controller.dispatchEvent<ItemTemplate>(ControllerEvent.SheenClick, { detail: this.#item });
+					event.stopPropagation();
+				},
 			});
 		}
 

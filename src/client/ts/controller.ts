@@ -38,6 +38,7 @@ export enum ControllerEvent {
 	ItemAdded = 'itemadded',
 	ItemRemoved = 'itemremoved',
 	PaintClick = 'paintclick',
+	SheenClick = 'sheenclick',
 	SetInvulnerable = 'setinvulnerable',
 }
 

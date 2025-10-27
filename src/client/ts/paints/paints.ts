@@ -99,17 +99,6 @@ export class Paint {
 	teamColored: boolean;
 	time?: number;
 
-	/*
-
-		name: string,
-		paint: Paints,
-		teamColored: boolean,
-		tintRed: number,
-		tintBlu: number,
-		spell: boolean,
-		*/
-
-	//constructor(name: string, colorRed: number, colorBlu: number, varying: boolean) {
 	constructor(definition: PaintDefinition) {
 		this.#name = definition.name;
 		this.#paint = definition.paint;
@@ -118,11 +107,6 @@ export class Paint {
 		this.spell = definition.spell;
 		this.teamColored = definition.teamColored;
 	}
-
-	/**
-	 * Get color as tint rgb
-	 * @param {Number} color The color, in integer format (ie: Indubitably Green: 7511618)
-	 */
 
 	/**
 	 * Compute the paint tint for the given team

@@ -1,0 +1,44 @@
+[
+	{
+		"id": 0,
+		"name": "No sheen",
+		"tint_red": "000000"
+	},
+	{
+		"id": 1,
+		"name": "Team shine",
+		"tint_red": "c8140f",
+		"tint_blu": "2862c8",
+		"team": true
+	},
+	{
+		"id": 2,
+		"name": "Deadly Daffodil",
+		"tint_red": "f2ac0a"
+	},
+	{
+		"id": 3,
+		"name": "Manndarin",
+		"tint_red": "ff4b05"
+	},
+	{
+		"id": 4,
+		"name": "Mean green",
+		"tint_red": "64ff0a"
+	},
+	{
+		"id": 5,
+		"name": "Agonizing Emerald",
+		"tint_red": "28ff46"
+	},
+	{
+		"id": 6,
+		"name": "Villainous Violet",
+		"tint_red": "6914ff"
+	},
+	{
+		"id": 7,
+		"name": "Hotrod",
+		"tint_red": "ff1eff"
+	}
+]

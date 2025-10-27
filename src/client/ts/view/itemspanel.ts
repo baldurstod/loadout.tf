@@ -14,6 +14,7 @@ import { DynamicPanel } from './dynamicpanel';
 import { ItemManagerItem } from './itemmanageritem';
 import { PaintPanel } from './paintpanel';
 import { PresetsPanel } from './presetspanel';
+import { SheenPanel } from './sheenpanel';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class ItemsPanel extends DynamicPanel {
@@ -28,6 +29,7 @@ export class ItemsPanel extends DynamicPanel {
 	#htmlconflictingItems?: HTMLElement;
 	#presetsPanel = new PresetsPanel();
 	#paintPanel = new PaintPanel();
+	#sheenPanel = new SheenPanel();
 	#updatingPresets = false;
 	#htmlItems = new Map<string, ItemManagerItem>();
 
@@ -44,6 +46,7 @@ export class ItemsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, true));
 		Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, false));
 		Controller.addEventListener(ControllerEvent.PaintClick, (event: Event) => this.#handlePaintClick((event as CustomEvent<ItemTemplate>).detail));
+		Controller.addEventListener(ControllerEvent.SheenClick, (event: Event) => this.#handleSheenClick((event as CustomEvent<ItemTemplate>).detail));
 	}
 
 	protected override initHTML(): void {
@@ -305,6 +308,7 @@ export class ItemsPanel extends DynamicPanel {
 		this.getShadowRoot().append(
 			this.#presetsPanel.getHTMLElement(),
 			this.#paintPanel.getHTMLElement(),
+			this.#sheenPanel.getHTMLElement(),
 		);
 
 
@@ -462,6 +466,17 @@ export class ItemsPanel extends DynamicPanel {
 		const item = character.getItemById(template.id);
 		if (item) {
 			this.#paintPanel.selectPaint(item);
+		}
+	}
+
+	#handleSheenClick(template: ItemTemplate): void {
+		const character = CharacterManager.getCurrentCharacter();
+		if (!character) {
+			return;
+		}
+		const item = character.getItemById(template.id);
+		if (item) {
+			this.#sheenPanel.selectSheen(item);
 		}
 	}
 }
