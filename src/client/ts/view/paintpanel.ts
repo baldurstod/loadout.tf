@@ -100,7 +100,7 @@ export class PaintPanel extends DynamicPanel {
 			}
 		});
 
-		Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => {
+		Controller.addEventListener(ControllerEvent.CharacterChanged, () => {
 			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? Team.Red;
 			if (team == Team.Red) {
 				paintOption.style.backgroundColor = colorToCss(paint.tintRed);

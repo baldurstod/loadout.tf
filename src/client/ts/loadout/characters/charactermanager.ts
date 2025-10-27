@@ -2,6 +2,7 @@ import { vec3 } from 'gl-matrix';
 import { getSceneExplorer, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
 import { uint } from 'harmony-types';
 import { startAnim } from '../../constants';
+import { Controller, ControllerEvent } from '../../controller';
 import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
 import { Character } from './character';
@@ -75,6 +76,7 @@ export class CharacterManager {
 		//ItemManager.setCharacterClass(character.characterClass);
 		ItemManager.setCurrentCharacter(character);
 		//EffectManager.setCurrentCharacter(character);
+		Controller.dispatchEvent<Character>(ControllerEvent.CharacterChanged, { detail: character });
 
 		(async (): Promise<void> => {
 			const model = await character.getModel();
@@ -140,7 +142,7 @@ export class CharacterManager {
 		}
 	};
 
-	static updatePaintColor() {
+	static updatePaintColor(): void {
 		for (const slot of this.#characterSlots) {
 			if (slot) {
 				slot.character?.updatePaintColor();

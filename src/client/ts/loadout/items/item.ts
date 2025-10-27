@@ -204,10 +204,8 @@ export class Item {
 			await extraModel.setSkin(String(skin));
 		}
 
-		this.#festivizerModel?.setSkin(String(this.#team));
-
-
-		this.#stattrakModule?.setSkin(String(skin % 2));
+		await this.#festivizerModel?.setSkin(String(this.#team));
+		await this.#stattrakModule?.setSkin(String(skin % 2));
 
 		this.#refreshingSkin = false;
 	}
@@ -258,25 +256,23 @@ export class Item {
 		}
 		this.#loaded = true;
 		const path = this.#itemTemplate.getModel('scout');
-		if (!path) {
-			// TODO: display error
-			return;
+		if (path) {
+			this.#model = await addTF2Model(path, this.getRepository());
 		}
 
-		this.#model = await addTF2Model(path, this.getRepository());
-		if (!this.#model) {
+		if (this.#model) {
+			this.#readyPromiseResolve(true);
+			this.#model.setFlexes();
+			this.#model.setPoseParameter('move_x', 1);
+			this.#model.setPoseParameter('move_y', 0.5);
+			this.#model.setPoseParameter('body_yaw', 0.5);
+			this.#model.setPoseParameter('body_pitch', 0.3);
+			this.#model.setPoseParameter('r_arm', 0);
+			this.#model.setPoseParameter('r_hand_grip', 0);
+			this.#model.name = this.#itemTemplate.name;
+		} else {
 			this.#readyPromiseResolve(false);
-			return;
 		}
-		this.#readyPromiseResolve(true);
-		this.#model.setFlexes();
-		this.#model.setPoseParameter('move_x', 1);
-		this.#model.setPoseParameter('move_y', 0.5);
-		this.#model.setPoseParameter('body_yaw', 0.5);
-		this.#model.setPoseParameter('body_pitch', 0.3);
-		this.#model.setPoseParameter('r_arm', 0);
-		this.#model.setPoseParameter('r_hand_grip', 0);
-		this.#model.name = this.#itemTemplate.name;
 		//this.#model.setVisible(this.#visible);
 
 		/*
@@ -344,7 +340,7 @@ export class Item {
 		this.#refreshPaint();
 	}
 
-	async #setMaterialOverride(materialOverride?: string) {
+	async #setMaterialOverride(materialOverride?: string): Promise<void> {
 		let material: Material | null = null;
 		if (materialOverride) {
 			material = await Source1MaterialManager.getMaterial('tf2', materialOverride);

@@ -4,12 +4,13 @@ import { Team } from '../enums';
 import { Item } from '../items/item';
 import { ItemTemplate } from '../items/itemtemplate';
 import { addTF2Model } from '../scene';
-import { CharactersList, Tf2Class } from './characters';
+import { CharactersList, ClassRemovablePartsOff, Tf2Class } from './characters';
 
 export class Character {
 	readonly characterClass: Tf2Class;
 	readonly name: string;
 	readonly items = new Map<string, Item>();
+	#showBodyParts = new Map<string, boolean>();
 	#model: Source1ModelInstance | null = null;
 	#effects = new Set<Effect>();
 	#tauntEffect: Effect | null = null;
@@ -98,6 +99,7 @@ export class Character {
 		if (existingItem) {
 			existingItem.remove();
 			this.items.delete(template.id);
+			this.#loadoutChanged();
 			return [existingItem, false];
 		} else {
 			const item = new Item(template, this);
@@ -105,6 +107,7 @@ export class Character {
 			item.loadModel();
 			(await this.getModel())?.addChild(await item.getModel());
 			await item.setTeam(this.#team);
+			this.#loadoutChanged();
 			return [item, true];
 		}
 	}
@@ -117,5 +120,64 @@ export class Character {
 
 	isInvulnerable(): boolean {
 		return this.#isInvulnerable;
+	}
+
+	#loadoutChanged() {
+		// TODO
+		//this.#autoSelectAnim();
+		//this.#processSoul();
+		this.#checkBodyGroups();
+		//Controller.dispatchEvent(new CustomEvent('loadout-changed', { detail: { character: this } }));
+	}
+
+	async #checkBodyGroups() {
+		await this.#ready;
+
+		let bodyGroupList;
+		let item;
+		let bodyGroupIndex: string;
+		let bodyGroup;
+		this.#renderBodyParts(true);
+		this.#model?.setVisible(this.#visible);
+		this.#model?.resetBodyPartModels();
+
+		for (let bodyGroupIndex = 0; bodyGroupIndex < ClassRemovablePartsOff.length; bodyGroupIndex++) {
+			this.renderBodyPart(ClassRemovablePartsOff[bodyGroupIndex]!, false);
+		}
+
+		for (let [itemId, item] of this.items) {
+			let playerBodygroups = item.getTemplate().playerBodygroups;
+			if (playerBodygroups) {
+				for (bodyGroupIndex in playerBodygroups) {
+					bodyGroup = playerBodygroups[bodyGroupIndex];
+					this.setBodyPartModel(bodyGroupIndex, Number(bodyGroup));
+				}
+			}
+
+			let wmBodygroupOverride = item.getTemplate().wmBodygroupOverride;
+			if (wmBodygroupOverride) {
+				for (bodyGroupIndex in wmBodygroupOverride) {
+					bodyGroup = wmBodygroupOverride[bodyGroupIndex];
+					this.setBodyPartIdModel(Number(bodyGroupIndex), Number(bodyGroup));
+				}
+			}
+		}
+	}
+
+	renderBodyPart(bodyPart: string, render: boolean) {
+		this.#showBodyParts.set(bodyPart, render);
+		this.#model?.renderBodyPart(bodyPart, render);
+	}
+
+	#renderBodyParts(render: boolean): void {
+		this.#model?.renderBodyParts(render);
+	}
+
+	setBodyPartIdModel(bodyPartId: number, modelId: number): void {
+		this.#model?.setBodyPartIdModel(bodyPartId, modelId);
+	}
+
+	setBodyPartModel(bodyPartId: string, modelId: number): void {
+		this.#model?.setBodyPartModel(bodyPartId, modelId);
 	}
 }
