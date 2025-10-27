@@ -8,6 +8,9 @@ import { getPaint, Paint, PaintDefinition, paintList } from '../paints/paints';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 import { inventoryPath } from '../constants';
+import { Controller, ControllerEvent } from '../controller';
+import { CharacterManager } from '../loadout/characters/charactermanager';
+import { Team } from '../loadout/enums';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class PaintPanel extends DynamicPanel {
@@ -90,21 +93,21 @@ export class PaintPanel extends DynamicPanel {
 		const paintOption = createElement('div', { class: 'paint' });
 		paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 		OptionsManagerEvents.addEventListener('app.loadout.team', event => {
-			if ((event as CustomEvent).detail.value == 'RED') {
+			if ((event as CustomEvent).detail.value == Team.Red) {
 				paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 			} else {
 				paintOption.style.backgroundColor = colorToCss(paint.tintBlu);
 			}
 		});
-		/*
-		Controller.addEventListener(ControllerEvent.SelectCharacter, (event) => {
-			if ((event as CustomEvent).detail.character.getTeam() == 0) {
+
+		Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => {
+			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? Team.Red;
+			if (team == Team.Red) {
 				paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 			} else {
 				paintOption.style.backgroundColor = colorToCss(paint.tintBlu);
 			}
 		});
-		*/
 
 		paintOption.innerText = ' ';
 		//paintOption.value = paint;

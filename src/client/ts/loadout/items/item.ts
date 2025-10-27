@@ -350,15 +350,15 @@ export class Item {
 			material = await Source1MaterialManager.getMaterial('tf2', materialOverride);
 		}
 
-		this.#model?.setMaterialOverride(material);
+		void this.#model?.setMaterialOverride(material);
 
-		this.#extraWearable?.setMaterialOverride(material);
+		void this.#extraWearable?.setMaterialOverride(material);
 		for (const extraModel of this.#attachedModels) {
-			extraModel.setMaterialOverride(material);
+			void extraModel.setMaterialOverride(material);
 		}
 
-		this.#festivizerModel?.setMaterialOverride(material);
+		void this.#festivizerModel?.setMaterialOverride(material);
 
-		this.#stattrakModule?.setMaterialOverride(material);
+		void this.#stattrakModule?.setMaterialOverride(material);
 	}
 }

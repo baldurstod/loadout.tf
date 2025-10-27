@@ -26,6 +26,7 @@ export enum ControllerEvent {
 	SetAnimSpeed = 'setanimspeed',
 	LoginPatreon = 'loginpatreon',
 	SelectCharacter = 'selectcharacter',
+	CharacterChanged = 'characterchanged',
 	SelectCamera = 'selectcamera',
 	ResetCamera = 'resetcamera',
 	SetItemFilter = 'setitemfilter',
