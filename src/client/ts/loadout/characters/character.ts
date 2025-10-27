@@ -85,6 +85,7 @@ export class Character {
 		if (this.#model) {
 			const zombieSkinOffset = (this.characterClass == Tf2Class.Spy ? 22 : 4);
 			await this.#model.setSkin(String(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0)));
+			console.info('skin', String(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0)));
 		}
 	}
 
@@ -126,9 +127,8 @@ export class Character {
 	}
 
 	#loadoutChanged(): void {
-		// TODO
 		this.#autoSelectAnim();
-		//this.#processSoul();
+		this.#processSoul();
 		this.#checkBodyGroups();
 		//Controller.dispatchEvent(new CustomEvent('loadout-changed', { detail: { character: this } }));
 	}
@@ -256,5 +256,15 @@ export class Character {
 
 			}
 		}
+	}
+
+	#processSoul(): void {
+		this.#zombieSkin = false;
+		for (const [, item] of this.items) {
+			if (item.getTemplate().name.includes('Voodoo-Cursed')) {
+				this.#zombieSkin = true;
+			}
+		}
+		this.#refreshSkin();
 	}
 }
