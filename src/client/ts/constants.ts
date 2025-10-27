@@ -62,3 +62,6 @@ export const BROADCAST_CHANNEL_NAME = 'internal_notification';
 export const ACE_EDITOR_URI = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js';
 
 export const SHADERTOY_DIRECTORY = './shadertoy/';
+
+export const MATERIAL_INVULN_BLU = 'models/effects/invulnfx_blue.vmt';
+export const MATERIAL_INVULN_RED = 'models/effects/invulnfx_red.vmt';

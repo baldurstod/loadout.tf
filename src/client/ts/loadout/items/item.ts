@@ -1,4 +1,5 @@
-import { Source1ModelInstance } from 'harmony-3d';
+import { Material, Source1MaterialManager, Source1ModelInstance } from 'harmony-3d';
+import { MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
 import { Paint } from '../../paints/paints';
 import { colorToVec3 } from '../../utils/colors';
 import { Character } from '../characters/character';
@@ -12,14 +13,17 @@ export class Item {
 	#itemTemplate: ItemTemplate;
 	#character?: Character;
 	#model: Source1ModelInstance | null = null;
+	#modelBlu?: Source1ModelInstance | null;
+	#extraWearable?: Source1ModelInstance | null;
+	#attachedModels: Source1ModelInstance[] = [];
+	#festivizerModel?: Source1ModelInstance | null;
+	#stattrakModule?: Source1ModelInstance | null;
 	#team = Team.Red;
 	#killCount?: number;
-	#stattrakModule?: Source1ModelInstance | null;
 	#refreshingSkin = false;
 	#showFestivizer = false;
 	#critBoost = false;
 	#loaded = false;
-	#festivizerModel?: Source1ModelInstance | null;
 	#paint: Paint | null = null;
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
@@ -83,10 +87,10 @@ export class Item {
 			return;
 		}
 		this.#refreshingSkin = true;
+
+		const skin = this.#team ? this.#itemTemplate.bluSkin : this.#itemTemplate.redSkin;
 		/*
-		let skin = this.#team ? this.bluSkin : this.redSkin;
-
-
+		// TODO
 		if (this.#critBoostSysRed) {
 			this.#critBoostSysRed.stop();
 			this.#critBoostSysRed.remove();
@@ -97,36 +101,44 @@ export class Item {
 			this.#critBoostSysBlu.stop();
 			this.#critBoostSysBlu.remove();
 			this.#critBoostSysBlu = null;
-		}
+		}*/
 
-		if (this.#sourceModel) {
+		if (this.#model) {
 			await this.#ready;
 
-			if (this.#character.isInvulnerable) {
-				let materialName = this.#team ? MATERIAL_INVULN_BLU : MATERIAL_INVULN_RED;
+			if (this.#character?.isInvulnerable()) {
+				const materialName = this.#team ? MATERIAL_INVULN_BLU : MATERIAL_INVULN_RED;
 				//await setTimeoutPromise(1000);// Ensure this is done after the material are set. This is lame but it works
 				this.#setMaterialOverride(materialName);
 			} else {
 				this.#setMaterialOverride();
-				await this.#sourceModel.setSkin(String(skin));
+				await this.#model.setSkin(String(skin));
+				/*
+				TODO
 				if (this.paintKitId != undefined) {
 					WeaponManager.refreshPaint(this);
 				}
+				*/
 			}
 
-			this.setBurnLevel(this.#character.burnLevel);
 
-			let sourceModelBlue = this.#sourceModelBlue;
-			if (sourceModelBlue) {
-				if (this.#team == 0) {
-					this.#sourceModel.setVisible(undefined);
-					sourceModelBlue.setVisible(false);
+			// TODO
+			//this.setBurnLevel(this.#character.burnLevel);
+
+			const sourceModelBlu = this.#modelBlu;
+			if (sourceModelBlu) {
+				if (this.#team == Team.Red) {
+					this.#model.setVisible(undefined);
+					sourceModelBlu.setVisible(false);
 				} else {
-					this.#sourceModel.setVisible(false);
-					sourceModelBlue.setVisible(undefined);
+					this.#model.setVisible(false);
+					sourceModelBlu.setVisible(undefined);
 				}
 			}
 
+			/*
+
+			// TODO
 			if (this.#critBoost) {
 				let systemName = '';
 				let glowColor = null;
@@ -160,13 +172,17 @@ export class Item {
 				}
 
 			} else {
-				this.#sourceModel.materialsParams['ModelGlowColor'] = null;
+				this.#model.materialsParams['ModelGlowColor'] = null;
 				if (this.#stattrakModule) {
 					this.#stattrakModule.materialsParams['ModelGlowColor'] = null;
 				}
 			}
+			*/
 		}
 
+		/*
+
+			// TODO
 		if (this.#character.isInvulnerable) {
 			let materialName = this.#team ? MATERIAL_INVULN_BLU : MATERIAL_INVULN_RED;
 			this.#setMaterialOverride(materialName);
@@ -180,24 +196,19 @@ export class Item {
 				this.#setMaterialOverride(materialOverride);
 			}
 		}
+		*/
 
-		let extraWearable = this.#extraWearable
-		if (extraWearable) {
-			await extraWearable.setSkin(String(skin));
-		}
-		for (let extraModel of this.#attachedModels) {
+		const extraWearable = this.#extraWearable
+		await extraWearable?.setSkin(String(skin));
+		for (const extraModel of this.#attachedModels) {
 			await extraModel.setSkin(String(skin));
 		}
 
-		if (this.#festivizerModel) {
-			this.#festivizerModel.skin = String(this.#team);
-		}
+		this.#festivizerModel?.setSkin(String(this.#team));
 
-		if (this.#stattrakModule) {
-			this.#stattrakModule.skin = String(skin % 2);
-		}
 
-		*/
+		this.#stattrakModule?.setSkin(String(skin % 2));
+
 		this.#refreshingSkin = false;
 	}
 
@@ -331,5 +342,23 @@ export class Item {
 
 	updatePaintColor(): void {
 		this.#refreshPaint();
+	}
+
+	async #setMaterialOverride(materialOverride?: string) {
+		let material: Material | null = null;
+		if (materialOverride) {
+			material = await Source1MaterialManager.getMaterial('tf2', materialOverride);
+		}
+
+		this.#model?.setMaterialOverride(material);
+
+		this.#extraWearable?.setMaterialOverride(material);
+		for (const extraModel of this.#attachedModels) {
+			extraModel.setMaterialOverride(material);
+		}
+
+		this.#festivizerModel?.setMaterialOverride(material);
+
+		this.#stattrakModule?.setMaterialOverride(material);
 	}
 }

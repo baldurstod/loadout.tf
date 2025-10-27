@@ -110,8 +110,12 @@ export class Character {
 	}
 
 	updatePaintColor(): void {
-		for (let [, item] of this.items) {
+		for (const [, item] of this.items) {
 			item.updatePaintColor();
 		}
+	}
+
+	isInvulnerable(): boolean {
+		return this.#isInvulnerable;
 	}
 }
