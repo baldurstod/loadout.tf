@@ -22,7 +22,7 @@ export class ItemsPanel extends DynamicPanel {
 	//#htmlFiltersContainer?: HTMLElement;
 	#htmlNameFilterContainer?: HTMLElement;
 	#htmlItemsContainer?: HTMLElement;
-	#htmlSortType?: HTMLSelectElement;
+	//#htmlSortType?: HTMLSelectElement;
 	#filterInputDataList?: HTMLDataListElement;
 	#htmlFilterCollection?: HTMLSelectElement;
 	#htmlFilterInput?: HTMLInputElement;
@@ -74,6 +74,7 @@ export class ItemsPanel extends DynamicPanel {
 		let htmlSwitchFilterPerClass: HTMLHarmonySwitchElement;
 		let htmlShowHalloween: HTMLHarmonySwitchElement;
 		let htmlShowPaintable: HTMLHarmonySwitchElement;
+		let htmlSortType: HTMLSelectElement;
 		let htmlSortDirection: HTMLHarmonyToggleButtonElement;
 		let htmlShowWarpaintable: HTMLHarmonySwitchElement;
 		let htmlCollapsableFiltersButton: HTMLHarmonySwitchElement;
@@ -220,7 +221,7 @@ export class ItemsPanel extends DynamicPanel {
 						createElement('div', {
 							class: 'filter3',
 							childs: [
-								this.#htmlSortType = createElement('select', {
+								htmlSortType = createElement('select', {
 									class: 'capitalize',
 									childs: [
 										createElement('option', { i18n: '#index', value: 'index' }),
@@ -229,7 +230,7 @@ export class ItemsPanel extends DynamicPanel {
 									],
 									$change: (event: Event) => {
 										OptionsManager.setItem('app.items.sort.type', (event.target as HTMLSelectElement).value);
-										Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.DisplayTaunts, value: (event.target as HTMLSelectElement).value } });
+										//Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.DisplayTaunts, value: (event.target as HTMLSelectElement).value } });
 									},
 								}) as HTMLSelectElement,
 								this.#htmlFilterCollection = createElement('select', {
@@ -332,11 +333,16 @@ export class ItemsPanel extends DynamicPanel {
 
 		OptionsManagerEvents.addEventListener('app.items.filter.filterallclass', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlSwitchFilterPerClass.state = value as boolean | undefined; /*this.#applyFilter();*/ });
 
-		OptionsManagerEvents.addEventListener('app.items.sort.type', (event: Event) => this.#htmlSortType!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
+		//OptionsManagerEvents.addEventListener('app.items.sort.type', (event: Event) => this.#htmlSortType!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
+		OptionsManagerEvents.addEventListener('app.items.sort.type', (event: Event) => {
+			const sortType = (event as CustomEvent<OptionsManagerEvent>).detail.value as string;
+			htmlSortType.value = sortType;
+			Controller.dispatchEvent<string>(ControllerEvent.SetItemSortType, { detail: sortType });
+			this.#refreshItems();
+		});
 
 		OptionsManagerEvents.addEventListener('app.items.filter.collection', (event: Event) => this.#htmlFilterCollection!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
 
-		OptionsManagerEvents.addEventListener('app.items.sort.ascending', (event: Event) => htmlSortDirection.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
 		OptionsManagerEvents.addEventListener('app.items.sort.ascending', (event: Event) => {
 			const ascending = (event as CustomEvent).detail.value;
 			htmlSortDirection.state = ascending;
