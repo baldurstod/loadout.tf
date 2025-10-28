@@ -1,6 +1,6 @@
 import { vec4 } from 'gl-matrix';
 import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, MergeRepository, PointLight, Repositories, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
-import { PaintDoneEvent, TextureCombinerEventTarget, WarpaintEditor } from 'harmony-3d-utils';
+import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
@@ -10,7 +10,7 @@ import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
 import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bundleoptions';
-import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_COMPETITIVE_STAGE, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL } from './constants';
+import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_COMPETITIVE_STAGE, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType } from './enums';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
@@ -47,6 +47,7 @@ class Application {
 	#backgroundColorRed?: vec4;
 	#backgroundColorBlu?: vec4;
 	#map?: SourceBSP;
+	#initPaintKitsPromise?: Promise<void>;
 
 	static {
 		defineHarmonySwitch();
@@ -126,6 +127,8 @@ class Application {
 		Controller.addEventListener(ControllerEvent.ShowCompetitiveStage, (event: Event) => { this.#showCompetitiveStage((event as CustomEvent<boolean>).detail); return; });
 
 		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => { Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier); return; });
+
+		Controller.addEventListener(ControllerEvent.WarpaintClick, (event: Event) => this.#initWarpaints());
 	}
 
 	/*
@@ -715,6 +718,21 @@ class Application {
 	async #initDefaultCharacter(): Promise<void> {
 		await Graphics.ready;
 		CharacterManager.selectCharacter(Tf2Class.None);
+	}
+
+	async #initWarpaints(): Promise<void> {
+		if (this.#initPaintKitsPromise) {
+			return this.#initPaintKitsPromise;
+		}
+		this.#initPaintKitsPromise = WeaponManager.initPaintKitDefinitions(TF2_WARPAINT_ENGLISH_URL);
+
+		WeaponManager.initView();
+		//new WarpaintEditor().init(this.#htmlViewBottom);
+		TextureCombiner.setTeam(CharacterManager.getTeam());
+
+		await this.#initPaintKitsPromise;
+
+		Controller.dispatchEvent<void>(ControllerEvent.WarpaintsLoaded);
 	}
 }
 new Application();

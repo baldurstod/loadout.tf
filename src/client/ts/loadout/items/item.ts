@@ -1,16 +1,17 @@
+import { vec3 } from 'gl-matrix';
 import { Material, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem } from 'harmony-3d';
+import { WeaponManager } from 'harmony-3d-utils';
 import { MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
 import { Paint } from '../../paints/paints';
 import { Sheen } from '../../paints/sheens';
 import { colorToVec3 } from '../../utils/colors';
 import { randomProperty } from '../../utils/randomproperty';
 import { Character } from '../characters/character';
+import { weaponEffects } from '../effects/effect';
 import { Team } from '../enums';
 import { addTF2Model } from '../scene';
 import { hasConflict } from './hasconflict';
 import { ItemTemplate } from './itemtemplate';
-import { weaponEffects } from '../effects/effect';
-import { vec3 } from 'gl-matrix';
 
 export class Item {
 	readonly id: string;
@@ -34,6 +35,10 @@ export class Item {
 	#paint: Paint | null = null;
 	#sheen: Sheen | null = null;
 	#weaponEffectId: number | null = null;
+	#paintKitWear = 0;
+	#paintKitId: number | null = null;
+	#paintKitSeed = 0n;
+
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
 		this.#readyPromiseResolve = resolve;
@@ -121,12 +126,10 @@ export class Item {
 			} else {
 				this.#setMaterialOverride();
 				await this.#model.setSkin(String(skin));
-				/*
-				TODO
-				if (this.paintKitId != undefined) {
+
+				if (this.#paintKitId !== null) {
 					WeaponManager.refreshPaint(this);
 				}
-				*/
 			}
 
 
@@ -477,5 +480,49 @@ export class Item {
 
 	getWeaponEffectId(): number | null {
 		return this.#weaponEffectId;
+	}
+
+	setPaintKitId(paintKitId: number): void {
+		this.#paintKitId = paintKitId;
+		this.#refreshWarPaint();
+	}
+
+	get paintKitId(): number {
+		return this.#paintKitId ?? -1;
+	}
+
+	setPaintKitWear(paintKitWear: number): void {
+		this.#paintKitWear = paintKitWear;
+		this.#refreshWarPaint();
+	}
+
+	get paintKitWear(): number {
+		return this.#paintKitWear;
+	}
+
+	setPaintKitSeed(paintKitSeed: bigint): void {
+		this.#paintKitSeed = paintKitSeed;
+		this.#refreshWarPaint();
+	}
+
+	get paintKitSeed(): bigint {
+		return this.#paintKitSeed;
+	}
+
+	get model(): Source1ModelInstance | null {
+		return this.#model;
+	}
+
+	setPaintKit(paintKitId: number, paintKitWear: number, paintKitSeed: bigint): void {
+		this.#paintKitId = paintKitId;
+		this.#paintKitWear = paintKitWear;
+		this.#paintKitSeed = paintKitSeed;
+		this.#refreshWarPaint();
+	}
+
+	#refreshWarPaint(): void {
+		if (this.#model) {
+			WeaponManager.refreshItem(this);
+		}
 	}
 }

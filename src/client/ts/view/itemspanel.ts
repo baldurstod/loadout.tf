@@ -15,6 +15,7 @@ import { ItemManagerItem } from './itemmanageritem';
 import { PaintPanel } from './paintpanel';
 import { PresetsPanel } from './presetspanel';
 import { SheenPanel } from './sheenpanel';
+import { WarpaintPanel } from './warpaintpanel';
 import { WeaponEffectPanel } from './weaponeffectpanel';
 export { ItemManagerItem } from './itemmanageritem';
 
@@ -32,6 +33,7 @@ export class ItemsPanel extends DynamicPanel {
 	#paintPanel = new PaintPanel();
 	#sheenPanel = new SheenPanel();
 	#weaponEffectPanel = new WeaponEffectPanel();
+	#warpaintPanel = new WarpaintPanel();
 	#updatingPresets = false;
 	#htmlItems = new Map<string, ItemManagerItem>();
 
@@ -50,6 +52,7 @@ export class ItemsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.PaintClick, (event: Event) => this.#handlePaintClick((event as CustomEvent<ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.SheenClick, (event: Event) => this.#handleSheenClick((event as CustomEvent<ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.WeaponEffectClick, (event: Event) => this.#handleWeaponEffectClick((event as CustomEvent<ItemTemplate>).detail));
+		Controller.addEventListener(ControllerEvent.WarpaintClick, (event: Event) => this.#handleWarpaintClick((event as CustomEvent<ItemTemplate>).detail));
 	}
 
 	protected override initHTML(): void {
@@ -312,6 +315,7 @@ export class ItemsPanel extends DynamicPanel {
 			this.#paintPanel.getHTMLElement(),
 			this.#sheenPanel.getHTMLElement(),
 			this.#weaponEffectPanel.getHTMLElement(),
+			this.#warpaintPanel.getHTMLElement(),
 		);
 
 		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; htmlCollapsableFiltersContainer.style.maxHeight = value ? '400px' : '0px' });
@@ -509,6 +513,17 @@ export class ItemsPanel extends DynamicPanel {
 		const item = character.getItemById(template.id);
 		if (item) {
 			this.#weaponEffectPanel.selectEffect(item);
+		}
+	}
+
+	#handleWarpaintClick(template: ItemTemplate): void {
+		const character = CharacterManager.getCurrentCharacter();
+		if (!character) {
+			return;
+		}
+		const item = character.getItemById(template.id);
+		if (item) {
+			this.#warpaintPanel.selectWarpaint(item);
 		}
 	}
 

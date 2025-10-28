@@ -8,6 +8,8 @@ import { EffectTemplate } from './effecttemplate';
 import { Item } from './item';
 import { ItemFilter, ItemFilterResult } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
+import { WeaponManager, WeaponManagerEvents } from 'harmony-3d-utils';
+import { setLegacyPaintKit } from 'harmony-tf2-utils';
 
 export class ItemManager {
 	static #filters = new ItemFilter();
@@ -55,6 +57,11 @@ export class ItemManager {
 			if ((event as CustomEvent<Panel>).detail == Panel.Items) {
 				this.#initItems();
 			}
+		});
+
+		WeaponManager.addEventListener(WeaponManagerEvents.AddPaintKit, (event: Event) => {
+			const detail = (event as CustomEvent).detail;
+			this.#addWarpaint(String(detail.p1), String(detail.p2), detail.p3, detail.p4);
 		});
 	}
 
@@ -329,5 +336,54 @@ export class ItemManager {
 
 	static getCollections(): Set<string> {
 		return new Set(this.#itemCollections);
+	}
+
+	static #addWarpaint(itemId: string, paintkitId: string, weaponName: string, descToken: string): void {
+		let template = this.getTemplate(itemId);
+		if (!template) {
+			itemId += '~0';
+			template = this.getTemplate(itemId);
+		}
+		if (template) {
+			/*
+			template.paintKits = template.paintKits || new Map();
+			let paintKits = template.paintKits;
+
+			if (!template.paintKitsInitialized) {
+				let div2 = createElement('img', {
+					src: paintkitBundle03PNG,
+					class: 'item-manager-item-icon-warpaint',
+					parent: template.view,
+					events: {
+						click: () => this.showPaintKitsPanel(template)
+					}
+				});
+				template.paintKitsInitialized = true;
+			}
+			paintKits.set(paintkitId, { 'weaponName': weaponName, 'descToken': descToken });
+			template.weaponName = weaponName;
+			*/
+
+			if ((Number(itemId) >= 15000) && (Number(itemId) <= 15158)) {//old paintkits ID
+				const weaponId = this.#getWeaponByModel(template.getModel(''/*TODO: set this parameter optional*/) ?? '');
+				if (weaponId !== null) {
+					this.#addWarpaint(weaponId, paintkitId, weaponName, descToken);
+					setLegacyPaintKit(Number(itemId), weaponId);
+				}
+			} else {
+				template.addWarpaint(paintkitId, weaponName, descToken);
+			}
+		} else {
+			console.error('weapon not found %i', itemId);
+		}
+	}
+
+	static #getWeaponByModel(path: string): string | null {
+		for (const [i, template] of this.#itemTemplates) {
+			if (template.isWarPaintable() && template.getModel('') == path) {
+				return i;
+			}
+		}
+		return null;
 	}
 }

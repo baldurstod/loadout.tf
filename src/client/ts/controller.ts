@@ -41,6 +41,8 @@ export enum ControllerEvent {
 	PaintClick = 'paintclick',
 	SheenClick = 'sheenclick',
 	WeaponEffectClick = 'weaponeffectclick',
+	WarpaintClick = 'warpaintclick',
+	WarpaintsLoaded = 'warpaintsloaded',
 	SetInvulnerable = 'setinvulnerable',
 }
 

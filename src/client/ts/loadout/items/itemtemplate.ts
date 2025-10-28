@@ -1,11 +1,17 @@
 import { JSONObject } from 'harmony-types';
 import { CharactersList, Tf2Class } from '../characters/characters';
 
+type Warpaint = {
+	weapon: string,
+	title: string,
+}
+
 export class ItemTemplate {
 	#definition: JSONObject/*TODO: improve type*/;
 	#keywords = new Set<string>();
 	readonly id: string;
 	readonly creatorid64?: string;
+	readonly warpaints = new Map<string, Warpaint>();
 
 	constructor(id: string, definition: JSONObject/*TODO: improve type*/) {
 		this.#definition = definition;
@@ -294,5 +300,9 @@ export class ItemTemplate {
 
 	isTaunt(): boolean {
 		return this.#definition.is_taunt_item == '1';
+	}
+
+	addWarpaint(id: string, weapon: string, title: string): void {
+		this.warpaints.set(id, { weapon, title });
 	}
 }

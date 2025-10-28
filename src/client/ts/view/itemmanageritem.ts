@@ -23,7 +23,6 @@ import { Controller, ControllerEvent, ItemPinned } from '../controller';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { ItemTemplate } from '../loadout/items/itemtemplate';
 
-export const ItemManagerItemEventTarget = new EventTarget();
 const SELECTED_CLASS = 'item-manager-item-selected';
 const WORKSHOP_URL = 'http://steamcommunity.com/sharedfiles/filedetails/?id=';
 const CLASS_ICONS: Record<string, string> = {
@@ -282,7 +281,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			parent: this,
 			src: paintkitBundle03PNG,
 			$click: (event: Event) => {
-				ItemManagerItemEventTarget.dispatchEvent(new CustomEvent('warpaintclick', { detail: this.#it }));
+				Controller.dispatchEvent<ItemTemplate>(ControllerEvent.WarpaintClick, { detail: this.#item });
 				event.stopPropagation();
 			}
 		});
