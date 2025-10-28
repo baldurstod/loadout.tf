@@ -57,7 +57,7 @@ item-manager-item {
 .item-name {
 	position: absolute;
 	bottom: 0px;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: var(--grade-color, rgba(0, 0, 0, 0.5));
 	width: 100%;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -239,28 +239,28 @@ item-manager-item {
 	filter: var(--theme-filter-invert-light);
 }
 
-item-manager-item.item-grade-ancient .item-manager-item-name {
-	background-color: rgba(235, 75, 75, 1.0);
+item-manager-item.item-grade-ancient {
+	--grade-color: rgba(235, 75, 75, 1.0);
 }
 
-item-manager-item.item-grade-common .item-manager-item-name {
-	background-color: rgba(176, 195, 217, 1.0);
+item-manager-item.item-grade-common {
+	--grade-color: rgba(176, 195, 217, 1.0);
 }
 
-item-manager-item.item-grade-legendary .item-manager-item-name {
-	background-color: rgba(211, 44, 230, 1.0);
+item-manager-item.item-grade-legendary {
+	--grade-color: rgba(211, 44, 230, 1.0);
 }
 
-item-manager-item.item-grade-mythical .item-manager-item-name {
-	background-color: rgba(136, 71, 255, 1.0);
+item-manager-item.item-grade-mythical {
+	--grade-color: rgba(136, 71, 255, 1.0);
 }
 
-item-manager-item.item-grade-rare .item-manager-item-name {
-	background-color: rgba(75, 105, 255, 1.0);
+item-manager-item.item-grade-rare {
+	--grade-color: rgba(75, 105, 255, 1.0);
 }
 
-item-manager-item.item-grade-uncommon .item-manager-item-name {
-	background-color: rgba(94, 152, 217, 1.0);
+item-manager-item.item-grade-uncommon {
+	--grade-color: rgba(94, 152, 217, 1.0);
 }
 
 item-manager-item.conflicting {
