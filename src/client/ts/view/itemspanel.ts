@@ -234,10 +234,7 @@ export class ItemsPanel extends DynamicPanel {
 								}) as HTMLSelectElement,
 								this.#htmlFilterCollection = createElement('select', {
 									class: 'capitalize',
-									$change: (event: Event) => {
-										OptionsManager.setItem('app.items.filter.collection', (event.target as HTMLSelectElement).value);
-										Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Collection, value: (event.target as HTMLSelectElement).value } });
-									},
+									$change: (event: Event) => OptionsManager.setItem('app.items.filter.collection', (event.target as HTMLSelectElement).value),
 								}) as HTMLSelectElement,
 								htmlSortDirection = createElement('harmony-toggle-button', {
 									childs: [
@@ -250,10 +247,8 @@ export class ItemsPanel extends DynamicPanel {
 											innerHTML: sortAlphabeticalReverseSVG,
 										}),
 									],
-									//$change: (event: Event) => OptionsManager.setItem('app.items.sort.ascending', (event.target as HTMLHarmonyToggleButtonElement).state),
 									$change: (event: Event) => {
 										OptionsManager.setItem('app.items.sort.ascending', (event.target as HTMLHarmonyToggleButtonElement).state);
-										//Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Collection, value: (event.target as HTMLSelectElement).value } });
 									},
 								}) as HTMLHarmonyToggleButtonElement,
 							]
@@ -266,6 +261,11 @@ export class ItemsPanel extends DynamicPanel {
 		const setNameFilter = (name: string): void => {
 			OptionsManager.setItem('app.items.filter.text', name);
 			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Name, value: name.toLowerCase().trim() } });
+		}
+
+		const setCollectionFilter = (collection: string): void => {
+			OptionsManager.setItem('app.items.filter.collection', collection);
+			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Collection, value: collection} });
 		}
 
 		this.#htmlNameFilterContainer = createElement('div', {
@@ -310,7 +310,6 @@ export class ItemsPanel extends DynamicPanel {
 			this.#sheenPanel.getHTMLElement(),
 		);
 
-
 		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; htmlCollapsableFiltersContainer.style.maxHeight = value ? '400px' : '0px' });
 
 		//OptionsManagerEvents.addEventListener('app.items.filter.restoretext', (event: Event) => { if ((event as CustomEvent<OptionsManagerEvent>).detail.value) { this.#htmlFilterInput!.value = OptionsManager.getItem('app.items.filter.text'); } });
@@ -339,7 +338,11 @@ export class ItemsPanel extends DynamicPanel {
 			this.#refreshItems();
 		});
 
-		OptionsManagerEvents.addEventListener('app.items.filter.collection', (event: Event) => this.#htmlFilterCollection!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
+		OptionsManagerEvents.addEventListener('app.items.filter.collection', (event: Event) => {
+			const collectionFilter = (event as CustomEvent<OptionsManagerEvent>).detail.value as string;
+			this.#htmlFilterCollection!.value = collectionFilter;
+			setCollectionFilter(collectionFilter);
+		});
 		OptionsManagerEvents.addEventListener('app.items.filter.collection.sort.type', () => this.#refreshItems());
 
 		OptionsManagerEvents.addEventListener('app.items.sort.ascending', (event: Event) => {
