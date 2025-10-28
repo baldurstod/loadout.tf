@@ -64,7 +64,7 @@ export class Item {
 		// TODO
 		await this.#refreshSkin();
 		await this.#refreshSheen();
-		///await this.#refreshPaint();
+		await this.#refreshWarPaint();
 	}
 
 	getEquipRegions(): string[] {
@@ -496,21 +496,9 @@ export class Item {
 		this.#refreshWarPaint();
 	}
 
-	get paintKitWear(): number {
-		return this.#paintKitWear;
-	}
-
 	setPaintKitSeed(paintKitSeed: bigint): void {
 		this.#paintKitSeed = paintKitSeed;
 		this.#refreshWarPaint();
-	}
-
-	get paintKitSeed(): bigint {
-		return this.#paintKitSeed;
-	}
-
-	get model(): Source1ModelInstance | null {
-		return this.#model;
 	}
 
 	setPaintKit(paintKitId: number, paintKitWear: number, paintKitSeed: bigint): void {
@@ -521,8 +509,15 @@ export class Item {
 	}
 
 	#refreshWarPaint(): void {
-		if (this.#model) {
-			WeaponManager.refreshItem(this);
+		if (this.#model && this.#paintKitId !== null) {
+			WeaponManager.refreshItem({
+				id: this.id,
+				paintKitId: this.#paintKitId,
+				paintKitWear: this.#paintKitWear,
+				paintKitSeed: this.#paintKitSeed,
+				model: this.#model,
+				team: this.#team,
+			});
 		}
 	}
 }

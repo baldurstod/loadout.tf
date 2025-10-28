@@ -737,7 +737,7 @@ class Application {
 
 		WeaponManager.initView();
 		//new WarpaintEditor().init(this.#htmlViewBottom);
-		TextureCombiner.setTeam(CharacterManager.getTeam());
+		//TextureCombiner.setTeam(CharacterManager.getTeam());
 
 		await this.#initPaintKitsPromise;
 
