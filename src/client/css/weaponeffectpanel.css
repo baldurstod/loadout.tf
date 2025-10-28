@@ -1,0 +1,45 @@
+:host {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 20;
+}
+
+.effects-inner {
+	position: absolute;
+	width: 400px;
+	top: calc(50% - 200px);
+	left: calc(50% - 200px);
+	background-color: var(--theme-popup-bg-color);
+	padding: 10px;
+}
+
+.effect {
+	width: 150px;
+	height: 150px;
+}
+
+.effects-header {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.effects-title {
+	font-size: 2em;
+	overflow: hidden;
+	color: var(--theme-text-color);
+	display: inline-block;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.selected-item {
+	height: var(--item-manager-item-size);
+	width: var(--item-manager-item-size);
+	display: inline-block;
+	background-size: 100% auto;
+	overflow: hidden;
+}

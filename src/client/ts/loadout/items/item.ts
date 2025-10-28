@@ -9,6 +9,8 @@ import { Team } from '../enums';
 import { addTF2Model } from '../scene';
 import { hasConflict } from './hasconflict';
 import { ItemTemplate } from './itemtemplate';
+import { weaponEffects } from '../effects/effect';
+import { vec3 } from 'gl-matrix';
 
 export class Item {
 	readonly id: string;
@@ -27,9 +29,11 @@ export class Item {
 	#critBoost = false;
 	#critBoostSysRed?: Source1ParticleSystem | null;
 	#critBoostSysBlu?: Source1ParticleSystem | null;
+	#weaponEffectSystem?: Source1ParticleSystem | null;
 	#loaded = false;
 	#paint: Paint | null = null;
 	#sheen: Sheen | null = null;
+	#weaponEffectId: number | null = null;
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
 		this.#readyPromiseResolve = resolve;
@@ -429,5 +433,49 @@ export class Item {
 
 	getTauntAttackName(): string | null {
 		return this.#itemTemplate.tauntAttackName;
+	}
+
+	setWeaponEffectId(weaponEffectId: number | null): void {
+		this.#weaponEffectId = weaponEffectId;
+
+		if (this.#weaponEffectSystem) {
+			this.#weaponEffectSystem.stop();
+			this.#weaponEffectSystem.remove();
+			this.#weaponEffectSystem = null;
+		}
+
+		if (weaponEffectId == null) {
+			return;
+		}
+
+		const weaponEffect = weaponEffects.get(weaponEffectId);
+		const particleSuffix = this.getTemplate().particleSuffix;
+		if (particleSuffix && weaponEffect) {
+			//item.weaponEffects = item.weaponEffects || {};
+
+			(async (): Promise<void> => {
+				const particleSystem1 = await Source1ParticleControler.createSystem('tf2', 'weapon_unusual_' + weaponEffect[0] + '_' + particleSuffix);
+				//particleSystem1.visible = true;
+
+				const model = this.#model;
+				if (particleSystem1 && model) {
+					model.attachSystem(particleSystem1, 'unusual_1', 1, vec3.create());
+					model.attachSystem(particleSystem1, 'unusual_2', 2);
+					model.attachSystem(particleSystem1, 'unusual_3', 3);
+					model.attachSystem(particleSystem1, 'unusual_4', 4);
+					model.attachSystem(particleSystem1, 'unusual_5', 5);
+					model.attachSystem(particleSystem1, 'unusual_0');
+				}
+				if (particleSystem1) {
+					particleSystem1.start();
+					this.#weaponEffectSystem = particleSystem1;
+					//item.weaponEffects[weaponEffect] = particleSystem1;
+				}
+			})();
+		}
+	}
+
+	getWeaponEffectId(): number | null {
+		return this.#weaponEffectId;
 	}
 }

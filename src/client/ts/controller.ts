@@ -36,11 +36,11 @@ export enum ControllerEvent {
 	ItemPinned = 'itempinned',
 	ItemClicked = 'itemclicked',
 	FiltersUpdated = 'filtersupdated',
-	ShowWeaponUnusualEffectSelector = 'showweaponunusualeffectselector',
 	ItemAdded = 'itemadded',
 	ItemRemoved = 'itemremoved',
 	PaintClick = 'paintclick',
 	SheenClick = 'sheenclick',
+	WeaponEffectClick = 'weaponeffectclick',
 	SetInvulnerable = 'setinvulnerable',
 }
 

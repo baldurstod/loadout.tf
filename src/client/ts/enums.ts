@@ -14,6 +14,7 @@ export enum Panel {
 	Presets = 'presets',
 	Paints = 'paints',
 	Sheens = 'sheens',
+	WeaponEffects = 'weaponeffects',
 }
 
 export enum CameraType {

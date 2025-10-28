@@ -15,6 +15,7 @@ import { ItemManagerItem } from './itemmanageritem';
 import { PaintPanel } from './paintpanel';
 import { PresetsPanel } from './presetspanel';
 import { SheenPanel } from './sheenpanel';
+import { WeaponEffectPanel } from './weaponeffectpanel';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class ItemsPanel extends DynamicPanel {
@@ -30,6 +31,7 @@ export class ItemsPanel extends DynamicPanel {
 	#presetsPanel = new PresetsPanel();
 	#paintPanel = new PaintPanel();
 	#sheenPanel = new SheenPanel();
+	#weaponEffectPanel = new WeaponEffectPanel();
 	#updatingPresets = false;
 	#htmlItems = new Map<string, ItemManagerItem>();
 
@@ -47,6 +49,7 @@ export class ItemsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, false));
 		Controller.addEventListener(ControllerEvent.PaintClick, (event: Event) => this.#handlePaintClick((event as CustomEvent<ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.SheenClick, (event: Event) => this.#handleSheenClick((event as CustomEvent<ItemTemplate>).detail));
+		Controller.addEventListener(ControllerEvent.WeaponEffectClick, (event: Event) => this.#handleWeaponEffectClick((event as CustomEvent<ItemTemplate>).detail));
 	}
 
 	protected override initHTML(): void {
@@ -265,7 +268,7 @@ export class ItemsPanel extends DynamicPanel {
 
 		const setCollectionFilter = (collection: string): void => {
 			OptionsManager.setItem('app.items.filter.collection', collection);
-			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Collection, value: collection} });
+			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Collection, value: collection } });
 		}
 
 		this.#htmlNameFilterContainer = createElement('div', {
@@ -308,6 +311,7 @@ export class ItemsPanel extends DynamicPanel {
 			this.#presetsPanel.getHTMLElement(),
 			this.#paintPanel.getHTMLElement(),
 			this.#sheenPanel.getHTMLElement(),
+			this.#weaponEffectPanel.getHTMLElement(),
 		);
 
 		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; htmlCollapsableFiltersContainer.style.maxHeight = value ? '400px' : '0px' });
@@ -494,6 +498,17 @@ export class ItemsPanel extends DynamicPanel {
 		const item = character.getItemById(template.id);
 		if (item) {
 			this.#sheenPanel.selectSheen(item);
+		}
+	}
+
+	#handleWeaponEffectClick(template: ItemTemplate): void {
+		const character = CharacterManager.getCurrentCharacter();
+		if (!character) {
+			return;
+		}
+		const item = character.getItemById(template.id);
+		if (item) {
+			this.#weaponEffectPanel.selectEffect(item);
 		}
 	}
 

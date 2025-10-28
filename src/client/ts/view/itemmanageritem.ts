@@ -277,26 +277,25 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 	}
 
 	#addPaintKitButton(): void {
-		const div2 = createElement('img', {
+		createElement('img', {
 			class: 'warpaint-icon',
+			parent: this,
 			src: paintkitBundle03PNG,
-		});
-		this.append(div2);
-		div2.addEventListener('click', (event) => {
-			ItemManagerItemEventTarget.dispatchEvent(new CustomEvent('warpaintclick', { detail: this.#it }));
-			event.stopPropagation();
+			$click: (event: Event) => {
+				ItemManagerItemEventTarget.dispatchEvent(new CustomEvent('warpaintclick', { detail: this.#it }));
+				event.stopPropagation();
+			}
 		});
 
 		// unusual effect
-		const div3 = createElement('img', {
+		createElement('img', {
 			class: 'unusual-icon',
+			parent: this,
 			src: viewmodeUnusualVtfPNG,
-		});
-		this.append(div3);
-		//div3.itemName = item;
-		div3.addEventListener('click', event => {
-			Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ShowWeaponUnusualEffectSelector, { detail: this.#item });
-			event.stopPropagation();
+			$click: (event: Event) => {
+				Controller.dispatchEvent<ItemTemplate>(ControllerEvent.WeaponEffectClick, { detail: this.#item });
+				event.stopPropagation();
+			}
 		});
 	}
 
