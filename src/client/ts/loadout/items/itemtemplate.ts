@@ -223,7 +223,7 @@ export class ItemTemplate {
 		return this.#definition.custom_taunt_prop_outro_scene_per_class as Record<string, string>;
 	}
 
-	get tauntAttackName(): string {
+	get tauntAttackName(): string | null {
 		return this.#definition.taunt_attack_name as string /*TODO: improve type*/;
 	}
 

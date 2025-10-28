@@ -426,4 +426,8 @@ export class Item {
 		const customTauntPropOutroScenePerClass = this.#itemTemplate.customTauntPropOutroScenePerClass;
 		return customTauntPropOutroScenePerClass?.[npc] ?? null;
 	}
+
+	getTauntAttackName(): string | null {
+		return this.#itemTemplate.tauntAttackName;
+	}
 }

@@ -1,11 +1,14 @@
-import { ChoreographiesManager, ChoreographyEventType, Source1ModelInstance } from 'harmony-3d';
+import { vec3 } from 'gl-matrix';
+import { ChoreographiesManager, ChoreographyEventType, RandomFloat, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
+import { ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
 import { Effect } from '../effects/effect';
 import { Team } from '../enums';
 import { Item } from '../items/item';
 import { ItemTemplate } from '../items/itemtemplate';
 import { addTF2Model } from '../scene';
 import { CharactersList, ClassRemovablePartsOff, Tf2Class } from './characters';
+import { FlyingBird } from './flyingbird';
 
 export class Character {
 	readonly characterClass: Tf2Class;
@@ -121,25 +124,21 @@ export class Character {
 				await this.#ready;
 				new ChoreographiesManager().stopAll();
 				await new ChoreographiesManager().init('tf2', './scenes/scenes.image');
-				try {
-					const choreo = await new ChoreographiesManager().playChoreography(choreoName, [this.#model]);
-					if (choreo) {
-						choreo.addEventListener(ChoreographyEventType.Stop, () => {
-							item.remove();
-							this.#autoSelectAnim();
-						});
-					} else {
+				const choreo = await new ChoreographiesManager().playChoreography(choreoName, [this.#model]);
+				if (choreo) {
+					choreo.addEventListener(ChoreographyEventType.Stop, () => {
 						item.remove();
-					}
-				} catch (error) { }
+						this.#autoSelectAnim();
+					});
+				} else {
+					item.remove();
+				}
 
 				const choreoName2 = item.getCustomTauntPropOutroScenePerClass(npc);
 				const itemModel = await item.getModel();
 				if (choreoName2 && itemModel) {
 					await new ChoreographiesManager().init('tf2', './scenes/scenes.image');
-					try {
-						new ChoreographiesManager().playChoreography(choreoName2, [itemModel]);
-					} catch (error) { }
+					new ChoreographiesManager().playChoreography(choreoName2, [itemModel]);
 				}
 			} else {
 				item.remove();
@@ -177,11 +176,13 @@ export class Character {
 			const choreoName2 = item.getCustomTauntPropScenePerClass(npc);
 			const itemModel = await item.getModel();
 			if (choreoName2 && itemModel) {
-				itemModel.skeleton?.setParentSkeleton(null);
+				void itemModel.skeleton?.setParentSkeleton(null);
 				await new ChoreographiesManager().init('tf2', './scenes/scenes.image');
 				new ChoreographiesManager().playChoreography(choreoName2, [itemModel]);
 			}
 		}
+
+		this.#doTauntAttack(item.getTauntAttackName());
 
 		this.#loadoutChanged();
 		return item;
@@ -345,5 +346,64 @@ export class Character {
 			}
 		}
 		this.#refreshSkin();
+	}
+
+	#doTauntAttack(tauntAttackName: string | null): void {
+		const spawnClientsideFlyingBird = async (pos: vec3): Promise<void> => {
+			const flyAngle = RandomFloat(-Math.PI, Math.PI);
+			const flyAngleRate = RandomFloat(-1.5, 1.5);
+			const accelZ = RandomFloat(0.5, 2.0);
+			const speed = RandomFloat(ENTITY_FLYING_BIRD_SPEED_MIN, ENTITY_FLYING_BIRD_SPEED_MAX);
+			const glideTime = RandomFloat(0.25, 1.);
+
+			await this.#ready;
+			new FlyingBird(this.#model, pos, flyAngle, flyAngleRate, accelZ, speed, glideTime);
+		}
+
+		switch (tauntAttackName) {
+			case 'TAUNTATK_ALLCLASS_GUITAR_RIFF':
+				//setEffect(this, 'bl_killtaunt', 'bl_killtaunt', 'no_attachment');
+				this.addEffect('bl_killtaunt', 'bl_killtaunt');
+				Source1SoundManager.playSound('tf2', 'Taunt.GuitarRiff');
+				break;
+			case 'TAUNTATK_MEDIC_HEROIC_TAUNT':
+				//setEffect(this, 'god_rays', 'god_rays', 'no_attachment');
+				this.addEffect('god_rays', 'god_rays');
+				Source1SoundManager.playSound('tf2', 'Taunt.MedicHeroic');
+				setTimeout(async () => {
+					await this.#ready;
+					if (!this.#model) {
+						return;
+					}
+					const launchSpot = this.#model.getWorldPosition();
+					for (let i = 0; i < MEDIC_RELEASE_DOVE_COUNT; ++i) {
+						const pos = vec3.clone(launchSpot);
+						pos[2] = pos[2] + Math.random() * 30 - 10 + 50;
+						spawnClientsideFlyingBird(pos);
+					}
+				}, 3000);
+
+				break;
+		}
+	}
+
+	async addEffect(name: string, systemName: string, attachment?: string, offset?: vec3): Promise<Effect> {
+		const effect = new Effect();
+		this.#effects.add(effect);
+
+		//const system = await Source1ParticleControler.createSystem('tf2', systemName);
+		effect.system = await Source1ParticleControler.createSystem('tf2', systemName);
+		effect.system.name = name;
+
+		await this.#ready;
+		this.#model?.attachSystem(effect.system, attachment, 0, offset);
+		effect.system.start();
+
+		return effect;
+	}
+
+	async #attachSystem(system: Source1ParticleSystem, attachmentName: string, attachmentType?: any, offset?: vec3): Promise<void> {
+		await this.#ready;
+		this.#model?.attachSystem(system, attachmentName, 0, offset);
 	}
 }
