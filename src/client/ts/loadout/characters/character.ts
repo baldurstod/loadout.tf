@@ -1,4 +1,4 @@
-import { Source1ModelInstance } from 'harmony-3d';
+import { ChoreographiesManager, ChoreographyEventType, Source1ModelInstance } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
 import { Effect } from '../effects/effect';
 import { Team } from '../enums';
@@ -27,6 +27,7 @@ export class Character {
 	#isInvulnerable = false;
 	#userAnim = '';
 	#voicePose?: string;
+	#taunt: Item | null = null;
 
 	constructor(characterClass: Tf2Class) {
 		this.characterClass = characterClass;
@@ -101,19 +102,89 @@ export class Character {
 		const existingItem = this.items.get(template.id);
 
 		if (existingItem) {
-			existingItem.remove();
-			this.items.delete(template.id);
-			this.#loadoutChanged();
+			this.#removeItem(existingItem);
 			return [existingItem, false];
 		} else {
-			const item = new Item(template, this);
-			this.items.set(template.id, item);
-			item.loadModel();
-			(await this.getModel())?.addChild(await item.getModel());
-			await item.setTeam(this.#team);
-			this.#loadoutChanged();
-			return [item, true];
+			return [await this.#addItem(template), true];
 		}
+	}
+
+	async #removeItem(item: Item): Promise<void> {
+		this.items.delete(item.id);
+		if (item == this.#taunt) {
+			this.#taunt = null;
+			// TODO: play end choreo
+			const npc = CharactersList.get(this.characterClass)!.name
+
+			const choreoName = item.getCustomTauntOutroScenePerClass(npc);
+			if (choreoName && this.#model) {
+				await this.#ready;
+				new ChoreographiesManager().stopAll();
+				await new ChoreographiesManager().init('tf2', './scenes/scenes.image');
+				try {
+					const choreo = await new ChoreographiesManager().playChoreography(choreoName, [this.#model]);
+					if (choreo) {
+						choreo.addEventListener(ChoreographyEventType.Stop, () => {
+							item.remove();
+							this.#autoSelectAnim();
+						});
+					} else {
+						item.remove();
+					}
+				} catch (error) { }
+
+				const choreoName2 = item.getCustomTauntPropOutroScenePerClass(npc);
+				const itemModel = await item.getModel();
+				if (choreoName2 && itemModel) {
+					await new ChoreographiesManager().init('tf2', './scenes/scenes.image');
+					try {
+						new ChoreographiesManager().playChoreography(choreoName2, [itemModel]);
+					} catch (error) { }
+				}
+			} else {
+				item.remove();
+			}
+		} else {
+			item.remove();
+		}
+		this.#loadoutChanged();
+	}
+
+	async #addItem(template: ItemTemplate): Promise<Item> {
+		const item = new Item(template, this);
+		this.items.set(template.id, item);
+		const npc = CharactersList.get(this.characterClass)!.name
+		item.loadModel(npc);
+		(await this.getModel())?.addChild(await item.getModel());
+		await item.setTeam(this.#team);
+
+		if (item.isTaunt()) {
+			if (this.#taunt) {
+				this.#taunt.remove();
+				this.items.delete(this.#taunt.id);
+			}
+
+			this.#taunt = item;
+
+			// Play choreo
+			const choreoName = item.getCustomTauntScenePerClass(npc);
+			if (this.#model && choreoName && template.getItemSlot() == 'taunt') {
+				new ChoreographiesManager().stopAll();
+				await new ChoreographiesManager().init('tf2', './scenes/scenes.image');
+				new ChoreographiesManager().playChoreography(choreoName, [this.#model]);
+			}
+
+			const choreoName2 = item.getCustomTauntPropScenePerClass(npc);
+			const itemModel = await item.getModel();
+			if (choreoName2 && itemModel) {
+				itemModel.skeleton?.setParentSkeleton(null);
+				await new ChoreographiesManager().init('tf2', './scenes/scenes.image');
+				new ChoreographiesManager().playChoreography(choreoName2, [itemModel]);
+			}
+		}
+
+		this.#loadoutChanged();
+		return item;
 	}
 
 	updatePaintColor(): void {

@@ -3,6 +3,7 @@ import { MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
 import { Paint } from '../../paints/paints';
 import { Sheen } from '../../paints/sheens';
 import { colorToVec3 } from '../../utils/colors';
+import { randomProperty } from '../../utils/randomproperty';
 import { Character } from '../characters/character';
 import { Team } from '../enums';
 import { addTF2Model } from '../scene';
@@ -249,12 +250,12 @@ export class Item {
 		this.#refreshSkin();
 	}
 
-	async loadModel(): Promise<void> {
+	async loadModel(npc: string): Promise<void> {
 		if (this.#loaded) {
 			return;
 		}
 		this.#loaded = true;
-		const path = this.#itemTemplate.getModel('scout');
+		const path = this.#itemTemplate.getModel(npc);
 		if (path) {
 			this.#model = await addTF2Model(path, this.getRepository());
 		}
@@ -380,5 +381,49 @@ export class Item {
 		if (sheen && this.#model) {
 			this.#model.sheen = sheen.getTint(this.#team);
 		}
+	}
+
+	isTaunt(): boolean {
+		return this.#itemTemplate.isTaunt();
+	}
+
+	getCustomTauntScenePerClass(npc: string): string | null {
+		const customTauntScenePerClass = this.#itemTemplate.customTauntScenePerClass;
+		if (!customTauntScenePerClass) {
+			return null;
+		}
+		const scene = customTauntScenePerClass[npc];
+		if (scene) {
+			if (typeof scene == 'object') {
+				return randomProperty(scene);
+			}
+			return scene;
+		}
+		return null;
+	}
+
+	getCustomTauntPropScenePerClass(npc: string): string | null {
+		const customTauntPropScenePerClass = this.#itemTemplate.customTauntPropScenePerClass;
+		if (!customTauntPropScenePerClass) {
+			return null;
+		}
+		const scene = customTauntPropScenePerClass[npc];
+		if (scene) {
+			if (typeof scene == 'object') {
+				return randomProperty(scene)
+			}
+			return scene;
+		}
+		return null;
+	}
+
+	getCustomTauntOutroScenePerClass(npc: string): string | null {
+		const customTauntOutroScenePerClass = this.#itemTemplate.customTauntOutroScenePerClass;
+		return customTauntOutroScenePerClass?.[npc] ?? null;
+	}
+
+	getCustomTauntPropOutroScenePerClass(npc: string): string | null {
+		const customTauntPropOutroScenePerClass = this.#itemTemplate.customTauntPropOutroScenePerClass;
+		return customTauntPropOutroScenePerClass?.[npc] ?? null;
 	}
 }

@@ -207,19 +207,19 @@ export class ItemTemplate {
 		return this.#definition.attached_particlesystems as Record<string, string>;
 	}
 
-	get customTauntScenePerClass(): Record<string, string> {
+	get customTauntScenePerClass(): Record<string, string> | undefined {
 		return this.#definition.custom_taunt_scene_per_class as Record<string, string>;
 	}
 
-	get customTauntOutroScenePerClass(): Record<string, string> {
+	get customTauntOutroScenePerClass(): Record<string, string> | undefined {
 		return this.#definition.custom_taunt_outro_scene_per_class as Record<string, string>;
 	}
 
-	get customTauntPropScenePerClass(): Record<string, string> {
+	get customTauntPropScenePerClass(): Record<string, string> | undefined {
 		return this.#definition.custom_taunt_prop_scene_per_class as Record<string, string>;
 	}
 
-	get customTauntPropOutroScenePerClass(): Record<string, string> {
+	get customTauntPropOutroScenePerClass(): Record<string, string> | undefined {
 		return this.#definition.custom_taunt_prop_outro_scene_per_class as Record<string, string>;
 	}
 
@@ -290,5 +290,9 @@ export class ItemTemplate {
 
 	canCustomizeTexture(): boolean {
 		return this.#definition.can_customize_texture == '1';
+	}
+
+	isTaunt(): boolean {
+		return this.#definition.is_taunt_item == '1';
 	}
 }
