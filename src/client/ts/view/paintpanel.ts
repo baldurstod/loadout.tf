@@ -2,15 +2,15 @@ import { OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, hide, show } from 'harmony-ui';
 import itemCSS from '../../css/item.css';
 import paintPanelCSS from '../../css/paintpanel.css';
+import { inventoryPath } from '../constants';
+import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
+import { CharacterManager } from '../loadout/characters/charactermanager';
+import { Team } from '../loadout/enums';
 import { Item } from '../loadout/items/item';
 import { getPaint, Paint, PaintDefinition, paintList } from '../paints/paints';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
-import { inventoryPath } from '../constants';
-import { Controller, ControllerEvent } from '../controller';
-import { CharacterManager } from '../loadout/characters/charactermanager';
-import { Team } from '../loadout/enums';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class PaintPanel extends DynamicPanel {
@@ -41,6 +41,7 @@ export class PaintPanel extends DynamicPanel {
 		const htmlPaintsDivInner = createElement('div', {
 			class: 'paints-inner',
 			parent: this.getShadowRoot(),
+			$click: (event: Event) => event.stopPropagation(),
 		});
 
 		const paintsDivHeader = createElement('div', { class: 'paint-header' });
@@ -81,7 +82,6 @@ export class PaintPanel extends DynamicPanel {
 
 
 		this.getHTMLElement().addEventListener('click', (event: Event) => { this.#cancel(); event.stopPropagation(); });
-		htmlPaintsDivInner.addEventListener('click', event => { event.stopPropagation(); });
 		cancelButton.addEventListener('click', event => { this.#cancel(); event.stopPropagation(); });
 		closeButton.addEventListener('click', event => { this.hide(); event.stopPropagation(); });
 		//colorText.addEventListener('input', event => {this.validate3(parseInt(event.target.value, 16));this.#htmlPaintTitle.innerHTML = event.target.value;event.stopPropagation();});

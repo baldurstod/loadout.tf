@@ -111,6 +111,7 @@ export class WarpaintPanel extends DynamicPanel {
 					},
 				}),
 			],
+			$click: (event: Event) => event.stopPropagation(),
 		});
 
 
@@ -123,6 +124,8 @@ export class WarpaintPanel extends DynamicPanel {
 			});
 		}
 		ShortcutHandler.addContext('loadout', this.#htmlWarpaints);
+
+		this.getHTMLElement().addEventListener('click', (event: Event) => { this.hide(); event.stopPropagation(); });
 	}
 	/*
 	#createWarpaint(id: number, name: string, title: string): void {
@@ -272,5 +275,9 @@ export class WarpaintPanel extends DynamicPanel {
 		for (const [, paintkit] of this.#warpaints) {
 			this.#htmlWarpaints?.append(paintkit.html);
 		}
+	}
+
+	hide(): void {
+		hide(this.getHTMLElement());
 	}
 }

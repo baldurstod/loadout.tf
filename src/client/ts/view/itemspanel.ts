@@ -369,9 +369,18 @@ export class ItemsPanel extends DynamicPanel {
 		//OptionsManagerEvents.addEventListener('app.items.warpaints.sort.type', (event: Event) => this.#htmlWarpaintsSortType.value = (event as CustomEvent<OptionsManagerEvent>).detail.value);
 		//OptionsManagerEvents.addEventListener('app.items.warpaints.sort.ascending', (event: Event) => this.#htmlWarpaintsSortDirection.state = ascending);
 
-		OptionsManagerEvents.addEventListener('app.items.filter.halloween', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlShowHalloween.state = value as boolean | undefined; });
-		OptionsManagerEvents.addEventListener('app.items.filter.paintable', (event: Event) => htmlShowPaintable.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean | undefined);
-		OptionsManagerEvents.addEventListener('app.items.filter.warpaintable', (event: Event) => htmlShowWarpaintable.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean | undefined);
+		OptionsManagerEvents.addEventListener('app.items.filter.halloween', (event: Event) => {
+			htmlShowHalloween.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean | undefined;
+			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Halloween, value: htmlShowHalloween.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean } });
+		});
+		OptionsManagerEvents.addEventListener('app.items.filter.paintable', (event: Event) => {
+			htmlShowPaintable.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean | undefined;
+			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Paintable, value: (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean } });
+		});
+		OptionsManagerEvents.addEventListener('app.items.filter.warpaintable', (event: Event) => {
+			htmlShowWarpaintable.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean | undefined;
+			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Warpaintable, value: (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean } });
+		});
 		//OptionsManagerEvents.addEventListener('app.items.filter.*', () => this.#refreshItems());
 	}
 

@@ -129,7 +129,7 @@ class Application {
 
 		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => { Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier); return; });
 
-		Controller.addEventListener(ControllerEvent.WarpaintClick, (event: Event) => this.#initWarpaints());
+		Controller.addEventListener(ControllerEvent.WarpaintClick, () => this.#initWarpaints());
 	}
 
 	/*
@@ -303,7 +303,7 @@ class Application {
 		OptionsManagerEvents.addEventListener('engine.render.silhouettecolor', (event: Event) => this.#setSilhouetteColor((event as CustomEvent).detail.value));
 
 
-		let func = (event: Event) => ShortcutHandler.setShortcut((event as CustomEvent).detail.context ?? 'loadout,3dview,scene-explorer', (event as CustomEvent).detail.name, (event as CustomEvent).detail.value);
+		const func = (event: Event) => ShortcutHandler.setShortcut((event as CustomEvent).detail.context ?? 'loadout,3dview,scene-explorer', (event as CustomEvent).detail.name, (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('app.shortcuts.*', func);
 		OptionsManagerEvents.addEventListener('engine.shortcuts.*', func);
 
@@ -493,7 +493,7 @@ class Application {
 		}
 	}
 
-	async #initShortcuts() {
+	async #initShortcuts(): Promise<void> {
 		ShortcutHandler.setShortcuts('loadout,3dview,scene-explorer', await OptionsManager.getOptionsPerType('shortcut'));
 		ShortcutHandler.addEventListener('app.shortcuts.currentcamera.reset', () => this.#resetCamera());
 		ShortcutHandler.addEventListener('app.shortcuts.itemlist.open', () => Controller.dispatchEvent<Panel>(ControllerEvent.ShowPanel, { detail: Panel.Items }));
