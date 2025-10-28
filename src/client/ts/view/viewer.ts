@@ -1,5 +1,5 @@
 import { CanvasAttributes, ColorBackground, Composer, FullScreenQuad, Graphics, setCustomIncludeSource, ShaderManager, ShaderToyMaterial } from 'harmony-3d';
-import { OptionsManager } from 'harmony-browser-utils';
+import { OptionsManager, ShortcutHandler } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
 import { createShadowRoot } from 'harmony-ui';
 import viewerCSS from '../../css/viewer.css';
@@ -40,6 +40,7 @@ export class Viewer {
 
 		if (this.#mainCanvas) {
 			this.#htmlCanvas = this.#mainCanvas.canvas;
+			ShortcutHandler.addContext('3dview', this.#htmlCanvas);
 		} else {
 			// TODO: display error
 		}
@@ -75,6 +76,8 @@ export class Viewer {
 		Controller.addEventListener(ControllerEvent.ToggleVideo, (event: Event) => {
 			this.#toggleVideo((event as CustomEvent<boolean>).detail);
 		});
+
+		ShortcutHandler.addEventListener('app.shortcuts.video.togglerecording', () => this.#toggleVideo(!this.#recording));
 	}
 
 	async #setupShaderToyBackground(shaderName: string): Promise<void> {

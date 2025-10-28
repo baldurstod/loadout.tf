@@ -1,7 +1,7 @@
 import { vec4 } from 'gl-matrix';
 import { AmbientLight, Entity, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, MergeRepository, PointLight, Repositories, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
-import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
+import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
@@ -12,7 +12,7 @@ import optionsmanager from '../json/optionsmanager.json';
 import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, TF2_COMPETITIVE_STAGE, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
-import { CameraType } from './enums';
+import { CameraType, Panel } from './enums';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
@@ -67,6 +67,7 @@ class Application {
 		this.#start();
 		this.#initLights();
 		this.#initOptions();
+		this.#initShortcuts();
 		this.#setupAnalytics();
 		this.#initDefaultCharacter();
 	}
@@ -300,7 +301,6 @@ class Application {
 		*/
 		OptionsManagerEvents.addEventListener('engine.render.silhouettemode', (event: Event) => this.#setSilhouetteMode((event as CustomEvent).detail.value));
 		OptionsManagerEvents.addEventListener('engine.render.silhouettecolor', (event: Event) => this.#setSilhouetteColor((event as CustomEvent).detail.value));
-		/*
 
 
 		let func = (event: Event) => ShortcutHandler.setShortcut((event as CustomEvent).detail.context ?? 'loadout,3dview,scene-explorer', (event as CustomEvent).detail.name, (event as CustomEvent).detail.value);
@@ -308,6 +308,7 @@ class Application {
 		OptionsManagerEvents.addEventListener('engine.shortcuts.*', func);
 
 
+		/*
 		OptionsManagerEvents.addEventListener('engine.shadereditor.recompiledelay', (event: Event) => this.#shaderEditor.recompileDelay = (event as CustomEvent).detail.value);
 		OptionsManagerEvents.addEventListener('engine.debug.showfps', (event: Event) => { this.#showFps = (event as CustomEvent).detail.value; this.#htmlCanvasFps.innerText = ''; });
 
@@ -490,6 +491,14 @@ class Application {
 			OptionsManager.resetItem('app.options.version');
 			OptionsManager.setItem('app.options.version', ++currentVersion);
 		}
+	}
+
+	async #initShortcuts() {
+		ShortcutHandler.setShortcuts('loadout,3dview,scene-explorer', await OptionsManager.getOptionsPerType('shortcut'));
+		ShortcutHandler.addEventListener('app.shortcuts.currentcamera.reset', () => this.#resetCamera());
+		ShortcutHandler.addEventListener('app.shortcuts.itemlist.open', () => Controller.dispatchEvent<Panel>(ControllerEvent.ShowPanel, { detail: Panel.Items }));
+		ShortcutHandler.addEventListener('app.shortcuts.picture', () => Controller.dispatchEvent(ControllerEvent.SavePicture));
+		//ShortcutHandler.addEventListener('app.shortcuts.warpaints.openeditor', () => this.#toggleWarpaintEditor());
 	}
 
 	#resetCamera(): void {

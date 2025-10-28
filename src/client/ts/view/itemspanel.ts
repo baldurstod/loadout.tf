@@ -1,4 +1,4 @@
-import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
+import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, show, toggle } from 'harmony-ui';
 import itemCSS from '../../css/item.css';
@@ -300,7 +300,12 @@ export class ItemsPanel extends DynamicPanel {
 		this.#htmlItemsContainer = createElement('div', {
 			class: 'items',
 			parent: shadowRoot,
+			attributes: {
+				tabindex: 1,
+			},
 		});
+
+		ShortcutHandler.addContext('loadout', this.#htmlItemsContainer);
 
 		this.#htmlconflictingItems = createElement('div', {
 			class: 'conflicting-items',
