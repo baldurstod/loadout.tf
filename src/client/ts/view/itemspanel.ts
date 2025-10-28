@@ -230,12 +230,10 @@ export class ItemsPanel extends DynamicPanel {
 									],
 									$change: (event: Event) => {
 										OptionsManager.setItem('app.items.sort.type', (event.target as HTMLSelectElement).value);
-										//Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.DisplayTaunts, value: (event.target as HTMLSelectElement).value } });
 									},
 								}) as HTMLSelectElement,
 								this.#htmlFilterCollection = createElement('select', {
 									class: 'capitalize',
-									//$change: (event: Event) => OptionsManager.setItem('app.items.filter.collection', (event.target as HTMLSelectElement).value),
 									$change: (event: Event) => {
 										OptionsManager.setItem('app.items.filter.collection', (event.target as HTMLSelectElement).value);
 										Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Collection, value: (event.target as HTMLSelectElement).value } });
@@ -342,6 +340,7 @@ export class ItemsPanel extends DynamicPanel {
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.filter.collection', (event: Event) => this.#htmlFilterCollection!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
+		OptionsManagerEvents.addEventListener('app.items.filter.collection.sort.type', () => this.#refreshItems());
 
 		OptionsManagerEvents.addEventListener('app.items.sort.ascending', (event: Event) => {
 			const ascending = (event as CustomEvent).detail.value;
@@ -398,6 +397,7 @@ export class ItemsPanel extends DynamicPanel {
 			}
 		}
 		this.#refreshActiveListAndConflicts();
+		this.#updateFilters();
 	}
 
 	#refreshActiveListAndConflicts(): void {
@@ -492,5 +492,31 @@ export class ItemsPanel extends DynamicPanel {
 		if (item) {
 			this.#sheenPanel.selectSheen(item);
 		}
+	}
+
+	#updateFilters(): void {
+		const collections = ItemManager.getCollections();
+
+		const sortType = OptionsManager.getItem('app.items.filter.collection.sort.type') as string;
+		switch (sortType) {
+			case 'name':
+				collections[Symbol.iterator] = function* (): SetIterator<string> {
+					yield* [...this.keys()].sort(
+						(a, b) => {
+							return a < b ? -1 : 1;
+						}
+					);
+				}
+				break;
+			default:
+				break;
+		}
+
+		this.#htmlFilterCollection?.replaceChildren();
+		createElement('option', { value: '', innerText: '', parent: this.#htmlFilterCollection });
+		for (const collection of collections) {
+			createElement('option', { value: collection, innerText: collection, parent: this.#htmlFilterCollection });
+		}
+		this.#htmlFilterCollection!.value = OptionsManager.getItem('app.items.filter.collection');
 	}
 }

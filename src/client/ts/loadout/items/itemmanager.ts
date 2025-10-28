@@ -326,4 +326,8 @@ export class ItemManager {
 			);
 		}
 	}
+
+	static getCollections(): Set<string> {
+		return new Set(this.#itemCollections);
+	}
 }
