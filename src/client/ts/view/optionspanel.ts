@@ -1,4 +1,4 @@
-import { SceneExplorer, ShaderEditor } from 'harmony-3d';
+import { AudioMixer, SceneExplorer, ShaderEditor } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement } from 'harmony-ui';
 import optionsCSS from '../../css/options.css';
@@ -690,5 +690,13 @@ export class OptionsPanel extends DynamicPanel {
 
 	#initListeners(): void {
 		OptionsManagerEvents.addEventListener('engine.shadereditor.recompiledelay', (event: Event) => this.#shaderEditor.recompileDelay = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.audio.mute.*', (event: Event) => this.#muteSound((event as CustomEvent<OptionsManagerEvent>).detail.name.replace('app.audio.mute.', ''), (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean));
+	}
+
+	#muteSound(group: string, mute: boolean) {
+		AudioMixer.muteGroup(group, mute);
+		if (group == 'master') {
+			this.#htmlMuteSounds.state = mute;
+		}
 	}
 }
