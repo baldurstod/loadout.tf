@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, Entity, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, HALF_PI, JSONLoader, Light, MergeRepository, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, Entity, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, HALF_PI, JSONLoader, Light, MergeRepository, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
@@ -21,6 +21,7 @@ import { Loadout } from './loadout/loadout';
 import { addTF2Model, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera } from './loadout/scene';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
+import { LoadoutSpeech } from './loadout/speech/speech';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -51,6 +52,7 @@ class Application {
 	#initPaintKitsPromise?: Promise<void>;
 	#zipEntries = new Map<string, Blob>();
 	#fetchRedirect = new Map<string, string>();
+	#speech = new LoadoutSpeech();
 
 	static {
 		defineHarmonySwitch();
@@ -152,7 +154,7 @@ class Application {
 
 		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => { Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier); return; });
 
-		Controller.addEventListener(ControllerEvent.WarpaintClick, () => this.#initWarpaints());
+		Controller.addEventListener(ControllerEvent.WarpaintClick, () => { this.#initWarpaints(); return; });
 	}
 
 	/*
@@ -320,7 +322,7 @@ class Application {
 		OptionsManagerEvents.addEventListener('engine.render.silhouettecolor', (event: Event) => this.#setSilhouetteColor((event as CustomEvent<OptionsManagerEvent>).detail.value as string));
 
 
-		const func = (event: Event) => ShortcutHandler.setShortcut((event as CustomEvent<OptionsManagerEvent>).detail.context ?? 'loadout,3dview,scene-explorer', (event as CustomEvent<OptionsManagerEvent>).detail.name, (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
+		const func = (event: Event): void => ShortcutHandler.setShortcut((event as CustomEvent<OptionsManagerEvent>).detail.context ?? 'loadout,3dview,scene-explorer', (event as CustomEvent<OptionsManagerEvent>).detail.name, (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
 		OptionsManagerEvents.addEventListener('app.shortcuts.*', func);
 		OptionsManagerEvents.addEventListener('engine.shortcuts.*', func);
 
@@ -329,12 +331,12 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.lights.ambient.intensity', (event: Event) => this.#ambientLight.intensity = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
 
 		OptionsManagerEvents.addEventListener('app.lights.pointlights.*', (event: Event) => {
-			let lightParams = (event as CustomEvent<OptionsManagerEvent>).detail.name.replace('app.lights.pointlights.', '').split('.');
-			let light = this.#pointLights[Number(lightParams[0]!)];
+			const lightParams = (event as CustomEvent<OptionsManagerEvent>).detail.name.replace('app.lights.pointlights.', '').split('.');
+			const light = this.#pointLights[Number(lightParams[0]!)];
 			if (light) {
 				switch (lightParams[1]) {
 					case 'position':
-						light.position = stringToVec3((event as CustomEvent<OptionsManagerEvent>).detail.value as string);
+						light.setPosition(stringToVec3((event as CustomEvent<OptionsManagerEvent>).detail.value as string));
 						break;
 					case 'color':
 						light.color = hexToRgba(vec4.create(), (event as CustomEvent<OptionsManagerEvent>).detail.value as string) as vec3;
@@ -351,18 +353,20 @@ class Application {
 			}
 		});
 
-		OptionsManagerEvents.addEventListener('engine.shaders.defines.*', async (event: Event) => {
-			let defineName = (event as CustomEvent<OptionsManagerEvent>).detail.name.replace('engine.shaders.defines.', '');
-			let defineType = await OptionsManager.getOptionType((event as CustomEvent<OptionsManagerEvent>).detail.name);
-			if (defineType == 'boolean') {
-				if ((event as CustomEvent<OptionsManagerEvent>).detail.value == true) {
-					Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase());
+		OptionsManagerEvents.addEventListener('engine.shaders.defines.*', (event: Event): void => {
+			(async (): Promise<void> => {
+				const defineName = (event as CustomEvent<OptionsManagerEvent>).detail.name.replace('engine.shaders.defines.', '');
+				const defineType = await OptionsManager.getOptionType((event as CustomEvent<OptionsManagerEvent>).detail.name);
+				if (defineType == 'boolean') {
+					if ((event as CustomEvent<OptionsManagerEvent>).detail.value == true) {
+						Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase());
+					} else {
+						Graphics.removeIncludeCode('option_' + defineName);
+					}
 				} else {
-					Graphics.removeIncludeCode('option_' + defineName);
+					Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase() + ' ' + ((event as CustomEvent<OptionsManagerEvent>).detail.value as string));
 				}
-			} else {
-				Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase() + ' ' + (event as CustomEvent<OptionsManagerEvent>).detail.value);
-			}
+			})()
 		});
 
 		/*
@@ -393,9 +397,9 @@ class Application {
 
 		OptionsManagerEvents.addEventListener('engine.shadows.quality', (event: Event) => {
 			Light.defaultTextureSize = (event as CustomEvent<OptionsManagerEvent>).detail.value as number;
-			let lightList = loadoutScene.getChildList('Light');
+			const lightList = loadoutScene.getChildList('Light');
 
-			for (let light of lightList) {
+			for (const light of lightList) {
 				(light as Light).shadowTextureSize = (event as CustomEvent<OptionsManagerEvent>).detail.value as number;
 			}
 		});
@@ -406,21 +410,25 @@ class Application {
 			}
 		});
 
-		OptionsManagerEvents.addEventListener('app.lights.customlights', async (event: Event) => {
-			loadoutScene.removeChild(this.#customLightsContainer);
-			this.#customLightsContainer = await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent>).detail.value as string)) as Entity;
-			loadoutScene.addChild(this.#customLightsContainer);
-			this.#customLightsContainer.setVisible(OptionsManager.getItem('app.lights.usecustomlights'));
+		OptionsManagerEvents.addEventListener('app.lights.customlights', (event: Event) => {
+			(async (): Promise<void> => {
+				loadoutScene.removeChild(this.#customLightsContainer);
+				this.#customLightsContainer = await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent>).detail.value as string)) as Entity;
+				loadoutScene.addChild(this.#customLightsContainer);
+				this.#customLightsContainer.setVisible(OptionsManager.getItem('app.lights.usecustomlights'));
+			})()
 		});
 
 
-		OptionsManagerEvents.addEventListener('app.sceneexplorer.misc.serialized', async (event: Event) => {
-			loadoutScene.removeChild(this.#serializedEntity);
-			this.#serializedEntity = await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent>).detail.value as string)) as Entity;
-			loadoutScene.addChild(this.#serializedEntity);
+		OptionsManagerEvents.addEventListener('app.sceneexplorer.misc.serialized', (event: Event) => {
+			(async (): Promise<void> => {
+				loadoutScene.removeChild(this.#serializedEntity);
+				this.#serializedEntity = await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent>).detail.value as string)) as Entity;
+				loadoutScene.addChild(this.#serializedEntity);
+			})()
 		});
 
-		OptionsManagerEvents.addEventListener('app.sceneexplorer.skeleton.jointradius', async (event: Event) => getSceneExplorer().setJointsRadius((event as CustomEvent<OptionsManagerEvent>).detail.value as number));
+		OptionsManagerEvents.addEventListener('app.sceneexplorer.skeleton.jointradius', (event: Event) => getSceneExplorer().setJointsRadius((event as CustomEvent<OptionsManagerEvent>).detail.value as number));
 
 		OptionsManagerEvents.addEventListener('app.lights.usecustomlights', (event: Event) => {
 			if (this.#customLightsContainer) {
@@ -453,18 +461,17 @@ class Application {
 
 		OptionsManagerEvents.addEventListener('app.postprocessing.oldmovie.enabled', (event: Event) => this.#oldMoviePass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value);
 
-		OptionsManagerEvents.addEventListener('engine.particles.speed', (event: Event) => Source1ParticleSystem.setSpeed((event as CustomEvent<OptionsManagerEvent>).detail.value));
-		OptionsManagerEvents.addEventListener('engine.particles.simulationsteps', (event: Event) => Source1ParticleSystem.setSimulationSteps((event as CustomEvent<OptionsManagerEvent>).detail.value));
+		*/
+		OptionsManagerEvents.addEventListener('engine.particles.speed', (event: Event) => Source1ParticleSystem.setSpeed((event as CustomEvent<OptionsManagerEvent>).detail.value as number));
+		OptionsManagerEvents.addEventListener('engine.particles.simulationsteps', (event: Event) => Source1ParticleSystem.setSimulationSteps((event as CustomEvent<OptionsManagerEvent>).detail.value as number));
 		OptionsManagerEvents.addEventListener('engine.particles.simulationrate', (event: Event) => this.#setParticlesRate());
 		OptionsManagerEvents.addEventListener('engine.particles.usefixedrate', (event: Event) => this.#setParticlesRate());
-		*/
 
 		OptionsManagerEvents.addEventListener('app.ui.class.menuorder', (event: Event) => this.#setClassOrder((event as CustomEvent<OptionsManagerEvent>).detail.value as boolean));
 
 		OptionsManagerEvents.addEventListener('app.characters.scout.bluepants', (event: Event) => this.#setScoutBluePants((event as CustomEvent<OptionsManagerEvent>).detail.value as boolean));
-		/*
 
-		OptionsManagerEvents.addEventListener('app.warpainteditor.filter.node', (event: Event) => new WarpaintEditor().getGui().setNodeFilter((event as CustomEvent<OptionsManagerEvent>).detail.value));
+		OptionsManagerEvents.addEventListener('app.warpainteditor.filter.node', (event: Event) => WarpaintEditor.getGui().setNodeFilter((event as CustomEvent<OptionsManagerEvent>).detail.value as string));
 
 		OptionsManagerEvents.addEventListener('app.usespeechrecognition', (event: Event) => {
 			if ((event as CustomEvent<OptionsManagerEvent>).detail.value) {
@@ -474,7 +481,6 @@ class Application {
 			}
 		});
 
-		*/
 		OptionsManagerEvents.addEventListener('app.engine.source1.newanimationsystem', (event: Event) => {
 			Source1ModelInstance.useNewAnimSystem = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean;
 		});
@@ -759,10 +765,21 @@ class Application {
 		orbitCameraControl.update();
 	}
 
-	#setScoutBluePants(blue: boolean) {
+	#setScoutBluePants(blue: boolean): void {
 		if (blue) {
 			this.#fetchRedirect.set(SCOUT_BLUE_PANTS_ORIGIN, SCOUT_BLUE_PANTS_DEST);
+		}
+	}
 
+	#setParticlesRate() {
+		const fixedRate = OptionsManager.getItem('engine.particles.usefixedrate');
+		switch (fixedRate) {
+			case 'no':
+				Source1ParticleControler.fixedTime = undefined;
+				break;
+			case 'yes':
+				Source1ParticleControler.fixedTime = 1 / Number(OptionsManager.getItem('engine.particles.simulationrate'));
+				break;
 		}
 	}
 }

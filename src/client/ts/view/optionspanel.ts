@@ -693,7 +693,7 @@ export class OptionsPanel extends DynamicPanel {
 		OptionsManagerEvents.addEventListener('app.audio.mute.*', (event: Event) => this.#muteSound((event as CustomEvent<OptionsManagerEvent>).detail.name.replace('app.audio.mute.', ''), (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean));
 	}
 
-	#muteSound(group: string, mute: boolean) {
+	#muteSound(group: string, mute: boolean): void {
 		AudioMixer.muteGroup(group, mute);
 		if (group == 'master') {
 			this.#htmlMuteSounds.state = mute;

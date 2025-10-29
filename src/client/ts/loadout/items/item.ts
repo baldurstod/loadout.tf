@@ -64,7 +64,7 @@ export class Item {
 		// TODO
 		await this.#refreshSkin();
 		await this.#refreshSheen();
-		await this.#refreshWarPaint();
+		this.#refreshWarPaint();
 	}
 
 	getEquipRegions(): string[] {

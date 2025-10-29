@@ -33,7 +33,7 @@ export class WarpaintPanel extends DynamicPanel {
 	constructor() {
 		super(Panel.Warpaints, [warpaintPanelCSS]);
 		hide(this.getShadowRoot());
-		Controller.addEventListener(ControllerEvent.WarpaintsLoaded, () => this.#fillWarpaints());
+		Controller.addEventListener(ControllerEvent.WarpaintsLoaded, (): void => { this.#fillWarpaints(); return; });
 	}
 
 	protected override initHTML(): void {
@@ -165,7 +165,9 @@ export class WarpaintPanel extends DynamicPanel {
 		let seed = 0n;
 		try {
 			seed = BigInt(this.#htmlPaintSeed?.value ?? 0);
-		} catch (e) { }
+		} catch (e) {
+			console.warn('Can\'t convert seed to bigint', e);
+		}
 		//item.setPaintKitSeed(seed, true);
 
 		this.#currentItem.setPaintKit(warpaintId, Number(this.#paintsDivHeaderWearSelect?.selectedOptions[0]?.getAttribute('data-value')), seed);
@@ -257,15 +259,16 @@ export class WarpaintPanel extends DynamicPanel {
 	async #getPaintKitPics(): Promise<JSONObject> {
 		if (!this.#paintKitPicsPromise) {
 
-			this.#paintKitPicsPromise = new Promise<JSONObject>(async resolve => {
-				const response = await customFetch(TF2_WARPAINT_PICTURES_URL);
-				const json = await response.json();
-				if (!json || !json.success) {
-					resolve({});
-					return;
-				}
-				resolve(json.result);
-				return;
+			this.#paintKitPicsPromise = new Promise<JSONObject>((resolve): void => {
+				(async (): Promise<void> => {
+					const response = await customFetch(TF2_WARPAINT_PICTURES_URL);
+					const json = await response.json();
+					if (!json || !json.success) {
+						resolve({});
+						return;
+					}
+					resolve(json.result);
+				})()
 			});
 		}
 		return this.#paintKitPicsPromise;

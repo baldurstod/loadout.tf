@@ -4,7 +4,7 @@ import { ENABLE_PATREON_BASE } from '../bundleoptions';
 import { AdPanel } from './adpanel';
 import { LoadoutPanel } from './loadoutpanel';
 
-const AD_DELAY = 1000;
+//const AD_DELAY = 1000;
 
 export class MainPanel {
 	#shadowRoot?: ShadowRoot;

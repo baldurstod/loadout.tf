@@ -370,17 +370,19 @@ export class Character {
 				//setEffect(this, 'god_rays', 'god_rays', 'no_attachment');
 				this.addEffect('god_rays', 'god_rays');
 				Source1SoundManager.playSound('tf2', 'Taunt.MedicHeroic');
-				setTimeout(async () => {
-					await this.#ready;
-					if (!this.#model) {
-						return;
-					}
-					const launchSpot = this.#model.getWorldPosition();
-					for (let i = 0; i < MEDIC_RELEASE_DOVE_COUNT; ++i) {
-						const pos = vec3.clone(launchSpot);
-						pos[2] = pos[2] + Math.random() * 30 - 10 + 50;
-						spawnClientsideFlyingBird(pos);
-					}
+				setTimeout((): void => {
+					(async (): Promise<void> => {
+						await this.#ready;
+						if (!this.#model) {
+							return;
+						}
+						const launchSpot = this.#model.getWorldPosition();
+						for (let i = 0; i < MEDIC_RELEASE_DOVE_COUNT; ++i) {
+							const pos = vec3.clone(launchSpot);
+							pos[2] = pos[2] + Math.random() * 30 - 10 + 50;
+							spawnClientsideFlyingBird(pos);
+						}
+					})()
 				}, 3000);
 
 				break;

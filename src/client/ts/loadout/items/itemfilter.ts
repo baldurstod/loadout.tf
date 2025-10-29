@@ -326,7 +326,7 @@ export class ItemFilter {
 				this.collection = value as string;
 				break;
 			default:
-				throw attribute;
+				throw new Error('unknown attribute ' + String(attribute));
 				break;
 		}
 

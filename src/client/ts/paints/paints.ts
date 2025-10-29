@@ -362,6 +362,7 @@ const k_unBubbleBubble = [
 ];
 
 // TODO: what is this paint ?
+/*
 const k_unAfraidOfShadowsDark = [
 	4536928, 4536928, 4602721, 4602721, 4668515, 4668515, 4734308, 4734308,
 	4734308, 4734309, 4734309, 4734309, 4865896, 4865896, 4931689, 4931689,
@@ -396,6 +397,7 @@ const k_unAfraidOfShadowsDark = [
 	9337455, 8877166, 8482670, 8153453, 7758957, 7430252, 7101291, 6772586,
 	6509418, 6246505, 5983337, 5786216, 5588840, 5391719, 5194599, 5063014,
 ];
+*/
 
 const pointSampleContentTeamRed = new Map<Paints, number[]>([
 	[Paints.DieJob, k_unWitchYellow],
