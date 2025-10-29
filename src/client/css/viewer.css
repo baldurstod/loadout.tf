@@ -5,3 +5,9 @@
 	background: linear-gradient(45deg, rgb(40, 40, 40) 25%, transparent 25%, transparent 75%, rgb(40, 40, 40) 75%) 0 0 / 1rem 1rem,
 		linear-gradient(45deg, rgb(40, 40, 40) 25%, rgb(24, 23, 23) 25%, rgb(24, 23, 23) 75%, rgb(40, 40, 40) 75%) 0.5em 0.5em / 1em 1em;
 }
+
+.fps {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}

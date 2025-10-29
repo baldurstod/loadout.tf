@@ -1,7 +1,7 @@
-import { CanvasAttributes, ColorBackground, Composer, FullScreenQuad, Graphics, setCustomIncludeSource, ShaderManager, ShaderToyMaterial } from 'harmony-3d';
-import { OptionsManager, ShortcutHandler } from 'harmony-browser-utils';
+import { CanvasAttributes, ColorBackground, Composer, FullScreenQuad, Graphics, GraphicsEvent, GraphicsEvents, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, WebGLStats } from 'harmony-3d';
+import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
-import { createShadowRoot } from 'harmony-ui';
+import { createElement, createShadowRoot } from 'harmony-ui';
 import viewerCSS from '../../css/viewer.css';
 import { RECORDER_DEFAULT_FILENAME, SHADERTOY_DIRECTORY } from '../constants';
 import { Controller, ControllerEvent, SetBackgroundType } from '../controller';
@@ -13,12 +13,14 @@ export class Viewer {
 	//#htmlElement!: HTMLElement;
 	#htmlCanvas!: HTMLCanvasElement;
 	#mainCanvas: CanvasAttributes | null = null;
+	#htmlCanvasFps?: HTMLElement;
 	//#orbitControl;
 	#composer?: Composer;
 	#solidColorBackground = new ColorBackground();
 	#shaderToyBackground?: FullScreenQuad;
 	#shaderToyList?: JSONObject;
 	#recording = false;
+	#showFps = false;
 
 	constructor() {
 		this.#initListeners();
@@ -51,6 +53,7 @@ export class Viewer {
 			adoptStyle: viewerCSS,
 			childs: [
 				this.#htmlCanvas,
+				this.#htmlCanvasFps = createElement('div', { class: 'fps' }),
 			],
 		});
 		return this.#shadowRoot?.host as HTMLElement;
@@ -78,6 +81,21 @@ export class Viewer {
 		});
 
 		ShortcutHandler.addEventListener('app.shortcuts.video.togglerecording', () => this.#toggleVideo(!this.#recording));
+
+		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => {
+
+			if (this.#showFps  && this.#htmlCanvasFps) {
+				this.#htmlCanvasFps.innerText = String(WebGLStats.getFps());
+			}
+
+		});
+
+		OptionsManagerEvents.addEventListener('engine.debug.showfps', (event: Event) => {
+			this.#showFps = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean;
+			if (this.#htmlCanvasFps) {
+				this.#htmlCanvasFps.innerText = '';
+			}
+		});
 	}
 
 	async #setupShaderToyBackground(shaderName: string): Promise<void> {

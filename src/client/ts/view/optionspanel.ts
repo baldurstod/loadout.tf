@@ -28,6 +28,7 @@ export class OptionsPanel extends DynamicPanel {
 	constructor() {
 		super(Panel.Options, []);
 		hide(this.getShadowRoot());
+		this.#initListeners();
 	}
 
 	protected override initHTML(): void {
@@ -685,5 +686,9 @@ export class OptionsPanel extends DynamicPanel {
 		if (this.#htmlLanguageSelector) {
 			this.#htmlLanguageSelector.value = lang;
 		}
+	}
+
+	#initListeners(): void {
+		OptionsManagerEvents.addEventListener('engine.shadereditor.recompiledelay', (event: Event) => this.#shaderEditor.recompileDelay = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
 	}
 }
