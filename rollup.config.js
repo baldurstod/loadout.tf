@@ -63,6 +63,9 @@ for (const buildOption of BUILD_OPTIONS) {
 				if (warning.code == 'CIRCULAR_DEPENDENCY' && warning.importer && warning.importer.startsWith('node_modules/')) {
 					return;
 				}
+				if (warning.code == 'PLUGIN_WARNING' && warning.plugin == 'typescript' && warning.message.includes('minimatch')) {
+					return;
+				}
 				warn(warning);
 			},
 		}
