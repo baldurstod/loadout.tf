@@ -1,4 +1,4 @@
-import { CanvasAttributes, ColorBackground, Composer, FullScreenQuad, Graphics, GraphicsEvent, GraphicsEvents, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, WebGLStats } from 'harmony-3d';
+import { CanvasAttributes, ColorBackground, Composer, CopyPass, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvent, GraphicsEvents, OldMoviePass, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, SketchPass, WebGLStats } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, createShadowRoot } from 'harmony-ui';
@@ -15,7 +15,14 @@ export class Viewer {
 	#mainCanvas: CanvasAttributes | null = null;
 	#htmlCanvasFps?: HTMLElement;
 	//#orbitControl;
-	#composer?: Composer;
+	#composer = new Composer();
+	#pixelatePass = new PixelatePass(orbitCamera);
+	#grainPass = new GrainPass(orbitCamera);
+	#saturatePass = new SaturatePass(orbitCamera);
+	#crosshatchPass = new CrosshatchPass(orbitCamera);
+	#palettePass = new PalettePass(orbitCamera);
+	#sketchPass = new SketchPass(orbitCamera);
+	#oldMoviePass = new OldMoviePass(orbitCamera);
 	#solidColorBackground = new ColorBackground();
 	#shaderToyBackground?: FullScreenQuad;
 	#shaderToyList?: JSONObject;
@@ -23,6 +30,7 @@ export class Viewer {
 	#showFps = false;
 
 	constructor() {
+		this.#initPostProcessing();
 		this.#initListeners();
 		//this.#orbitControl = new OrbitControl(loadoutCamera);
 		orbitCamera.setPosition([100, 0, 40]);
@@ -84,7 +92,7 @@ export class Viewer {
 
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => {
 
-			if (this.#showFps  && this.#htmlCanvasFps) {
+			if (this.#showFps && this.#htmlCanvasFps) {
 				this.#htmlCanvasFps.innerText = String(WebGLStats.getFps());
 			}
 
@@ -96,6 +104,25 @@ export class Viewer {
 				this.#htmlCanvasFps.innerText = '';
 			}
 		});
+
+		OptionsManagerEvents.addEventListener('app.postprocessing.enabled', (event: Event) => this.#composer && (this.#composer.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean));
+		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.enabled', (event: Event) => this.#pixelatePass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.horizontaltiles', (event: Event) => this.#pixelatePass.horizontalTiles = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.pixelstyle', (event: Event) => this.#pixelatePass.pixelStyle = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
+
+		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.enabled', (event: Event) => this.#saturatePass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.saturation', (event: Event) => this.#saturatePass.saturation = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
+
+		OptionsManagerEvents.addEventListener('app.postprocessing.crosshatch.enabled', (event: Event) => this.#crosshatchPass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+
+		OptionsManagerEvents.addEventListener('app.postprocessing.palette.enabled', (event: Event) => this.#palettePass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+
+		OptionsManagerEvents.addEventListener('app.postprocessing.grain.enabled', (event: Event) => this.#grainPass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.grain.intensity', (event: Event) => this.#grainPass.intensity = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
+
+		OptionsManagerEvents.addEventListener('app.postprocessing.sketch.enabled', (event: Event) => this.#sketchPass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+
+		OptionsManagerEvents.addEventListener('app.postprocessing.oldmovie.enabled', (event: Event) => this.#oldMoviePass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
 	}
 
 	async #setupShaderToyBackground(shaderName: string): Promise<void> {
@@ -234,6 +261,24 @@ export class Viewer {
 
 	getHTMLElement(): HTMLElement {
 		return this.#shadowRoot?.host as (HTMLElement | undefined) ?? this.#initHTML();
+	}
+
+	async #initPostProcessing() {
+		const renderPass = new RenderPass(loadoutScene, orbitCamera);
+
+		let copyPass = new CopyPass(orbitCamera);
+
+		this.#composer.addPass(renderPass);
+		this.#composer.addPass(this.#grainPass);
+		this.#composer.addPass(this.#saturatePass);
+		this.#composer.addPass(this.#crosshatchPass);
+		this.#composer.addPass(this.#palettePass);
+		this.#composer.addPass(this.#sketchPass);
+		this.#composer.addPass(this.#pixelatePass);
+		this.#composer.addPass(this.#oldMoviePass);
+		this.#composer.addPass(copyPass);
+
+		this.#composer.enabled = OptionsManager.getItem('app.postprocessing.enabled');
 	}
 
 	/*

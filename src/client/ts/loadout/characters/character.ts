@@ -89,7 +89,6 @@ export class Character {
 		if (this.#model) {
 			const zombieSkinOffset = (this.characterClass == Tf2Class.Spy ? 22 : 4);
 			await this.#model.setSkin(String(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0)));
-			console.info('skin', String(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0)));
 		}
 	}
 
