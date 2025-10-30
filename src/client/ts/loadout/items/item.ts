@@ -269,7 +269,7 @@ export class Item {
 
 		if (this.#model) {
 			this.#readyPromiseResolve(true);
-			this.#model.setFlexes();
+			//this.#model.setFlexes();
 			this.#model.setPoseParameter('move_x', 1);
 			this.#model.setPoseParameter('move_y', 0.5);
 			this.#model.setPoseParameter('body_yaw', 0.5);
