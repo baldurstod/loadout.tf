@@ -9,7 +9,7 @@ import { ItemTemplate } from '../items/itemtemplate';
 import { addTF2Model } from '../scene';
 import { CharactersList, ClassRemovablePartsOff, Tf2Class } from './characters';
 import { FlyingBird } from './flyingbird';
-import { EffectTemplate, EffectType } from '../items/effecttemplate';
+import { EffectTemplate, EffectType } from '../effects/effecttemplate';
 
 export class Character {
 	readonly characterClass: Tf2Class;
@@ -17,7 +17,7 @@ export class Character {
 	readonly items = new Map<string, Item>();
 	#showBodyParts = new Map<string, boolean>();
 	#model: Source1ModelInstance | null = null;
-	#effects = new Set<Effect>();
+	readonly effects = new Set<Effect>();
 	#tauntEffect: Effect | null = null;
 	#killstreakEffect: Effect | null = null;
 	#team = Team.Red;
@@ -391,8 +391,8 @@ export class Character {
 	}
 
 	async #addEffect(name: string, systemName: string, attachment?: string, offset?: vec3): Promise<Effect> {
-		const effect = new Effect();
-		this.#effects.add(effect);
+		const effect = new Effect(new EffectTemplate(EffectType.Other, "-1", {}));
+		this.effects.add(effect);
 
 		//const system = await Source1ParticleControler.createSystem('tf2', systemName);
 		effect.system = await Source1ParticleControler.createSystem('tf2', systemName);
@@ -429,8 +429,8 @@ export class Character {
 	}
 
 	async addEffect(template: EffectTemplate): Promise<Effect> {
-		const effect = new Effect();
-		this.#effects.add(effect);
+		const effect = new Effect(template);
+		this.effects.add(effect);
 
 		//const system = await Source1ParticleControler.createSystem('tf2', systemName);
 		effect.system = await Source1ParticleControler.createSystem('tf2', template.getSystem());
@@ -438,7 +438,7 @@ export class Character {
 
 		await this.#ready;
 		let attachment = '';
-		switch (template.getType()) {
+		switch (template.type) {
 			case EffectType.Cosmetic:
 				attachment = 'bip_head';
 				break;
@@ -450,5 +450,12 @@ export class Character {
 		effect.system.start();
 
 		return effect;
+	}
+
+
+	async removeEffect(effect:Effect): Promise<void> {
+		effect.system?.stop();
+		effect.system?.remove();
+		this.effects.delete(effect);
 	}
 }

@@ -1,4 +1,5 @@
 import { JSONObject } from 'harmony-types';
+import { UNUSUALS_IMAGES_DIR } from '../../constants';
 
 export enum EffectType {
 	Cosmetic = 'cosmetic_unusual_effects',
@@ -8,17 +9,22 @@ export enum EffectType {
 	Other = 'other_particles',
 }
 export class EffectTemplate {
-	#type: EffectType;
+	readonly id: string;
+	readonly type: EffectType;
+	//#type: EffectType;
 	#definition: JSONObject;
 
-	constructor(type:EffectType, definition: JSONObject) {
-		this.#type = type;
+	constructor(type: EffectType, id: string, definition: JSONObject) {
+		this.id = id;
+		this.type = type;
 		this.#definition = definition;
 	}
 
+	/*
 	getType(): EffectType {
 		return this.#type;
 	}
+	*/
 
 	getName(): string {
 		return this.#definition.name as string;
@@ -31,5 +37,10 @@ export class EffectTemplate {
 	isTeamColored(): boolean {
 		const system = this.getSystem();
 		return system.includes('_teamcolor_red') || system.includes('_teamcolor_blue');
+	}
+
+	getImage(): string {
+		return `${UNUSUALS_IMAGES_DIR}${this.getSystem()}.webp`;
+
 	}
 }

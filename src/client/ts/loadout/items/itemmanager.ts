@@ -4,13 +4,14 @@ import { TF2_REPOSITORY } from '../../constants';
 import { Controller, ControllerEvent, ItemPinned, SetItemFilter } from '../../controller';
 import { Panel } from '../../enums';
 import { Character } from '../characters/character';
-import { EffectTemplate, EffectType } from './effecttemplate';
+import { EffectTemplate, EffectType } from '../effects/effecttemplate';
 import { Item } from './item';
 import { ItemFilter, ItemFilterResult } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
 import { WeaponManager, WeaponManagerEvents } from 'harmony-3d-utils';
 import { setLegacyPaintKit } from 'harmony-tf2-utils';
 import { Map2 } from 'harmony-utils';
+import { Effect } from '../effects/effect';
 
 export class ItemManager {
 	static readonly #filters = new ItemFilter();
@@ -18,9 +19,9 @@ export class ItemManager {
 	//static #characterClass: Tf2Class | null = null;
 	static #lang = 'english';
 	static readonly #itemTemplates = new Map<string, ItemTemplate>();
+	static readonly #effectTemplates = new Map2<EffectType, string, EffectTemplate>();
 	static #loadItemsPromise?: Promise<void>;
 	static #loadMedalsPromise?: Promise<void>;
-	static readonly #systemList = new Map2<EffectType, string, EffectTemplate>();
 	static readonly #itemCollections = new Set<string>();
 	static readonly #equipRegions = new Set<string>();
 	static #sortingDirection = 1;
@@ -75,8 +76,12 @@ export class ItemManager {
 		return new Map<string, ItemTemplate>(this.#itemTemplates);
 	}
 
-	static getTemplate(id: string): ItemTemplate | null {
+	static getItemTemplate(id: string): ItemTemplate | null {
 		return this.#itemTemplates.get(id) ?? null;
+	}
+
+	static getEffectTemplate(type: EffectType, id: string): EffectTemplate | null {
+		return this.#effectTemplates.get(type, id) ?? null;
 	}
 
 	static getFilteredItems(excluded: { e: number }/*TODO: find a better way to do that*/): Map<string, ItemTemplate> {
@@ -103,6 +108,20 @@ export class ItemManager {
 			return selectedItems;
 		} else {
 			return new Set<string>();
+		}
+	}
+
+	static getSelectedEffects(): Set<Effect> {
+		if (this.#currentCharacter) {
+			const selectedEffects = new Set<Effect>();
+
+			for (const effect of this.#currentCharacter.effects) {
+				selectedEffects.add(effect);
+			}
+
+			return selectedEffects;
+		} else {
+			return new Set<Effect>();
 		}
 	}
 
@@ -236,13 +255,13 @@ export class ItemManager {
 		for (const effectType in systemList) {
 			const group = systemList[effectType] as JSONObject;
 			for (const effectIndex in group) {
-				this.#systemList.set(effectType as EffectType, effectIndex, new EffectTemplate(effectType as EffectType, group[effectIndex] as JSONObject));
+				this.#effectTemplates.set(effectType as EffectType, effectIndex, new EffectTemplate(effectType as EffectType, effectIndex, group[effectIndex] as JSONObject));
 			}
 		}
 	}
 
 	static getEffects(type: EffectType): Map<string, EffectTemplate> {
-		return new Map<string, EffectTemplate>(this.#systemList.getSubMap(type));
+		return new Map<string, EffectTemplate>(this.#effectTemplates.getSubMap(type));
 	}
 
 	static #pinItem(item: ItemTemplate, isPinned: boolean): void {
@@ -352,10 +371,10 @@ export class ItemManager {
 	}
 
 	static #addWarpaint(itemId: string, paintkitId: string, weaponName: string, descToken: string): void {
-		let template = this.getTemplate(itemId);
+		let template = this.getItemTemplate(itemId);
 		if (!template) {
 			itemId += '~0';
-			template = this.getTemplate(itemId);
+			template = this.getItemTemplate(itemId);
 		}
 		if (template) {
 			/*

@@ -3,7 +3,9 @@ import effectTemplateCSS from '../../css/effects.css';
 import effectsCSS from '../../css/effectspanel.css';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
-import { EffectTemplate, EffectType } from '../loadout/items/effecttemplate';
+import { CharacterManager } from '../loadout/characters/charactermanager';
+import { Effect } from '../loadout/effects/effect';
+import { EffectTemplate, EffectType } from '../loadout/effects/effecttemplate';
 import { ItemManager } from '../loadout/items/itemmanager';
 import { DynamicPanel } from './dynamicpanel';
 import { UnusualEffectElement } from './elements/unusualeffect';
@@ -13,6 +15,7 @@ export class EffectsPanel extends DynamicPanel {
 	#htmlEffectsTab?: HTMLHarmonyTabElement;
 	#htmlKillstreakTab?: HTMLHarmonyTabElement;
 	#htmlTauntTab?: HTMLHarmonyTabElement;
+	#htmlActiveEffects?: HTMLElement;
 	#htmlEffectsList?: HTMLElement;
 	#htmlKillstreakList?: HTMLElement;
 	#htmlTauntList?: HTMLElement;
@@ -25,7 +28,10 @@ export class EffectsPanel extends DynamicPanel {
 	}
 
 	#initListeners(): void {
-		Controller.addEventListener(ControllerEvent.ItemsLoaded, () => this.#refreshUnusualEffects());
+		Controller.addEventListener(ControllerEvent.SystemsLoaded, () => this.#refreshUnusualEffects());
+		Controller.addEventListener(ControllerEvent.EffectAdded, () => this.#refreshActiveList());
+		Controller.addEventListener(ControllerEvent.EffectRemoved, () => this.#refreshActiveList());
+		Controller.addEventListener(ControllerEvent.CharacterChanged, () => this.#refreshActiveList());
 	}
 
 	protected override initHTML(): void {
@@ -38,11 +44,12 @@ export class EffectsPanel extends DynamicPanel {
 			childs: [
 				this.#htmlEffectsTab = createElement('harmony-tab', {
 					parent: this.getShadowRoot(),
+					class: 'effects',
 					'data-i18n': '#unusual_effects',
 					childs: [
-						this.#htmlEffectsList = createElement('div', { class: 'effects' }),
+						this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
+						this.#htmlEffectsList = createElement('div', { class: 'effects-list' }),
 					],
-					//child: this.#htmlEffectPanelPerClass = createElement('div', { class: 'character-manager-effect-panel-per-class' }),
 				}) as HTMLHarmonyTabElement,
 				this.#htmlKillstreakTab = createElement('harmony-tab', {
 					'data-i18n': '#killstreak_effects',
@@ -71,20 +78,9 @@ export class EffectsPanel extends DynamicPanel {
 				show(htmlEffect);
 			} else {
 				htmlEffect = createElement('unusual-effect', {
-					properties: {
-						//effect: effect,
-						//effectName: effectName,
-						//systemName: systemName,
-					},
 					parent: this.#htmlEffectsList,
-					$click: (event: Event) => {
-						//click: (event: Event) => setTauntEffect(this.#currentCharacter, /*this.#currentEffect*/undefined, (event.target as EffectManagerEffect).systemName, UnusualTauntListRefireTime.get((event.target as EffectManagerEffect).systemName)),
-						console.info((event.target as UnusualEffectElement).getEffectTemplate()?.getName());
-
-						if (event.currentTarget == event.target) {
-							Controller.dispatchEvent<EffectTemplate>(ControllerEvent.EffectClicked, { detail: template });
-						}
-
+					$click: () => {
+						Controller.dispatchEvent<EffectTemplate>(ControllerEvent.EffectClicked, { detail: template });
 					},
 				}) as UnusualEffectElement;
 
@@ -92,14 +88,62 @@ export class EffectsPanel extends DynamicPanel {
 
 				this.#htmlEffects.set(id, htmlEffect);
 			}
+		}
+	}
 
-			/*
-			if (selectedItems.has(id)) {
-				htmlEffect?.classList.add('item-selected');
-			} else {
-				htmlEffect?.classList.remove('item-selected');
+	#refreshActiveList(): void {
+		this.getHTMLElement();
+
+		this.#htmlActiveEffects?.replaceChildren();
+
+		const character = CharacterManager.getCurrentCharacter();
+		if (!character) {
+			return;
+		}
+
+		for (const effect of ItemManager.getSelectedEffects()) {
+			const template = ItemManager.getEffectTemplate(effect.getType(), effect.getId());
+			if (!template) {
+				continue;
 			}
-			*/
+
+			let offsets: HTMLElement;
+			createElement('div', {
+				class: 'active-effect',
+				parent: this.#htmlActiveEffects,
+				childs: [
+					createElement('img', {
+						class: 'thumb',
+						src: template.getImage(),
+						$click: () => Controller.dispatchEvent<Effect>(ControllerEvent.RemoveEffect, { detail: effect }),
+					}),
+					offsets = createElement('div', {
+						class: 'offset',
+					}),
+				],
+			});
+
+			for (let i = 0; i < 3; i++) {
+				createElement('input', {
+					parent: offsets,
+					type: 'range',
+					min: '-10',
+					max: '10',
+					step: 'any',
+					value: '0',
+					$input: (event: Event) => this.#setOffset(effect, i, Number((event.target as HTMLInputElement).value)),
+				}) as HTMLInputElement;
+			}
+		}
+	}
+
+	#setOffset(effect: Effect, axis: number, offset: number): void {
+		const system = effect.system;
+		if (system) {
+			const cp  = system.getControlPoint(0)!/*cp 0 is always defined*/;
+			const position = cp.getPosition();
+			position[axis] = offset;
+			cp.setPosition(position);
 		}
 	}
 }

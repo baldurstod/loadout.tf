@@ -454,7 +454,7 @@ export class ItemsPanel extends DynamicPanel {
 		// Add active items icons
 		this.#htmlActiveItems?.replaceChildren();
 		for (const selectedItemId of selectedItems) {
-			const template = ItemManager.getTemplate(selectedItemId);
+			const template = ItemManager.getItemTemplate(selectedItemId);
 			if (template) {
 
 				const imageInventory = template.imageInventory;

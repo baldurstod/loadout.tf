@@ -1,10 +1,7 @@
 .effects {
 	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-	justify-content: center;
-	align-content: baseline;
-	padding-bottom: 300px;
+	flex-direction: column;
+	overflow: hidden;
 }
 
 unusual-effect {
@@ -15,7 +12,6 @@ unusual-effect {
 	display: inline-block;
 	position: relative;
 	background-size: 100%;
-	background-color: red;
 }
 
 unusual-effect .name {
@@ -27,5 +23,46 @@ unusual-effect .name {
 	white-space: nowrap;
 	overflow: hidden;
 	color: #EEE;
-	background-color: purple;
 }
+
+.active-effects {
+	flex: 0 0 auto;
+	display: flex;
+	overflow: auto;
+}
+
+.active-effect .thumb {
+	width: 10rem;
+	height: 10rem;
+	position: relative;
+}
+
+.active-effect .offset {
+	display: flex;
+	flex-direction: column;
+}
+
+.effects-list {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-content: baseline;
+	padding-bottom: 300px;
+	overflow: auto;
+}
+
+/*
+.active-effect .remove {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 25%;
+	height: 25%;
+}
+
+.active-effect .remove>svg {
+	width: 100%;
+	height: 100%;
+}
+	*/

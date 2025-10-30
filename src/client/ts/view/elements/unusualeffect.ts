@@ -1,6 +1,6 @@
 import { createElement } from 'harmony-ui';
 import { UNUSUALS_IMAGES_DIR } from '../../constants';
-import { EffectTemplate } from '../../loadout/items/effecttemplate';
+import { EffectTemplate } from '../../loadout/effects/effecttemplate';
 
 export class UnusualEffectElement extends HTMLElement {
 	#effectTemplate: EffectTemplate | null = null;
@@ -57,7 +57,7 @@ export class UnusualEffectElement extends HTMLElement {
 		const name = this.#effectTemplate.getName();
 		this.setAttribute('title', name);
 		this.#htmlName!.innerText = name;
-		this.style.backgroundImage = `url(${UNUSUALS_IMAGES_DIR}${this.#effectTemplate.getSystem()}.webp)`;
+		this.style.backgroundImage = `url(${this.#effectTemplate.getImage()})`;
 	}
 
 	#createHTML(): void {

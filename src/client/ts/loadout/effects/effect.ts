@@ -1,5 +1,6 @@
 import { vec3 } from 'gl-matrix';
 import { Source1ParticleSystem } from 'harmony-3d';
+import { EffectTemplate, EffectType } from './effecttemplate';
 
 
 export const weaponEffects = new Map<number, [string, string]>([
@@ -10,8 +11,21 @@ export const weaponEffects = new Map<number, [string, string]>([
 ]);
 
 export class Effect {
+	readonly template: EffectTemplate;
 	name = '';
 	system: Source1ParticleSystem | null = null;
 	attachment?: string;
-	offset?: vec3;
+	offset = vec3.create();
+
+	constructor(template: EffectTemplate) {
+		this.template = template;
+	}
+
+	getId(): string {
+		return this.template.id;
+	}
+
+	getType(): EffectType {
+		return this.template.type;
+	}
 }

@@ -2,10 +2,11 @@ import { Source1ModelInstance } from 'harmony-3d';
 import { TF2_CASUAL_BADGE } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { CharacterManager } from './characters/charactermanager';
+import { Effect } from './effects/effect';
+import { EffectTemplate } from './effects/effecttemplate';
 import { Item } from './items/item';
 import { ItemTemplate } from './items/itemtemplate';
 import { addTF2Model } from './scene';
-import { EffectTemplate } from './items/effecttemplate';
 
 export class Loadout {
 	static #badgeModel: Source1ModelInstance | null = null;
@@ -18,6 +19,7 @@ export class Loadout {
 	static #initListeners(): void {
 		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail) });
 		Controller.addEventListener(ControllerEvent.EffectClicked, (event: Event) => { this.#handleEffectClicked((event as CustomEvent<EffectTemplate>).detail) });
+		Controller.addEventListener(ControllerEvent.RemoveEffect, (event: Event) => { this.#handleRemoveEffect((event as CustomEvent<Effect>).detail) });
 	}
 
 	static async showBadge(level: number, tier: number): Promise<void> {
@@ -105,6 +107,18 @@ export class Loadout {
 	static async #handleEffectClicked(template: EffectTemplate): Promise<void> {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
-		await currentCharacter?.addEffect(template);
+		if (currentCharacter) {
+			const addedEffect = await currentCharacter?.addEffect(template);
+			Controller.dispatchEvent<Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
+		}
+	}
+
+	static async #handleRemoveEffect(effect: Effect): Promise<void> {
+		const currentCharacter = CharacterManager.getCurrentCharacter();
+
+		if (currentCharacter) {
+			const addedEffect = await currentCharacter?.removeEffect(effect);
+			Controller.dispatchEvent<Effect>(ControllerEvent.EffectRemoved, { detail: effect });
+		}
 	}
 }
