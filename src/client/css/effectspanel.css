@@ -4,3 +4,8 @@
 	flex-direction: column;
 	position: relative;
 }
+
+.display-offsets {
+	position: absolute;
+	right: 0.5rem;
+}

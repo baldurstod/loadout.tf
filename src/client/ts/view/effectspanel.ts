@@ -1,4 +1,4 @@
-import { createElement, defineHarmonyTab, defineHarmonyTabGroup, hide, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show } from 'harmony-ui';
+import { createElement, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show } from 'harmony-ui';
 import effectTemplateCSS from '../../css/effects.css';
 import effectsCSS from '../../css/effectspanel.css';
 import { Controller, ControllerEvent } from '../controller';
@@ -38,9 +38,13 @@ export class EffectsPanel extends DynamicPanel {
 		defineHarmonyTab();
 		defineHarmonyTabGroup();
 
+		const styleSheet = new CSSStyleSheet();
+		styleSheet.replaceSync('*{--show-offsets: 0;}');
+
 		createElement('harmony-tab-group', {
 			parent: this.getShadowRoot(),
 			adoptStyle: effectTemplateCSS,
+			adoptStyleSheet: styleSheet,
 			childs: [
 				this.#htmlEffectsTab = createElement('harmony-tab', {
 					parent: this.getShadowRoot(),
@@ -61,6 +65,16 @@ export class EffectsPanel extends DynamicPanel {
 				}) as HTMLHarmonyTabElement,
 			],
 		}) as HTMLHarmonyTabGroupElement;
+
+
+		createElement('harmony-switch', {
+			parent: this.getShadowRoot(),
+			class: 'display-offsets',
+			'data-i18n': '#show_offsets',
+			$change: (event: CustomEvent<HarmonySwitchChange>) => {
+				styleSheet.replaceSync(`*{--show-offsets: ${event.detail.state ? 1 : 0};}`);
+			},
+		});
 	}
 
 	#refreshUnusualEffects(): void {
@@ -140,7 +154,7 @@ export class EffectsPanel extends DynamicPanel {
 	#setOffset(effect: Effect, axis: number, offset: number): void {
 		const system = effect.system;
 		if (system) {
-			const cp  = system.getControlPoint(0)!/*cp 0 is always defined*/;
+			const cp = system.getControlPoint(0)!/*cp 0 is always defined*/;
 			const position = cp.getPosition();
 			position[axis] = offset;
 			cp.setPosition(position);

@@ -29,6 +29,7 @@ unusual-effect .name {
 	flex: 0 0 auto;
 	display: flex;
 	overflow: auto;
+	cursor: pointer;
 }
 
 .active-effect .thumb {
@@ -41,6 +42,13 @@ unusual-effect .name {
 	display: flex;
 	flex-direction: column;
 }
+
+@container style(--show-offsets: 0) {
+	.active-effect .offset {
+		display: none;
+	}
+}
+
 
 .effects-list {
 	display: flex;
