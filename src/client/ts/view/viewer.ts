@@ -88,6 +88,8 @@ export class Viewer {
 			this.#toggleVideo((event as CustomEvent<boolean>).detail);
 		});
 
+		Controller.addEventListener(ControllerEvent.SavePicture, () => this.#savePicture());
+
 		ShortcutHandler.addEventListener('app.shortcuts.video.togglerecording', () => this.#toggleVideo(!this.#recording));
 
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => {
@@ -263,10 +265,10 @@ export class Viewer {
 		return this.#shadowRoot?.host as (HTMLElement | undefined) ?? this.#initHTML();
 	}
 
-	async #initPostProcessing() {
+	#initPostProcessing(): void {
 		const renderPass = new RenderPass(loadoutScene, orbitCamera);
 
-		let copyPass = new CopyPass(orbitCamera);
+		const copyPass = new CopyPass(orbitCamera);
 
 		this.#composer.addPass(renderPass);
 		this.#composer.addPass(this.#grainPass);
@@ -290,4 +292,20 @@ export class Viewer {
 		return this.#orbitControl.target.getPosition();
 	}
 	*/
+	#savePicture(): void {
+		const value = this.#getPictureSize();
+		this.#showHighLights(false);
+		Graphics.exportCanvas(this.#htmlCanvas, 'loadout.png', value?.w, value?.h);
+		this.#showHighLights(true);
+	}
+
+	#showHighLights(show: boolean): void {
+		show = show && OptionsManager.getItem('app.characters.highlightselected');
+		if (show) {
+			Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
+		} else {
+			Graphics.setIncludeCode('showHighLights', '#undef RENDER_HIGHLIGHT');
+		}
+	}
+
 }
