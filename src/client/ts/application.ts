@@ -1,7 +1,7 @@
 import { vec3, vec4 } from 'gl-matrix';
 import { AmbientLight, CameraProjection, Entity, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, HALF_PI, JSONLoader, Light, MergeRepository, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
-import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
+import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
@@ -10,7 +10,7 @@ import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
 import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bundleoptions';
-import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, TF2_COMPETITIVE_STAGE, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
+import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType, Panel } from './enums';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
@@ -19,9 +19,9 @@ import { Tf2Class } from './loadout/characters/characters';
 import { Team } from './loadout/enums';
 import { Loadout } from './loadout/loadout';
 import { addTF2Model, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera } from './loadout/scene';
+import { LoadoutSpeech } from './loadout/speech/speech';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
-import { LoadoutSpeech } from './loadout/speech/speech';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -63,6 +63,7 @@ class Application {
 	}
 
 	constructor() {
+		setNotificationsPlacement(NotificationsPlacement.Bottom);
 		this.#updatedocumentStyleSheet();
 		document.adoptedStyleSheets.push(this.#documentStyleSheet, this.#menuOrderStyleSheet);
 		this.#initGraphics();
@@ -155,6 +156,9 @@ class Application {
 		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => { Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier); return; });
 
 		Controller.addEventListener(ControllerEvent.WarpaintClick, () => { this.#initWarpaints(); return; });
+
+		Controller.addEventListener(ControllerEvent.ShowAboutNotification, () => this.#showAboutLayer());
+		Controller.addEventListener(ControllerEvent.ShowBugNotification, () => this.#showBugNotification());
 	}
 
 	/*
@@ -464,8 +468,8 @@ class Application {
 		*/
 		OptionsManagerEvents.addEventListener('engine.particles.speed', (event: Event) => Source1ParticleSystem.setSpeed((event as CustomEvent<OptionsManagerEvent>).detail.value as number));
 		OptionsManagerEvents.addEventListener('engine.particles.simulationsteps', (event: Event) => Source1ParticleSystem.setSimulationSteps((event as CustomEvent<OptionsManagerEvent>).detail.value as number));
-		OptionsManagerEvents.addEventListener('engine.particles.simulationrate', (event: Event) => this.#setParticlesRate());
-		OptionsManagerEvents.addEventListener('engine.particles.usefixedrate', (event: Event) => this.#setParticlesRate());
+		OptionsManagerEvents.addEventListener('engine.particles.simulationrate', () => this.#setParticlesRate());
+		OptionsManagerEvents.addEventListener('engine.particles.usefixedrate', () => this.#setParticlesRate());
 
 		OptionsManagerEvents.addEventListener('app.ui.class.menuorder', (event: Event) => this.#setClassOrder((event as CustomEvent<OptionsManagerEvent>).detail.value as boolean));
 
@@ -771,7 +775,7 @@ class Application {
 		}
 	}
 
-	#setParticlesRate() {
+	#setParticlesRate(): void {
 		const fixedRate = OptionsManager.getItem('engine.particles.usefixedrate');
 		switch (fixedRate) {
 			case 'no':
@@ -781,6 +785,36 @@ class Application {
 				Source1ParticleControler.fixedTime = 1 / Number(OptionsManager.getItem('engine.particles.simulationrate'));
 				break;
 		}
+	}
+
+	#showAboutLayer(): void {
+		const html = `${I18n.getString('#loadout_tf_service_provided')}<a href="http://steamcommunity.com/id/baldurstod/" target="_blank">Baldurs Tod</a><br>
+		<a href="https://www.redbubble.com/people/Loadout/shop?asc=u" target="_blank">${I18n.getString('#redbubble_shop')}</a><br>
+		${I18n.getString('#model_texture_files_property')}<a href="http://www.valvesoftware.com/" target="_blank">Valve Corporation</a><br>
+		${I18n.getString('#valve_tf_trademarks')}`;
+
+		addNotification(html, NotificationType.Info, 15);
+	}
+
+	#showBugNotification(): void {
+		//let html = '<a href="' + TF2_GROUP_URL + '" target="_blank" class="i18n" data-i18n="#get_assistance_on_steam"></a><br><a href="https://discord.gg/7EhW2WCWyQ" target="_blank" class="i18n" data-i18n="#get_assistance_on_discord"></a>';
+		const html = createElement('div', {
+			childs: [
+				createElement('a', {
+					style: 'color:white;display:block;',
+					href: TF2_GROUP_URL,
+					target: '_blank',
+					i18n: '#get_assistance_on_steam',
+				}),
+				createElement('a', {
+					style: 'color:white;display:block;',
+					href: 'https://discord.gg/7EhW2WCWyQ',//TODO: const
+					target: '_blank',
+					i18n: '#get_assistance_on_discord',
+				}),
+			]
+		});
+		addNotification(html, NotificationType.Info, 15);
 	}
 }
 new Application();
