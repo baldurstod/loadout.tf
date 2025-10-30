@@ -19,7 +19,7 @@ export class Loadout {
 	static #initListeners(): void {
 		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail) });
 		Controller.addEventListener(ControllerEvent.EffectClicked, (event: Event) => { this.#handleEffectClicked((event as CustomEvent<EffectTemplate>).detail) });
-		Controller.addEventListener(ControllerEvent.RemoveEffect, (event: Event) => { this.#handleRemoveEffect((event as CustomEvent<Effect>).detail) });
+		Controller.addEventListener(ControllerEvent.RemoveEffect, (event: Event) => this.#handleRemoveEffect((event as CustomEvent<Effect>).detail),);
 	}
 
 	static async showBadge(level: number, tier: number): Promise<void> {
@@ -113,11 +113,11 @@ export class Loadout {
 		}
 	}
 
-	static async #handleRemoveEffect(effect: Effect): Promise<void> {
+	static #handleRemoveEffect(effect: Effect): void {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
-			const addedEffect = await currentCharacter?.removeEffect(effect);
+			currentCharacter?.removeEffect(effect);
 			Controller.dispatchEvent<Effect>(ControllerEvent.EffectRemoved, { detail: effect });
 		}
 	}

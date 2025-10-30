@@ -191,7 +191,7 @@
 		{
 			"name": "app.cameras.orbit.polarrotation",
 			"type": "boolean",
-			"default": false
+			"default": true
 		},
 		{
 			"name": "app.cameras.orbit.orthographic",

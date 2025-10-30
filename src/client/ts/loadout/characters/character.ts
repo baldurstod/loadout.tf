@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix';
 import { ChoreographiesManager, ChoreographyEventType, RandomFloat, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
-import { ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
+import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
 import { Effect } from '../effects/effect';
 import { Team } from '../enums';
 import { Item } from '../items/item';
@@ -79,6 +79,7 @@ export class Character {
 			await item.setTeam(team);
 		}
 		await this.#refreshSkin();
+		await this.#setEffectsTeam();
 
 		await this.#ready;
 		if (this.#model) {
@@ -432,13 +433,19 @@ export class Character {
 		const effect = new Effect(template);
 		this.effects.add(effect);
 
-		//const system = await Source1ParticleControler.createSystem('tf2', systemName);
-		effect.system = await Source1ParticleControler.createSystem('tf2', template.getSystem());
-		effect.system.name = template.getName();
+		await this.#createEffect(effect);
+		this.#setEffectsTeam();
+
+		return effect;
+	}
+
+	async #createEffect(effect: Effect, systemName?: string): Promise<void> {
+		effect.system = await Source1ParticleControler.createSystem('tf2', systemName ?? effect.template.getSystem());
+		effect.system.name = effect.template.getName();
 
 		await this.#ready;
 		let attachment = '';
-		switch (template.type) {
+		switch (effect.template.type) {
 			case EffectType.Cosmetic:
 				attachment = 'bip_head';
 				break;
@@ -448,14 +455,33 @@ export class Character {
 
 		this.#model?.attachSystem(effect.system, attachment, 0);// TODO: offset
 		effect.system.start();
-
-		return effect;
 	}
 
-
-	async removeEffect(effect:Effect): Promise<void> {
+	removeEffect(effect: Effect): void {
 		effect.system?.stop();
 		effect.system?.remove();
 		this.effects.delete(effect);
+	}
+
+	async #setEffectsTeam(): Promise<void> {
+		let from: string;
+		let to: string;
+		if (this.#team == Team.Red) {
+			from = EFFECTS_BLU;
+			to = EFFECTS_RED;
+		} else {
+			to = EFFECTS_BLU;
+			from = EFFECTS_RED;
+		}
+
+		for (const effect of this.effects) {
+			const oldName = effect.system?.system ?? '';
+			if (oldName.includes(from)) {
+				const newName = oldName.replace(from, to);
+				effect.system?.stop();
+				effect.system?.remove();
+				await this.#createEffect(effect, newName);
+			}
+		}
 	}
 }

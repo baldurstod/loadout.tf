@@ -65,3 +65,6 @@ export const SHADERTOY_DIRECTORY = './shadertoy/';
 
 export const MATERIAL_INVULN_BLU = 'models/effects/invulnfx_blue.vmt';
 export const MATERIAL_INVULN_RED = 'models/effects/invulnfx_red.vmt';
+
+export const EFFECTS_RED = 'teamcolor_red';
+export const EFFECTS_BLU = 'teamcolor_blue';

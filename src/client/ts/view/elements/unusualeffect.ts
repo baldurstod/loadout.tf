@@ -1,5 +1,4 @@
 import { createElement } from 'harmony-ui';
-import { UNUSUALS_IMAGES_DIR } from '../../constants';
 import { EffectTemplate } from '../../loadout/effects/effecttemplate';
 
 export class UnusualEffectElement extends HTMLElement {
