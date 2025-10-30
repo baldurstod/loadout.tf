@@ -78,11 +78,12 @@ export class ItemManager {
 		return this.#itemTemplates.get(id) ?? null;
 	}
 
-	static getFilteredItems(): Map<string, ItemTemplate> {
+	static getFilteredItems(excluded: { e: number }/*TODO: find a better way to do that*/): Map<string, ItemTemplate> {
 		const filteredItems = new Map<string, ItemTemplate>();
+		excluded.e = 0;
 
 		for (const [id, itemTemplate] of this.#itemTemplates) {
-			const match = this.#filters.matchFilter(itemTemplate, { e: 0 }, this.#currentCharacter?.characterClass ?? null, new Set<Item>)
+			const match = this.#filters.matchFilter(itemTemplate, excluded, this.#currentCharacter?.characterClass ?? null, new Set<Item>)
 			if (match == ItemFilterResult.Ok) {
 				filteredItems.set(id, itemTemplate);
 			}

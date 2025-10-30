@@ -1,6 +1,6 @@
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
-import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, show, toggle } from 'harmony-ui';
+import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, display, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, I18n, show, toggle } from 'harmony-ui';
 import itemCSS from '../../css/item.css';
 import itemPanelCSS from '../../css/itempanel.css';
 import { inventoryPath } from '../constants';
@@ -28,7 +28,8 @@ export class ItemsPanel extends DynamicPanel {
 	#filterInputDataList?: HTMLDataListElement;
 	#htmlFilterCollection?: HTMLSelectElement;
 	#htmlFilterInput?: HTMLInputElement;
-	#htmlconflictingItems?: HTMLElement;
+	#htmlConflictingItems?: HTMLElement;
+	#htmlExcludedItems?: HTMLElement;
 	#presetsPanel = new PresetsPanel();
 	#paintPanel = new PaintPanel();
 	#sheenPanel = new SheenPanel();
@@ -307,10 +308,16 @@ export class ItemsPanel extends DynamicPanel {
 
 		ShortcutHandler.addContext('loadout', this.#htmlItemsContainer);
 
-		this.#htmlconflictingItems = createElement('div', {
+		this.#htmlConflictingItems = createElement('div', {
 			class: 'conflicting-items',
 			parent: shadowRoot,
 			i18n: '#interfere_warning',
+			hidden: true,
+		});
+		this.#htmlExcludedItems = createElement('div', {
+			class: 'excluded-items',
+			parent: shadowRoot,
+			i18n: '#items_excluded',
 			hidden: true,
 		});
 		//this.#htmlItemSelectorPanelInterfere = createElement('div', { class: 'item-manager-interfere', i18n: '#interfere_warning', hidden: true }),
@@ -393,8 +400,8 @@ export class ItemsPanel extends DynamicPanel {
 		}
 
 		const selectedItems = ItemManager.getSelectedItems();
-
-		for (const [id, item] of ItemManager.getFilteredItems()) {
+		const excludedItems = { e: 0 };
+		for (const [id, item] of ItemManager.getFilteredItems(excludedItems)) {
 			let htmlItem = this.#htmlItems.get(id);
 			if (htmlItem) {
 				this.#htmlItemsContainer?.append(htmlItem);
@@ -423,6 +430,7 @@ export class ItemsPanel extends DynamicPanel {
 		}
 		this.#refreshActiveListAndConflicts();
 		this.#updateFilters();
+		this.#setFilteredItems(excludedItems.e);
 	}
 
 	#refreshActiveListAndConflicts(): void {
@@ -439,9 +447,9 @@ export class ItemsPanel extends DynamicPanel {
 		}
 
 		if (conflictingItems.size > 0) {
-			show(this.#htmlconflictingItems);
+			show(this.#htmlConflictingItems);
 		} else {
-			hide(this.#htmlconflictingItems);
+			hide(this.#htmlConflictingItems);
 		}
 
 		// Add active items icons
@@ -565,5 +573,10 @@ export class ItemsPanel extends DynamicPanel {
 			createElement('option', { value: collection, innerText: collection, parent: this.#htmlFilterCollection });
 		}
 		this.#htmlFilterCollection!.value = OptionsManager.getItem('app.items.filter.collection');
+	}
+
+	#setFilteredItems(excludedItems: number): void {
+		display(this.#htmlExcludedItems, excludedItems > 0 && OptionsManager.getItem('app.items.filter.displayexcludedcount'));
+		I18n.setValue(this.#htmlExcludedItems, 'count', excludedItems);
 	}
 }
