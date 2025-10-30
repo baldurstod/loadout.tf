@@ -22,7 +22,7 @@ export class Toolbar extends StaticPanel {
 			createButton('effects', '#show_unusual_effects', fireSVG, () => this.#togglePanel(Panel.Effects)),
 			createButton('pause', '#pause', pauseSVG, () => this.#setAnimSpeed(0)),
 			createButton('play', '#play', playSVG, () => this.#setAnimSpeed(1)),
-			createButton('facials', '#facial_animations', sentimentExcitedSVG, () => Controller.dispatchEvent(ControllerEvent.ToggleFacialPanel)),
+			createButton('flexes', '#facial_animations', sentimentExcitedSVG, () => this.#togglePanel(Panel.Flexes)),
 			createButton('share', '#share_current_loadout', shareSVG, () => Controller.dispatchEvent(ControllerEvent.ShareLoadout)),
 			createButton('picture', '#save_picture', photoCameraSVG, () => Controller.dispatchEvent(ControllerEvent.SavePicture)),
 			createButton('sfm', '#export_for_sfm', sfmLogoSVG, () => Controller.dispatchEvent(ControllerEvent.ExportSfm)),

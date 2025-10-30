@@ -1,6 +1,7 @@
 import loadoutCSS from '../../css/loadout.css';
 import { CharacterControlPanel } from './charactercontrolpanel';
 import { CharacterSelector } from './characterselector';
+import { FlexesPanel } from './flexespanel';
 import { SidePanel } from './sidepanel';
 import { StaticPanel } from './staticpanel';
 import { Toolbar } from './toolbar';
@@ -12,6 +13,7 @@ export class LoadoutPanel extends StaticPanel {
 	#toolbar = new Toolbar();
 	#characterSelector = new CharacterSelector();
 	#characterControlPanel = new CharacterControlPanel();
+	#flexesPanel = new FlexesPanel();
 
 	constructor() {
 		super([loadoutCSS]);
@@ -24,6 +26,7 @@ export class LoadoutPanel extends StaticPanel {
 			this.#toolbar.getHTMLElement(),
 			this.#characterSelector.getHTMLElement(),
 			this.#characterControlPanel.getHTMLElement(),
+			this.#flexesPanel.getHTMLElement(),
 		);
 	}
 }

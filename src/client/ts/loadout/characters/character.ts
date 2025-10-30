@@ -31,6 +31,7 @@ export class Character {
 	#userAnim = '';
 	#voicePose?: string;
 	#taunt: Item | null = null;
+	#flexControllers = new Map<string, number>;
 
 	constructor(characterClass: Tf2Class) {
 		this.characterClass = characterClass;
@@ -48,7 +49,7 @@ export class Character {
 			return;
 		}
 		this.#readyPromiseResolve(true);
-		this.#model.setFlexes();
+		this.#model.resetFlexParameters();
 		this.#model.setPoseParameter('move_x', 1);
 		this.#model.setPoseParameter('move_y', 0.5);
 		this.#model.setPoseParameter('body_yaw', 0.5);
@@ -406,5 +407,23 @@ export class Character {
 	async #attachSystem(system: Source1ParticleSystem, attachmentName: string, attachmentType?: any, offset?: vec3): Promise<void> {
 		await this.#ready;
 		this.#model?.attachSystem(system, attachmentName, 0, offset);
+	}
+
+	async setFlexControllerValue(name: string, value: number): Promise<void> {
+		this.#flexControllers.set(name, value);
+		await this.#updateFlexes();
+	}
+
+	async resetFlexes(): Promise<void> {
+		this.#flexControllers.clear();
+		await this.#updateFlexes();
+	}
+
+	async #updateFlexes(): Promise<void> {
+		await this.#ready;
+		this.#model?.setFlexes(this.#flexControllers);
+		for (const [, item] of this.items) {
+			(await item.getModel())?.setFlexes(this.#flexControllers);
+		}
 	}
 }

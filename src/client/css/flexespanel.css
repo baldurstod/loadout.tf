@@ -1,0 +1,28 @@
+:host {
+	position: absolute;
+	right: 0px;
+	bottom: 100px;
+	max-height: 50%;
+
+	min-width: 100px;
+	min-height: 100px;
+	flex-direction: column;
+	background-color: rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	display: flex;
+}
+
+.reset {
+	cursor: pointer;
+	width: 100%;
+	background-color: rgb(255, 255, 255);
+	color: #000000;
+	text-align: center;
+	padding: 2px;
+	border-radius: 3px;
+}
+
+.controllers {
+	text-align: right;
+	overflow-y: auto;
+}

@@ -19,7 +19,6 @@ export enum ControllerEvent {
 	ExportSfm = 'exportsfm',
 	ExportFbx = 'exportfbx',
 	Export3d = 'export3d',
-	ToggleFacialPanel = 'togglefacialpanel',
 	ShowBugNotification = 'showbugnotification',
 	ShowAboutNotification = 'showaboutotification',
 	ToggleOptionsManager = 'toggleoptionsmanager',
