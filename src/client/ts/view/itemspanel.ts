@@ -44,7 +44,6 @@ export class ItemsPanel extends DynamicPanel {
 		this.#initListeners();
 	}
 
-
 	#initListeners(): void {
 		Controller.addEventListener(ControllerEvent.ItemsLoaded, () => this.#refreshItems());
 		Controller.addEventListener(ControllerEvent.FiltersUpdated, () => this.#refreshItems());

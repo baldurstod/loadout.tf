@@ -1,6 +1,5 @@
 :host {
 	height: 100%;
-	background-color: red;
 	display: flex;
 	flex-direction: column;
 	position: relative;

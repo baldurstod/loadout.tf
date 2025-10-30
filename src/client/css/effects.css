@@ -1,0 +1,31 @@
+.effects {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-content: baseline;
+	padding-bottom: 300px;
+}
+
+unusual-effect {
+	cursor: pointer;
+	text-align: center;
+	height: var(--item-manager-item-size);
+	width: var(--item-manager-item-size);
+	display: inline-block;
+	position: relative;
+	background-size: 100%;
+	background-color: red;
+}
+
+unusual-effect .name {
+	position: absolute;
+	bottom: 0px;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	color: #EEE;
+	background-color: purple;
+}

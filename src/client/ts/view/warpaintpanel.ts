@@ -9,7 +9,6 @@ import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
 import { Item } from '../loadout/items/item';
 import { DynamicPanel } from './dynamicpanel';
-export { ItemManagerItem } from './itemmanageritem';
 
 type Warpaint = {
 	warpaint: {

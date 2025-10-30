@@ -5,7 +5,6 @@ import { Panel } from '../enums';
 import { Character } from '../loadout/characters/character';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { DynamicPanel } from './dynamicpanel';
-export { ItemManagerItem } from './itemmanageritem';
 
 export class FlexesPanel extends DynamicPanel {
 	#htmlControllers?: HTMLElement;

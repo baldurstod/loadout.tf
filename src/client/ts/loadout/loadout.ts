@@ -5,6 +5,7 @@ import { CharacterManager } from './characters/charactermanager';
 import { Item } from './items/item';
 import { ItemTemplate } from './items/itemtemplate';
 import { addTF2Model } from './scene';
+import { EffectTemplate } from './items/effecttemplate';
 
 export class Loadout {
 	static #badgeModel: Source1ModelInstance | null = null;
@@ -16,6 +17,7 @@ export class Loadout {
 
 	static #initListeners(): void {
 		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail) });
+		Controller.addEventListener(ControllerEvent.EffectClicked, (event: Event) => { this.#handleEffectClicked((event as CustomEvent<EffectTemplate>).detail) });
 	}
 
 	static async showBadge(level: number, tier: number): Promise<void> {
@@ -98,5 +100,11 @@ export class Loadout {
 			const isAdded = addedItem[1];
 			Controller.dispatchEvent<Item>(isAdded ? ControllerEvent.ItemAdded : ControllerEvent.ItemRemoved, { detail: addedItem[0] });
 		}
+	}
+
+	static async #handleEffectClicked(template: EffectTemplate): Promise<void> {
+		const currentCharacter = CharacterManager.getCurrentCharacter();
+
+		await currentCharacter?.addEffect(template);
 	}
 }

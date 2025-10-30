@@ -11,7 +11,6 @@ import { Item } from '../loadout/items/item';
 import { getPaint, Paint, PaintDefinition, paintList } from '../paints/paints';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
-export { ItemManagerItem } from './itemmanageritem';
 
 export class PaintPanel extends DynamicPanel {
 	#htmlPaintsDivPaints?: HTMLElement;

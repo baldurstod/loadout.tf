@@ -1,11 +1,13 @@
+import sidePanelCSS from '../../css/sidepanel.css';
+import { EffectsPanel } from './effectspanel';
 import { ItemsPanel } from './itemspanel';
 import { OptionsPanel } from './optionspanel';
 import { StaticPanel } from './staticpanel';
-import sidePanelCSS from '../../css/sidepanel.css';
 
 export class SidePanel extends StaticPanel {
 	#optionsPanel = new OptionsPanel();
 	#itemsPanel = new ItemsPanel();
+	#effectsPanel = new EffectsPanel();
 
 	constructor() {
 		super([sidePanelCSS]);
@@ -15,6 +17,7 @@ export class SidePanel extends StaticPanel {
 		this.getShadowRoot().append(
 			this.#optionsPanel.getHTMLElement(),
 			this.#itemsPanel.getHTMLElement(),
+			this.#effectsPanel.getHTMLElement(),
 		);
 	}
 }

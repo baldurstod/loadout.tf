@@ -9,6 +9,7 @@ import { ItemTemplate } from '../items/itemtemplate';
 import { addTF2Model } from '../scene';
 import { CharactersList, ClassRemovablePartsOff, Tf2Class } from './characters';
 import { FlyingBird } from './flyingbird';
+import { EffectTemplate, EffectType } from '../items/effecttemplate';
 
 export class Character {
 	readonly characterClass: Tf2Class;
@@ -363,12 +364,12 @@ export class Character {
 		switch (tauntAttackName) {
 			case 'TAUNTATK_ALLCLASS_GUITAR_RIFF':
 				//setEffect(this, 'bl_killtaunt', 'bl_killtaunt', 'no_attachment');
-				this.addEffect('bl_killtaunt', 'bl_killtaunt');
+				this.#addEffect('bl_killtaunt', 'bl_killtaunt');
 				Source1SoundManager.playSound('tf2', 'Taunt.GuitarRiff');
 				break;
 			case 'TAUNTATK_MEDIC_HEROIC_TAUNT':
 				//setEffect(this, 'god_rays', 'god_rays', 'no_attachment');
-				this.addEffect('god_rays', 'god_rays');
+				this.#addEffect('god_rays', 'god_rays');
 				Source1SoundManager.playSound('tf2', 'Taunt.MedicHeroic');
 				setTimeout((): void => {
 					(async (): Promise<void> => {
@@ -389,7 +390,7 @@ export class Character {
 		}
 	}
 
-	async addEffect(name: string, systemName: string, attachment?: string, offset?: vec3): Promise<Effect> {
+	async #addEffect(name: string, systemName: string, attachment?: string, offset?: vec3): Promise<Effect> {
 		const effect = new Effect();
 		this.#effects.add(effect);
 
@@ -425,5 +426,29 @@ export class Character {
 		for (const [, item] of this.items) {
 			(await item.getModel())?.setFlexes(this.#flexControllers);
 		}
+	}
+
+	async addEffect(template: EffectTemplate): Promise<Effect> {
+		const effect = new Effect();
+		this.#effects.add(effect);
+
+		//const system = await Source1ParticleControler.createSystem('tf2', systemName);
+		effect.system = await Source1ParticleControler.createSystem('tf2', template.getSystem());
+		effect.system.name = template.getName();
+
+		await this.#ready;
+		let attachment = '';
+		switch (template.getType()) {
+			case EffectType.Cosmetic:
+				attachment = 'bip_head';
+				break;
+			default:
+				break;
+		}
+
+		this.#model?.attachSystem(effect.system, attachment, 0);// TODO: offset
+		effect.system.start();
+
+		return effect;
 	}
 }

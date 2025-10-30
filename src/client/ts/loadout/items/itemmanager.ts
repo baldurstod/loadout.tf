@@ -4,24 +4,25 @@ import { TF2_REPOSITORY } from '../../constants';
 import { Controller, ControllerEvent, ItemPinned, SetItemFilter } from '../../controller';
 import { Panel } from '../../enums';
 import { Character } from '../characters/character';
-import { EffectTemplate } from './effecttemplate';
+import { EffectTemplate, EffectType } from './effecttemplate';
 import { Item } from './item';
 import { ItemFilter, ItemFilterResult } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
 import { WeaponManager, WeaponManagerEvents } from 'harmony-3d-utils';
 import { setLegacyPaintKit } from 'harmony-tf2-utils';
+import { Map2 } from 'harmony-utils';
 
 export class ItemManager {
-	static #filters = new ItemFilter();
+	static readonly #filters = new ItemFilter();
 	static #currentCharacter: Character | null = null;
 	//static #characterClass: Tf2Class | null = null;
 	static #lang = 'english';
-	static #itemTemplates = new Map<string, ItemTemplate>();
+	static readonly #itemTemplates = new Map<string, ItemTemplate>();
 	static #loadItemsPromise?: Promise<void>;
 	static #loadMedalsPromise?: Promise<void>;
-	static #systemList = new Map<string, EffectTemplate>();
-	static #itemCollections = new Set<string>();
-	static #equipRegions = new Set<string>();
+	static readonly #systemList = new Map2<EffectType, string, EffectTemplate>();
+	static readonly #itemCollections = new Set<string>();
+	static readonly #equipRegions = new Set<string>();
 	static #sortingDirection = 1;
 
 	static {
@@ -54,7 +55,7 @@ export class ItemManager {
 		//Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
 
 		Controller.addEventListener(ControllerEvent.ShowPanel, (event: Event) => {
-			if ((event as CustomEvent<Panel>).detail == Panel.Items) {
+			if ((event as CustomEvent<Panel>).detail == Panel.Items || (event as CustomEvent<Panel>).detail == Panel.Effects) {
 				this.#initItems();
 			}
 		});
@@ -135,6 +136,7 @@ export class ItemManager {
 							this.#initEffects(json.systems);
 							console.info(this.#itemTemplates);
 							Controller.dispatchEvent<void>(ControllerEvent.ItemsLoaded);
+							Controller.dispatchEvent<void>(ControllerEvent.SystemsLoaded);
 							resolve();
 						}
 					})
@@ -231,6 +233,16 @@ export class ItemManager {
 	}
 
 	static #initEffects(systemList: JSONObject): void {
+		for (const effectType in systemList) {
+			const group = systemList[effectType] as JSONObject;
+			for (const effectIndex in group) {
+				this.#systemList.set(effectType as EffectType, effectIndex, new EffectTemplate(effectType as EffectType, group[effectIndex] as JSONObject));
+			}
+		}
+	}
+
+	static getEffects(type: EffectType): Map<string, EffectTemplate> {
+		return new Map<string, EffectTemplate>(this.#systemList.getSubMap(type));
 	}
 
 	static #pinItem(item: ItemTemplate, isPinned: boolean): void {

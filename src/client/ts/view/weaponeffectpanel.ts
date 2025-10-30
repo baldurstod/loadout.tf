@@ -5,7 +5,6 @@ import { Panel } from '../enums';
 import { Item } from '../loadout/items/item';
 import { DynamicPanel } from './dynamicpanel';
 import { weaponEffects } from '../loadout/effects/effect';
-export { ItemManagerItem } from './itemmanageritem';
 
 export class WeaponEffectPanel extends DynamicPanel {
 	#htmlEffects?: HTMLElement;

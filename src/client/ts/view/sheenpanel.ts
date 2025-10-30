@@ -11,7 +11,6 @@ import { Item } from '../loadout/items/item';
 import { getSheen, Sheen, SheenDefinition, sheenList } from '../paints/sheens';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
-export { ItemManagerItem } from './itemmanageritem';
 
 export class SheenPanel extends DynamicPanel {
 	#htmlSheensDivSheens?: HTMLElement;
