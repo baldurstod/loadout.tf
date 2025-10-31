@@ -242,7 +242,7 @@ export class ItemTemplate {
 		return Number(this.#definition.taunt_success_sound_loop_offset as string) /*TODO: improve type*/;;
 	}
 
-	get materialOverride(): string {
+	getMaterialOverride(): string {
 		return this.#definition.material_override as string/*TODO: improve type*/;
 	}
 

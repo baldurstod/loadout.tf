@@ -125,7 +125,15 @@ export class Item {
 				this.#setMaterialOverride(materialName);
 			} else {
 				this.#setMaterialOverride();
-				await this.#model.setSkin(String(skin));
+
+				this.#setMaterialOverride();
+
+				const materialOverride = this.#itemTemplate.getMaterialOverride();
+				if (materialOverride) {
+					this.#setMaterialOverride(materialOverride);
+				} else {
+					await this.#model.setSkin(String(skin));
+				}
 
 				if (this.#paintKitId !== null) {
 					WeaponManager.refreshPaint(this);
