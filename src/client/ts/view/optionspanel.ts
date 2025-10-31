@@ -98,7 +98,11 @@ export class OptionsPanel extends DynamicPanel {
 				createElement('button', { 'i18n': '#browser_theme', value: '' }),
 				createElement('button', { 'i18n': '#dark_theme', value: 'dark' }),
 			],
-			$change: (event: CustomEvent) => OptionsManager.setItem('app.css.theme', (event).detail.value),
+			$change: (event: CustomEvent) => {
+				if ((event).detail.value) {
+					OptionsManager.setItem('app.css.theme', (event).detail.value);
+				}
+			},
 		}) as HTMLHarmonyRadioElement;
 
 		createElement('harmony-switch', {

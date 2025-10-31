@@ -1,5 +1,5 @@
 import { OptionsManagerEvents } from 'harmony-browser-utils';
-import { createElement, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show } from 'harmony-ui';
+import { createElement, defineHarmonyRadio, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show } from 'harmony-ui';
 import effectsCSS from '../../css/effects.css';
 import effectsPanelCSS from '../../css/effectspanel.css';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
@@ -53,9 +53,11 @@ export class EffectsPanel extends DynamicPanel {
 	protected override initHTML(): void {
 		defineHarmonyTab();
 		defineHarmonyTabGroup();
+		defineHarmonyRadio();
 
 		const styleSheet = new CSSStyleSheet();
 		styleSheet.replaceSync('*{--show-offsets: 0;}');
+		let htmlDecapitations: HTMLHarmonyRadioElement;
 
 		createElement('harmony-tab-group', {
 			parent: this.getShadowRoot(),
@@ -77,14 +79,26 @@ export class EffectsPanel extends DynamicPanel {
 					childs: [
 						//this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
 						this.#htmlKillstreakColors = createElement('div', { class: 'killstreak-colors' }),
-						createElement('harmony-switch', {
-							'data-i18n': '#killstreak_tier2',
-							class: 'tier-selector',
-							$change: (event: CustomEvent<HarmonySwitchChange>) => {
-								this.#killstreakHighGlow = event.detail.state as boolean;
-								this.#updateKillstreak();
-							},
-							state: true,
+						createElement('div', {
+							childs: [
+								createElement('harmony-switch', {
+									'data-i18n': '#killstreak_tier2',
+									class: 'tier-selector',
+									$change: (event: CustomEvent<HarmonySwitchChange>) => {
+										this.#killstreakHighGlow = event.detail.state as boolean;
+										this.#updateKillstreak();
+									},
+									state: true,
+								}),
+								htmlDecapitations = createElement('harmony-radio', {
+									class: 'decapitation',
+									$change: (event: CustomEvent) => {
+										if ((event as CustomEvent).detail.state) {
+											Controller.dispatchEvent<number>(ControllerEvent.SetDecapitationLevel, { detail: Number((event).detail.value) });
+										}
+									},
+								}) as HTMLHarmonyRadioElement,
+							],
 						}),
 						this.#htmlKillstreakList = createElement('div', { class: 'effects-list' }),
 					],
@@ -114,6 +128,25 @@ export class EffectsPanel extends DynamicPanel {
 				styleSheet.replaceSync(`*{--show-offsets: ${event.detail.state ? 1 : 0};}`);
 			},
 		});
+
+		for (let i = 0; i < 5; ++i) {
+			createElement('button', {
+				class: 'eye-glow-level',
+				parent: htmlDecapitations,
+				i18n: {
+					innerText: '#decapitation_level',
+					values: {
+						level: i,
+					},
+				},
+				value: i,
+
+				events: {
+					//click: () => setKillstreakEffect(this.#currentCharacter, undefined, 'eye_powerup_green_lvl_' + i, undefined, true),
+					//this.validate(event.target.getAttribute('data-paint-name'))
+				}
+			});
+		}
 
 		this.#initKillstreakColors();
 	}

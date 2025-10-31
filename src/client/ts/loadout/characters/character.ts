@@ -14,6 +14,11 @@ import { FlyingBird } from './flyingbird';
 
 const eyeAttachments = ['eyeglow_R', 'eyeglow_L'];
 
+const enum Eye {
+	Right = 0,
+	Left = 1,
+}
+
 export class Character {
 	readonly characterClass: Tf2Class;
 	readonly name: string;
@@ -24,6 +29,7 @@ export class Character {
 	#tauntEffect: Effect | null = null;
 	// [right, left]
 	#killstreakEffects: [Effect | null, Effect | null] = [null, null];
+	#decapitationEffects: [Effect | null, Effect | null] = [null, null];
 	#team = Team.Red;
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
@@ -484,6 +490,13 @@ export class Character {
 			}
 		}
 
+		for (const effect of this.#decapitationEffects) {
+			// TODO: parallelize
+			if (effect) {
+				await this.#setEffectTeam(effect);
+			}
+		}
+
 		if (this.#tauntEffect) {
 			await this.#setEffectTeam(this.#tauntEffect);
 		}
@@ -510,16 +523,20 @@ export class Character {
 	}
 
 	async setKillsteakEffect(template: EffectTemplate | null, color: KillstreakColor): Promise<[Effect | null, Effect | null]> {
+		return this.#setKillsteakEffect(this.#killstreakEffects, template, Eye.Right, color);
+	}
+
+	async #setKillsteakEffect(array: [Effect | null, Effect | null], template: EffectTemplate | null, demoEye: Eye, color?: KillstreakColor): Promise<[Effect | null, Effect | null]> {
 		for (let i = 0; i < 2; i++) {
-			const effect = this.#killstreakEffects[i]!;
+			const effect = array[i]!;
 			if (effect) {
 				effect.system?.stop();
 				effect.system?.remove();
 			}
-			this.#killstreakEffects[i] = null;
+			array[i] = null;
 
 			// No left eye for demoman
-			if (i == 1 && (this.characterClass == Tf2Class.Demoman || this.characterClass == Tf2Class.DemomanBot)) {
+			if ((i as Eye) != demoEye && (this.characterClass == Tf2Class.Demoman || this.characterClass == Tf2Class.DemomanBot)) {
 				continue;
 			}
 
@@ -529,25 +546,24 @@ export class Character {
 				await this.#createEffect(effect, undefined, eyeAttachments[i]);
 
 				const sys = effect?.system;
-				if (sys) {
+				if (sys && color) {
 					const killstreakColor = getKillstreak(color)?.getKillstreakColor1(this.#team);
 					if (killstreakColor) {
 						sys.getControlPoint(9)!.setPosition(killstreakColor);
 					}
 				}
-				this.#killstreakEffects[i] = effect;
+				array[i] = effect;
 			}
 		}
 
 		// Check team color
 		this.#setEffectsTeam();
 
-		return this.#killstreakEffects;
+		return array;
 	}
 
 	async #updateKillsteakEffectsTeam(): Promise<void> {
-		// The first effect is always defined
-		const effect = this.#killstreakEffects[0];
+		const effect = this.#killstreakEffects[0] ?? this.#killstreakEffects[1];
 		if (effect) {
 			const killstreakColor = effect.killstreakColor!;
 			const killstreak = killstreakList.get(killstreakColor);
@@ -559,8 +575,15 @@ export class Character {
 		}
 	}
 
-	async setTauntEffect(template: EffectTemplate | null): Promise<Effect | null> {
+	async setDecapitationLevel(level: number): Promise<[Effect | null, Effect | null]> {
+		let template: EffectTemplate | null = null;
+		if (level > 0) {
+			template = new EffectTemplate(EffectType.Killstreak, 20000, { "name": "Eye glow", "system": "eye_powerup_green_lvl_" + level, });
+		}
+		return this.#setKillsteakEffect(this.#decapitationEffects, template, Eye.Left);
+	}
 
+	async setTauntEffect(template: EffectTemplate | null): Promise<Effect | null> {
 		if (this.#tauntEffect) {
 			this.#tauntEffect.system?.stop();
 			this.#tauntEffect.system?.remove();

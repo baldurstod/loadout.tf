@@ -40,6 +40,7 @@ export enum ControllerEvent {
 	EffectClicked = 'effectclicked',
 	KillstreakClicked = 'killstreakclicked',
 	TauntEffectClicked = 'taunteffectclicked',
+	SetDecapitationLevel = 'setdecapitationlevel',
 	FiltersUpdated = 'filtersupdated',
 	ItemAdded = 'itemadded',
 	ItemRemoved = 'itemremoved',
