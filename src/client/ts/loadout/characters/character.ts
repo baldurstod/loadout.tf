@@ -2,14 +2,17 @@ import { vec3 } from 'gl-matrix';
 import { ChoreographiesManager, ChoreographyEventType, RandomFloat, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
 import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
+import { getKillstreak, KillstreakColor, killstreakList } from '../../paints/killstreaks';
 import { Effect } from '../effects/effect';
+import { EffectTemplate, EffectType } from '../effects/effecttemplate';
 import { Team } from '../enums';
 import { Item } from '../items/item';
 import { ItemTemplate } from '../items/itemtemplate';
 import { addTF2Model } from '../scene';
 import { CharactersList, ClassRemovablePartsOff, Tf2Class } from './characters';
 import { FlyingBird } from './flyingbird';
-import { EffectTemplate, EffectType } from '../effects/effecttemplate';
+
+const eyeAttachments = ['eyeglow_R', 'eyeglow_L'];
 
 export class Character {
 	readonly characterClass: Tf2Class;
@@ -19,7 +22,8 @@ export class Character {
 	#model: Source1ModelInstance | null = null;
 	readonly effects = new Set<Effect>();
 	#tauntEffect: Effect | null = null;
-	#killstreakEffect: Effect | null = null;
+	// [right, left]
+	#killstreakEffects: [Effect | null, Effect | null] = [null, null];
 	#team = Team.Red;
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
@@ -80,6 +84,7 @@ export class Character {
 		}
 		await this.#refreshSkin();
 		await this.#setEffectsTeam();
+		await this.#updateKillsteakEffectsTeam();
 
 		await this.#ready;
 		if (this.#model) {
@@ -439,7 +444,7 @@ export class Character {
 		return effect;
 	}
 
-	async #createEffect(effect: Effect, systemName?: string): Promise<void> {
+	async #createEffect(effect: Effect, systemName?: string, eyeAttachment?: string): Promise<void> {
 		effect.system = await Source1ParticleControler.createSystem('tf2', systemName ?? effect.template.getSystem());
 		effect.system.name = effect.template.getName();
 
@@ -448,6 +453,9 @@ export class Character {
 		switch (effect.template.type) {
 			case EffectType.Cosmetic:
 				attachment = 'bip_head';
+				break;
+			case EffectType.Killstreak:
+				attachment = eyeAttachment ?? '';
 				break;
 			default:
 				break;
@@ -464,6 +472,20 @@ export class Character {
 	}
 
 	async #setEffectsTeam(): Promise<void> {
+		for (const effect of this.effects) {
+			// TODO: parallelize
+			await this.#setEffectTeam(effect);
+		}
+
+		for (const effect of this.#killstreakEffects) {
+			// TODO: parallelize
+			if (effect) {
+				await this.#setEffectTeam(effect);
+			}
+		}
+	}
+
+	async #setEffectTeam(effect: Effect): Promise<void> {
 		let from: string;
 		let to: string;
 		if (this.#team == Team.Red) {
@@ -474,13 +496,61 @@ export class Character {
 			from = EFFECTS_RED;
 		}
 
-		for (const effect of this.effects) {
-			const oldName = effect.system?.system ?? '';
-			if (oldName.includes(from)) {
-				const newName = oldName.replace(from, to);
+		const oldName = effect.system?.system ?? '';
+		if (oldName.includes(from)) {
+			const newName = oldName.replace(from, to);
+			effect.system?.stop();
+			effect.system?.remove();
+			await this.#createEffect(effect, newName);
+		}
+	}
+
+	async setKillsteakEffect(template: EffectTemplate | null, color: KillstreakColor): Promise<[Effect | null, Effect | null]> {
+		for (let i = 0; i < 2; i++) {
+			const effect = this.#killstreakEffects[i]!;
+			if (effect) {
 				effect.system?.stop();
 				effect.system?.remove();
-				await this.#createEffect(effect, newName);
+			}
+			this.#killstreakEffects[i] = null;
+
+			// No left eye for demoman
+			if (i == 1 && (this.characterClass == Tf2Class.Demoman || this.characterClass == Tf2Class.DemomanBot)) {
+				continue;
+			}
+
+			if (template) {
+				const effect = new Effect(template);
+				effect.killstreakColor = color;
+				await this.#createEffect(effect, undefined, eyeAttachments[i]);
+
+				const sys = effect?.system;
+				if (sys) {
+					const killstreakColor = getKillstreak(color)?.getKillstreakColor1(this.#team);
+					if (killstreakColor) {
+						sys.getControlPoint(9)!.setPosition(killstreakColor);
+					}
+				}
+				this.#killstreakEffects[i] = effect;
+			}
+		}
+
+		// Check team color
+		this.#setEffectsTeam();
+
+		return this.#killstreakEffects;
+	}
+
+	async #updateKillsteakEffectsTeam(): Promise<void> {
+		// The first effect is always defined
+		const effect = this.#killstreakEffects[0];
+		if (effect) {
+			const killstreakColor = effect.killstreakColor!;
+			const killstreak = killstreakList.get(killstreakColor);
+
+			// Only update if the effects is team colored
+			if (killstreak?.teamColored) {
+				await this.setKillsteakEffect(effect.template, effect.killstreakColor!);
 			}
 		}
 	}

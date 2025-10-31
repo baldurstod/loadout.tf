@@ -1,15 +1,21 @@
+import { OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show } from 'harmony-ui';
-import effectTemplateCSS from '../../css/effects.css';
-import effectsCSS from '../../css/effectspanel.css';
-import { Controller, ControllerEvent } from '../controller';
+import effectsCSS from '../../css/effects.css';
+import effectsPanelCSS from '../../css/effectspanel.css';
+import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { Effect } from '../loadout/effects/effect';
 import { EffectTemplate, EffectType } from '../loadout/effects/effecttemplate';
+import { Team } from '../loadout/enums';
 import { ItemManager } from '../loadout/items/itemmanager';
+import { KillstreakColor, KillstreakDefinition, killstreakList } from '../paints/killstreaks';
+import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 import { UnusualEffectElement } from './elements/unusualeffect';
 export { UnusualEffectElement } from './elements/unusualeffect';
+
+const KILLSTREAK_HIGH_GLOW = 20000;
 
 export class EffectsPanel extends DynamicPanel {
 	#htmlEffectsTab?: HTMLHarmonyTabElement;
@@ -17,18 +23,25 @@ export class EffectsPanel extends DynamicPanel {
 	#htmlTauntTab?: HTMLHarmonyTabElement;
 	#htmlActiveEffects?: HTMLElement;
 	#htmlEffectsList?: HTMLElement;
+	#htmlKillstreakColors?: HTMLElement;
 	#htmlKillstreakList?: HTMLElement;
 	#htmlTauntList?: HTMLElement;
 	#htmlEffects = new Map<string, UnusualEffectElement>();
+	#htmlKillstreakEffects = new Map<string, UnusualEffectElement>();
+	#killstreakColor = KillstreakColor.TeamShine;
+	#killstreakEffect: EffectTemplate | null = null;
 
 	constructor() {
-		super(Panel.Effects, [effectsCSS]);
+		super(Panel.Effects, [effectsPanelCSS]);
 		hide(this.getShadowRoot());
 		this.#initListeners();
 	}
 
 	#initListeners(): void {
-		Controller.addEventListener(ControllerEvent.SystemsLoaded, () => this.#refreshUnusualEffects());
+		Controller.addEventListener(ControllerEvent.SystemsLoaded, () => {
+			this.#refreshUnusualEffects();
+			this.#refreshKillstreakEffects();
+		});
 		Controller.addEventListener(ControllerEvent.EffectAdded, () => this.#refreshActiveList());
 		Controller.addEventListener(ControllerEvent.EffectRemoved, () => this.#refreshActiveList());
 		Controller.addEventListener(ControllerEvent.CharacterChanged, () => this.#refreshActiveList());
@@ -43,7 +56,7 @@ export class EffectsPanel extends DynamicPanel {
 
 		createElement('harmony-tab-group', {
 			parent: this.getShadowRoot(),
-			adoptStyle: effectTemplateCSS,
+			adoptStyle: effectsCSS,
 			adoptStyleSheet: styleSheet,
 			childs: [
 				this.#htmlEffectsTab = createElement('harmony-tab', {
@@ -58,6 +71,11 @@ export class EffectsPanel extends DynamicPanel {
 				this.#htmlKillstreakTab = createElement('harmony-tab', {
 					'data-i18n': '#killstreak_effects',
 					parent: this.getShadowRoot(),
+					childs: [
+						//this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
+						this.#htmlKillstreakColors = createElement('div', { class: 'killstreak-colors' }),
+						this.#htmlKillstreakList = createElement('div', { class: 'killstreak-list' }),
+					],
 				}) as HTMLHarmonyTabElement,
 				this.#htmlTauntTab = createElement('harmony-tab', {
 					'data-i18n': '#taunt_effects',
@@ -75,6 +93,8 @@ export class EffectsPanel extends DynamicPanel {
 				styleSheet.replaceSync(`*{--show-offsets: ${event.detail.state ? 1 : 0};}`);
 			},
 		});
+
+		this.#initKillstreakColors();
 	}
 
 	#refreshUnusualEffects(): void {
@@ -159,5 +179,85 @@ export class EffectsPanel extends DynamicPanel {
 			position[axis] = offset;
 			cp.setPosition(position);
 		}
+	}
+
+	#refreshKillstreakEffects(): void {
+		// Ensure html is initialized
+		this.getHTMLElement();
+
+		for (const [, htmlItem] of this.#htmlKillstreakEffects) {
+			hide(htmlItem);
+		}
+
+		for (const [id, template] of ItemManager.getEffects(EffectType.Killstreak)) {
+			const idN = Number(id);
+
+			if (idN == 2001 || idN > KILLSTREAK_HIGH_GLOW) {
+				continue;
+			}
+
+			let htmlEffect = this.#htmlKillstreakEffects.get(id);
+			if (htmlEffect) {
+				this.#htmlKillstreakList?.append(htmlEffect);
+				show(htmlEffect);
+			} else {
+				htmlEffect = createElement('unusual-effect', {
+					parent: this.#htmlKillstreakList,
+					$click: () => {
+						//Controller.dispatchEvent<KillstreakClicked>(ControllerEvent.KillstreakClicked, { detail: { effect: template, color: this.#killstreakColor } });
+						this.#killstreakEffect = template;
+						this.#updateKillstreak();
+					}
+				}) as UnusualEffectElement;
+
+				htmlEffect.setEffectTemplate(template);
+
+				this.#htmlKillstreakEffects.set(id, htmlEffect);
+			}
+		}
+	}
+
+	#initKillstreakColors(): void {
+		for (const [killstreakColor, killstreakValue] of killstreakList) {
+			if (killstreakColor != KillstreakColor.None) {
+				this.#createKillstreakColor(killstreakColor, killstreakValue);
+			}
+		}
+	}
+
+	#createKillstreakColor(color: KillstreakColor, killstreak: KillstreakDefinition): void {
+		const killstreakOption = createElement('div', {
+			class: 'killstreak',
+			$click: () => {
+				this.#killstreakColor = color;
+				this.#updateKillstreak();
+			},
+		});
+		killstreakOption.style.backgroundColor = colorToCss(killstreak.color1Red);
+		OptionsManagerEvents.addEventListener('app.loadout.team', event => {
+			if ((event as CustomEvent).detail.value == Team.Red) {
+				killstreakOption.style.backgroundColor = colorToCss(killstreak.color1Red);
+			} else {
+				killstreakOption.style.backgroundColor = colorToCss(killstreak.color1Blu);
+			}
+		});
+
+		Controller.addEventListener(ControllerEvent.CharacterChanged, () => {
+			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? Team.Red;
+			if (team == Team.Red) {
+				killstreakOption.style.backgroundColor = colorToCss(killstreak.color1Red);
+			} else {
+				killstreakOption.style.backgroundColor = colorToCss(killstreak.color1Blu);
+			}
+		});
+
+		//killstreakOption.innerText = ' ';
+		this.#htmlKillstreakColors!.appendChild(killstreakOption);
+		//killstreakOption.addEventListener('click', event => { this.#validate(sheen); event.stopPropagation(); })
+		//killstreakOption.addEventListener('mouseover', event => { this.#validate2(sheen); this.#htmlSheenTitle!.innerText = sheen.name; event.stopPropagation(); });
+	}
+
+	#updateKillstreak(): void {
+		Controller.dispatchEvent<KillstreakClicked>(ControllerEvent.KillstreakClicked, { detail: { effect: this.#killstreakEffect, color: this.#killstreakColor } });
 	}
 }

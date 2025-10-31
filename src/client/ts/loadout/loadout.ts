@@ -1,6 +1,7 @@
 import { Source1ModelInstance } from 'harmony-3d';
 import { TF2_CASUAL_BADGE } from '../constants';
-import { Controller, ControllerEvent } from '../controller';
+import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
+import { KillstreakColor } from '../paints/killstreaks';
 import { CharacterManager } from './characters/charactermanager';
 import { Effect } from './effects/effect';
 import { EffectTemplate } from './effects/effecttemplate';
@@ -19,6 +20,7 @@ export class Loadout {
 	static #initListeners(): void {
 		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail) });
 		Controller.addEventListener(ControllerEvent.EffectClicked, (event: Event) => { this.#handleEffectClicked((event as CustomEvent<EffectTemplate>).detail) });
+		Controller.addEventListener(ControllerEvent.KillstreakClicked, (event: Event) => { this.#handleKillstreakClicked((event as CustomEvent<KillstreakClicked>).detail.effect, (event as CustomEvent<KillstreakClicked>).detail.color) });
 		Controller.addEventListener(ControllerEvent.RemoveEffect, (event: Event) => this.#handleRemoveEffect((event as CustomEvent<Effect>).detail),);
 	}
 
@@ -119,6 +121,20 @@ export class Loadout {
 		if (currentCharacter) {
 			currentCharacter?.removeEffect(effect);
 			Controller.dispatchEvent<Effect>(ControllerEvent.EffectRemoved, { detail: effect });
+		}
+	}
+
+	static async #handleKillstreakClicked(effect: EffectTemplate | null, color: KillstreakColor): Promise<void> {
+		const currentCharacter = CharacterManager.getCurrentCharacter();
+
+		if (currentCharacter) {
+			const addedEffects = await currentCharacter?.setKillsteakEffect(effect, color);
+
+			for (const addedEffect of addedEffects) {
+				if (addedEffect) {
+					Controller.dispatchEvent<Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
+				}
+			}
 		}
 	}
 }

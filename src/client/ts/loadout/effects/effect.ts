@@ -1,6 +1,7 @@
 import { vec3 } from 'gl-matrix';
 import { Source1ParticleSystem } from 'harmony-3d';
 import { EffectTemplate, EffectType } from './effecttemplate';
+import { KillstreakColor } from '../../paints/killstreaks';
 
 
 export const weaponEffects = new Map<number, [string, string]>([
@@ -16,6 +17,7 @@ export class Effect {
 	system: Source1ParticleSystem | null = null;
 	attachment?: string;
 	offset = vec3.create();
+	killstreakColor?: KillstreakColor
 
 	constructor(template: EffectTemplate) {
 		this.template = template;

@@ -1,5 +1,7 @@
 import { BackgroundType } from "./enums";
+import { EffectTemplate } from "./loadout/effects/effecttemplate";
 import { ItemTemplate } from "./loadout/items/itemtemplate";
+import { KillstreakColor } from "./paints/killstreaks";
 
 export enum ControllerEvent {
 	UseBots = 'usebots',
@@ -36,6 +38,7 @@ export enum ControllerEvent {
 	ItemPinned = 'itempinned',
 	ItemClicked = 'itemclicked',
 	EffectClicked = 'effectclicked',
+	KillstreakClicked = 'killstreakclicked',
 	FiltersUpdated = 'filtersupdated',
 	ItemAdded = 'itemadded',
 	ItemRemoved = 'itemremoved',
@@ -95,6 +98,11 @@ export type ItemPinned = {
 export type SetInvulnerable = {
 	invulnerable: boolean;
 	applyToAll: boolean;
+}
+
+export type KillstreakClicked = {
+	effect: EffectTemplate | null;
+	color: KillstreakColor;
 }
 
 export class Controller {

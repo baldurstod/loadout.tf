@@ -8,14 +8,14 @@ import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { Team } from '../loadout/enums';
 import { Item } from '../loadout/items/item';
-import { getSheen, Sheen, SheenDefinition, sheenList } from '../paints/sheens';
+import { getKillstreak, Killstreak, KillstreakDefinition, killstreakList } from '../paints/killstreaks';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 
 export class SheenPanel extends DynamicPanel {
 	#htmlSheensDivSheens?: HTMLElement;
 	#currentItem?: Item;
-	#currentSheen: Sheen | null = null;
+	#currentSheen: Killstreak | null = null;
 	#htmlItemIcon?: HTMLElement;
 	#htmlSheenTitle?: HTMLElement;
 
@@ -27,7 +27,7 @@ export class SheenPanel extends DynamicPanel {
 	protected override initHTML(): void {
 		this.#createSheensView();
 
-		for (const [, sheenValue] of sheenList) {
+		for (const [, sheenValue] of killstreakList) {
 			this.#createSheenView(sheenValue);
 		}
 	}
@@ -69,23 +69,23 @@ export class SheenPanel extends DynamicPanel {
 		//this.hide();
 	}
 
-	#createSheenView(sheen: SheenDefinition): void {
+	#createSheenView(sheen: KillstreakDefinition): void {
 		const sheenOption = createElement('div', { class: 'sheen' });
-		sheenOption.style.backgroundColor = colorToCss(sheen.tintRed);
+		sheenOption.style.backgroundColor = colorToCss(sheen.sheenRed);
 		OptionsManagerEvents.addEventListener('app.loadout.team', event => {
 			if ((event as CustomEvent).detail.value == Team.Red) {
-				sheenOption.style.backgroundColor = colorToCss(sheen.tintRed);
+				sheenOption.style.backgroundColor = colorToCss(sheen.sheenRed);
 			} else {
-				sheenOption.style.backgroundColor = colorToCss(sheen.tintBlu);
+				sheenOption.style.backgroundColor = colorToCss(sheen.sheenBlu);
 			}
 		});
 
 		Controller.addEventListener(ControllerEvent.CharacterChanged, () => {
 			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? Team.Red;
 			if (team == Team.Red) {
-				sheenOption.style.backgroundColor = colorToCss(sheen.tintRed);
+				sheenOption.style.backgroundColor = colorToCss(sheen.sheenRed);
 			} else {
-				sheenOption.style.backgroundColor = colorToCss(sheen.tintBlu);
+				sheenOption.style.backgroundColor = colorToCss(sheen.sheenBlu);
 			}
 		});
 
@@ -95,13 +95,13 @@ export class SheenPanel extends DynamicPanel {
 		sheenOption.addEventListener('mouseover', event => { this.#validate2(sheen); this.#htmlSheenTitle!.innerText = sheen.name; event.stopPropagation(); });
 	}
 
-	#validate(def: SheenDefinition): void {
+	#validate(def: KillstreakDefinition): void {
 		this.#validate2(def);
 		this.hide();
 	}
 
-	#validate2(def: SheenDefinition): void {
-		this.#currentItem?.setSheen(getSheen(def.sheen));
+	#validate2(def: KillstreakDefinition): void {
+		this.#currentItem?.setSheen(getKillstreak(def.sheen));
 	}
 
 	#cancel(): void {

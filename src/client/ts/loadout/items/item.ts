@@ -3,7 +3,7 @@ import { Material, Source1MaterialManager, Source1ModelInstance, Source1Particle
 import { WeaponManager } from 'harmony-3d-utils';
 import { MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
 import { Paint } from '../../paints/paints';
-import { Sheen } from '../../paints/sheens';
+import { Killstreak } from '../../paints/killstreaks';
 import { colorToVec3 } from '../../utils/colors';
 import { randomProperty } from '../../utils/randomproperty';
 import { Character } from '../characters/character';
@@ -33,7 +33,7 @@ export class Item {
 	#weaponEffectSystem?: Source1ParticleSystem | null;
 	#loaded = false;
 	#paint: Paint | null = null;
-	#sheen: Sheen | null = null;
+	#sheen: Killstreak | null = null;
 	#weaponEffectId: number | null = null;
 	#paintKitWear = 0;
 	#paintKitId: number | null = null;
@@ -365,7 +365,7 @@ export class Item {
 		void this.#stattrakModule?.setMaterialOverride(material);
 	}
 
-	setSheen(sheen: Sheen | null): void {
+	setSheen(sheen: Killstreak | null): void {
 		this.#sheen = sheen;
 		if (this.#model) {
 			if (sheen == null) {
@@ -378,7 +378,7 @@ export class Item {
 		}
 	}
 
-	getSheen(): Sheen | null {
+	getSheen(): Killstreak | null {
 		return this.#sheen;
 	}
 
@@ -386,7 +386,7 @@ export class Item {
 		await this.#ready;
 		const sheen = this.#sheen;
 		if (sheen && this.#model) {
-			this.#model.sheen = sheen.getTint(this.#team);
+			this.#model.sheen = sheen.getSheenColor(this.#team);
 		}
 	}
 

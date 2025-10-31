@@ -3,6 +3,7 @@
 	display: flex;
 	flex-direction: column;
 	position: relative;
+	min-width: 40rem;
 }
 
 .display-offsets {
