@@ -93,7 +93,7 @@ export class EffectsPanel extends DynamicPanel {
 								htmlDecapitations = createElement('harmony-radio', {
 									class: 'decapitation',
 									$change: (event: CustomEvent) => {
-										if ((event as CustomEvent).detail.state) {
+										if (event.detail.state) {
 											Controller.dispatchEvent<number>(ControllerEvent.SetDecapitationLevel, { detail: Number((event).detail.value) });
 										}
 									},

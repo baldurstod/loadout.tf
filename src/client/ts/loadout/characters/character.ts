@@ -169,6 +169,7 @@ export class Character {
 		item.loadModel(npc);
 		(await this.getModel())?.addChild(await item.getModel());
 		(await this.getModel())?.addChild(await item.getModelBlu());
+		(await this.getModel())?.addChild(await item.getModelExtraWearable());
 		await item.setTeam(this.#team);
 
 		if (item.isTaunt()) {

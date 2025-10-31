@@ -142,11 +142,12 @@ export class ItemTemplate {
 		return this.#definition.use_per_class_bodygroups as string;
 	}
 
-	get extraWearable(): string {
+	getExtraWearable(): string {
 		return this.#definition.extra_wearable as string/*TODO: improve type*/;
 	}
 
-	get attachedModels(): string {
+	getAttachedModels(): string {
+		// TODO: turn into string[] for Festive Flamethrower 2011
 		return this.#definition.attached_models as string/*TODO: improve type*/;
 	}
 

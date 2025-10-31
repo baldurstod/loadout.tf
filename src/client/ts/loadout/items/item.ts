@@ -2,8 +2,8 @@ import { vec3 } from 'gl-matrix';
 import { Material, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem } from 'harmony-3d';
 import { WeaponManager } from 'harmony-3d-utils';
 import { MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
-import { Paint } from '../../paints/paints';
 import { Killstreak } from '../../paints/killstreaks';
+import { Paint } from '../../paints/paints';
 import { colorToVec3 } from '../../utils/colors';
 import { randomProperty } from '../../utils/randomproperty';
 import { Character } from '../characters/character';
@@ -19,7 +19,7 @@ export class Item {
 	#character?: Character;
 	#model: Source1ModelInstance | null = null;
 	#modelBlu: Source1ModelInstance | null = null;
-	#extraWearable?: Source1ModelInstance | null;
+	#modelExtraWearable: Source1ModelInstance | null = null;
 	#attachedModels: Source1ModelInstance[] = [];
 	#festivizerModel?: Source1ModelInstance | null;
 	#stattrakModule?: Source1ModelInstance | null;
@@ -205,8 +205,7 @@ export class Item {
 		}
 		*/
 
-		const extraWearable = this.#extraWearable
-		await extraWearable?.setSkin(String(skin));
+		await this.#modelExtraWearable?.setSkin(String(skin));
 		for (const extraModel of this.#attachedModels) {
 			await extraModel.setSkin(String(skin));
 		}
@@ -273,6 +272,24 @@ export class Item {
 			this.#modelBlu?.setVisible(false);
 		}
 
+		const attachedModels = this.#itemTemplate.getAttachedModels();
+		if (attachedModels) {
+			const attachedModel = attachedModels;
+			//for (const attachedModel of attachedModels)
+			{
+				const extraModel = await addTF2Model(attachedModel, this.getRepository()/*, this.name + ' attached'*/);
+				if (extraModel) {
+					this.#model?.addChild(extraModel);
+					this.#attachedModels.push(extraModel);
+				}
+			}
+		}
+
+		const pathExtraWearable = this.#itemTemplate.getExtraWearable();
+		if (pathExtraWearable) {
+			this.#modelExtraWearable = await addTF2Model(pathExtraWearable, this.getRepository());
+		}
+
 		if (this.#model) {
 			this.#readyPromiseResolve(true);
 			//this.#model.setFlexes();
@@ -307,10 +324,19 @@ export class Item {
 		return this.#modelBlu;
 	}
 
+	async getModelExtraWearable(): Promise<Source1ModelInstance | null> {
+		await this.#ready;
+		return this.#modelExtraWearable;
+	}
+
 	async remove(): Promise<void> {
 		await this.#ready;
 		this.#model?.remove();
 		this.#modelBlu?.remove();
+		this.#modelExtraWearable?.remove();
+		for (const extraModel of this.#attachedModels) {
+			extraModel.remove();
+		}
 	}
 
 	isConflicting(other: Item): boolean {
@@ -368,7 +394,7 @@ export class Item {
 		void this.#model?.setMaterialOverride(material);
 		void this.#modelBlu?.setMaterialOverride(material);
 
-		void this.#extraWearable?.setMaterialOverride(material);
+		void this.#modelExtraWearable?.setMaterialOverride(material);
 		for (const extraModel of this.#attachedModels) {
 			void extraModel.setMaterialOverride(material);
 		}
