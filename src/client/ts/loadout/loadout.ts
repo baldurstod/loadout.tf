@@ -21,6 +21,7 @@ export class Loadout {
 		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail) });
 		Controller.addEventListener(ControllerEvent.EffectClicked, (event: Event) => { this.#handleEffectClicked((event as CustomEvent<EffectTemplate>).detail) });
 		Controller.addEventListener(ControllerEvent.KillstreakClicked, (event: Event) => { this.#handleKillstreakClicked((event as CustomEvent<KillstreakClicked>).detail.effect, (event as CustomEvent<KillstreakClicked>).detail.color) });
+		Controller.addEventListener(ControllerEvent.TauntEffectClicked, (event: Event) => { this.#handleTauntEffectClicked((event as CustomEvent<EffectTemplate | null>).detail) });
 		Controller.addEventListener(ControllerEvent.RemoveEffect, (event: Event) => this.#handleRemoveEffect((event as CustomEvent<Effect>).detail),);
 	}
 
@@ -134,6 +135,17 @@ export class Loadout {
 				if (addedEffect) {
 					Controller.dispatchEvent<Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
 				}
+			}
+		}
+	}
+
+	static async #handleTauntEffectClicked(template: EffectTemplate | null): Promise<void> {
+		const currentCharacter = CharacterManager.getCurrentCharacter();
+
+		if (currentCharacter) {
+			const addedEffect = await currentCharacter?.setTauntEffect(template);
+			if (addedEffect) {
+				Controller.dispatchEvent<Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
 			}
 		}
 	}

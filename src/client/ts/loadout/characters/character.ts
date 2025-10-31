@@ -483,6 +483,10 @@ export class Character {
 				await this.#setEffectTeam(effect);
 			}
 		}
+
+		if (this.#tauntEffect) {
+			await this.#setEffectTeam(this.#tauntEffect);
+		}
 	}
 
 	async #setEffectTeam(effect: Effect): Promise<void> {
@@ -553,5 +557,25 @@ export class Character {
 				await this.setKillsteakEffect(effect.template, effect.killstreakColor!);
 			}
 		}
+	}
+
+	async setTauntEffect(template: EffectTemplate | null): Promise<Effect | null> {
+
+		if (this.#tauntEffect) {
+			this.#tauntEffect.system?.stop();
+			this.#tauntEffect.system?.remove();
+		}
+
+		if (!template) {
+			return null;
+		}
+
+		const effect = new Effect(template);
+		this.#tauntEffect = effect;
+
+		await this.#createEffect(effect);
+		this.#setEffectsTeam();
+
+		return effect;
 	}
 }

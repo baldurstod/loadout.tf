@@ -39,6 +39,7 @@ export enum ControllerEvent {
 	ItemClicked = 'itemclicked',
 	EffectClicked = 'effectclicked',
 	KillstreakClicked = 'killstreakclicked',
+	TauntEffectClicked = 'taunteffectclicked',
 	FiltersUpdated = 'filtersupdated',
 	ItemAdded = 'itemadded',
 	ItemRemoved = 'itemremoved',

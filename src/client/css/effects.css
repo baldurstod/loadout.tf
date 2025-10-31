@@ -84,3 +84,17 @@ unusual-effect .name {
 	height: 6rem;
 	flex: 1;
 }
+
+.remove-taunt {
+	background-color: var(--main-bg-color-bright);
+	color: var(--main-text-color-dark2);
+	border-radius: 1px;
+	cursor: pointer;
+	padding: 0.25rem;
+	color: white;
+	pointer-events: all;
+	margin: 0.25rem;
+	font-size: 4rem;
+	text-align: center;
+	margin: 1rem;
+}

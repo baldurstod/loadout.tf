@@ -28,6 +28,7 @@ export class EffectsPanel extends DynamicPanel {
 	#htmlTauntList?: HTMLElement;
 	#htmlEffects = new Map<string, UnusualEffectElement>();
 	#htmlKillstreakEffects = new Map<string, UnusualEffectElement>();
+	#htmlTauntEffects = new Map<string, UnusualEffectElement>();
 	#killstreakColor = KillstreakColor.TeamShine;
 	#killstreakEffect: EffectTemplate | null = null;
 
@@ -41,6 +42,7 @@ export class EffectsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.SystemsLoaded, () => {
 			this.#refreshUnusualEffects();
 			this.#refreshKillstreakEffects();
+			this.#refreshTauntEffects();
 		});
 		Controller.addEventListener(ControllerEvent.EffectAdded, () => this.#refreshActiveList());
 		Controller.addEventListener(ControllerEvent.EffectRemoved, () => this.#refreshActiveList());
@@ -74,12 +76,21 @@ export class EffectsPanel extends DynamicPanel {
 					childs: [
 						//this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
 						this.#htmlKillstreakColors = createElement('div', { class: 'killstreak-colors' }),
-						this.#htmlKillstreakList = createElement('div', { class: 'killstreak-list' }),
+						this.#htmlKillstreakList = createElement('div', { class: 'effects-list' }),
 					],
 				}) as HTMLHarmonyTabElement,
 				this.#htmlTauntTab = createElement('harmony-tab', {
-					'data-i18n': '#taunt_effects',
 					parent: this.getShadowRoot(),
+					'data-i18n': '#taunt_effects',
+					childs: [
+						//this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
+						createElement('div', {
+							class: 'remove-taunt',
+							i18n: '#remove_taunt_effect',
+							$click: () => Controller.dispatchEvent<null>(ControllerEvent.TauntEffectClicked, { detail: null }),
+						}),
+						this.#htmlTauntList = createElement('div', { class: 'effects-list' }),
+					],
 				}) as HTMLHarmonyTabElement,
 			],
 		}) as HTMLHarmonyTabGroupElement;
@@ -259,5 +270,34 @@ export class EffectsPanel extends DynamicPanel {
 
 	#updateKillstreak(): void {
 		Controller.dispatchEvent<KillstreakClicked>(ControllerEvent.KillstreakClicked, { detail: { effect: this.#killstreakEffect, color: this.#killstreakColor } });
+	}
+
+
+	#refreshTauntEffects(): void {
+		// Ensure html is initialized
+		this.getHTMLElement();
+
+		for (const [, htmlItem] of this.#htmlTauntEffects) {
+			hide(htmlItem);
+		}
+
+		for (const [id, template] of ItemManager.getEffects(EffectType.Taunt)) {
+			let htmlEffect = this.#htmlTauntEffects.get(id);
+			if (htmlEffect) {
+				this.#htmlTauntList?.append(htmlEffect);
+				show(htmlEffect);
+			} else {
+				htmlEffect = createElement('unusual-effect', {
+					parent: this.#htmlTauntList,
+					$click: () => {
+						Controller.dispatchEvent<EffectTemplate | null>(ControllerEvent.TauntEffectClicked, { detail: template });
+					},
+				}) as UnusualEffectElement;
+
+				htmlEffect.setEffectTemplate(template);
+
+				this.#htmlTauntEffects.set(id, htmlEffect);
+			}
+		}
 	}
 }
