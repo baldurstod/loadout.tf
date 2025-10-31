@@ -9,12 +9,12 @@ export enum EffectType {
 	Other = 'other_particles',
 }
 export class EffectTemplate {
-	readonly id: string;
+	readonly id: number;
 	readonly type: EffectType;
 	//#type: EffectType;
 	#definition: JSONObject;
 
-	constructor(type: EffectType, id: string, definition: JSONObject) {
+	constructor(type: EffectType, id: number, definition: JSONObject) {
 		this.id = id;
 		this.type = type;
 		this.#definition = definition;

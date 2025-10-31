@@ -19,7 +19,7 @@ export class ItemManager {
 	//static #characterClass: Tf2Class | null = null;
 	static #lang = 'english';
 	static readonly #itemTemplates = new Map<string, ItemTemplate>();
-	static readonly #effectTemplates = new Map2<EffectType, string, EffectTemplate>();
+	static readonly #effectTemplates = new Map2<EffectType, number, EffectTemplate>();
 	static #loadItemsPromise?: Promise<void>;
 	static #loadMedalsPromise?: Promise<void>;
 	static readonly #itemCollections = new Set<string>();
@@ -80,7 +80,7 @@ export class ItemManager {
 		return this.#itemTemplates.get(id) ?? null;
 	}
 
-	static getEffectTemplate(type: EffectType, id: string): EffectTemplate | null {
+	static getEffectTemplate(type: EffectType, id: number): EffectTemplate | null {
 		return this.#effectTemplates.get(type, id) ?? null;
 	}
 
@@ -255,13 +255,14 @@ export class ItemManager {
 		for (const effectType in systemList) {
 			const group = systemList[effectType] as JSONObject;
 			for (const effectIndex in group) {
-				this.#effectTemplates.set(effectType as EffectType, effectIndex, new EffectTemplate(effectType as EffectType, effectIndex, group[effectIndex] as JSONObject));
+				const effectIndexN = Number(effectIndex);
+				this.#effectTemplates.set(effectType as EffectType, effectIndexN, new EffectTemplate(effectType as EffectType, effectIndexN, group[effectIndex] as JSONObject));
 			}
 		}
 	}
 
-	static getEffects(type: EffectType): Map<string, EffectTemplate> {
-		return new Map<string, EffectTemplate>(this.#effectTemplates.getSubMap(type));
+	static getEffects(type: EffectType): Map<number, EffectTemplate> {
+		return new Map<number, EffectTemplate>(this.#effectTemplates.getSubMap(type));
 	}
 
 	static #pinItem(item: ItemTemplate, isPinned: boolean): void {

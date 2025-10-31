@@ -397,7 +397,7 @@ export class Character {
 	}
 
 	async #addEffect(name: string, systemName: string, attachment?: string, offset?: vec3): Promise<Effect> {
-		const effect = new Effect(new EffectTemplate(EffectType.Other, "-1", {}));
+		const effect = new Effect(new EffectTemplate(EffectType.Other, -1, {}));
 		this.effects.add(effect);
 
 		//const system = await Source1ParticleControler.createSystem('tf2', systemName);
