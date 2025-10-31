@@ -168,6 +168,7 @@ export class Character {
 		const npc = CharactersList.get(this.characterClass)!.name
 		item.loadModel(npc);
 		(await this.getModel())?.addChild(await item.getModel());
+		(await this.getModel())?.addChild(await item.getModelBlu());
 		await item.setTeam(this.#team);
 
 		if (item.isTaunt()) {

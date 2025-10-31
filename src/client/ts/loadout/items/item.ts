@@ -18,7 +18,7 @@ export class Item {
 	#itemTemplate: ItemTemplate;
 	#character?: Character;
 	#model: Source1ModelInstance | null = null;
-	#modelBlu?: Source1ModelInstance | null;
+	#modelBlu: Source1ModelInstance | null = null;
 	#extraWearable?: Source1ModelInstance | null;
 	#attachedModels: Source1ModelInstance[] = [];
 	#festivizerModel?: Source1ModelInstance | null;
@@ -267,6 +267,12 @@ export class Item {
 			this.#model = await addTF2Model(path, this.getRepository());
 		}
 
+		const pathBlu = this.#itemTemplate.getModelBlue(npc);
+		if (pathBlu) {
+			this.#modelBlu = await addTF2Model(pathBlu, this.getRepository());
+			this.#modelBlu?.setVisible(false);
+		}
+
 		if (this.#model) {
 			this.#readyPromiseResolve(true);
 			//this.#model.setFlexes();
@@ -296,9 +302,15 @@ export class Item {
 		return this.#model;
 	}
 
+	async getModelBlu(): Promise<Source1ModelInstance | null> {
+		await this.#ready;
+		return this.#modelBlu;
+	}
+
 	async remove(): Promise<void> {
 		await this.#ready;
 		this.#model?.remove();
+		this.#modelBlu?.remove();
 	}
 
 	isConflicting(other: Item): boolean {
@@ -354,6 +366,7 @@ export class Item {
 		}
 
 		void this.#model?.setMaterialOverride(material);
+		void this.#modelBlu?.setMaterialOverride(material);
 
 		void this.#extraWearable?.setMaterialOverride(material);
 		for (const extraModel of this.#attachedModels) {
