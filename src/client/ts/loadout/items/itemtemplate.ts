@@ -26,8 +26,8 @@ export class ItemTemplate {
 		const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
 		if (usedByClasses) {
 			const className = CharactersList.get(characterClass)?.name;
-			if (className === undefined || usedByClasses[className] == '1') {
-				return true
+			if (className === undefined || usedByClasses[className]) {
+				return true;
 			}
 		}
 		return false;
