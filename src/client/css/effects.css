@@ -98,3 +98,7 @@ unusual-effect .name {
 	text-align: center;
 	margin: 1rem;
 }
+
+.tier-selector {
+	margin: 2rem;
+}

@@ -26,11 +26,12 @@ export class EffectsPanel extends DynamicPanel {
 	#htmlKillstreakColors?: HTMLElement;
 	#htmlKillstreakList?: HTMLElement;
 	#htmlTauntList?: HTMLElement;
-	#htmlEffects = new Map<string, UnusualEffectElement>();
-	#htmlKillstreakEffects = new Map<string, UnusualEffectElement>();
-	#htmlTauntEffects = new Map<string, UnusualEffectElement>();
+	#htmlEffects = new Map<number, UnusualEffectElement>();
+	#htmlKillstreakEffects = new Map<number, UnusualEffectElement>();
+	#htmlTauntEffects = new Map<number, UnusualEffectElement>();
 	#killstreakColor = KillstreakColor.TeamShine;
 	#killstreakEffect: EffectTemplate | null = null;
+	#killstreakHighGlow = true;
 
 	constructor() {
 		super(Panel.Effects, [effectsPanelCSS]);
@@ -76,6 +77,15 @@ export class EffectsPanel extends DynamicPanel {
 					childs: [
 						//this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
 						this.#htmlKillstreakColors = createElement('div', { class: 'killstreak-colors' }),
+						createElement('harmony-switch', {
+							'data-i18n': '#killstreak_tier2',
+							class: 'tier-selector',
+							$change: (event: CustomEvent<HarmonySwitchChange>) => {
+								this.#killstreakHighGlow = event.detail.state as boolean;
+								this.#updateKillstreak();
+							},
+							state: true,
+						}),
 						this.#htmlKillstreakList = createElement('div', { class: 'effects-list' }),
 					],
 				}) as HTMLHarmonyTabElement,
@@ -215,8 +225,16 @@ export class EffectsPanel extends DynamicPanel {
 				htmlEffect = createElement('unusual-effect', {
 					parent: this.#htmlKillstreakList,
 					$click: () => {
-						//Controller.dispatchEvent<KillstreakClicked>(ControllerEvent.KillstreakClicked, { detail: { effect: template, color: this.#killstreakColor } });
 						this.#killstreakEffect = template;
+						/*
+						const high = ItemManager.getEffectTemplate(EffectType.Killstreak, template.id + (this.#killstreakHighGlow ? KILLSTREAK_HIGH_GLOW : 0))
+						if (high) {
+							this.#killstreakEffect = high;
+						} else {
+							this.#killstreakEffect = template;
+						}
+						*/
+						//Controller.dispatchEvent<KillstreakClicked>(ControllerEvent.KillstreakClicked, { detail: { effect: template, color: this.#killstreakColor } });
 						this.#updateKillstreak();
 					}
 				}) as UnusualEffectElement;
@@ -269,7 +287,15 @@ export class EffectsPanel extends DynamicPanel {
 	}
 
 	#updateKillstreak(): void {
-		Controller.dispatchEvent<KillstreakClicked>(ControllerEvent.KillstreakClicked, { detail: { effect: this.#killstreakEffect, color: this.#killstreakColor } });
+		let effect = this.#killstreakEffect;
+		if (effect) {
+			const high = ItemManager.getEffectTemplate(EffectType.Killstreak, effect.id + (this.#killstreakHighGlow ? KILLSTREAK_HIGH_GLOW : 0))
+			if (high) {
+				effect = high;
+			}
+		}
+
+		Controller.dispatchEvent<KillstreakClicked>(ControllerEvent.KillstreakClicked, { detail: { effect, color: this.#killstreakColor } });
 	}
 
 
