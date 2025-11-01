@@ -1,5 +1,4 @@
 import { BackgroundType } from "./enums";
-import { Ragdoll } from "./loadout/characters/character";
 import { EffectTemplate } from "./loadout/effects/effecttemplate";
 import { ItemTemplate } from "./loadout/items/itemtemplate";
 import { KillstreakColor } from "./paints/killstreaks";
@@ -26,6 +25,7 @@ export enum ControllerEvent {
 	ShowAboutNotification = 'showaboutotification',
 	ToggleOptionsManager = 'toggleoptionsmanager',
 	SetAnimSpeed = 'setanimspeed',
+	SetAnim = 'setanim',
 	LoginPatreon = 'loginpatreon',
 	SelectCharacter = 'selectcharacter',
 	CharacterChanged = 'characterchanged',

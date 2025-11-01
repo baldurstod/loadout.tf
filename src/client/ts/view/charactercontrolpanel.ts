@@ -4,13 +4,18 @@ import { Controller, ControllerEvent } from '../controller';
 import { Ragdoll } from '../loadout/characters/character';
 import { StaticPanel } from './staticpanel';
 import { TeamSelector } from './teamselector';
+import { CharacterManager } from '../loadout/characters/charactermanager';
 
 export class CharacterControlPanel extends StaticPanel {
 	#teamSelector = new TeamSelector();
 	#htmlApplyToAll?: HTMLHarmonySwitchElement;
+	#htmlAnimSelector?: HTMLInputElement;
+	#htmlAnimSelectorDataList?: HTMLDataListElement;
 
 	constructor() {
 		super([characterControlCSS]);
+
+		Controller.addEventListener(ControllerEvent.CharacterChanged, () => this.#refreshAnimList());
 	}
 
 	protected override initHTML(): void {
@@ -18,6 +23,18 @@ export class CharacterControlPanel extends StaticPanel {
 			this.#teamSelector.getHTMLElement(),
 		);
 		defineHarmonyRadio();
+
+		this.#htmlAnimSelector = createElement('input', {
+			list: 'anim-selector-datalist',
+			parent: this.getShadowRoot(),
+			$change: () => this.#setAnim(),
+			$keyup: () => this.#setAnim(),
+		}) as HTMLInputElement;
+
+		this.#htmlAnimSelectorDataList = createElement('datalist', {
+			id: 'anim-selector-datalist',
+			parent: this.getShadowRoot(),
+		}) as HTMLDataListElement;
 
 		createElement('harmony-radio', {
 			'data-i18n': '#invulnerable',
@@ -61,5 +78,34 @@ export class CharacterControlPanel extends StaticPanel {
 				$change: (event: CustomEvent) => Controller.dispatchEvent<boolean>(ControllerEvent.SetApplyToAll, { detail: event.detail.state }),
 			}) as HTMLHarmonySwitchElement,
 		});
+	}
+
+	#setAnim(): void {
+		// First, try to get the option from the datalist
+		for (const option of this.#htmlAnimSelectorDataList!.options) {
+			if (option.innerText === this.#htmlAnimSelector!.value) {
+				Controller.dispatchEvent<string>(ControllerEvent.SetAnim, { detail: option.getAttribute('data-value') as string });
+				return;
+			}
+		}
+
+		// If not found, submit the user input
+		Controller.dispatchEvent<string>(ControllerEvent.SetAnim, { detail: this.#htmlAnimSelector!.value });
+	}
+
+	#refreshAnimList(): void {
+		const animsList = CharacterManager.getAnimList();
+		if (animsList) {
+			this.#htmlAnimSelectorDataList?.replaceChildren();
+			const list = animsList.animations;
+			for (const animI in list) {
+				const anim = list[animI]!;
+				createElement('option', {
+					parent: this.#htmlAnimSelectorDataList,
+					innerText: anim.name,
+					'data-value': anim.file,
+				});
+			}
+		}
 	}
 }

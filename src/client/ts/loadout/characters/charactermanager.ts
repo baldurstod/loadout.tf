@@ -8,6 +8,7 @@ import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
 import { Character, Ragdoll } from './character';
 import { CharactersList, Tf2Class } from './characters';
+import { ClassAnimations, getClassAnimations } from './animations';
 
 type CharacterSlot = {
 	character: Character | null;
@@ -34,6 +35,7 @@ export class CharacterManager {
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.updatePaintColor());
 		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<boolean>).detail); return; },);
 		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<Ragdoll>).detail); return; },);
+		Controller.addEventListener(ControllerEvent.SetAnim, (event: Event) => this.#setAnim((event as CustomEvent<string>).detail));
 		Controller.addEventListener(ControllerEvent.SetApplyToAll, (event: Event) => this.#applyToAll = (event as CustomEvent<boolean>).detail);
 		this.#initDispositions();
 	}
@@ -148,12 +150,12 @@ export class CharacterManager {
 		}
 	}
 
-	static setTeam(team: Team): void {
+	static async setTeam(team: Team): Promise<void> {
 		this.#team = team;
 		if (this.#applyToAll) {
 			for (const slot of this.#characterSlots) {
 				if (slot) {
-					slot.character?.setTeam(team);
+					await slot.character?.setTeam(team);
 				}
 			}
 		} else {
@@ -281,7 +283,7 @@ export class CharacterManager {
 		*/
 	}
 
-	static async #selectAnim(anim: string, applyToAll: boolean, force = false) {
+	static #selectAnim(anim: string, applyToAll: boolean, force = false): void {
 		/*
 		if (!force && this.#htmlAnimSelector.value != '') {
 			return;
@@ -294,5 +296,17 @@ export class CharacterManager {
 		} else {
 			this.getCurrentCharacter()?.setUserAnim(anim)
 		}
+	}
+
+	static #setAnim(anim: string): void {
+		this.#selectAnim(anim, this.#applyToAll);
+	}
+
+	static getAnimList() : ClassAnimations | null {
+		const currentClass = this.#currentCharacter?.characterClass;
+		if (currentClass) {
+			return getClassAnimations(currentClass);
+		}
+		return null;
 	}
 }
