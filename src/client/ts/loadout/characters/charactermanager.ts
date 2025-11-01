@@ -21,8 +21,10 @@ type CharacterPosition = {
 	orientation: quat;
 }
 
+const DEFAULT_ORIENTATION = quat.fromValues(0, 0, -1, 1);
+
 export class CharacterManager {
-	static #characterSlots: CharacterSlot[] = [{ character: null, position: vec3.create(), orientation: quat.create() }];
+	static #characterSlots: CharacterSlot[] = [{ character: null, position: vec3.create(), orientation: quat.clone(DEFAULT_ORIENTATION) }];
 	static #currentSlot = 0;
 	static #unusedCharacters: Character[] = [];
 	static #currentCharacter: Character | null = null;
