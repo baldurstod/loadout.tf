@@ -30,6 +30,7 @@ export class CharacterManager {
 	static #isInvulnerable = false;
 	static #slotsPositions = new Map<string, CharacterPosition[]>();
 	static #applyToAll = true;
+	static #useBots = false;
 
 	static {
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.updatePaintColor());
@@ -37,6 +38,7 @@ export class CharacterManager {
 		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<Ragdoll>).detail); return; },);
 		Controller.addEventListener(ControllerEvent.SetAnim, (event: Event) => this.#setAnim((event as CustomEvent<string>).detail));
 		Controller.addEventListener(ControllerEvent.SetApplyToAll, (event: Event) => this.#applyToAll = (event as CustomEvent<boolean>).detail);
+		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => this.#useBots = (event as CustomEvent<boolean>).detail);
 		this.#initDispositions();
 	}
 
@@ -253,15 +255,20 @@ export class CharacterManager {
 		this.setSlotsSize(9, true);
 		this.#useDisposition('mtt');
 
-		await this.selectCharacter(Tf2Class.Pyro, 0);
-		await this.selectCharacter(Tf2Class.Engineer, 1);
-		await this.selectCharacter(Tf2Class.Spy, 2);
-		await this.selectCharacter(Tf2Class.Heavy, 3);
-		await this.selectCharacter(Tf2Class.Sniper, 4);
-		await this.selectCharacter(Tf2Class.Scout, 5);
-		await this.selectCharacter(Tf2Class.Soldier, 6);
-		await this.selectCharacter(Tf2Class.Demoman, 7);
-		await this.selectCharacter(Tf2Class.Medic, 8);
+		let botDelta = 0;
+		if (this.#useBots) {
+			botDelta = Tf2Class.ScoutBot;
+		}
+
+		await this.selectCharacter(Tf2Class.Pyro + botDelta, 0);
+		await this.selectCharacter(Tf2Class.Engineer + botDelta, 1);
+		await this.selectCharacter(Tf2Class.Spy + botDelta, 2);
+		await this.selectCharacter(Tf2Class.Heavy + botDelta, 3);
+		await this.selectCharacter(Tf2Class.Sniper + botDelta, 4);
+		await this.selectCharacter(Tf2Class.Scout + botDelta, 5);
+		await this.selectCharacter(Tf2Class.Soldier + botDelta, 6);
+		await this.selectCharacter(Tf2Class.Demoman + botDelta, 7);
+		await this.selectCharacter(Tf2Class.Medic + botDelta, 8);
 		this.#selectAnim('meettheteam', true);
 		/*
 		const toolbox = this.#toolboxModel ?? await ModelManager.addTF2Model(TF2_TOOLBOX_MODEL);
@@ -302,7 +309,7 @@ export class CharacterManager {
 		this.#selectAnim(anim, this.#applyToAll);
 	}
 
-	static getAnimList() : ClassAnimations | null {
+	static getAnimList(): ClassAnimations | null {
 		const currentClass = this.#currentCharacter?.characterClass;
 		if (currentClass) {
 			return getClassAnimations(currentClass);
