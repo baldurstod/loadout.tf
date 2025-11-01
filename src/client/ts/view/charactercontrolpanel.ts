@@ -1,6 +1,6 @@
 import { createElement, defineHarmonyRadio, HTMLHarmonySwitchElement } from 'harmony-ui';
 import characterControlCSS from '../../css/charactercontrol.css';
-import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../controller';
+import { Controller, ControllerEvent } from '../controller';
 import { Ragdoll } from '../loadout/characters/character';
 import { StaticPanel } from './staticpanel';
 import { TeamSelector } from './teamselector';
@@ -32,18 +32,18 @@ export class CharacterControlPanel extends StaticPanel {
 				//OptionsManager.setItem('app.css.theme', (event).detail.value);
 				switch (event.detail.value) {
 					case 'none':
-						Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: false, applyToAll: true } });
-						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.None, applyToAll: this.#htmlApplyToAll!.state as boolean } });
+						Controller.dispatchEvent<boolean>(ControllerEvent.SetInvulnerable, { detail: false });
+						Controller.dispatchEvent<Ragdoll>(ControllerEvent.SetRagdoll, { detail: Ragdoll.None });
 						break;
 					case 'invulnerable':
-						Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: event.detail.state, applyToAll: true } });
-						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.None, applyToAll: this.#htmlApplyToAll!.state as boolean } });
+						Controller.dispatchEvent<boolean>(ControllerEvent.SetInvulnerable, { detail: event.detail.state });
+						Controller.dispatchEvent<Ragdoll>(ControllerEvent.SetRagdoll, { detail: Ragdoll.None });
 						break;
 					case 'gold':
-						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Gold, applyToAll: this.#htmlApplyToAll!.state as boolean } });
+						Controller.dispatchEvent<Ragdoll>(ControllerEvent.SetRagdoll, { detail: Ragdoll.Gold });
 						break;
 					case 'ice':
-						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Ice, applyToAll: this.#htmlApplyToAll!.state as boolean } });
+						Controller.dispatchEvent<Ragdoll>(ControllerEvent.SetRagdoll, { detail: Ragdoll.Ice });
 						break;
 				}
 			},
@@ -58,6 +58,7 @@ export class CharacterControlPanel extends StaticPanel {
 				attributes: {
 					state: true,
 				},
+				$change: (event: CustomEvent) => Controller.dispatchEvent<boolean>(ControllerEvent.SetApplyToAll, { detail: event.detail.state }),
 			}) as HTMLHarmonySwitchElement,
 		});
 	}

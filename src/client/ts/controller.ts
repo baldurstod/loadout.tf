@@ -55,6 +55,7 @@ export enum ControllerEvent {
 	WarpaintsLoaded = 'warpaintsloaded',
 	SetInvulnerable = 'setinvulnerable',
 	SetRagdoll = 'setragdoll',
+	SetApplyToAll = 'setapplytoall',
 }
 
 export type SetBackgroundType = {
@@ -98,7 +99,7 @@ export type ItemPinned = {
 	item: ItemTemplate;
 	pinned: boolean;
 }
-
+/*
 export type SetInvulnerable = {
 	invulnerable: boolean;
 	applyToAll: boolean;
@@ -108,6 +109,7 @@ export type SetRagdoll = {
 	ragdoll: Ragdoll;
 	applyToAll: boolean;
 }
+*/
 
 export type KillstreakClicked = {
 	effect: EffectTemplate | null;

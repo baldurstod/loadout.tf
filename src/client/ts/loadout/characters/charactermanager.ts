@@ -3,7 +3,7 @@ import { getSceneExplorer, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
 import { uint } from 'harmony-types';
 import positionJSON from '../../../json/slotsposition.json';
 import { startAnim } from '../../constants';
-import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../../controller';
+import { Controller, ControllerEvent } from '../../controller';
 import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
 import { Character, Ragdoll } from './character';
@@ -28,11 +28,13 @@ export class CharacterManager {
 	static #team: Team = Team.Red;
 	static #isInvulnerable = false;
 	static #slotsPositions = new Map<string, CharacterPosition[]>();
+	static #applyToAll = true;
 
 	static {
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.updatePaintColor());
-		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<SetInvulnerable>).detail.invulnerable, (event as CustomEvent<SetInvulnerable>).detail.applyToAll); return; },);
-		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<SetRagdoll>).detail.ragdoll, (event as CustomEvent<SetInvulnerable>).detail.applyToAll); return; },);
+		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<boolean>).detail); return; },);
+		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<Ragdoll>).detail); return; },);
+		Controller.addEventListener(ControllerEvent.SetApplyToAll, (event: Event) => this.#applyToAll = (event as CustomEvent<boolean>).detail);
 		this.#initDispositions();
 	}
 
@@ -148,9 +150,17 @@ export class CharacterManager {
 
 	static setTeam(team: Team): void {
 		this.#team = team;
-		const character = this.#currentCharacter;
-		if (character) {
-			character.setTeam(team);
+		if (this.#applyToAll) {
+			for (const slot of this.#characterSlots) {
+				if (slot) {
+					slot.character?.setTeam(team);
+				}
+			}
+		} else {
+			const character = this.#currentCharacter;
+			if (character) {
+				character.setTeam(team);
+			}
 		}
 	}
 
@@ -180,9 +190,9 @@ export class CharacterManager {
 		}
 	};
 
-	static async  #setInvulnerable(invulnerable: boolean, applyToAll: boolean): Promise<void> {
+	static async  #setInvulnerable(invulnerable: boolean): Promise<void> {
 		this.#isInvulnerable = invulnerable;
-		if (applyToAll) {
+		if (this.#applyToAll) {
 			for (const slot of this.#characterSlots) {
 				if (slot) {
 					await slot.character?.setInvulnerable(invulnerable);
@@ -193,8 +203,8 @@ export class CharacterManager {
 		}
 	}
 
-	static async  #setRagdoll(ragdoll: Ragdoll, applyToAll: boolean): Promise<void> {
-		if (applyToAll) {
+	static async  #setRagdoll(ragdoll: Ragdoll): Promise<void> {
+		if (this.#applyToAll) {
 			for (const slot of this.#characterSlots) {
 				if (slot) {
 					await slot.character?.setRagdoll(ragdoll);
