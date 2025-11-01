@@ -1,12 +1,13 @@
-import { createElement, defineHarmonyRadio, HarmonySwitchChange } from 'harmony-ui';
+import { createElement, defineHarmonyRadio, HTMLHarmonySwitchElement } from 'harmony-ui';
 import characterControlCSS from '../../css/charactercontrol.css';
 import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../controller';
+import { Ragdoll } from '../loadout/characters/character';
 import { StaticPanel } from './staticpanel';
 import { TeamSelector } from './teamselector';
-import { Ragdoll } from '../loadout/characters/character';
 
 export class CharacterControlPanel extends StaticPanel {
 	#teamSelector = new TeamSelector();
+	#htmlApplyToAll?: HTMLHarmonySwitchElement;
 
 	constructor() {
 		super([characterControlCSS]);
@@ -18,39 +19,46 @@ export class CharacterControlPanel extends StaticPanel {
 		);
 		defineHarmonyRadio();
 
+		createElement('harmony-radio', {
+			'data-i18n': '#invulnerable',
+			parent: this.getShadowRoot(),
+			childs: [
+				createElement('button', { 'i18n': '#none', value: 'none' }),
+				createElement('button', { 'i18n': '#invulnerable', value: 'invulnerable' }),
+				createElement('button', { 'i18n': '#gold', value: 'gold' }),
+				createElement('button', { 'i18n': '#ice', value: 'ice' }),
+			],
+			$change: (event: CustomEvent) => {
+				//OptionsManager.setItem('app.css.theme', (event).detail.value);
+				switch (event.detail.value) {
+					case 'none':
+						Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: false, applyToAll: true } });
+						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.None, applyToAll: this.#htmlApplyToAll!.state as boolean } });
+						break;
+					case 'invulnerable':
+						Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: event.detail.state, applyToAll: true } });
+						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.None, applyToAll: this.#htmlApplyToAll!.state as boolean } });
+						break;
+					case 'gold':
+						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Gold, applyToAll: this.#htmlApplyToAll!.state as boolean } });
+						break;
+					case 'ice':
+						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Ice, applyToAll: this.#htmlApplyToAll!.state as boolean } });
+						break;
+				}
+			},
+		});
+
 		createElement('div', {
 			class: 'character-manager-display-when-more-than-one-character',
 			parent: this.getShadowRoot(),
-			child: createElement('harmony-radio', {
-				'data-i18n': '#invulnerable',
-
-				childs: [
-					createElement('button', { 'i18n': '#none', value: 'none' }),
-					createElement('button', { 'i18n': '#invulnerable', value: 'invulnerable' }),
-					createElement('button', { 'i18n': '#golg', value: 'gold' }),
-					createElement('button', { 'i18n': '#ice', value: 'ice' }),
-				],
-				$change: (event: CustomEvent) => {
-					//OptionsManager.setItem('app.css.theme', (event).detail.value);
-					switch (event.detail.value) {
-						case 'none':
-							Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: false, applyToAll: true } });
-							Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.None, applyToAll: true } });
-							break;
-						case 'invulnerable':
-							Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: event.detail.state, applyToAll: true } });
-							Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.None, applyToAll: true } });
-							break;
-						case 'gold':
-							Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Gold, applyToAll: true } });
-							break;
-						case 'ice':
-							Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Ice, applyToAll: true } });
-							break;
-					}
+			child: this.#htmlApplyToAll = createElement('harmony-switch', {
+				class: 'apply-to-all',
+				'data-i18n': '#apply_to_all',
+				attributes: {
+					state: true,
 				},
-			}),
+			}) as HTMLHarmonySwitchElement,
 		});
-
 	}
 }

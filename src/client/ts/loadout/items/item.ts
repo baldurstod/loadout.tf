@@ -117,93 +117,94 @@ export class Item {
 			this.#critBoostSysBlu = null;
 		}
 
-		if (this.#model) {
-			await this.#ready;
+		await this.#ready;
 
-			if (this.#character?.isInvulnerable() || this.#character?.getRagdoll() !== Ragdoll.None) {
-				let materialName: string | null = null;
-				switch (this.#character?.getRagdoll()) {
-					case Ragdoll.None:
-						materialName = this.#team ? MATERIAL_INVULN_BLU : MATERIAL_INVULN_RED;
-						break;
-					case Ragdoll.Gold:
-						materialName = MATERIAL_GOLD_RAGDOLL;
-						break;
-					case Ragdoll.Ice:
-						materialName = MATERIAL_ICE_RAGDOLL;
-						break;
-				}
-
-				this.#setMaterialOverride(materialName);
-			} else {
-				this.#setMaterialOverride(null);
-
-				const materialOverride = this.#itemTemplate.getMaterialOverride();
-				if (materialOverride) {
-					this.#setMaterialOverride(materialOverride);
-				} else {
-					await this.#model.setSkin(String(skin));
-				}
-
-				if (this.#paintKitId !== null) {
-					WeaponManager.refreshPaint(this);
-				}
+		if (this.#character?.isInvulnerable() || this.#character?.getRagdoll() !== Ragdoll.None) {
+			let materialName: string | null = null;
+			switch (this.#character?.getRagdoll()) {
+				case Ragdoll.None:
+					materialName = this.#team ? MATERIAL_INVULN_BLU : MATERIAL_INVULN_RED;
+					break;
+				case Ragdoll.Gold:
+					materialName = MATERIAL_GOLD_RAGDOLL;
+					break;
+				case Ragdoll.Ice:
+					materialName = MATERIAL_ICE_RAGDOLL;
+					break;
 			}
 
+			this.#setMaterialOverride(materialName);
+		} else {
+			this.#setMaterialOverride(null);
 
-			// TODO
-			//this.setBurnLevel(this.#character.burnLevel);
-
-			const sourceModelBlu = this.#modelBlu;
-			if (sourceModelBlu) {
-				if (this.#team == Team.Red) {
-					this.#model.setVisible(undefined);
-					sourceModelBlu.setVisible(false);
-				} else {
-					this.#model.setVisible(false);
-					sourceModelBlu.setVisible(undefined);
-				}
+			const materialOverride = this.#itemTemplate.getMaterialOverride();
+			if (materialOverride) {
+				this.#setMaterialOverride(materialOverride);
+			} else {
+				await this.#model?.setSkin(String(skin));
 			}
 
-			if (this.#critBoost) {
-				let systemName = '';
-				let glowColor = null;
-				let sys = null;
-				if (this.#team == Team.Red) {
-					sys = this.#critBoostSysRed;
-					glowColor = [80, 8, 5];
-					systemName = 'critgun_weaponmodel_red';
-				} else {
-					sys = this.#critBoostSysBlu;
-					glowColor = [5, 20, 80]
-					systemName = 'critgun_weaponmodel_blu';
-				}
-
-				if (systemName && glowColor) {
-					if (!sys) {
-						sys = await Source1ParticleControler.createSystem('tf2', systemName);
-					}
-					sys.start();
-					this.#model.addChild(sys);
-					this.#model.attachSystem(sys, '');
-					this.#model.materialsParams['ModelGlowColor'] = glowColor;
-					if (this.#stattrakModule) {
-						this.#stattrakModule.materialsParams['ModelGlowColor'] = glowColor;
-					}
-				}
-				if (this.#team == Team.Red) {
-					this.#critBoostSysRed = sys;
-				} else {
-					this.#critBoostSysBlu = sys;
-				}
-
-			} else {
-				this.#model.materialsParams['ModelGlowColor'] = null;
-				if (this.#stattrakModule) {
-					this.#stattrakModule.materialsParams['ModelGlowColor'] = null;
-				}
+			if (this.#paintKitId !== null) {
+				WeaponManager.refreshPaint(this);
 			}
 		}
+
+
+		// TODO
+		//this.setBurnLevel(this.#character.burnLevel);
+
+		const sourceModelBlu = this.#modelBlu;
+		if (sourceModelBlu) {
+			if (this.#team == Team.Red) {
+				this.#model?.setVisible(undefined);
+				sourceModelBlu.setVisible(false);
+			} else {
+				this.#model?.setVisible(false);
+				sourceModelBlu.setVisible(undefined);
+			}
+		}
+
+		if (this.#model && this.#critBoost) {
+			let systemName = '';
+			let glowColor = null;
+			let sys = null;
+			if (this.#team == Team.Red) {
+				sys = this.#critBoostSysRed;
+				glowColor = [80, 8, 5];
+				systemName = 'critgun_weaponmodel_red';
+			} else {
+				sys = this.#critBoostSysBlu;
+				glowColor = [5, 20, 80]
+				systemName = 'critgun_weaponmodel_blu';
+			}
+
+			if (systemName && glowColor) {
+				if (!sys) {
+					sys = await Source1ParticleControler.createSystem('tf2', systemName);
+				}
+				sys.start();
+				this.#model.addChild(sys);
+				this.#model.attachSystem(sys, '');
+				this.#model.materialsParams['ModelGlowColor'] = glowColor;
+				if (this.#stattrakModule) {
+					this.#stattrakModule.materialsParams['ModelGlowColor'] = glowColor;
+				}
+			}
+			if (this.#team == Team.Red) {
+				this.#critBoostSysRed = sys;
+			} else {
+				this.#critBoostSysBlu = sys;
+			}
+
+		} else {
+			if (this.#model) {
+				this.#model.materialsParams['ModelGlowColor'] = null;
+			}
+			if (this.#stattrakModule) {
+				this.#stattrakModule.materialsParams['ModelGlowColor'] = null;
+			}
+		}
+
 
 		/*
 
