@@ -1,4 +1,6 @@
+import { Repositories, WebRepository } from 'harmony-3d';
 import { JSONObject } from 'harmony-types';
+import { WORKSHOP_UGC_URL } from '../../constants';
 import { CharactersList, Tf2Class } from '../characters/characters';
 
 type Warpaint = {
@@ -12,6 +14,7 @@ export class ItemTemplate {
 	readonly id: string;
 	readonly creatorid64?: string;
 	readonly warpaints = new Map<string, Warpaint>();
+	#initWorkshopPromise?: Promise<void>;
 
 	constructor(id: string, definition: JSONObject/*TODO: improve type*/) {
 		this.#definition = definition;
@@ -54,7 +57,7 @@ export class ItemTemplate {
 		return 0;
 	}
 
-	getModel(npc: string): string | null {
+	async getModel(npc: string): Promise<string | null> {
 		function convertDemo(npc: string): string {
 			if (npc == 'demoman') {
 				return 'demo';
@@ -62,6 +65,11 @@ export class ItemTemplate {
 				return npc;
 			}
 		}
+
+		if (this.isWorkshop()) {
+			await this.#initWorkshopItemMetadatas();
+		}
+
 		npc = npc.replace(/bot_/, '');
 
 		const modelPlayerPerClass = this.#definition.model_player_per_class as Record<string, string>/*TODO: improve type*/;
@@ -305,5 +313,38 @@ export class ItemTemplate {
 
 	addWarpaint(id: string, weapon: string, title: string): void {
 		this.warpaints.set(id, { weapon, title });
+	}
+
+	async #initWorkshopItemMetadatas(): Promise<void> {
+		if (!this.#initWorkshopPromise) {
+			this.#initWorkshopPromise = new Promise<void>((resolve): void => {
+				(async (): Promise<void> => {
+
+					const itemId = this.#definition.id as string;
+					const url = WORKSHOP_UGC_URL + (this.#definition.creatorid64 as string) + '/' + itemId + '/' + itemId + '.json';
+					const itemRepository = WORKSHOP_UGC_URL + (this.#definition.creatorid64 as string) + '/' + itemId + '/game/';
+
+					const repositoryName = `tf2_workshop_${itemId}`;
+					Repositories.addRepository(new WebRepository(repositoryName, itemRepository));
+
+					this.#definition.repository = repositoryName;
+
+					const response = await fetch(new Request(url));
+					const json = await response.json();
+					const jsonItem = json?.item;
+					const keys = ['model_player', 'model_player_per_class', 'player_bodygroups']
+					if (json.result && jsonItem) {
+						for (const key of keys) {
+							if (jsonItem[key]) {
+								this.#definition[key] = jsonItem[key];
+							}
+						}
+					}
+
+					resolve();
+				})()
+			});
+		}
+		await this.#initWorkshopPromise;
 	}
 }

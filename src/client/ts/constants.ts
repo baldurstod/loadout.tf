@@ -44,6 +44,7 @@ export const STEAM_ECONOMY_IMAGE_PREFIX = 'https://steamcommunity-a.akamaihd.net
 export const SHARE_LOADOUT_URL = 'https://share.loadout.tf/';
 
 export const WORKSHOP_UGC_URL = 'https://ugc.workshop.tf/';
+export const WORKSHOP_URL = 'https://workshop.tf/php/workshop/getAllItems.php';
 
 //export const TESTING_LOADOUT_ID = 'yVNFJPRh2XXEoDV8';
 //export const TESTING_LOADOUT_ID = '1ESqvbGiFt49Gi1G';

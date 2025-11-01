@@ -1,17 +1,17 @@
+import { WeaponManager, WeaponManagerEvents } from 'harmony-3d-utils';
 import { OptionsManager } from 'harmony-browser-utils';
+import { setLegacyPaintKit } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
-import { TF2_REPOSITORY } from '../../constants';
-import { Controller, ControllerEvent, ItemPinned, SetItemFilter } from '../../controller';
+import { Map2 } from 'harmony-utils';
+import { TF2_REPOSITORY, WORKSHOP_URL } from '../../constants';
+import { Controller, ControllerEvent, ItemFilterAttribute, ItemPinned, SetItemFilter } from '../../controller';
 import { Panel } from '../../enums';
 import { Character } from '../characters/character';
+import { Effect } from '../effects/effect';
 import { EffectTemplate, EffectType } from '../effects/effecttemplate';
 import { Item } from './item';
 import { ItemFilter, ItemFilterResult } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
-import { WeaponManager, WeaponManagerEvents } from 'harmony-3d-utils';
-import { setLegacyPaintKit } from 'harmony-tf2-utils';
-import { Map2 } from 'harmony-utils';
-import { Effect } from '../effects/effect';
 
 export class ItemManager {
 	static readonly #filters = new ItemFilter();
@@ -22,6 +22,7 @@ export class ItemManager {
 	static readonly #effectTemplates = new Map2<EffectType, number, EffectTemplate>();
 	static #loadItemsPromise?: Promise<void>;
 	static #loadMedalsPromise?: Promise<void>;
+	static #initWorkshopPromise?: Promise<void>;
 	static readonly #itemCollections = new Set<string>();
 	static readonly #equipRegions = new Set<string>();
 	static #sortingDirection = 1;
@@ -48,7 +49,7 @@ export class ItemManager {
 	}
 
 	static #initListeners(): void {
-		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.setItemFilter((event as CustomEvent<SetItemFilter>).detail));
+		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.#setItemFilter((event as CustomEvent<SetItemFilter>).detail));
 		Controller.addEventListener(ControllerEvent.SetItemSortAscending, (event: Event) => this.#sortingDirection = (event as CustomEvent<boolean>).detail ? 1 : -1);
 		Controller.addEventListener(ControllerEvent.SetItemSortType, (event: Event) => this.#setSortingType((event as CustomEvent<string>).detail));
 
@@ -67,9 +68,17 @@ export class ItemManager {
 		});
 	}
 
-	static setItemFilter(filter: SetItemFilter): void {
+	static #setItemFilter(filter: SetItemFilter): void {
 		this.#filters.setAttribute(filter.attribute, filter.value);
 		Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated);
+
+		if (filter.attribute == ItemFilterAttribute.Workshop) {
+			this.#initWorkshopItems();
+		}
+
+		if (filter.attribute == ItemFilterAttribute.TournamentMedals) {
+			throw new Error('init medals');
+		}
 	}
 
 	static getItems(): Map<string, ItemTemplate> {
@@ -153,7 +162,6 @@ export class ItemManager {
 						if (json) {
 							this.#initItems2(json.items);
 							this.#initEffects(json.systems);
-							console.info(this.#itemTemplates);
 							Controller.dispatchEvent<void>(ControllerEvent.ItemsLoaded);
 							Controller.dispatchEvent<void>(ControllerEvent.SystemsLoaded);
 							resolve();
@@ -371,7 +379,7 @@ export class ItemManager {
 		return new Set(this.#itemCollections);
 	}
 
-	static #addWarpaint(itemId: string, paintkitId: string, weaponName: string, descToken: string): void {
+	static async #addWarpaint(itemId: string, paintkitId: string, weaponName: string, descToken: string): Promise<void> {
 		let template = this.getItemTemplate(itemId);
 		if (!template) {
 			itemId += '~0';
@@ -398,9 +406,9 @@ export class ItemManager {
 			*/
 
 			if ((Number(itemId) >= 15000) && (Number(itemId) <= 15158)) {//old paintkits ID
-				const weaponId = this.#getWeaponByModel(template.getModel(''/*TODO: set this parameter optional*/) ?? '');
+				const weaponId = await this.#getWeaponByModel(await template.getModel(''/*TODO: set this parameter optional*/) ?? '');
 				if (weaponId !== null) {
-					this.#addWarpaint(weaponId, paintkitId, weaponName, descToken);
+					await this.#addWarpaint(weaponId, paintkitId, weaponName, descToken);
 					setLegacyPaintKit(Number(itemId), weaponId);
 				}
 			} else {
@@ -411,12 +419,84 @@ export class ItemManager {
 		}
 	}
 
-	static #getWeaponByModel(path: string): string | null {
+	static async #getWeaponByModel(path: string): Promise<string | null> {
 		for (const [i, template] of this.#itemTemplates) {
-			if (template.isWarPaintable() && template.getModel('') == path) {
+			if (template.isWarPaintable() && await template.getModel('') == path) {
 				return i;
 			}
 		}
 		return null;
+	}
+
+	static async #initWorkshopItems(): Promise<void> {
+		if (!this.#initWorkshopPromise) {
+			this.#initWorkshopPromise = new Promise<void>((resolve): void => {
+				(async (): Promise<void> => {
+					const response = await fetch(WORKSHOP_URL);
+					const json = await response.json();
+					if (json) {
+						this.#addWorkshopItems(json)
+					}
+
+					Controller.dispatchEvent<void>(ControllerEvent.ItemsLoaded);
+					resolve();
+				})()
+			});
+		}
+		await this.#initWorkshopPromise;
+	}
+
+	static #addWorkshopItems(responseJson: JSONObject): void {
+		if (!responseJson) {
+			return;
+		}
+
+		if (!responseJson.result || responseJson.result != '1') {
+			return;
+		}
+
+		const itemList = responseJson.items as JSONObject[];
+		if (!itemList) {
+			return;
+		}
+
+		for (const item of itemList) {
+			item.id = String(item.id as number);
+			item.image_inventory = item.previewurl;
+			item.is_workshop = true;
+			item.name = item.title;
+			item.workshopMetadata = null;
+			item.paintable = true;// We don't have any clue about this
+
+			// Create used_by_classes list from tags
+			if (item.tags) {
+				item.used_by_classes = {};
+				const tagList = (item.tags as string).split(';');
+				for (const tag of tagList) {
+					//const tag = tagList[tagIndex];
+					switch (tag) {
+						case 'Demoman':
+						case 'Engineer':
+						case 'Heavy':
+						case 'Medic':
+						case 'Pyro':
+						case 'Scout':
+						case 'Sniper':
+						case 'Soldier':
+						case 'Spy':
+							item.used_by_classes[tag.toLowerCase()] = 1;
+							break;
+					}
+				}
+			}
+
+			const itemTemplate = new ItemTemplate('w' + item.id, item);
+			this.#itemTemplates.set(itemTemplate.id, itemTemplate);
+
+			//const keywords = '';
+			if (item.player_bodygroups) {
+				//keywords = item.player_bodygroups.join(' ');//TODO
+			}
+		}
 	}
 }

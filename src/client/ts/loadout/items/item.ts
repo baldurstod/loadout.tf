@@ -280,7 +280,7 @@ export class Item {
 			return;
 		}
 		this.#loaded = true;
-		const path = this.#itemTemplate.getModel(npc);
+		const path = await this.#itemTemplate.getModel(npc);
 		if (path) {
 			this.#model = await addTF2Model(path, this.getRepository());
 		}
