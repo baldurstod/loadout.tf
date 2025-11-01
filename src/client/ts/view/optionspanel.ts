@@ -5,6 +5,7 @@ import optionsCSS from '../../css/options.css';
 import { TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, CameraType, Panel } from '../enums';
+import { CharacterManager } from '../loadout/characters/charactermanager';
 import { loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -47,6 +48,7 @@ export class OptionsPanel extends DynamicPanel {
 		this.#initHTMLGeneralOptions();
 		this.#initHtmlCameraOptions();
 		this.#initHtmlGraphicOptions();
+		this.#initHtmlMeetTheTeamOptions();
 		this.#initHtmlSceneExplorer();
 		this.#initHtmlShaderEditor();
 		this.#initLanguages();
@@ -520,6 +522,76 @@ export class OptionsPanel extends DynamicPanel {
 		addToggleSwitch('#post_processing_pixelate', 'app.postprocessing.pixelate.enabled', htmlPostProcessingOptions);
 		addToggleSwitch('#post_processing_sketch', 'app.postprocessing.sketch.enabled', htmlPostProcessingOptions);
 		addToggleSwitch('#post_processing_old_movie', 'app.postprocessing.oldmovie.enabled', htmlPostProcessingOptions);
+	}
+
+	#initHtmlMeetTheTeamOptions(): void {
+		const poseParameters = new Map<string, string>([
+			["move_x", '#move_forward'],
+			["move_y", '#move_sideways'],
+			["body_yaw", '#look_sideways'],
+			["body_pitch", '#look_up'],
+			["r_arm", '#right_arm'],
+			["r_hand_grip", '#right_hand_grip'],
+		])
+
+		function setPoseParameter(name: string, value: number): void {
+			const currentCharacter = CharacterManager.getCurrentCharacter();
+			if (!currentCharacter) {
+				return;
+			}
+
+			currentCharacter.setPoseParameter(name, value);
+		}
+
+		createElement('harmony-tab', {
+			'data-i18n': '#meet_the_team',
+			parent: this.#htmlTabGroup,
+			events: {
+				//activated: () => CharacterManager.initDispositions(),
+			},
+			childs: [
+				//CharacterManager.htmlCharacterDisposition,
+				createElement('div', {
+					class: 'option-button',
+					i18n: '#setup_meet_the_team',
+					events: {
+						click: () => CharacterManager.setupMeetTheTeam(),
+					}
+				}),
+				createElement('div', {
+					class: 'option-button',
+					i18n: '#remove_current_character',
+					events: {
+						click: () => CharacterManager.removeCharacter(),
+					},
+				}),
+				createElement('div', {
+					class: 'pose-parameters',
+					elementCreated: (element: Element) => {
+						for (const [key, i18n] of poseParameters) {
+							//const i18n = poseParameters[poseParameter];
+							createElement('label', {
+								parent: element,
+								childs: [
+									createElement('span', {
+										i18n: i18n,
+									}),
+									createElement('input', {
+										type: 'range',
+										min: 0,
+										max: 1,
+										step: 'any',
+										events: {
+											input: (event: InputEvent) => setPoseParameter(key, Number((event.target as HTMLInputElement).value)),
+										},
+									}),
+								],
+							});
+						}
+					},
+				}),
+			],
+		});
 	}
 
 	#initHtmlSceneExplorer(): void {

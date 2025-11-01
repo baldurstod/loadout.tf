@@ -1,6 +1,7 @@
-import { vec3 } from 'gl-matrix';
+import { quat, vec3 } from 'gl-matrix';
 import { getSceneExplorer, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
 import { uint } from 'harmony-types';
+import positionJSON from '../../../json/slotsposition.json';
 import { startAnim } from '../../constants';
 import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../../controller';
 import { Team } from '../enums';
@@ -10,34 +11,41 @@ import { CharactersList, Tf2Class } from './characters';
 
 type CharacterSlot = {
 	character: Character | null;
-	position?: vec3;
-	orientation?: vec3;
+	position: vec3;
+	orientation: quat;
+}
+
+type CharacterPosition = {
+	position: vec3;
+	orientation: quat;
 }
 
 export class CharacterManager {
-	static #characterSlots: CharacterSlot[] = [{ character: null }];
+	static #characterSlots: CharacterSlot[] = [{ character: null, position: vec3.create(), orientation: quat.create() }];
 	static #currentSlot = 0;
 	static #unusedCharacters: Character[] = [];
 	static #currentCharacter: Character | null = null;
 	static #team: Team = Team.Red;
 	static #isInvulnerable = false;
+	static #slotsPositions = new Map<string, CharacterPosition[]>();
 
 	static {
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.updatePaintColor());
 		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<SetInvulnerable>).detail.invulnerable, (event as CustomEvent<SetInvulnerable>).detail.applyToAll); return; },);
 		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<SetRagdoll>).detail.ragdoll, (event as CustomEvent<SetInvulnerable>).detail.applyToAll); return; },);
+		this.#initDispositions();
 	}
 
 	static async selectCharacter(characterClass: Tf2Class, slotId?: uint): Promise<Character> {
-		const character = this.#getUnusedCharacter(characterClass) ?? new Character(characterClass);
 		const slot = this.#getSlot(slotId);
 
 		if (slot.character?.characterClass == characterClass) {
 			// the same character is selected again
-			return character;
+			return slot.character;
 		}
 
 		this.#removeCharacter(slot);
+		const character = this.#getUnusedCharacter(characterClass) ?? new Character(characterClass);
 		slot.character = character;
 		// set the character visible
 		character.setVisible(true);
@@ -54,6 +62,8 @@ export class CharacterManager {
 				if (model) {
 					model.playSequence(startAnim);
 					model.setAnimation(0, startAnim, 1);
+					model.setPosition(slot.position);
+					model.setQuaternion(slot.orientation);
 				}
 			}
 		}
@@ -61,6 +71,11 @@ export class CharacterManager {
 		this.#setCurrentCharacter(character);
 
 		return character;
+	}
+
+	static removeCharacter(slotId?: uint): void {
+		const slot = this.#getSlot(slotId);
+		this.#removeCharacter(slot);
 	}
 
 	static #getUnusedCharacter(characterClass: Tf2Class): Character | null {
@@ -119,6 +134,18 @@ export class CharacterManager {
 		return this.#characterSlots[this.#characterSlots.length - 1]!;
 	}
 
+	static setSlotsSize(size: uint, removeExisting = false): void {
+		size = Math.max(size, 1);
+
+		const removeStart = removeExisting ? 0 : size - 1;
+		for (let i = removeStart; i < this.#characterSlots.length; i++) {
+			this.#removeCharacter(this.#characterSlots[i]!);
+		}
+		for (let i = this.#characterSlots.length; i < size; i++) {
+			this.#characterSlots.push({ character: null, position: vec3.create(), orientation: quat.create() });
+		}
+	}
+
 	static setTeam(team: Team): void {
 		this.#team = team;
 		const character = this.#currentCharacter;
@@ -175,6 +202,87 @@ export class CharacterManager {
 			}
 		} else {
 			await this.getCurrentCharacter()?.setRagdoll(ragdoll);
+		}
+	}
+
+	static #initDispositions(): void {
+		const dispositions = positionJSON.dispositions as Record<string, { p: number[], o: number[] }[]>;
+		for (const key in dispositions) {
+			const slotPosition = dispositions[key]!;
+			const positions: CharacterPosition[] = [];
+			for (const position of slotPosition) {
+				positions.push({
+					position: position.p,
+					orientation: position.o,
+				});
+			}
+			this.#slotsPositions.set(key, positions);
+		}
+	}
+
+	static #useDisposition(name: string): void {
+		const dispositions = this.#slotsPositions.get(name);
+		if (!dispositions) {
+			return;
+		}
+
+		for (let i = 0; i < this.#characterSlots.length; i++) {
+			const slot = this.#characterSlots[i]!;
+			const disposition = dispositions[i];
+
+			if (disposition) {
+				slot.position = disposition.position;
+				slot.orientation = disposition.orientation;
+			}
+		}
+	}
+
+	static async setupMeetTheTeam(): Promise<void> {
+		this.setSlotsSize(9, true);
+		this.#useDisposition('mtt');
+
+		await this.selectCharacter(Tf2Class.Pyro, 0);
+		await this.selectCharacter(Tf2Class.Engineer, 1);
+		await this.selectCharacter(Tf2Class.Spy, 2);
+		await this.selectCharacter(Tf2Class.Heavy, 3);
+		await this.selectCharacter(Tf2Class.Sniper, 4);
+		await this.selectCharacter(Tf2Class.Scout, 5);
+		await this.selectCharacter(Tf2Class.Soldier, 6);
+		await this.selectCharacter(Tf2Class.Demoman, 7);
+		await this.selectCharacter(Tf2Class.Medic, 8);
+		this.#selectAnim('meettheteam', true);
+		/*
+		const toolbox = this.#toolboxModel ?? await ModelManager.addTF2Model(TF2_TOOLBOX_MODEL);
+		if (toolbox) {
+			this.#toolboxModel = toolbox;
+
+			let q = quat.create();
+			quat.rotateZ(q, q, -Math.PI * 0.5);
+			let o = vec3.transformQuat(vec3.create(), [-195.8566589355, -71.0726394653, 0], q);
+			let oo = quat.mul(quat.create(), [0, 0, 0.1503659188747406, 0.9886304140090942], q);
+			toolbox.position = o;
+
+			toolbox.quaternion = oo;
+			toolbox.skin = String(new OptionsManager().getItem('app.loadout.team') == 'RED' ? 0 : 1);
+		}
+		//new OptionsManager().addEventListener('app.loadout.team', (event) => {toolbox.setSkin(this.getCharacter(1).characterModel.skin);});
+
+		Controller.dispatchEvent(new CustomEvent(EVENT_SETUP_MEET_THE_TEAM));
+		*/
+	}
+
+	static async #selectAnim(anim: string, applyToAll: boolean, force = false) {
+		/*
+		if (!force && this.#htmlAnimSelector.value != '') {
+			return;
+		}
+		*/
+		if (applyToAll) {
+			for (const slot of this.#characterSlots) {
+				slot.character?.setUserAnim(anim);
+			}
+		} else {
+			this.getCurrentCharacter()?.setUserAnim(anim)
 		}
 	}
 }

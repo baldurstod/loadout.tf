@@ -645,4 +645,8 @@ export class Character {
 
 		return effect;
 	}
+
+	setPoseParameter(name: string, value: number): void {
+		this.#model?.setPoseParameter(name, value);
+	}
 }
