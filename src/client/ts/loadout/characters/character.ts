@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix';
-import { ChoreographiesManager, ChoreographyEventType, RandomFloat, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
+import { ChoreographiesManager, ChoreographyEventType, Material, RandomFloat, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
-import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
+import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
 import { getKillstreak, KillstreakColor, killstreakList } from '../../paints/killstreaks';
 import { Effect } from '../effects/effect';
 import { EffectTemplate, EffectType } from '../effects/effecttemplate';
@@ -14,9 +14,15 @@ import { FlyingBird } from './flyingbird';
 
 const eyeAttachments = ['eyeglow_R', 'eyeglow_L'];
 
-const enum Eye {
+export const enum Eye {
 	Right = 0,
 	Left = 1,
+}
+
+export const enum Ragdoll {
+	None = 0,
+	Gold = 1,
+	Ice = 2,
 }
 
 export class Character {
@@ -39,6 +45,7 @@ export class Character {
 	#visible = true;
 	#zombieSkin = false;
 	#isInvulnerable = false;
+	#ragdoll = Ragdoll.None;
 	#userAnim = '';
 	#voicePose?: string;
 	#taunt: Item | null = null;
@@ -101,9 +108,31 @@ export class Character {
 	async #refreshSkin(): Promise<void> {
 		await this.#ready;
 		if (this.#model) {
-			const zombieSkinOffset = (this.characterClass == Tf2Class.Spy ? 22 : 4);
-			await this.#model.setSkin(String(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0)));
+			let materialOverride: string
+			switch (this.#ragdoll) {
+				case Ragdoll.None:
+					await this.#setMaterialOverride(null);
+					const zombieSkinOffset = (this.characterClass == Tf2Class.Spy ? 22 : 4);
+					await this.#model.setSkin(String(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0)));
+					return;
+				case Ragdoll.Gold:
+					materialOverride = MATERIAL_GOLD_RAGDOLL;
+					break;
+				case Ragdoll.Ice:
+					materialOverride = MATERIAL_ICE_RAGDOLL;
+					break;
+			}
+			await this.#setMaterialOverride(materialOverride);
 		}
+	}
+
+	async #setMaterialOverride(materialOverride: string | null): Promise<void> {
+		let material: Material | null = null;
+		if (materialOverride) {
+			material = await Source1MaterialManager.getMaterial('tf2', materialOverride);
+		}
+
+		void this.#model?.setMaterialOverride(material);
 	}
 
 	getTeam(): Team {
@@ -215,6 +244,19 @@ export class Character {
 
 	async setInvulnerable(isInvulnerable: boolean): Promise<void> {
 		this.#isInvulnerable = isInvulnerable;
+		await this.#refreshSkinAll();
+	}
+
+	getRagdoll(): Ragdoll {
+		return this.#ragdoll;
+	}
+
+	async setRagdoll(ragdoll: Ragdoll): Promise<void> {
+		this.#ragdoll = ragdoll;
+		await this.#refreshSkinAll();
+	}
+
+	async #refreshSkinAll(): Promise<void> {
 		const promises: Promise<void>[] = [];
 		promises.push(this.#refreshSkin());
 		this.items.forEach(item => promises.push(item.setTeam(this.#team)));

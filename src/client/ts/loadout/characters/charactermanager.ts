@@ -2,10 +2,10 @@ import { vec3 } from 'gl-matrix';
 import { getSceneExplorer, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
 import { uint } from 'harmony-types';
 import { startAnim } from '../../constants';
-import { Controller, ControllerEvent, SetInvulnerable } from '../../controller';
+import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../../controller';
 import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
-import { Character } from './character';
+import { Character, Ragdoll } from './character';
 import { CharactersList, Tf2Class } from './characters';
 
 type CharacterSlot = {
@@ -25,6 +25,7 @@ export class CharacterManager {
 	static {
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.updatePaintColor());
 		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<SetInvulnerable>).detail.invulnerable, (event as CustomEvent<SetInvulnerable>).detail.applyToAll); return; },);
+		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<SetRagdoll>).detail.ragdoll, (event as CustomEvent<SetInvulnerable>).detail.applyToAll); return; },);
 	}
 
 	static async selectCharacter(characterClass: Tf2Class, slotId?: uint): Promise<Character> {
@@ -155,7 +156,6 @@ export class CharacterManager {
 	static async  #setInvulnerable(invulnerable: boolean, applyToAll: boolean): Promise<void> {
 		this.#isInvulnerable = invulnerable;
 		if (applyToAll) {
-
 			for (const slot of this.#characterSlots) {
 				if (slot) {
 					await slot.character?.setInvulnerable(invulnerable);
@@ -163,6 +163,18 @@ export class CharacterManager {
 			}
 		} else {
 			await this.getCurrentCharacter()?.setInvulnerable(invulnerable);
+		}
+	}
+
+	static async  #setRagdoll(ragdoll: Ragdoll, applyToAll: boolean): Promise<void> {
+		if (applyToAll) {
+			for (const slot of this.#characterSlots) {
+				if (slot) {
+					await slot.character?.setRagdoll(ragdoll);
+				}
+			}
+		} else {
+			await this.getCurrentCharacter()?.setRagdoll(ragdoll);
 		}
 	}
 }

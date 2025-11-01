@@ -1,4 +1,5 @@
 import { BackgroundType } from "./enums";
+import { Ragdoll } from "./loadout/characters/character";
 import { EffectTemplate } from "./loadout/effects/effecttemplate";
 import { ItemTemplate } from "./loadout/items/itemtemplate";
 import { KillstreakColor } from "./paints/killstreaks";
@@ -53,6 +54,7 @@ export enum ControllerEvent {
 	WarpaintClick = 'warpaintclick',
 	WarpaintsLoaded = 'warpaintsloaded',
 	SetInvulnerable = 'setinvulnerable',
+	SetRagdoll = 'setragdoll',
 }
 
 export type SetBackgroundType = {
@@ -99,6 +101,11 @@ export type ItemPinned = {
 
 export type SetInvulnerable = {
 	invulnerable: boolean;
+	applyToAll: boolean;
+}
+
+export type SetRagdoll = {
+	ragdoll: Ragdoll;
 	applyToAll: boolean;
 }
 

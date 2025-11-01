@@ -1,12 +1,12 @@
 import { vec3 } from 'gl-matrix';
 import { Material, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem } from 'harmony-3d';
 import { WeaponManager } from 'harmony-3d-utils';
-import { MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
+import { MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
 import { Killstreak } from '../../paints/killstreaks';
 import { Paint } from '../../paints/paints';
 import { colorToVec3 } from '../../utils/colors';
 import { randomProperty } from '../../utils/randomproperty';
-import { Character } from '../characters/character';
+import { Character, Ragdoll } from '../characters/character';
 import { weaponEffects } from '../effects/effect';
 import { Team } from '../enums';
 import { addTF2Model } from '../scene';
@@ -38,6 +38,7 @@ export class Item {
 	#paintKitWear = 0;
 	#paintKitId: number | null = null;
 	#paintKitSeed = 0n;
+	#materialOverride: string | null = null;
 
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
@@ -119,14 +120,23 @@ export class Item {
 		if (this.#model) {
 			await this.#ready;
 
-			if (this.#character?.isInvulnerable()) {
-				const materialName = this.#team ? MATERIAL_INVULN_BLU : MATERIAL_INVULN_RED;
-				//await setTimeoutPromise(1000);// Ensure this is done after the material are set. This is lame but it works
+			if (this.#character?.isInvulnerable() || this.#character?.getRagdoll() !== Ragdoll.None) {
+				let materialName: string | null = null;
+				switch (this.#character?.getRagdoll()) {
+					case Ragdoll.None:
+						materialName = this.#team ? MATERIAL_INVULN_BLU : MATERIAL_INVULN_RED;
+						break;
+					case Ragdoll.Gold:
+						materialName = MATERIAL_GOLD_RAGDOLL;
+						break;
+					case Ragdoll.Ice:
+						materialName = MATERIAL_ICE_RAGDOLL;
+						break;
+				}
+
 				this.#setMaterialOverride(materialName);
 			} else {
-				this.#setMaterialOverride();
-
-				this.#setMaterialOverride();
+				this.#setMaterialOverride(null);
 
 				const materialOverride = this.#itemTemplate.getMaterialOverride();
 				if (materialOverride) {
@@ -168,7 +178,7 @@ export class Item {
 					glowColor = [5, 20, 80]
 					systemName = 'critgun_weaponmodel_blu';
 				}
-				//systemName = 'unusual_mystery_parent';
+
 				if (systemName && glowColor) {
 					if (!sys) {
 						sys = await Source1ParticleControler.createSystem('tf2', systemName);
@@ -393,8 +403,9 @@ export class Item {
 		this.#refreshPaint();
 	}
 
-	async #setMaterialOverride(materialOverride?: string): Promise<void> {
+	async #setMaterialOverride(materialOverride: string | null): Promise<void> {
 		let material: Material | null = null;
+		this.#materialOverride = materialOverride;
 		if (materialOverride) {
 			material = await Source1MaterialManager.getMaterial('tf2', materialOverride);
 		}
@@ -556,7 +567,7 @@ export class Item {
 	}
 
 	#refreshWarPaint(): void {
-		if (this.#model && this.#paintKitId !== null) {
+		if (this.#model && this.#paintKitId !== null && this.#materialOverride === null) {
 			WeaponManager.refreshItem({
 				id: this.id,
 				paintKitId: this.#paintKitId,

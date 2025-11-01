@@ -66,5 +66,8 @@ export const SHADERTOY_DIRECTORY = './shadertoy/';
 export const MATERIAL_INVULN_BLU = 'models/effects/invulnfx_blue.vmt';
 export const MATERIAL_INVULN_RED = 'models/effects/invulnfx_red.vmt';
 
+export const MATERIAL_GOLD_RAGDOLL = 'models/player/shared/gold_player.vmt';
+export const MATERIAL_ICE_RAGDOLL = 'models/player/shared/ice_player.vmt';
+
 export const EFFECTS_RED = 'teamcolor_red';
 export const EFFECTS_BLU = 'teamcolor_blue';

@@ -99,7 +99,7 @@ export class OptionsPanel extends DynamicPanel {
 				createElement('button', { 'i18n': '#dark_theme', value: 'dark' }),
 			],
 			$change: (event: CustomEvent) => {
-				if ((event).detail.value) {
+				if (event.detail.state) {
 					OptionsManager.setItem('app.css.theme', (event).detail.value);
 				}
 			},
