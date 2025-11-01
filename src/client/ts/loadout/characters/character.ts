@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix';
 import { ChoreographiesManager, ChoreographyEventType, Material, RandomFloat, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
-import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
+import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
 import { getKillstreak, KillstreakColor, killstreakList } from '../../paints/killstreaks';
 import { Effect } from '../effects/effect';
 import { EffectTemplate, EffectType } from '../effects/effecttemplate';
@@ -31,6 +31,7 @@ export class Character {
 	readonly items = new Map<string, Item>();
 	#showBodyParts = new Map<string, boolean>();
 	#model: Source1ModelInstance | null = null;
+	#extraModels = new Set<Source1ModelInstance>();
 	readonly effects = new Set<Effect>();
 	#tauntEffect: Effect | null = null;
 	// [right, left]
@@ -84,9 +85,25 @@ export class Character {
 		return this.#model;
 	}
 
+	async addExtraModel(path: string, repository?: string): Promise<Source1ModelInstance | null> {
+		const extraModel = await addTF2Model(path, repository);
+
+		if (extraModel) {
+			extraModel.setVisible(this.#visible);
+			this.#extraModels.add(extraModel);
+			await this.#refreshSkin();
+
+		}
+
+		return extraModel;
+	}
+
 	setVisible(visble: boolean): void {
 		this.#visible = visble;
 		this.#model?.setVisible(visble);
+		for (const extraModel of this.#extraModels) {
+			extraModel?.setVisible(visble);
+		}
 	}
 
 	async setTeam(team: Team): Promise<void> {
@@ -107,23 +124,35 @@ export class Character {
 
 	async #refreshSkin(): Promise<void> {
 		await this.#ready;
-		if (this.#model) {
-			let materialOverride: string
-			switch (this.#ragdoll) {
-				case Ragdoll.None:
-					await this.#setMaterialOverride(null);
-					const zombieSkinOffset = (this.characterClass == Tf2Class.Spy ? 22 : 4);
+		let materialOverride: string
+		switch (this.#ragdoll) {
+			case Ragdoll.None:
+				await this.#setMaterialOverride(null);
+				const zombieSkinOffset = (this.characterClass == Tf2Class.Spy ? 22 : 4);
+				if (this.#model) {
 					await this.#model.setSkin(String(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0)));
-					return;
-				case Ragdoll.Gold:
-					materialOverride = MATERIAL_GOLD_RAGDOLL;
-					break;
-				case Ragdoll.Ice:
-					materialOverride = MATERIAL_ICE_RAGDOLL;
-					break;
-			}
-			await this.#setMaterialOverride(materialOverride);
+				}
+				for (const extraModel of this.#extraModels) {
+					if (this.#isInvulnerable) {
+						const materialOverride = this.#team ? MATERIAL_INVULN_BLU : MATERIAL_INVULN_RED;
+						const material = await Source1MaterialManager.getMaterial('tf2', materialOverride);
+						await extraModel.setMaterialOverride(material);
+					} else {
+
+						extraModel.setSkin(String(this.#team));
+					}
+
+
+				}
+				return;
+			case Ragdoll.Gold:
+				materialOverride = MATERIAL_GOLD_RAGDOLL;
+				break;
+			case Ragdoll.Ice:
+				materialOverride = MATERIAL_ICE_RAGDOLL;
+				break;
 		}
+		await this.#setMaterialOverride(materialOverride);
 	}
 
 	async #setMaterialOverride(materialOverride: string | null): Promise<void> {
@@ -132,7 +161,10 @@ export class Character {
 			material = await Source1MaterialManager.getMaterial('tf2', materialOverride);
 		}
 
-		void this.#model?.setMaterialOverride(material);
+		await this.#model?.setMaterialOverride(material);
+		for (const extraModel of this.#extraModels) {
+			await extraModel.setMaterialOverride(material);
+		}
 	}
 
 	getTeam(): Team {
@@ -482,6 +514,10 @@ export class Character {
 		for (const [, item] of this.items) {
 			(await item.getModel())?.setFlexes(this.#flexControllers);
 		}
+
+		for (const extraModel of this.#extraModels) {
+			extraModel.setFlexes(this.#flexControllers);
+		}
 	}
 
 	async addEffect(template: EffectTemplate): Promise<Effect> {
@@ -648,5 +684,8 @@ export class Character {
 
 	setPoseParameter(name: string, value: number): void {
 		this.#model?.setPoseParameter(name, value);
+		for (const extraModel of this.#extraModels) {
+			extraModel.setPoseParameter(name, value);
+		}
 	}
 }

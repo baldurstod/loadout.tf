@@ -2,13 +2,13 @@ import { quat, vec3 } from 'gl-matrix';
 import { getSceneExplorer, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
 import { uint } from 'harmony-types';
 import positionJSON from '../../../json/slotsposition.json';
-import { startAnim } from '../../constants';
+import { startAnim, TF2_TOOLBOX_MODEL } from '../../constants';
 import { Controller, ControllerEvent } from '../../controller';
 import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
+import { ClassAnimations, getClassAnimations } from './animations';
 import { Character, Ragdoll } from './character';
 import { CharactersList, Tf2Class } from './characters';
-import { ClassAnimations, getClassAnimations } from './animations';
 
 type CharacterSlot = {
 	character: Character | null;
@@ -22,6 +22,8 @@ type CharacterPosition = {
 }
 
 const DEFAULT_ORIENTATION = quat.fromValues(0, 0, -1, 1);
+const TOOLBOX_POSITION = vec3.fromValues(-71.0726394653, 195.8566589355, 0);
+const TOOLBOX_ORIENTATION = quat.fromValues(0, 0, -0.5927425026893616, 0.8053920269012451);
 
 export class CharacterManager {
 	static #characterSlots: CharacterSlot[] = [{ character: null, position: vec3.create(), orientation: quat.clone(DEFAULT_ORIENTATION) }];
@@ -263,7 +265,7 @@ export class CharacterManager {
 		}
 
 		await this.selectCharacter(Tf2Class.Pyro + botDelta, 0);
-		await this.selectCharacter(Tf2Class.Engineer + botDelta, 1);
+		const engy = await this.selectCharacter(Tf2Class.Engineer + botDelta, 1);
 		await this.selectCharacter(Tf2Class.Spy + botDelta, 2);
 		await this.selectCharacter(Tf2Class.Heavy + botDelta, 3);
 		await this.selectCharacter(Tf2Class.Sniper + botDelta, 4);
@@ -272,24 +274,12 @@ export class CharacterManager {
 		await this.selectCharacter(Tf2Class.Demoman + botDelta, 7);
 		await this.selectCharacter(Tf2Class.Medic + botDelta, 8);
 		this.#selectAnim('meettheteam', true);
-		/*
-		const toolbox = this.#toolboxModel ?? await ModelManager.addTF2Model(TF2_TOOLBOX_MODEL);
+
+		const toolbox = await engy.addExtraModel(TF2_TOOLBOX_MODEL);
 		if (toolbox) {
-			this.#toolboxModel = toolbox;
-
-			let q = quat.create();
-			quat.rotateZ(q, q, -Math.PI * 0.5);
-			let o = vec3.transformQuat(vec3.create(), [-195.8566589355, -71.0726394653, 0], q);
-			let oo = quat.mul(quat.create(), [0, 0, 0.1503659188747406, 0.9886304140090942], q);
-			toolbox.position = o;
-
-			toolbox.quaternion = oo;
-			toolbox.skin = String(new OptionsManager().getItem('app.loadout.team') == 'RED' ? 0 : 1);
+			toolbox.setPosition(TOOLBOX_POSITION);
+			toolbox.setQuaternion(TOOLBOX_ORIENTATION);
 		}
-		//new OptionsManager().addEventListener('app.loadout.team', (event) => {toolbox.setSkin(this.getCharacter(1).characterModel.skin);});
-
-		Controller.dispatchEvent(new CustomEvent(EVENT_SETUP_MEET_THE_TEAM));
-		*/
 	}
 
 	static #selectAnim(anim: string, applyToAll: boolean, force = false): void {
