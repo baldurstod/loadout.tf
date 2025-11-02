@@ -21,7 +21,7 @@ export class ItemManager {
 	static readonly #itemTemplates = new Map<string, ItemTemplate>();
 	static readonly #effectTemplates = new Map2<EffectType, number, EffectTemplate>();
 	static #loadItemsPromise?: Promise<void>;
-	static #loadMedalsPromise?: Promise<void>;
+	static #initMedalsPromise?: Promise<void>;
 	static #initWorkshopPromise?: Promise<void>;
 	static readonly #itemCollections = new Set<string>();
 	static readonly #equipRegions = new Set<string>();
@@ -77,7 +77,7 @@ export class ItemManager {
 		}
 
 		if (filter.attribute == ItemFilterAttribute.TournamentMedals) {
-			throw new Error('init medals');
+			this.#initTournamentMedals();
 		}
 	}
 
@@ -498,5 +498,22 @@ export class ItemManager {
 				//keywords = item.player_bodygroups.join(' ');//TODO
 			}
 		}
+	}
+
+	static async #initTournamentMedals(): Promise<void> {
+		if (!this.#initWorkshopPromise) {
+			this.#initWorkshopPromise = new Promise<void>((resolve): void => {
+				(async (): Promise<void> => {
+					const response = await fetch(`${TF2_REPOSITORY}generated/items/medals_${this.#lang}.json`);
+					const json = await response.json();
+					if (json) {
+						this.#initItems2(json.items, true);
+					}
+					Controller.dispatchEvent<void>(ControllerEvent.ItemsLoaded);
+					resolve();
+				})()
+			});
+		}
+		await this.#initWorkshopPromise;
 	}
 }
