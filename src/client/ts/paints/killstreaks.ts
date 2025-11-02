@@ -17,6 +17,7 @@ export enum KillstreakColor {
 }
 
 export type KillstreakDefinition = {
+	id: number,
 	name: string,
 	sheen: KillstreakColor,
 	teamColored: boolean,
@@ -32,6 +33,7 @@ export const killstreakList = new Map<KillstreakColor, KillstreakDefinition>();
 
 for (const killstreakJSON of killstreaks) {
 	killstreakList.set(killstreakJSON.id, {
+		id: killstreakJSON.id,
 		name: killstreakJSON.name,
 		sheen: killstreakJSON.id,
 		teamColored: killstreakJSON.team ?? false,
@@ -62,6 +64,7 @@ function colorToTint(color: number, tint: vec3): void {
  * A TF2 Sheen
  */
 export class Killstreak {
+	readonly id: number;
 	#name: string;
 	#killstreak: KillstreakColor;
 	#sheenRed = vec3.create();
@@ -73,6 +76,7 @@ export class Killstreak {
 	readonly teamColored: boolean;
 
 	constructor(definition: KillstreakDefinition) {
+		this.id = definition.id;
 		this.#name = definition.name;
 		this.#killstreak = definition.sheen;
 		colorToTint(definition.sheenRed, this.#sheenRed);

@@ -1,6 +1,7 @@
 import { quat, vec3 } from 'gl-matrix';
 import { getSceneExplorer, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
-import { uint } from 'harmony-types';
+import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
+import { JSONObject, uint } from 'harmony-types';
 import positionJSON from '../../../json/slotsposition.json';
 import { startAnim, TF2_TOOLBOX_MODEL } from '../../constants';
 import { Controller, ControllerEvent } from '../../controller';
@@ -9,6 +10,7 @@ import { ItemManager } from '../items/itemmanager';
 import { ClassAnimations, getClassAnimations } from './animations';
 import { Character, Ragdoll } from './character';
 import { CharactersList, Tf2Class } from './characters';
+import { Presets } from './preset';
 
 type CharacterSlot = {
 	character: Character | null;
@@ -35,6 +37,7 @@ export class CharacterManager {
 	static #slotsPositions = new Map<string, CharacterPosition[]>();
 	static #applyToAll = true;
 	static #useBots = false;
+	static #presets = new Map<string, Presets>();
 
 	static {
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.updatePaintColor());
@@ -43,6 +46,8 @@ export class CharacterManager {
 		Controller.addEventListener(ControllerEvent.SetAnim, (event: Event) => this.#setAnim((event as CustomEvent<string>).detail));
 		Controller.addEventListener(ControllerEvent.SetApplyToAll, (event: Event) => this.#applyToAll = (event as CustomEvent<boolean>).detail);
 		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => this.#useBots = (event as CustomEvent<boolean>).detail);
+
+		OptionsManagerEvents.addEventListener('app.loadout.presets', (event: Event) => this.#loadPresets((event as CustomEvent).detail.value));
 		this.#initDispositions();
 	}
 
@@ -307,5 +312,148 @@ export class CharacterManager {
 			return getClassAnimations(currentClass);
 		}
 		return null;
+	}
+
+	static #loadPresets(presets: any): void {
+		const j = JSON.parse(presets);
+
+		this.#presets.clear();
+		//#presets = new Map<string, Presets>();
+
+		for (const name in j) {
+			//const preset = presets[name];
+			const p = new Presets();
+			p.fromJSON(j[name]);
+			this.#presets.set(name, p);
+		}
+		Controller.dispatchEvent(ControllerEvent.PresetsUpdated);
+		//this.#updatePresetsPanel();
+	}
+
+	static loadPreset(name: string): void {
+		if (!this.#currentCharacter) {
+			return;
+		}
+
+		const npc = CharactersList.get(this.#currentCharacter.characterClass)!.name
+		const presets = this.#presets.get(npc);
+		if (!presets) {
+			return;
+		}
+
+		const preset = presets.getPreset(name);
+		if (!preset) {
+			return;
+		}
+
+		this.#currentCharacter.loadPreset(preset);
+	}
+
+
+	static savePresets(): void {
+		const j: JSONObject = {};
+
+		for (const [name, presets] of this.#presets) {
+			//#presets = new Map<string, Presets>();
+			j[name] = presets.toJSON();
+		}
+
+		OptionsManager.setItem('app.loadout.presets', JSON.stringify(j));
+	}
+
+	static savePreset(name?: string): void {
+		if (!this.#currentCharacter || name == '') {
+			return;
+		}
+
+		const npc = CharactersList.get(this.#currentCharacter.characterClass)!.name;
+		let presets = this.#presets.get(npc)!;
+		if (!presets) {
+			presets = new Presets();
+			this.#presets.set(npc, presets);
+		}
+
+		if (!presets.selected && !name) {
+			return;
+		}
+
+		presets.addPreset(this.#currentCharacter.savePreset(name ?? presets.selected!));
+		if (name) {
+			presets.selected = name;
+		}
+
+
+		//#presets = new Map<string, Presets>();
+		this.savePresets();
+		//this.#updatePresetsPanel();
+		Controller.dispatchEvent(ControllerEvent.PresetsUpdated);
+	}
+
+	static createPresetName(): string {
+		if (!this.#currentCharacter) {
+			return '';
+		}
+
+		function* nameGenerator(): Generator<string, string, unknown> {
+			let gen;
+			try {
+				const names = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+				let subName = '';
+
+				while (true) {
+					if (gen) {
+						subName = gen.next().value;
+					}
+					for (const name of names) {
+						yield subName + name;
+					}
+					if (!gen) {
+						gen = nameGenerator();
+					}
+				}
+			} finally {
+				gen?.return('');
+			}
+		}
+
+		const gen = nameGenerator();
+
+		const npc = CharactersList.get(this.#currentCharacter.characterClass)!.name
+		const presets = this.#presets.get(npc);
+		if (!presets) {
+			return gen.next().value;
+		}
+
+		while (true) {
+			const name = gen.next().value;
+
+			if (!name) {
+				continue;
+			}
+
+			if (!presets.getPreset(name)) {
+				gen.return('');
+				return name;
+			}
+		}
+	}
+
+	static setSelectedPreset(preset: string): void {
+		if (!this.#currentCharacter) {
+			return;
+		}
+		const npc = CharactersList.get(this.#currentCharacter?.characterClass)!.name
+		const presets = this.#presets.get(npc);
+		if (presets) {
+			presets.selected = preset;
+		}
+	}
+
+	static getPresets(): Presets | null {
+		if (!this.#currentCharacter) {
+			return null;
+		}
+		const npc = CharactersList.get(this.#currentCharacter.characterClass)!.name
+		return this.#presets.get(npc) ?? null;
 	}
 }

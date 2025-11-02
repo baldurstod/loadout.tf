@@ -24,7 +24,7 @@ export class Item {
 	#festivizerModel?: Source1ModelInstance | null;
 	#stattrakModule?: Source1ModelInstance | null;
 	#team = Team.Red;
-	#killCount?: number;
+	#killCount: number | null = null;
 	#refreshingSkin = false;
 	#showFestivizer = false;
 	#critBoost = false;
@@ -72,7 +72,7 @@ export class Item {
 		return this.#itemTemplate.equipRegions;
 	}
 
-	async toggleStattrak(count: number): Promise<void> {
+	async toggleStattrak(count: number | null): Promise<void> {
 		this.#killCount = count;
 		if (!this.#stattrakModule) {
 			const stattrakPath = this.#itemTemplate.weaponUsesStattrakModule;
@@ -94,6 +94,10 @@ export class Item {
 				stattrackBone.scale = [stattrakScale, stattrakScale, stattrakScale];
 			}
 		}
+	}
+
+	getKillCount(): number | null {
+		return this.#killCount;
 	}
 
 	async #refreshSkin(): Promise<void> {
@@ -541,13 +545,13 @@ export class Item {
 		return this.#weaponEffectId;
 	}
 
-	setPaintKitId(paintKitId: number): void {
+	setPaintKitId(paintKitId: number | null): void {
 		this.#paintKitId = paintKitId;
 		this.#refreshWarPaint();
 	}
 
-	get paintKitId(): number {
-		return this.#paintKitId ?? -1;
+	get paintKitId(): number | null {
+		return this.#paintKitId ?? null;
 	}
 
 	setPaintKitWear(paintKitWear: number): void {
@@ -555,9 +559,17 @@ export class Item {
 		this.#refreshWarPaint();
 	}
 
+	getPaintKitWear(): number {
+		return this.#paintKitWear;
+	}
+
 	setPaintKitSeed(paintKitSeed: bigint): void {
 		this.#paintKitSeed = paintKitSeed;
 		this.#refreshWarPaint();
+	}
+
+	getPaintKitSeed(): bigint {
+		return this.#paintKitSeed;
 	}
 
 	setPaintKit(paintKitId: number, paintKitWear: number, paintKitSeed: bigint): void {

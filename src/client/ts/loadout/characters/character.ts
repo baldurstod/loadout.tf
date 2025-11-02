@@ -11,6 +11,9 @@ import { ItemTemplate } from '../items/itemtemplate';
 import { addTF2Model } from '../scene';
 import { CharactersList, ClassRemovablePartsOff, Tf2Class } from './characters';
 import { FlyingBird } from './flyingbird';
+import { Preset, PresetItem } from './preset';
+import { ItemManager } from '../items/itemmanager';
+import { getPaint } from '../../paints/paints';
 
 const eyeAttachments = ['eyeglow_R', 'eyeglow_L'];
 
@@ -602,7 +605,7 @@ export class Character {
 		}
 	}
 
-	async setKillsteakEffect(template: EffectTemplate | null, color: KillstreakColor): Promise<[Effect | null, Effect | null]> {
+	async setKillsteakEffect(template: EffectTemplate | null, color?: KillstreakColor): Promise<[Effect | null, Effect | null]> {
 		return this.#setKillsteakEffect(this.#killstreakEffects, template, Eye.Right, color);
 	}
 
@@ -650,7 +653,7 @@ export class Character {
 
 			// Only update if the effects is team colored
 			if (killstreak?.teamColored) {
-				await this.setKillsteakEffect(effect.template, effect.killstreakColor!);
+				await this.setKillsteakEffect(effect.template, effect.killstreakColor);
 			}
 		}
 	}
@@ -687,5 +690,156 @@ export class Character {
 		for (const extraModel of this.#extraModels) {
 			extraModel.setPoseParameter(name, value);
 		}
+	}
+
+	savePreset(name: string): Preset {
+		const preset = new Preset(name);
+
+		const npc = CharactersList.get(this.characterClass)!.name;
+		preset.character = npc;
+
+		for (const [, item] of this.items) {
+			const presetItem = new PresetItem();
+
+			presetItem.id = item.id;
+			if (presetItem.id.startsWith('w')) {
+				// Remove leading w
+				presetItem.id = presetItem.id.substring(1);
+			}
+			presetItem.isWorkshop = item.getTemplate().isWorkshop();
+			presetItem.isTournamentMedal = item.getTemplate().isTournamentMedal();
+
+			if (item.paintKitId !== null) {
+				presetItem.paintkitId = item.paintKitId;
+			}
+
+			if (item.getPaintKitSeed() != 0n) {
+				presetItem.paintkitSeed = item.getPaintKitSeed();
+			}
+
+			if (item.getPaintKitWear() != 0) {
+				presetItem.paintkitWear = item.getPaintKitWear();
+			}
+
+			const paint = item.getPaint();
+			if (paint && paint.id != 0) {
+				presetItem.paint = paint.id;
+			}
+
+			presetItem.weaponEffect = item.getWeaponEffectId() ?? undefined;
+			presetItem.showFestivizer = item.getShowFestivizer();
+			presetItem.killCount = item.getKillCount() ?? undefined;
+			presetItem.sheen = item.getSheen()?.id;
+
+			preset.addItem(presetItem);
+		}
+
+		/*
+		for (const name in this.effects) {
+			const effect = this.effects[name];
+			const presetEffect = new PresetEffect();
+
+			presetEffect.name = effect.name;
+			presetEffect.attachment = effect.attachment;
+			if (effect.offset) {
+				vec3.copy(presetEffect.offset, effect.offset);
+			}
+
+			preset.addEffect(presetEffect);
+		}
+		*/
+
+		/*
+		if (this.taunteffects.name) {
+			const presetEffect = new PresetEffect();
+			presetEffect.name = this.taunteffects.name;
+			presetEffect.type = PresetEffectType.Taunt;
+			preset.addEffect(presetEffect);
+		}
+		if (this.killstreakeffects.name) {
+			const presetEffect = new PresetEffect();
+			presetEffect.name = this.killstreakeffects.name;
+			presetEffect.type = PresetEffectType.Killstreak;
+			vec3.copy(presetEffect.color, this.killstreakeffects.color);
+			preset.addEffect(presetEffect);
+		}
+		if (this.#eyeGlowEffect.name) {
+			const presetEffect = new PresetEffect();
+			presetEffect.name = this.#eyeGlowEffect.name;
+			presetEffect.type = PresetEffectType.Killstreak;
+			presetEffect.isEyeGlow = true;
+			preset.addEffect(presetEffect);
+		}
+		*/
+
+		return preset;
+	}
+
+	async loadPreset(preset: Preset): Promise<void> {
+		this.removeAllItems();
+		this.removeAllEffects();
+
+		//let item: Item | undefined;
+		for (const presetItem of preset.items) {
+			let itemId = presetItem.id;
+
+			if (presetItem.isWorkshop) {
+				itemId = 'w' + itemId;
+			}
+
+			const template = ItemManager.getItemTemplate(itemId);
+			if (!template) {
+				continue;
+			}
+
+			const item = await this.#addItem(template);
+
+			if (item) {
+				item.setPaintKitId(presetItem.paintkitId ?? null);
+				item.setPaintKitWear(presetItem.paintkitWear ?? 0);
+				item.setPaintKitSeed(presetItem.paintkitSeed ?? 0n);
+
+				if (presetItem.paint) {
+					item.setPaint(getPaint(presetItem.paint));
+				}
+
+				//item.paintId = presetItem.paint ?? DEFAULT_PAINT_ID;
+				//item.weaponEffectId = presetItem.weaponEffect;
+				item.setWeaponEffectId(presetItem.weaponEffect ?? null);
+				item.setShowFestivizer(presetItem.showFestivizer);
+				item.toggleStattrak(presetItem.killCount ?? null);
+				item.setSheen(getKillstreak(presetItem.sheen ?? 0));
+			}
+		}
+
+		/*
+		for (const presetEffect of preset.effects) {
+			switch (presetEffect.type) {
+				case PresetEffectType.Unusual:
+					EffectManager.addEffect(presetEffect.name, null, this, presetEffect.offset);
+					break;
+				case PresetEffectType.Taunt:
+					setTauntEffect(this, undefined, presetEffect.name, UnusualTauntListRefireTime.get(presetEffect.name));
+					break;
+				case PresetEffectType.Killstreak:
+					setKillstreakEffect(this, undefined, presetEffect.name, presetEffect.color, presetEffect.isEyeGlow);
+					break;
+			}
+		}
+		*/
+	}
+
+	removeAllItems(): void {
+		for (const [, item] of this.items) {
+			this.#removeItem(item);
+		}
+	}
+
+	removeAllEffects(): void {
+		for (const effect of this.effects) {
+			this.removeEffect(effect);
+		}
+		this.setKillsteakEffect(null);
+		this.setTauntEffect(null);
 	}
 }

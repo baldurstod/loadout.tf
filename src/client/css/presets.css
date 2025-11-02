@@ -6,10 +6,72 @@
 
 .inner {
 	position: absolute;
-	background-color: chartreuse;
-	width: 70%;
 	height: 70%;
+	width: 70%;
 	top: 15%;
 	left: 15%;
+	background-color: var(--theme-popup-bg-color);
+	padding: 10px;
+	font-size: 2rem;
+	display: flex;
+	flex-direction: column;
+}
 
+.inner .header {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.presets {
+	overflow: auto;
+}
+
+.presets {
+	overflow: auto;
+}
+
+.preset.selected {
+	background-color: coral;
+}
+
+.preset-button {
+	border-radius: 1px;
+	display: inline-block;
+	cursor: pointer;
+	padding: 4px;
+	color: white;
+	pointer-events: all;
+	margin: 4px;
+	background-color: var(--harmony-ui-accent-primary);
+	font-size: 2rem;
+	display: flex;
+	align-items: center;
+	padding: 1rem;
+}
+
+
+.preset {
+	display: flex;
+	cursor: pointer;
+}
+
+.preset .export {
+	display: flex;
+	align-items: center;
+	padding: 0.5rem;
+	background-color: var(--theme-popup-bg-color);
+}
+
+.preset .name {
+	display: flex;
+	align-items: center;
+}
+
+.preset .thumbs {
+	flex: 1;
+}
+
+.preset .thumb {
+	width: 4rem;
 }

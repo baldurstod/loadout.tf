@@ -56,6 +56,7 @@ export enum ControllerEvent {
 	SetInvulnerable = 'setinvulnerable',
 	SetRagdoll = 'setragdoll',
 	SetApplyToAll = 'setapplytoall',
+	PresetsUpdated = 'presetsupdated',
 }
 
 export type SetBackgroundType = {

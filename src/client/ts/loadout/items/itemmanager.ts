@@ -73,11 +73,11 @@ export class ItemManager {
 		Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated);
 
 		if (filter.attribute == ItemFilterAttribute.Workshop) {
-			this.#initWorkshopItems();
+			this.initWorkshopItems();
 		}
 
 		if (filter.attribute == ItemFilterAttribute.TournamentMedals) {
-			this.#initTournamentMedals();
+			this.initTournamentMedals();
 		}
 	}
 
@@ -428,7 +428,7 @@ export class ItemManager {
 		return null;
 	}
 
-	static async #initWorkshopItems(): Promise<void> {
+	static async initWorkshopItems(): Promise<void> {
 		if (!this.#initWorkshopPromise) {
 			this.#initWorkshopPromise = new Promise<void>((resolve): void => {
 				(async (): Promise<void> => {
@@ -500,7 +500,7 @@ export class ItemManager {
 		}
 	}
 
-	static async #initTournamentMedals(): Promise<void> {
+	static async initTournamentMedals(): Promise<void> {
 		if (!this.#initWorkshopPromise) {
 			this.#initWorkshopPromise = new Promise<void>((resolve): void => {
 				(async (): Promise<void> => {

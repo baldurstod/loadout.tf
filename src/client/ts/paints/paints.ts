@@ -48,6 +48,7 @@ export enum Paints {
 }
 
 export type PaintDefinition = {
+	id: number;
 	name: string,
 	paint: Paints,
 	teamColored: boolean,
@@ -61,6 +62,7 @@ export const paintList = new Map<Paints, PaintDefinition>();
 
 for (const paintJSON of paints) {
 	paintList.set(paintJSON.id, {
+		id: paintJSON.id,
 		name: paintJSON.name,
 		paint: paintJSON.id,
 		teamColored: paintJSON.team ?? false,
@@ -90,6 +92,7 @@ const kSamplePoints = 256;
  * A TF2 paint
  */
 export class Paint {
+	readonly id: number;
 	#name: string;
 	#paint: Paints;
 	#tintRed = vec3.create();
@@ -100,6 +103,7 @@ export class Paint {
 	time?: number;
 
 	constructor(definition: PaintDefinition) {
+		this.id = definition.id;
 		this.#name = definition.name;
 		this.#paint = definition.paint;
 		colorToTint(definition.tintRed, this.#tintRed);
