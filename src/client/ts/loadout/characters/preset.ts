@@ -135,6 +135,7 @@ export class Preset {
 	name = '';
 	items = new Set<PresetItem>();
 	effects = new Set<PresetEffect>();
+	decapitationLevel = 0;
 
 	constructor(name?: string) {
 		if (name !== undefined) {
@@ -175,11 +176,14 @@ export class Preset {
 				}
 			}
 		}
+		if (json.decapitation_level !== undefined) {
+			this.decapitationLevel = json.decapitation_level as number;
+		}
 		return true;
 	}
 
 	toJSON(): JSONObject {
-		const j: { name: string, character: string, items: JSONObject[], effects: JSONObject[] } = {
+		const j: { name: string, character: string, items: JSONObject[], effects: JSONObject[], decapitation_level?: number } = {
 			name: this.name,
 			character: this.character,
 			items: [],
@@ -192,6 +196,10 @@ export class Preset {
 
 		for (const effect of this.effects) {
 			j.effects.push(effect.toJSON());
+		}
+
+		if (this.decapitationLevel != 0) {
+			j.decapitation_level = this.decapitationLevel;
 		}
 
 		return j;

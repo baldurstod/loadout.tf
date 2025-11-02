@@ -54,6 +54,7 @@ export class Character {
 	#voicePose?: string;
 	#taunt: Item | null = null;
 	#flexControllers = new Map<string, number>;
+	#decapitationLevel = 0;
 
 	constructor(characterClass: Tf2Class) {
 		this.characterClass = characterClass;
@@ -659,6 +660,7 @@ export class Character {
 	}
 
 	async setDecapitationLevel(level: number): Promise<[Effect | null, Effect | null]> {
+		this.#decapitationLevel = level;
 		let template: EffectTemplate | null = null;
 		if (level > 0) {
 			template = new EffectTemplate(EffectType.Killstreak, 20000, { "name": "Eye glow", "system": "eye_powerup_green_lvl_" + level, });
@@ -697,6 +699,7 @@ export class Character {
 
 		const npc = CharactersList.get(this.characterClass)!.name;
 		preset.character = npc;
+		preset.decapitationLevel = this.#decapitationLevel;
 
 		for (const [, item] of this.items) {
 			const presetItem = new PresetItem();
@@ -811,6 +814,8 @@ export class Character {
 				item.setSheen(getKillstreak(presetItem.sheen ?? 0));
 			}
 		}
+
+		this.setDecapitationLevel(preset.decapitationLevel);
 
 		/*
 		for (const presetEffect of preset.effects) {
