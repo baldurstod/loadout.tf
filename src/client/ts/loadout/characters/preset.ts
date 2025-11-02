@@ -1,5 +1,8 @@
 import { vec3 } from 'gl-matrix';
 import { JSONArray, JSONObject } from 'harmony-types';
+import { KillstreakColor } from '../../paints/killstreaks';
+import { EffectType } from '../effects/effecttemplate';
+import { Effect } from '../effects/effect';
 
 export class PresetItem {
 	id = '';
@@ -86,19 +89,57 @@ export enum PresetEffectType {
 	Unusual = "unusual",
 	Taunt = "taunt",
 	Killstreak = "killstreak",
+	Weapon = "weapon",
+	Other = "other",
 }
 
+const VEC3_ZERO = vec3.create();
+
 export class PresetEffect {
-	name = '';
-	attachment = '';
-	offset = vec3.create();
-	color = vec3.create();
-	isEyeGlow = false;
+	id = 0;
 	type: PresetEffectType = PresetEffectType.Unusual;
+	attachment? = '';
+	offset = vec3.create();
+	color?: KillstreakColor;
+
+	setType(type: EffectType): void {
+		switch (type) {
+			case EffectType.Cosmetic:
+				this.type = PresetEffectType.Unusual;
+				break;
+			case EffectType.Killstreak:
+				this.type = PresetEffectType.Killstreak;
+				break;
+			case EffectType.Taunt:
+				this.type = PresetEffectType.Taunt;
+				break;
+			case EffectType.Weapon:
+				this.type = PresetEffectType.Weapon;
+				break;
+			case EffectType.Other:
+				this.type = PresetEffectType.Other;
+				break;
+		}
+	}
+
+	getType(): EffectType {
+		switch (this.type) {
+			case PresetEffectType.Unusual:
+				return EffectType.Cosmetic;
+			case PresetEffectType.Killstreak:
+				return EffectType.Killstreak;
+			case PresetEffectType.Taunt:
+				return EffectType.Taunt;
+			case PresetEffectType.Weapon:
+				return EffectType.Weapon;
+			case PresetEffectType.Other:
+				return EffectType.Other;
+		}
+	}
 
 	fromJSON(json: JSONObject): boolean {
-		if (json.name !== undefined) {
-			this.name = json.name as string;
+		if (json.id !== undefined) {
+			this.id = json.id as number;
 		}
 		if (json.attachment !== undefined) {
 			this.attachment = json.attachment as string;
@@ -106,27 +147,30 @@ export class PresetEffect {
 		if (json.type !== undefined) {
 			this.type = json.type as PresetEffectType;
 		}
-		if (json.is_eye_glow !== undefined) {
-			this.isEyeGlow = json.is_eye_glow as boolean;
-		}
 		if (json.offset !== undefined) {
 			vec3.copy(this.offset, json.offset as any);
 		}
 		if (json.color !== undefined) {
-			vec3.copy(this.color, json.color as any);
+			this.color = json.color as any;
 		}
 		return true;
 	}
 
 	toJSON(): JSONObject {
-		return {
-			name: this.name,
-			attachment: this.attachment,
+		const j: { id: number, type: string, attachment?: string, offset?: [number, number, number], color?: number } = {
+			id: this.id,
 			type: this.type,
-			is_eye_glow: this.isEyeGlow,
-			offset: this.offset as any,
-			color: this.color as any,
-		};
+		}
+
+		if (this.attachment) {
+			j.attachment = this.attachment;
+		}
+		if (!vec3.exactEquals(this.offset, VEC3_ZERO)) {
+			j.offset = this.offset as [number, number, number];
+		}
+		j.color = this.color;
+
+		return j;
 	}
 }
 

@@ -11,7 +11,7 @@ import { ItemTemplate } from '../items/itemtemplate';
 import { addTF2Model } from '../scene';
 import { CharactersList, ClassRemovablePartsOff, Tf2Class } from './characters';
 import { FlyingBird } from './flyingbird';
-import { Preset, PresetItem } from './preset';
+import { Preset, PresetEffect, PresetEffectType, PresetItem } from './preset';
 import { ItemManager } from '../items/itemmanager';
 import { getPaint } from '../../paints/paints';
 
@@ -737,43 +737,36 @@ export class Character {
 			preset.addItem(presetItem);
 		}
 
-		/*
-		for (const name in this.effects) {
-			const effect = this.effects[name];
+		const addPresetEffect = (effect: Effect | null): void => {
+			if (!effect) {
+				return;
+			}
 			const presetEffect = new PresetEffect();
 
-			presetEffect.name = effect.name;
+			presetEffect.id = effect.template.id;
+			presetEffect.setType(effect.template.type);
 			presetEffect.attachment = effect.attachment;
+			presetEffect.color = effect.killstreakColor;
 			if (effect.offset) {
 				vec3.copy(presetEffect.offset, effect.offset);
 			}
 
 			preset.addEffect(presetEffect);
 		}
-		*/
 
-		/*
-		if (this.taunteffects.name) {
-			const presetEffect = new PresetEffect();
-			presetEffect.name = this.taunteffects.name;
-			presetEffect.type = PresetEffectType.Taunt;
-			preset.addEffect(presetEffect);
+		for (const effect of this.effects) {
+			addPresetEffect(effect);
 		}
-		if (this.killstreakeffects.name) {
-			const presetEffect = new PresetEffect();
-			presetEffect.name = this.killstreakeffects.name;
-			presetEffect.type = PresetEffectType.Killstreak;
-			vec3.copy(presetEffect.color, this.killstreakeffects.color);
-			preset.addEffect(presetEffect);
+
+		addPresetEffect(this.#tauntEffect);
+
+		for (const effect of this.#killstreakEffects) {
+			if (effect) {
+				addPresetEffect(effect);
+				// we only need to serialize the first non nul effect
+				break;
+			}
 		}
-		if (this.#eyeGlowEffect.name) {
-			const presetEffect = new PresetEffect();
-			presetEffect.name = this.#eyeGlowEffect.name;
-			presetEffect.type = PresetEffectType.Killstreak;
-			presetEffect.isEyeGlow = true;
-			preset.addEffect(presetEffect);
-		}
-		*/
 
 		return preset;
 	}
@@ -782,7 +775,6 @@ export class Character {
 		this.removeAllItems();
 		this.removeAllEffects();
 
-		//let item: Item | undefined;
 		for (const presetItem of preset.items) {
 			let itemId = presetItem.id;
 
@@ -817,21 +809,24 @@ export class Character {
 
 		this.setDecapitationLevel(preset.decapitationLevel);
 
-		/*
 		for (const presetEffect of preset.effects) {
+			const template = ItemManager.getEffectTemplate(presetEffect.getType(), presetEffect.id);
+			if (!template) {
+				continue;
+			}
+
 			switch (presetEffect.type) {
 				case PresetEffectType.Unusual:
-					EffectManager.addEffect(presetEffect.name, null, this, presetEffect.offset);
-					break;
-				case PresetEffectType.Taunt:
-					setTauntEffect(this, undefined, presetEffect.name, UnusualTauntListRefireTime.get(presetEffect.name));
+					this.addEffect(template);
 					break;
 				case PresetEffectType.Killstreak:
-					setKillstreakEffect(this, undefined, presetEffect.name, presetEffect.color, presetEffect.isEyeGlow);
+					this.setKillsteakEffect(template, presetEffect.color);
+					break;
+				case PresetEffectType.Taunt:
+					this.setTauntEffect(template);
 					break;
 			}
 		}
-		*/
 	}
 
 	removeAllItems(): void {
