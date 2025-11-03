@@ -3,7 +3,7 @@ import { OptionsManager } from 'harmony-browser-utils';
 import { setLegacyPaintKit } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { Map2 } from 'harmony-utils';
-import { TF2_REPOSITORY, WORKSHOP_URL } from '../../constants';
+import { FIRST_LEGACY_WARPAINT, LAST_LEGACY_WARPAINT, TF2_REPOSITORY, WORKSHOP_URL } from '../../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, ItemPinned, SetItemFilter } from '../../controller';
 import { Panel } from '../../enums';
 import { Character } from '../characters/character';
@@ -58,7 +58,7 @@ export class ItemManager {
 
 		Controller.addEventListener(ControllerEvent.ShowPanel, (event: Event) => {
 			if ((event as CustomEvent<Panel>).detail == Panel.Items || (event as CustomEvent<Panel>).detail == Panel.Effects) {
-				this.#initItems();
+				this.initItems();
 			}
 		});
 
@@ -153,7 +153,7 @@ export class ItemManager {
 		}
 	}
 
-	static #initItems(): Promise<void> {
+	static initItems(): Promise<void> {
 		if (!this.#loadItemsPromise) {
 			this.#loadItemsPromise = new Promise((resolve) => {
 				const url = `${TF2_REPOSITORY}generated/items/items_${this.#lang}.json`;
@@ -405,7 +405,7 @@ export class ItemManager {
 			template.weaponName = weaponName;
 			*/
 
-			if ((Number(itemId) >= 15000) && (Number(itemId) <= 15158)) {//old paintkits ID
+			if ((Number(itemId) >= FIRST_LEGACY_WARPAINT) && (Number(itemId) <= LAST_LEGACY_WARPAINT)) {//old paintkits ID
 				const weaponId = await this.#getWeaponByModel(await template.getModel(''/*TODO: set this parameter optional*/) ?? '');
 				if (weaponId !== null) {
 					await this.#addWarpaint(weaponId, paintkitId, weaponName, descToken);

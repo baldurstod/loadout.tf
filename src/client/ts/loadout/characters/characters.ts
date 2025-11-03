@@ -31,6 +31,7 @@ export enum Tf2Class {
 
 	Random = 1000,
 	None = 1001,
+	CompareWarpaints = 1002,
 }
 
 export type CharactersType = { name: string, path: string, bot: boolean, icon: string };
@@ -56,6 +57,7 @@ export const CharactersList = new Map<Tf2Class, CharactersType>([
 	[Tf2Class.EngineerBot, { name: 'engineer', bot: true, path: 'models/bots/engineer/bot_engineer', icon: engineer, }],
 
 	[Tf2Class.None, { name: 'dummy', bot: false, path: 'models/empty', icon: engineer, }],
+	[Tf2Class.CompareWarpaints, { name: 'warpaints', bot: false, path: 'models/empty', icon: engineer, }],
 ]);
 
 export const ClassRemovablePartsOff = ['heavy_hand_dex_bodygroup', 'robotarm_bodygroup', 'darts_bodygroup', 'spyMask', 'rocket', 'medal_bodygroup', 'demo_smiley'];

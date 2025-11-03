@@ -51,7 +51,7 @@ export function setActiveCamera(cameraType: CameraType): void {
 			camera = orbitCamera;
 			//this.#setActiveCameraControl(this.#orbitCameraControl);
 			break;
-			/*
+		/*
 		case 'freefly':
 			this.camera = this.#orbitCamera;
 			this.#setActiveCameraControl(this.#firstPersonCameraControl)
@@ -59,7 +59,6 @@ export function setActiveCamera(cameraType: CameraType): void {
 			*/
 		case CameraType.FirstPerson:
 			camera = firstPersonCamera;
-//			this.#setActiveCameraControl()
 			break;
 	}
 

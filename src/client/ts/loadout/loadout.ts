@@ -102,9 +102,7 @@ export class Loadout {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
-			const addedItem = await currentCharacter.toggleItem(template);
-			const isAdded = addedItem[1];
-			Controller.dispatchEvent<Item>(isAdded ? ControllerEvent.ItemAdded : ControllerEvent.ItemRemoved, { detail: addedItem[0] });
+			await currentCharacter.toggleItem(template);
 		}
 	}
 

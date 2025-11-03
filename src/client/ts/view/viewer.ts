@@ -3,9 +3,10 @@ import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHand
 import { JSONObject } from 'harmony-types';
 import { createElement, createShadowRoot } from 'harmony-ui';
 import viewerCSS from '../../css/viewer.css';
-import { RECORDER_DEFAULT_FILENAME, SHADERTOY_DIRECTORY } from '../constants';
+import { LOADOUT_LAYOUT, RECORDER_DEFAULT_FILENAME, SHADERTOY_DIRECTORY } from '../constants';
 import { Controller, ControllerEvent, SetBackgroundType } from '../controller';
 import { BackgroundType } from '../enums';
+import { weaponLayout } from '../loadout/comparewarpaints';
 import { loadoutScene, orbitCamera, orbitCameraControl } from '../loadout/scene';
 
 export class Viewer {
@@ -41,11 +42,20 @@ export class Viewer {
 	#initHTML(): HTMLElement {
 		this.#mainCanvas = Graphics.addCanvas(undefined, {
 			name: 'main_canvas',
-			scene: {
-				scene: loadoutScene,
-				composer: this.#composer,
-			},
-			autoResize: true
+			layouts: [
+				{
+					name: LOADOUT_LAYOUT,
+					views: [
+						{
+							scene: loadoutScene,
+							composer: this.#composer,
+						},
+					],
+				},
+				weaponLayout,
+			],
+			autoResize: true,
+			useLayout: LOADOUT_LAYOUT,
 		});
 
 		if (this.#mainCanvas) {
@@ -89,6 +99,8 @@ export class Viewer {
 		});
 
 		Controller.addEventListener(ControllerEvent.SavePicture, () => this.#savePicture());
+
+		Controller.addEventListener(ControllerEvent.UseLayout, (event: Event) => this.#useLayout((event as CustomEvent<string>).detail));
 
 		ShortcutHandler.addEventListener('app.shortcuts.video.togglerecording', () => this.#toggleVideo(!this.#recording));
 
@@ -308,4 +320,9 @@ export class Viewer {
 		}
 	}
 
+	#useLayout(layout: string): void {
+		if (this.#mainCanvas) {
+			this.#mainCanvas.useLayout = layout;
+		}
+	}
 }

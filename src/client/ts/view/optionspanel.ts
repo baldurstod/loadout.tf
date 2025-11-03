@@ -6,6 +6,7 @@ import { TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, CameraType, Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
+import { Tf2Class } from '../loadout/characters/characters';
 import { loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -588,6 +589,13 @@ export class OptionsPanel extends DynamicPanel {
 								],
 							});
 						}
+					},
+				}),
+				createElement('div', {
+					class: 'option-button',
+					i18n: '#compare_warpaints',
+					$click: async () => {
+						await CharacterManager.selectCharacter(Tf2Class.CompareWarpaints);
 					},
 				}),
 			],

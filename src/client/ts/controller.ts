@@ -57,6 +57,8 @@ export enum ControllerEvent {
 	SetRagdoll = 'setragdoll',
 	SetApplyToAll = 'setapplytoall',
 	PresetsUpdated = 'presetsupdated',
+	UseLayout = 'uselayout',
+	SelectWarpaints = 'selectwarpaints',
 }
 
 export type SetBackgroundType = {

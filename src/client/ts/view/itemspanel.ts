@@ -544,7 +544,7 @@ export class ItemsPanel extends DynamicPanel {
 		}
 		const item = character.getItemById(template.id);
 		if (item) {
-			this.#warpaintPanel.selectWarpaint(item);
+			this.#warpaintPanel.selectWarpaint([item]);
 		}
 	}
 

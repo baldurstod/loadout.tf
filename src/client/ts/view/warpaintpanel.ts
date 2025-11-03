@@ -19,7 +19,7 @@ type Warpaint = {
 
 export class WarpaintPanel extends DynamicPanel {
 	#htmlWarpaints?: HTMLElement;
-	#currentItem?: Item;
+	readonly #currentItems = new Set<Item>();
 	#htmlItemIcon?: HTMLElement;
 	#paintsDivHeaderWearSelect?: HTMLSelectElement;
 	#paintsDivHeaderFilterInput?: HTMLInputElement;
@@ -32,7 +32,8 @@ export class WarpaintPanel extends DynamicPanel {
 	constructor() {
 		super(Panel.Warpaints, [warpaintPanelCSS]);
 		hide(this.getShadowRoot());
-		Controller.addEventListener(ControllerEvent.WarpaintsLoaded, (): void => { this.#fillWarpaints(); return; });
+		Controller.addEventListener(ControllerEvent.SelectWarpaints, (event: Event): void => { this.selectWarpaint((event as CustomEvent<Item[]>).detail); });
+		Controller.addEventListener(ControllerEvent.WarpaintsLoaded, (): void => { this.#fillWarpaints(); });
 	}
 
 	protected override initHTML(): void {
@@ -77,7 +78,7 @@ export class WarpaintPanel extends DynamicPanel {
 							childs: [
 								createElement('span', { i18n: '#seed', }),
 								this.#htmlPaintSeed = createElement('input', {
-									$change: (event: Event) => this.#currentItem?.setPaintKitSeed(BigInt((event.target as HTMLInputElement).value)),
+									$change: (event: Event) => this.#setPaintKitSeed(BigInt((event.target as HTMLInputElement).value)),
 								}) as HTMLInputElement,
 							],
 						}),
@@ -142,9 +143,12 @@ export class WarpaintPanel extends DynamicPanel {
 	}
 	*/
 
-	selectWarpaint(item: Item): void {
+	selectWarpaint(items: Item[]): void {
 		this.getHTMLElement();
-		this.#currentItem = item;
+		this.#currentItems.clear()
+		for (const item of items) {
+			this.#currentItems.add(item);
+		}
 
 		this.#fillWarpaints();
 		show(this.getHTMLElement());
@@ -156,7 +160,7 @@ export class WarpaintPanel extends DynamicPanel {
 	}
 
 	#handlePaintKitClick(warpaintId: number): void {
-		if (!this.#currentItem) {
+		if (!this.#currentItems) {
 			return;
 		}
 		//item.setPaintKitId(event.currentTarget.paintKitId, event.currentTarget.paintKitWeaponName);
@@ -169,7 +173,11 @@ export class WarpaintPanel extends DynamicPanel {
 		}
 		//item.setPaintKitSeed(seed, true);
 
-		this.#currentItem.setPaintKit(warpaintId, Number(this.#paintsDivHeaderWearSelect?.selectedOptions[0]?.getAttribute('data-value')), seed);
+		//this.#currentItems.setPaintKit(warpaintId, Number(this.#paintsDivHeaderWearSelect?.selectedOptions[0]?.getAttribute('data-value')), seed);
+
+		for (const item of this.#currentItems) {
+			item.setPaintKit(warpaintId, Number(this.#paintsDivHeaderWearSelect?.selectedOptions[0]?.getAttribute('data-value')), seed);
+		}
 	}
 
 	#refreshPaintKitFilter(): void {
@@ -193,13 +201,14 @@ export class WarpaintPanel extends DynamicPanel {
 	}
 
 	async #fillWarpaints(): Promise<void> {
-		if (!this.#currentItem) {
+		if (!this.#currentItems.size) {
 			return;
 		}
 
 		const paintKitPics = await this.#getPaintKitPics();
 
-		const warpaints = this.#currentItem.getTemplate().warpaints;
+		const firstItem = this.#currentItems.values().next().value!;
+		const warpaints = firstItem.getTemplate().warpaints;
 		this.#htmlWarpaints?.replaceChildren();
 		//let nodeList = [];
 
@@ -213,7 +222,7 @@ export class WarpaintPanel extends DynamicPanel {
 				class: 'warpaint',
 				parent: this.#htmlWarpaints,
 				'data-paintkit-name': paintKitName.toLowerCase(),
-				paintKitWeaponId: this.#currentItem.id,
+				paintKitWeaponId: firstItem.id,
 				//paintKitId: paintKitId,
 				paintKitWeaponName: weaponName,
 				//weapon: weapon,
@@ -281,5 +290,11 @@ export class WarpaintPanel extends DynamicPanel {
 
 	hide(): void {
 		hide(this.getHTMLElement());
+	}
+
+	#setPaintKitSeed(seed: bigint): void {
+		for (const item of this.#currentItems) {
+			item.setPaintKitSeed(seed);
+		}
 	}
 }

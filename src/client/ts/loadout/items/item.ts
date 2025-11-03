@@ -16,7 +16,7 @@ import { ItemTemplate } from './itemtemplate';
 export class Item {
 	readonly id: string;
 	#itemTemplate: ItemTemplate;
-	#character?: Character;
+	#character: Character;
 	#model: Source1ModelInstance | null = null;
 	#modelBlu: Source1ModelInstance | null = null;
 	#modelExtraWearable: Source1ModelInstance | null = null;
@@ -45,7 +45,7 @@ export class Item {
 		this.#readyPromiseResolve = resolve;
 	});
 
-	constructor(itemTemplate: ItemTemplate, character?: Character) {
+	constructor(itemTemplate: ItemTemplate, character: Character) {
 		this.#itemTemplate = itemTemplate;
 		this.#character = character;
 		this.id = itemTemplate.id;
@@ -590,5 +590,9 @@ export class Item {
 				team: this.#team,
 			});
 		}
+	}
+
+	getCharacter(): Character {
+		return this.#character;
 	}
 }

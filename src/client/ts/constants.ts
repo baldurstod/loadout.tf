@@ -72,3 +72,9 @@ export const MATERIAL_ICE_RAGDOLL = 'models/player/shared/ice_player.vmt';
 
 export const EFFECTS_RED = 'teamcolor_red';
 export const EFFECTS_BLU = 'teamcolor_blue';
+
+export const FIRST_LEGACY_WARPAINT = 15000;
+export const LAST_LEGACY_WARPAINT = 15158;
+
+export const LOADOUT_LAYOUT = 'loadout';
+export const COMPARE_WARPAINTS_LAYOUT = 'compare warpaints';

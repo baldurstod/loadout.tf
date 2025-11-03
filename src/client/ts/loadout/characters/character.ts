@@ -14,6 +14,7 @@ import { FlyingBird } from './flyingbird';
 import { Preset, PresetEffect, PresetEffectType, PresetItem } from './preset';
 import { ItemManager } from '../items/itemmanager';
 import { getPaint } from '../../paints/paints';
+import { Controller, ControllerEvent } from '../../controller';
 
 const eyeAttachments = ['eyeglow_R', 'eyeglow_L'];
 
@@ -190,6 +191,16 @@ export class Character {
 		}
 	}
 
+	async addItem(template: ItemTemplate): Promise<[Item, boolean]> {
+		const existingItem = this.items.get(template.id);
+
+		if (existingItem) {
+			return [existingItem, false];
+		} else {
+			return [await this.#addItem(template), true];
+		}
+	}
+
 	async #removeItem(item: Item): Promise<void> {
 		this.items.delete(item.id);
 		if (item == this.#taunt) {
@@ -224,6 +235,8 @@ export class Character {
 		} else {
 			item.remove();
 		}
+		Controller.dispatchEvent<Item>(ControllerEvent.ItemRemoved, { detail: item });
+
 		this.#loadoutChanged();
 	}
 
@@ -265,6 +278,7 @@ export class Character {
 		this.#doTauntAttack(item.getTauntAttackName());
 
 		this.#loadoutChanged();
+		Controller.dispatchEvent<Item>(ControllerEvent.ItemAdded, { detail: item });
 		return item;
 	}
 
@@ -827,6 +841,11 @@ export class Character {
 					break;
 			}
 		}
+	}
+
+	removeAll(): void {
+		this.removeAllItems();
+		this.removeAllEffects();
 	}
 
 	removeAllItems(): void {
