@@ -2,19 +2,19 @@ import { vec3 } from 'gl-matrix';
 import { ChoreographiesManager, ChoreographyEventType, Material, RandomFloat, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
 import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
+import { Controller, ControllerEvent } from '../../controller';
 import { getKillstreak, KillstreakColor, killstreakList } from '../../paints/killstreaks';
+import { getPaint } from '../../paints/paints';
 import { Effect } from '../effects/effect';
 import { EffectTemplate, EffectType } from '../effects/effecttemplate';
 import { Team } from '../enums';
 import { Item } from '../items/item';
+import { ItemManager } from '../items/itemmanager';
 import { ItemTemplate } from '../items/itemtemplate';
 import { addTF2Model } from '../scene';
 import { CharactersList, ClassRemovablePartsOff, Tf2Class } from './characters';
 import { FlyingBird } from './flyingbird';
 import { Preset, PresetEffect, PresetEffectType, PresetItem } from './preset';
-import { ItemManager } from '../items/itemmanager';
-import { getPaint } from '../../paints/paints';
-import { Controller, ControllerEvent } from '../../controller';
 
 const eyeAttachments = ['eyeglow_R', 'eyeglow_L'];
 
@@ -789,37 +789,12 @@ export class Character {
 		this.removeAllItems();
 		this.removeAllEffects();
 
+		const itemPromises: Promise<void>[] = [];
+
 		for (const presetItem of preset.items) {
-			let itemId = presetItem.id;
-
-			if (presetItem.isWorkshop) {
-				itemId = 'w' + itemId;
-			}
-
-			const template = ItemManager.getItemTemplate(itemId);
-			if (!template) {
-				continue;
-			}
-
-			const item = await this.#addItem(template);
-
-			if (item) {
-				item.setPaintKitId(presetItem.paintkitId ?? null);
-				item.setPaintKitWear(presetItem.paintkitWear ?? 0);
-				item.setPaintKitSeed(presetItem.paintkitSeed ?? 0n);
-
-				if (presetItem.paint) {
-					item.setPaint(getPaint(presetItem.paint));
-				}
-
-				//item.paintId = presetItem.paint ?? DEFAULT_PAINT_ID;
-				//item.weaponEffectId = presetItem.weaponEffect;
-				item.setWeaponEffectId(presetItem.weaponEffect ?? null);
-				item.setShowFestivizer(presetItem.showFestivizer);
-				item.toggleStattrak(presetItem.killCount ?? null);
-				item.setSheen(getKillstreak(presetItem.sheen ?? 0));
-			}
+			itemPromises.push(this.#loadPresetItem(presetItem));
 		}
+		await Promise.all(itemPromises);
 
 		this.setDecapitationLevel(preset.decapitationLevel);
 
@@ -840,6 +815,38 @@ export class Character {
 					this.setTauntEffect(template);
 					break;
 			}
+		}
+	}
+
+	async #loadPresetItem(presetItem: PresetItem): Promise<void> {
+		let itemId = presetItem.id;
+
+		if (presetItem.isWorkshop) {
+			itemId = 'w' + itemId;
+		}
+
+		const template = ItemManager.getItemTemplate(itemId);
+		if (!template) {
+			return;
+		}
+
+		const item = await this.#addItem(template);
+
+		if (item) {
+			item.setPaintKitId(presetItem.paintkitId ?? null);
+			item.setPaintKitWear(presetItem.paintkitWear ?? 0);
+			item.setPaintKitSeed(presetItem.paintkitSeed ?? 0n);
+
+			if (presetItem.paint) {
+				item.setPaint(getPaint(presetItem.paint));
+			}
+
+			//item.paintId = presetItem.paint ?? DEFAULT_PAINT_ID;
+			//item.weaponEffectId = presetItem.weaponEffect;
+			item.setWeaponEffectId(presetItem.weaponEffect ?? null);
+			item.setShowFestivizer(presetItem.showFestivizer);
+			item.toggleStattrak(presetItem.killCount ?? null);
+			item.setSheen(getKillstreak(presetItem.sheen ?? 0));
 		}
 	}
 
