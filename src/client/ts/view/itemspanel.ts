@@ -17,6 +17,7 @@ import { PresetsPanel } from './presetspanel';
 import { SheenPanel } from './sheenpanel';
 import { WarpaintPanel } from './warpaintpanel';
 import { WeaponEffectPanel } from './weaponeffectpanel';
+import { Tf2Class } from '../loadout/characters/characters';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class ItemsPanel extends DynamicPanel {
@@ -542,9 +543,18 @@ export class ItemsPanel extends DynamicPanel {
 		if (!character) {
 			return;
 		}
-		const item = character.getItemById(template.id);
-		if (item) {
-			this.#warpaintPanel.selectWarpaint([item]);
+
+		if (character.characterClass == Tf2Class.CompareWarpaints) {
+			const items: Item[] = [];
+			for (const [, item] of character.items) {
+				items.push(item);
+			}
+			this.#warpaintPanel.selectWarpaint(items);
+		} else {
+			const item = character.getItemById(template.id);
+			if (item) {
+				this.#warpaintPanel.selectWarpaint([item]);
+			}
 		}
 	}
 

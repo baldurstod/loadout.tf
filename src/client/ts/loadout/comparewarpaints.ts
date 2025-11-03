@@ -55,7 +55,6 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 			if (item) {
 				const weapon = item[1];
 				weaponScene.addChild(await weapon.getModel());
-				weapon.setPaintKit(303, 0, 0n);
 			}
 
 			weaponLayout.views.push({
