@@ -86,6 +86,11 @@
 			"default": true
 		},
 		{
+			"name": "app.characters.showhidden",
+			"type": "boolean",
+			"default": false
+		},
+		{
 			"name": "app.picture.size",
 			"type": "string",
 			"default": null

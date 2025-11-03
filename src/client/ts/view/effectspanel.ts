@@ -65,7 +65,6 @@ export class EffectsPanel extends DynamicPanel {
 			adoptStyleSheet: styleSheet,
 			childs: [
 				this.#htmlEffectsTab = createElement('harmony-tab', {
-					parent: this.getShadowRoot(),
 					class: 'effects',
 					'data-i18n': '#unusual_effects',
 					childs: [
@@ -75,7 +74,6 @@ export class EffectsPanel extends DynamicPanel {
 				}) as HTMLHarmonyTabElement,
 				this.#htmlKillstreakTab = createElement('harmony-tab', {
 					'data-i18n': '#killstreak_effects',
-					parent: this.getShadowRoot(),
 					childs: [
 						//this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
 						this.#htmlKillstreakColors = createElement('div', { class: 'killstreak-colors' }),
@@ -104,7 +102,6 @@ export class EffectsPanel extends DynamicPanel {
 					],
 				}) as HTMLHarmonyTabElement,
 				this.#htmlTauntTab = createElement('harmony-tab', {
-					parent: this.getShadowRoot(),
 					'data-i18n': '#taunt_effects',
 					childs: [
 						//this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
