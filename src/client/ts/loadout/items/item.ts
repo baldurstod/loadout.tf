@@ -61,11 +61,12 @@ export class Item {
 	}
 
 	async setTeam(team: Team): Promise<void> {
-		this.#team = team;
-		// TODO
-		await this.#refreshSkin();
-		await this.#refreshSheen();
-		this.#refreshWarPaint();
+		if (this.#team != team) {
+			this.#team = team;
+			await this.#refreshSkin();
+			await this.#refreshSheen();
+			this.#refreshWarPaint();
+		}
 	}
 
 	getEquipRegions(): string[] {
@@ -546,8 +547,10 @@ export class Item {
 	}
 
 	setPaintKitId(paintKitId: number | null): void {
-		this.#paintKitId = paintKitId;
-		this.#refreshWarPaint();
+		if (this.#paintKitId != paintKitId) {
+			this.#paintKitId = paintKitId;
+			this.#refreshWarPaint();
+		}
 	}
 
 	get paintKitId(): number | null {
@@ -555,8 +558,10 @@ export class Item {
 	}
 
 	setPaintKitWear(paintKitWear: number): void {
-		this.#paintKitWear = paintKitWear;
-		this.#refreshWarPaint();
+		if (this.#paintKitWear != paintKitWear) {
+			this.#paintKitWear = paintKitWear;
+			this.#refreshWarPaint();
+		}
 	}
 
 	getPaintKitWear(): number {
@@ -564,8 +569,10 @@ export class Item {
 	}
 
 	setPaintKitSeed(paintKitSeed: bigint): void {
-		this.#paintKitSeed = paintKitSeed;
-		this.#refreshWarPaint();
+		if (this.#paintKitSeed != paintKitSeed) {
+			this.#paintKitSeed = paintKitSeed;
+			this.#refreshWarPaint();
+		}
 	}
 
 	getPaintKitSeed(): bigint {
@@ -573,10 +580,13 @@ export class Item {
 	}
 
 	setPaintKit(paintKitId: number, paintKitWear: number, paintKitSeed: bigint): void {
-		this.#paintKitId = paintKitId;
-		this.#paintKitWear = paintKitWear;
-		this.#paintKitSeed = paintKitSeed;
-		this.#refreshWarPaint();
+		if (this.#paintKitId != paintKitId || this.#paintKitWear != paintKitWear || this.#paintKitSeed != paintKitSeed) {
+
+			this.#paintKitId = paintKitId;
+			this.#paintKitWear = paintKitWear;
+			this.#paintKitSeed = paintKitSeed;
+			this.#refreshWarPaint();
+		}
 	}
 
 	#refreshWarPaint(): void {

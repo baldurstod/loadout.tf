@@ -18,6 +18,7 @@ Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => loado
 function characterChanged(character: Character): void {
 	if (character.characterClass == Tf2Class.CompareWarpaints) {
 		Controller.dispatchEvent<string>(ControllerEvent.UseLayout, { detail: COMPARE_WARPAINTS_LAYOUT });
+		initWeaponLayout(character.items);
 	} else {
 		Controller.dispatchEvent<string>(ControllerEvent.UseLayout, { detail: LOADOUT_LAYOUT });
 	}
@@ -36,10 +37,9 @@ function loadoutChanged(item: Item): void {
 async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 	weaponLayout.views = [];
 
-	const side = Math.ceil(Math.sqrt(weapons.size));
+	const side = Math.max(Math.ceil(Math.sqrt(weapons.size)), 1);
 
 	//const weaponScene = new Scene({ background: loadoutColorBackground });
-	let weaponId = 0;
 	const viewSide = 1 / side;
 
 	const entries = weapons.entries();
