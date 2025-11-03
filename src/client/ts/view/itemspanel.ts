@@ -7,6 +7,7 @@ import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
+import { Tf2Class } from '../loadout/characters/characters';
 import { Item } from '../loadout/items/item';
 import { ItemManager } from '../loadout/items/itemmanager';
 import { ItemTemplate } from '../loadout/items/itemtemplate';
@@ -17,7 +18,6 @@ import { PresetsPanel } from './presetspanel';
 import { SheenPanel } from './sheenpanel';
 import { WarpaintPanel } from './warpaintpanel';
 import { WeaponEffectPanel } from './weaponeffectpanel';
-import { Tf2Class } from '../loadout/characters/characters';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class ItemsPanel extends DynamicPanel {

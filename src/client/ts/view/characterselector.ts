@@ -17,6 +17,9 @@ export class CharacterSelector extends StaticPanel {
 		this.#htmlBotsSelectorPanel = createElement('div', { class: 'bots', });
 
 		for (const [tf2Class, character] of CharactersList) {
+			if (character.hidden) {
+				continue;
+			}
 			if (character.bot) {
 				this.#htmlBotsSelectorPanel.append(this.#createMiniIcon(tf2Class, character));
 			} else {

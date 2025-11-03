@@ -8,6 +8,7 @@ import { EffectTemplate } from './effects/effecttemplate';
 import { Item } from './items/item';
 import { ItemTemplate } from './items/itemtemplate';
 import { addTF2Model } from './scene';
+import { Tf2Class } from './characters/characters';
 
 export class Loadout {
 	static #badgeModel: Source1ModelInstance | null = null;
@@ -101,7 +102,7 @@ export class Loadout {
 	static async #handleItemClicked(template: ItemTemplate): Promise<void> {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
-		if (currentCharacter) {
+		if (currentCharacter && currentCharacter.characterClass != Tf2Class.None) {
 			await currentCharacter.toggleItem(template);
 		}
 	}

@@ -453,7 +453,10 @@ export class CharacterManager {
 		if (!this.#currentCharacter) {
 			return null;
 		}
-		const npc = CharactersList.get(this.#currentCharacter.characterClass)!.name
+		const npc = CharactersList.get(this.#currentCharacter.characterClass)?.name
+		if (!npc) {
+			return null;
+		}
 		return this.#presets.get(npc) ?? null;
 	}
 }

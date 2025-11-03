@@ -60,7 +60,7 @@ export class ItemFilter {
 				break;
 		}
 
-		if (!this.doNotFilterPerClass && characterClass !== null && characterClass !== Tf2Class.None && characterClass !== Tf2Class.CompareWarpaints && !item.isUsedByClass(characterClass)) {
+		if (!this.doNotFilterPerClass && characterClass !== null && characterClass !== Tf2Class.None && characterClass !== Tf2Class.Empty && characterClass !== Tf2Class.CompareWarpaints && !item.isUsedByClass(characterClass)) {
 			return ItemFilterResult.ExcludedClass;
 		}
 

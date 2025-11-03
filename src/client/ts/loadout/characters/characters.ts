@@ -7,6 +7,8 @@ import scout from '../../../img/class/scout.png';
 import sniper from '../../../img/class/sniper.png';
 import soldier from '../../../img/class/soldier.png';
 import spy from '../../../img/class/spy.png';
+import all from '../../../img/class_icon/filter_all_motd.png';
+import extensionIcon from '../../../img/extension_icon.png';
 
 export enum Tf2Class {
 	Scout = 0,
@@ -31,10 +33,11 @@ export enum Tf2Class {
 
 	Random = 1000,
 	None = 1001,
-	CompareWarpaints = 1002,
+	Empty = 1002,
+	CompareWarpaints = 1003,
 }
 
-export type CharactersType = { name: string, path: string, bot: boolean, icon: string };
+export type CharactersType = { name: string, path: string, bot: boolean, icon: string, hidden?: boolean };
 export const CharactersList = new Map<Tf2Class, CharactersType>([
 	[Tf2Class.Scout, { name: 'scout', bot: false, path: 'models/player/scout', icon: scout, }],
 	[Tf2Class.Sniper, { name: 'sniper', bot: false, path: 'models/player/sniper', icon: sniper, }],
@@ -56,8 +59,8 @@ export const CharactersList = new Map<Tf2Class, CharactersType>([
 	[Tf2Class.SpyBot, { name: 'spy', bot: true, path: 'models/bots/spy/bot_spy', icon: spy, }],
 	[Tf2Class.EngineerBot, { name: 'engineer', bot: true, path: 'models/bots/engineer/bot_engineer', icon: engineer, }],
 
-	[Tf2Class.None, { name: 'dummy', bot: false, path: 'models/empty', icon: engineer, }],
-	[Tf2Class.CompareWarpaints, { name: 'warpaints', bot: false, path: 'models/empty', icon: engineer, }],
+	[Tf2Class.Empty, { name: 'dummy', bot: false, path: 'models/empty', icon: all, hidden: true, }],
+	[Tf2Class.CompareWarpaints, { name: 'warpaints', bot: false, path: 'models/empty', icon: extensionIcon, hidden: true, }],
 ]);
 
 export const ClassRemovablePartsOff = ['heavy_hand_dex_bodygroup', 'robotarm_bodygroup', 'darts_bodygroup', 'spyMask', 'rocket', 'medal_bodygroup', 'demo_smiley'];
