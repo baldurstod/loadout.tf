@@ -25,10 +25,10 @@ export class ItemFilter {
 	paintable?: boolean;
 	warpaintable?: boolean;
 	halloween?: boolean;
-	displayMedals = true;
-	displayWeapons = true;
-	displayCosmetics = true;
-	displayTaunts = true;
+	displayMedals = false;
+	displayWeapons = false;
+	displayCosmetics = false;
+	displayTaunts = false;
 	collection?: string;
 
 	matchFilter(item: ItemTemplate, excludedItems: { e: number }, characterClass: Tf2Class | null, activeItems: Set<Item>): ItemFilterResult {

@@ -2,7 +2,6 @@ import { vec3 } from 'gl-matrix';
 import { JSONArray, JSONObject } from 'harmony-types';
 import { KillstreakColor } from '../../paints/killstreaks';
 import { EffectType } from '../effects/effecttemplate';
-import { Effect } from '../effects/effect';
 
 export class PresetItem {
 	id = '';
