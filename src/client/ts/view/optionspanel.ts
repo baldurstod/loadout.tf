@@ -544,6 +544,8 @@ export class OptionsPanel extends DynamicPanel {
 			currentCharacter.setPoseParameter(name, value);
 		}
 
+		let showHiddenCharacters: HTMLHarmonySwitchElement;
+
 		createElement('harmony-tab', {
 			'data-i18n': '#meet_the_team',
 			parent: this.#htmlTabGroup,
@@ -591,6 +593,7 @@ export class OptionsPanel extends DynamicPanel {
 						}
 					},
 				}),
+				/*
 				createElement('div', {
 					class: 'option-button',
 					i18n: '#compare_warpaints',
@@ -598,8 +601,14 @@ export class OptionsPanel extends DynamicPanel {
 						await CharacterManager.selectCharacter(Tf2Class.CompareWarpaints);
 					},
 				}),
+				*/
+				showHiddenCharacters = createElement('harmony-switch', {
+					'data-i18n': '#show_hidden_characters',
+					$change: () => OptionsManager.setItem('app.characters.showhidden', showHiddenCharacters.state),
+				}) as HTMLHarmonySwitchElement,
 			],
 		});
+		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => showHiddenCharacters.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
 	}
 
 	#initHtmlSceneExplorer(): void {
