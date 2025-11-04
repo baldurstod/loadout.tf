@@ -7,6 +7,7 @@ import { ENABLE_PATREON_POWERUSER } from '../bundleoptions';
 import { TF2_WARPAINT_DEFINITIONS_URL } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { MainPanel } from './mainpanel';
+import { WarpaintEditorPanel } from './warpainteditorpanel';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -14,6 +15,7 @@ documentStyle(varsCSS);
 export class ApplicationPanel {
 	#shadowRoot!: ShadowRoot;
 	#mainContent = new MainPanel();
+	#warpaintPanel = new WarpaintEditorPanel();
 
 	static {
 		defineHarmonySwitch();
@@ -34,7 +36,7 @@ export class ApplicationPanel {
 			adoptStyle: applicationCSS,
 			childs: [
 				this.#mainContent.getHTMLElement(),
-
+				this.#warpaintPanel.getHTMLElement(),
 			],
 			$dragover: (event: Event) => event.preventDefault(),
 			$drop: (event: Event) => this.#handleDrop(event as DragEvent),
