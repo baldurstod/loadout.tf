@@ -1,4 +1,4 @@
-import { Camera, ColorBackground, HALF_PI, OrbitControl, Scene, SceneExplorer, Source1ModelInstance, Source1ModelManager } from 'harmony-3d';
+import { Camera, ColorBackground, Entity, Group, HALF_PI, OrbitControl, Scene, SceneExplorer, Source1ModelInstance, Source1ModelManager } from 'harmony-3d';
 import { CameraType } from '../enums';
 
 export const loadoutScene = new Scene();
@@ -6,6 +6,14 @@ export const loadoutColorBackground = new ColorBackground();
 export const orbitCamera = new Camera({ name: 'Orbit camera', nearPlane: 10, farPlane: 5000, autoResize: true });
 export const firstPersonCamera = new Camera({ nearPlane: 5, farPlane: 1000, verticalFov: 90, name: 'First person camera', autoResize: true });
 export const orbitCameraControl = new OrbitControl(orbitCamera);
+
+export let customLightsContainer: Entity;
+export const lightsContainer = new Group({ name: 'Lights' });
+
+export function setCustomLightsContainer(container: Entity): void {
+	customLightsContainer = container;
+}
+
 export let activeCamera = orbitCamera;
 new SceneExplorer().setScene(loadoutScene);
 loadoutScene.activeCamera = orbitCamera;

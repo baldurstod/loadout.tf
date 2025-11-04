@@ -18,7 +18,7 @@ import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
 import { Team } from './loadout/enums';
 import { Loadout } from './loadout/loadout';
-import { addTF2Model, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera } from './loadout/scene';
+import { addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
@@ -34,9 +34,9 @@ class Application {
 	#translations = new Map<string, I18nTranslation>();
 	#broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
 	#replicateCamera = false;
-	#customLightsContainer?: Entity;
+	//#customLightsContainer?: Entity;
 	#serializedEntity?: Entity;
-	#lightsContainer = new Group({ name: 'Lights' });
+	//readonly #lightsContainer = new Group({ name: 'Lights' });
 	#mapLightsContainer = new Group({ name: 'Photo studio lights', parent: loadoutScene });
 	#ambientLight = new AmbientLight();
 	#pointLights: PointLight[] = [];
@@ -290,17 +290,17 @@ class Application {
 		}
 		*/
 
-		OptionsManager.setItem('app.lights.customlights', JSON.stringify(this.#customLightsContainer?.toJSON() ?? {}));
+		OptionsManager.setItem('app.lights.customlights', JSON.stringify(customLightsContainer?.toJSON() ?? {}));
 		OptionsManager.setItem('app.sceneexplorer.misc.serialized', JSON.stringify(this.#serializedEntity?.toJSON() ?? {}));
 		OptionsManager.setItem('app.warpainteditor.filter.node', WarpaintEditor.getGui().getNodeFilter());
 	}
 
 	#initLights(): void {
-		loadoutScene.addChild(this.#lightsContainer);
-		this.#lightsContainer.addChild(this.#ambientLight);
+		loadoutScene.addChild(lightsContainer);
+		lightsContainer.addChild(this.#ambientLight);
 		this.#pointLights = [];
 		for (let i = 0; i < 3; ++i) {
-			this.#pointLights.push(this.#lightsContainer.addChild(new PointLight({ intensity: 0.0 })) as PointLight);
+			this.#pointLights.push(lightsContainer.addChild(new PointLight({ intensity: 0.0 })) as PointLight);
 		}
 	}
 
@@ -376,7 +376,7 @@ class Application {
 		/*
 		OptionsManagerEvents.addEventListener('app.lights.rotatewithcamera', (event: Event) => {
 			this.#lightsRotateWithCamera = (event as CustomEvent<OptionsManagerEvent>).detail.value;
-			quat.identity(this.#lightsContainer._quaternion);
+			quat.identity(lightsContainer._quaternion);
 		});
 
 		*/
@@ -416,10 +416,10 @@ class Application {
 
 		OptionsManagerEvents.addEventListener('app.lights.customlights', (event: Event) => {
 			(async (): Promise<void> => {
-				loadoutScene.removeChild(this.#customLightsContainer);
-				this.#customLightsContainer = await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent>).detail.value as string)) as Entity;
-				loadoutScene.addChild(this.#customLightsContainer);
-				this.#customLightsContainer.setVisible(OptionsManager.getItem('app.lights.usecustomlights'));
+				loadoutScene.removeChild(customLightsContainer);
+				setCustomLightsContainer(await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent>).detail.value as string)) as Entity);
+				loadoutScene.addChild(customLightsContainer);
+				customLightsContainer.setVisible(OptionsManager.getItem('app.lights.usecustomlights'));
 			})()
 		});
 
@@ -435,14 +435,14 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.sceneexplorer.skeleton.jointradius', (event: Event) => getSceneExplorer().setJointsRadius((event as CustomEvent<OptionsManagerEvent>).detail.value as number));
 
 		OptionsManagerEvents.addEventListener('app.lights.usecustomlights', (event: Event) => {
-			if (this.#customLightsContainer) {
-				this.#customLightsContainer.setVisible((event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+			if (customLightsContainer) {
+				customLightsContainer.setVisible((event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
 			}
 			if ((event as CustomEvent<OptionsManagerEvent>).detail.value) {
-				this.#lightsContainer?.setVisible(false);
+				lightsContainer?.setVisible(false);
 				this.#mapLightsContainer?.setVisible(false);
 			} else {
-				this.#lightsContainer?.setVisible(undefined);
+				lightsContainer?.setVisible(undefined);
 			}
 		});
 		/*
@@ -574,9 +574,9 @@ class Application {
 			if (this.#lightsRotateWithCamera) {
 				let v = vec3.clone(this.#orbitCamera.position);
 				v[2] = 0;
-				//this.#lightsContainer.lookAt(this.#orbitCamera.position);
+				//lightsContainer.lookAt(this.#orbitCamera.position);
 				vec3.normalize(v, v);
-				quat.rotationTo(this.#lightsContainer._quaternion, [0, -1, 0], v);
+				quat.rotationTo(lightsContainer._quaternion, [0, -1, 0], v);
 			}
 			*/
 		}

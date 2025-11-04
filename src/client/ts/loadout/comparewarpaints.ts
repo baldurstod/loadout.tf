@@ -1,10 +1,10 @@
-import { AmbientLight, CanvasLayout, Scene } from 'harmony-3d';
+import { CanvasLayout, Scene, SceneNode } from 'harmony-3d';
 import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Character } from './characters/character';
 import { Tf2Class } from './characters/characters';
 import { Item } from './items/item';
-import { loadoutColorBackground, orbitCamera } from './scene';
+import { customLightsContainer, lightsContainer, loadoutColorBackground, orbitCamera } from './scene';
 
 export const weaponLayout: CanvasLayout = {
 	name: COMPARE_WARPAINTS_LAYOUT,
@@ -47,7 +47,12 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 	for (let i = 0; i < side; i++) {
 		for (let j = 0; j < side; j++) {
 
-			const weaponScene = new Scene({ background: loadoutColorBackground, childs: [new AmbientLight()] });
+			const weaponScene = new Scene({
+				background: loadoutColorBackground, childs: [
+					new SceneNode({ entity: customLightsContainer }),
+					new SceneNode({ entity: lightsContainer }),
+				]
+			});
 			weaponScene.activeCamera = orbitCamera;
 
 			const item = entries.next().value;
