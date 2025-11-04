@@ -1,3 +1,4 @@
+import { quat, vec3 } from 'gl-matrix';
 import { BoundingBox, CanvasLayout, Scene, SceneNode, Source1ModelInstance } from 'harmony-3d';
 import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
@@ -5,7 +6,6 @@ import { Character } from './characters/character';
 import { Tf2Class } from './characters/characters';
 import { Item } from './items/item';
 import { customLightsContainer, lightsContainer, loadoutColorBackground, orbitCamera, orbitCameraControl } from './scene';
-import { quat, vec3 } from 'gl-matrix';
 
 export const weaponLayout: CanvasLayout = {
 	name: COMPARE_WARPAINTS_LAYOUT,
@@ -82,9 +82,7 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 }
 
 function centerModel(model: Source1ModelInstance): void {
-	let min = vec3.create();
-	let max = vec3.create();
-	let boundingBox = new BoundingBox();
+	const boundingBox = new BoundingBox();
 	model.getBoundingBox(boundingBox);
 	const pos = model.getWorldPosition();
 	const rot = model.getWorldQuaternion();

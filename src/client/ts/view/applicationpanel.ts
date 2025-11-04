@@ -1,5 +1,6 @@
+import { OptionsManager } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
-import { I18n, createShadowRoot, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle } from 'harmony-ui';
+import { HTMLHarmonySwitchElement, I18n, createElement, createShadowRoot, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle } from 'harmony-ui';
 import applicationCSS from '../../css/application.css';
 import htmlCSS from '../../css/html.css';
 import varsCSS from '../../css/vars.css';
@@ -16,6 +17,11 @@ export class ApplicationPanel {
 	#shadowRoot!: ShadowRoot;
 	#mainContent = new MainPanel();
 	#warpaintPanel = new WarpaintEditorPanel();
+	#html3DPopover?: HTMLElement;
+	#html3DExportTexture?: HTMLHarmonySwitchElement;
+	#html3DSingleMesh?: HTMLHarmonySwitchElement;
+	#html3DSmoothMesh?: HTMLHarmonySwitchElement;
+	#html3DShowDialog?: HTMLHarmonySwitchElement;
 
 	static {
 		defineHarmonySwitch();
@@ -110,5 +116,78 @@ export class ApplicationPanel {
 				}
 			}
 		}
+	}
+
+	open3DPopover() {
+		const popover = this.#getExport3DPopover();
+
+		this.#html3DExportTexture!.state = OptionsManager.getItem('app.objexporter.exporttextures');
+		this.#html3DSingleMesh!.state = OptionsManager.getItem('app.objexporter.singlemesh');
+		this.#html3DSmoothMesh!.state = OptionsManager.getItem('app.objexporter.subdivide');
+		this.#html3DShowDialog!.state = OptionsManager.getItem('app.objexporter.askoptions');
+
+		popover.showPopover();
+	}
+
+	#getExport3DPopover() {
+		return this.#html3DPopover ?? this.#create3DPopover();
+	}
+
+	#create3DPopover() {
+		this.#html3DPopover = createElement('div', {
+			parent: this.#shadowRoot,
+			class: 'loadout-application-3dexport-options',
+			popover: "auto",
+			childs: [
+				this.#html3DExportTexture = createElement('harmony-switch', {
+					'data-i18n': '#export_textures',
+					events: {
+						change: () => OptionsManager.setItem('app.objexporter.exporttextures', this.#html3DExportTexture!.state),
+					}
+				}) as HTMLHarmonySwitchElement,
+				this.#html3DSingleMesh = createElement('harmony-switch', {
+					'data-i18n': '#single_mesh',
+					events: {
+						change: () => OptionsManager.setItem('app.objexporter.singlemesh', this.#html3DSingleMesh!.state),
+					}
+				}) as HTMLHarmonySwitchElement,
+				this.#html3DSmoothMesh = createElement('harmony-switch', {
+					'data-i18n': '#smooth_mesh',
+					events: {
+						change: () => OptionsManager.setItem('app.objexporter.subdivide', this.#html3DSmoothMesh!.state),
+					}
+				}) as HTMLHarmonySwitchElement,
+				this.#html3DShowDialog = createElement('harmony-switch', {
+					'data-i18n': '#show_this_dialog',
+					events: {
+						change: () => OptionsManager.setItem('app.objexporter.askoptions', this.#html3DShowDialog!.state),
+					}
+				}) as HTMLHarmonySwitchElement,
+				createElement('button', {
+					i18n: '#export_for_3d_print',
+					events: {
+						click: () => {
+							//this.#export3D2();
+							Controller.dispatchEvent<boolean>(ControllerEvent.Export3d, { detail: false })
+							this.#html3DPopover!.hidePopover();
+						},
+					}
+				}),
+				/*createElement('button', {
+					i18n: '#export_dont_ask_again',
+					events: {
+						click: () => { this.#export3D2(); OptionsManager.setItem('app.objexporter.askoptions', false), this.#html3DPopover.hidePopover()},
+					}
+				}),*/
+				createElement('button', {
+					i18n: '#cancel',
+					events: {
+						click: () => this.#html3DPopover!.hidePopover(),
+					}
+				}),
+
+			]
+		});
+		return this.#html3DPopover;
 	}
 }

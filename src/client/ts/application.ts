@@ -1,10 +1,11 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, Entity, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, HALF_PI, JSONLoader, Light, MergeRepository, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, Entity, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
-import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
+import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
+import { setTimeoutPromise } from 'harmony-utils';
 import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
@@ -157,6 +158,8 @@ class Application {
 		Controller.addEventListener(ControllerEvent.ShowAboutNotification, () => this.#showAboutLayer());
 		Controller.addEventListener(ControllerEvent.ShowBugNotification, () => this.#showBugNotification());
 		Controller.addEventListener(ControllerEvent.PatreonClick, () => this.#handlePatreonClick());
+		Controller.addEventListener(ControllerEvent.ExportFbx, () => this.#exportToFBX());
+		Controller.addEventListener(ControllerEvent.Export3d, (event: Event) => this.#export3D((event as CustomEvent<boolean>).detail));
 	}
 
 	/*
@@ -595,7 +598,7 @@ class Application {
 	}
 
 	#setClassOrder(menuOrder: boolean): void {
-		const order: Record<string, number> = { scout: 0, sniper: 7, soldier: 1, demoman: 3, medic: 6, heavy: 4, pyro: 2, spy: 8, engineer: 5, dummy:10, warpaints:11 };
+		const order: Record<string, number> = { scout: 0, sniper: 7, soldier: 1, demoman: 3, medic: 6, heavy: 4, pyro: 2, spy: 8, engineer: 5, dummy: 10, warpaints: 11 };
 		let variables = '';
 		if (menuOrder) {
 			for (const npc in order) {
@@ -822,6 +825,48 @@ class Application {
 			location.assign('/patreon/login');
 		}
 	}
+
+	async #exportToFBX() {
+		if (ENABLE_PATREON_POWERUSER) {
+			let binaryFBX = await exportToBinaryFBX(loadoutScene);
+			saveFile(new File([binaryFBX as ArrayBuffer], 'loadout.tf.fbx'));
+		} else {
+			addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10);
+		}
+	}
+
+	async #export3D(showPopover: boolean) {
+		if (ENABLE_PATREON_POWERUSER) {
+			if (showPopover && OptionsManager.getItem('app.objexporter.askoptions')) {
+				this.#appView.open3DPopover();
+			} else {
+				this.#export3D2();
+			}
+		} else {
+			addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10);
+		}
+	}
+
+	async #export3D2() {
+		let subdivisions = 0;
+		if (OptionsManager.getItem('app.objexporter.subdivide')) {
+			subdivisions = OptionsManager.getItem('app.objexporter.subdivide.iterations');
+		}
+		let files = await new ObjExporter().exportMeshes({
+			meshes: loadoutScene.getMeshList(),
+			exportTexture: OptionsManager.getItem('app.objexporter.exporttextures'),
+			singleMesh: OptionsManager.getItem('app.objexporter.singlemesh'),
+			digits: 4,
+			subdivisions: subdivisions,
+			mergeTolerance: 0.001,
+		});
+
+		for (let file of files) {
+			saveFile(file);
+			await setTimeoutPromise(200);
+		}
+	}
+
 }
 new Application();
 

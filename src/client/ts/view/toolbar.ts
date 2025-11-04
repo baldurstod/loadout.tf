@@ -28,7 +28,7 @@ export class Toolbar extends StaticPanel {
 			createButton('sfm', '#export_for_sfm', sfmLogoSVG, () => Controller.dispatchEvent(ControllerEvent.ExportSfm)),
 
 			createButton('export-fbx', '#export_fbx', viewInArSVG, () => Controller.dispatchEvent(ControllerEvent.ExportFbx)),
-			createButton('3d', '#export_for_3d_print', print3dSVG, () => Controller.dispatchEvent(ControllerEvent.Export3d)),
+			createButton('3d', '#export_for_3d_print', print3dSVG, () => Controller.dispatchEvent<boolean>(ControllerEvent.Export3d, { detail: true })),
 			createButton('bug', '#report_bug', bugReportSVG, () => Controller.dispatchEvent(ControllerEvent.ShowBugNotification)),
 			createButton('extension', '#accurate_skins_extension', undefined, () => window.open(ACCURATE_SKINS_EXTENSION_LINK, '_blank'), extensionIcon),
 			createButton('options', '#options', settingsSVG, () => this.#togglePanel(Panel.Options)),
