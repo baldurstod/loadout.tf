@@ -9,7 +9,7 @@ import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
-import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PRODUCTION } from './bundleoptions';
+import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PATREON_IS_LOGGED, PRODUCTION } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType, Panel } from './enums';
@@ -156,6 +156,7 @@ class Application {
 
 		Controller.addEventListener(ControllerEvent.ShowAboutNotification, () => this.#showAboutLayer());
 		Controller.addEventListener(ControllerEvent.ShowBugNotification, () => this.#showBugNotification());
+		Controller.addEventListener(ControllerEvent.PatreonClick, () => this.#handlePatreonClick());
 	}
 
 	/*
@@ -594,7 +595,7 @@ class Application {
 	}
 
 	#setClassOrder(menuOrder: boolean): void {
-		const order: Record<string, number> = { scout: 0, sniper: 7, soldier: 1, demoman: 3, medic: 6, heavy: 4, pyro: 2, spy: 8, engineer: 5 };
+		const order: Record<string, number> = { scout: 0, sniper: 7, soldier: 1, demoman: 3, medic: 6, heavy: 4, pyro: 2, spy: 8, engineer: 5, dummy:10, warpaints:11 };
 		let variables = '';
 		if (menuOrder) {
 			for (const npc in order) {
@@ -812,6 +813,14 @@ class Application {
 			]
 		});
 		addNotification(html, NotificationType.Info, 15);
+	}
+
+	#handlePatreonClick(): void {
+		if (PATREON_IS_LOGGED) {
+			location.assign('/patreon/logout');
+		} else {
+			location.assign('/patreon/login');
+		}
 	}
 }
 new Application();

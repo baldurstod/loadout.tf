@@ -26,7 +26,7 @@ export enum ControllerEvent {
 	ToggleOptionsManager = 'toggleoptionsmanager',
 	SetAnimSpeed = 'setanimspeed',
 	SetAnim = 'setanim',
-	LoginPatreon = 'loginpatreon',
+	PatreonClick = 'patreonclick',
 	SelectCharacter = 'selectcharacter',
 	CharacterChanged = 'characterchanged',
 	SelectCamera = 'selectcamera',

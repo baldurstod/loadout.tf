@@ -6,7 +6,6 @@ import { TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, CameraType, Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { Tf2Class } from '../loadout/characters/characters';
 import { loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 

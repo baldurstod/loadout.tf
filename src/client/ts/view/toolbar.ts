@@ -34,7 +34,7 @@ export class Toolbar extends StaticPanel {
 			createButton('options', '#options', settingsSVG, () => this.#togglePanel(Panel.Options)),
 			createButton('advanced', '#advanced_options', manufacturingSVG, () => Controller.dispatchEvent(ControllerEvent.ToggleOptionsManager)),
 			createButton('about', '#about', moreHorizSVG, () => Controller.dispatchEvent(ControllerEvent.ShowAboutNotification)),
-			createButton('patreon', '#patreon', patreonLogoSVG, () => Controller.dispatchEvent(ControllerEvent.LoginPatreon)),
+			createButton('patreon', '#patreon', patreonLogoSVG, () => Controller.dispatchEvent(ControllerEvent.PatreonClick)),
 		);
 	}
 
