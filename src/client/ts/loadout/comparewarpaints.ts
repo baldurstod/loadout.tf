@@ -1,10 +1,11 @@
-import { CanvasLayout, Scene, SceneNode } from 'harmony-3d';
+import { BoundingBox, CanvasLayout, Scene, SceneNode, Source1ModelInstance } from 'harmony-3d';
 import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Character } from './characters/character';
 import { Tf2Class } from './characters/characters';
 import { Item } from './items/item';
-import { customLightsContainer, lightsContainer, loadoutColorBackground, orbitCamera } from './scene';
+import { customLightsContainer, lightsContainer, loadoutColorBackground, orbitCamera, orbitCameraControl } from './scene';
+import { quat, vec3 } from 'gl-matrix';
 
 export const weaponLayout: CanvasLayout = {
 	name: COMPARE_WARPAINTS_LAYOUT,
@@ -54,12 +55,17 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 				]
 			});
 			weaponScene.activeCamera = orbitCamera;
+			orbitCameraControl.target.setPosition(vec3.create());
 
 			const item = entries.next().value;
 
 			if (item) {
 				const weapon = item[1];
-				weaponScene.addChild(await weapon.getModel());
+				const weaponModel = await weapon.getModel();
+				if (weaponModel) {
+					weaponScene.addChild(weaponModel);
+					centerModel(weaponModel);
+				}
 			}
 
 			weaponLayout.views.push({
@@ -73,4 +79,19 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 			});
 		}
 	}
+}
+
+function centerModel(model: Source1ModelInstance): void {
+	let min = vec3.create();
+	let max = vec3.create();
+	let boundingBox = new BoundingBox();
+	model.getBoundingBox(boundingBox);
+	const pos = model.getWorldPosition();
+	const rot = model.getWorldQuaternion();
+	quat.invert(rot, rot);
+	model.getBoundingBox(boundingBox);
+	vec3.sub(pos, boundingBox.center, pos);
+	vec3.transformQuat(pos, pos, rot);
+	model.setPosition(vec3.negate(pos, pos));
+
 }
