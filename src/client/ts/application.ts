@@ -20,7 +20,6 @@ import { Team } from './loadout/enums';
 import { Loadout } from './loadout/loadout';
 import { addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
 import { LoadoutSpeech } from './loadout/speech/speech';
-import { AdPanel } from './view/adpanel';
 import { ApplicationPanel } from './view/applicationpanel';
 
 documentStyle(htmlCSS);
@@ -28,8 +27,6 @@ documentStyle(varsCSS);
 
 class Application {
 	#appView = new ApplicationPanel();
-	#shadowRoot?: ShadowRoot;
-	#appAdPanel = new AdPanel();
 
 	#translations = new Map<string, I18nTranslation>();
 	#broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
