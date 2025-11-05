@@ -118,7 +118,7 @@ export class ApplicationPanel {
 		}
 	}
 
-	open3DPopover() {
+	open3DPopover(): void {
 		const popover = this.#getExport3DPopover();
 
 		this.#html3DExportTexture!.state = OptionsManager.getItem('app.objexporter.exporttextures');
@@ -129,11 +129,11 @@ export class ApplicationPanel {
 		popover.showPopover();
 	}
 
-	#getExport3DPopover() {
+	#getExport3DPopover(): HTMLElement {
 		return this.#html3DPopover ?? this.#create3DPopover();
 	}
 
-	#create3DPopover() {
+	#create3DPopover(): HTMLElement {
 		this.#html3DPopover = createElement('div', {
 			parent: this.#shadowRoot,
 			class: 'loadout-application-3dexport-options',

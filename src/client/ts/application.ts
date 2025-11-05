@@ -22,6 +22,7 @@ import { Loadout } from './loadout/loadout';
 import { addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
+import { SfmExporter } from 'harmony-sfm';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -157,9 +158,10 @@ class Application {
 
 		Controller.addEventListener(ControllerEvent.ShowAboutNotification, () => this.#showAboutLayer());
 		Controller.addEventListener(ControllerEvent.ShowBugNotification, () => this.#showBugNotification());
-		Controller.addEventListener(ControllerEvent.PatreonClick, () => this.#handlePatreonClick());
-		Controller.addEventListener(ControllerEvent.ExportFbx, () => this.#exportToFBX());
-		Controller.addEventListener(ControllerEvent.Export3d, (event: Event) => this.#export3D((event as CustomEvent<boolean>).detail));
+		Controller.addEventListener(ControllerEvent.PatreonClick, () => { this.#handlePatreonClick() });
+		Controller.addEventListener(ControllerEvent.ExportFbx, () => { this.#exportToFBX() });
+		Controller.addEventListener(ControllerEvent.Export3d, (event: Event) => { this.#export3D((event as CustomEvent<boolean>).detail) });
+		Controller.addEventListener(ControllerEvent.ExportSfm, (event: Event) => { this.#exportSfm() });
 	}
 
 	/*
@@ -826,33 +828,33 @@ class Application {
 		}
 	}
 
-	async #exportToFBX() {
+	async #exportToFBX(): Promise<void> {
 		if (ENABLE_PATREON_POWERUSER) {
-			let binaryFBX = await exportToBinaryFBX(loadoutScene);
+			const binaryFBX = await exportToBinaryFBX(loadoutScene);
 			saveFile(new File([binaryFBX as ArrayBuffer], 'loadout.tf.fbx'));
 		} else {
 			addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10);
 		}
 	}
 
-	async #export3D(showPopover: boolean) {
+	async #export3D(showPopover: boolean): Promise<void> {
 		if (ENABLE_PATREON_POWERUSER) {
 			if (showPopover && OptionsManager.getItem('app.objexporter.askoptions')) {
 				this.#appView.open3DPopover();
 			} else {
-				this.#export3D2();
+				await this.#export3D2();
 			}
 		} else {
 			addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10);
 		}
 	}
 
-	async #export3D2() {
+	async #export3D2(): Promise<void> {
 		let subdivisions = 0;
 		if (OptionsManager.getItem('app.objexporter.subdivide')) {
 			subdivisions = OptionsManager.getItem('app.objexporter.subdivide.iterations');
 		}
-		let files = await new ObjExporter().exportMeshes({
+		const files = await new ObjExporter().exportMeshes({
 			meshes: loadoutScene.getMeshList(),
 			exportTexture: OptionsManager.getItem('app.objexporter.exporttextures'),
 			singleMesh: OptionsManager.getItem('app.objexporter.singlemesh'),
@@ -861,9 +863,18 @@ class Application {
 			mergeTolerance: 0.001,
 		});
 
-		for (let file of files) {
+		for (const file of files) {
 			saveFile(file);
 			await setTimeoutPromise(200);
+		}
+	}
+
+	async #exportSfm(): Promise<void> {
+		if (ENABLE_PATREON_POWERUSER) {
+			const file = await SfmExporter.exportSFM(loadoutScene, 'itemtest.bsp', 0);
+			saveFile(file);
+		} else {
+			addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10);
 		}
 	}
 
