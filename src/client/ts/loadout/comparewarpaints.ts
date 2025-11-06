@@ -1,5 +1,5 @@
 import { quat, vec3 } from 'gl-matrix';
-import { BoundingBox, CanvasLayout, Group, Scene, SceneNode, Source1ModelInstance } from 'harmony-3d';
+import { BoundingBox, CanvasLayout, CanvasView, GraphicMouseEventData, GraphicsEvent, GraphicsEvents, Group, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
 import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Character } from './characters/character';
@@ -12,20 +12,27 @@ export const weaponLayout: CanvasLayout = {
 	views: [],
 }
 
+let compareWarpaints = false;
 const warpaintsGroup = new Group({ parent: loadoutScene, name: 'warpaints' });
+
+const weaponsToView = new Map<Source1ModelInstance, CanvasView>();
+let highlitView: CanvasView | null = null;
+let highlitViewport: Viewport | null = null;
 
 Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => characterChanged((event as CustomEvent<Character>).detail));
 Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
 Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
+GraphicsEvents.addEventListener(GraphicsEvent.MouseDblClick, (event: Event) => handleDblClick(event as CustomEvent<GraphicMouseEventData>));
 
 function characterChanged(character: Character): void {
 	if (character.characterClass == Tf2Class.CompareWarpaints) {
 		Controller.dispatchEvent<string>(ControllerEvent.UseLayout, { detail: COMPARE_WARPAINTS_LAYOUT });
 		initWeaponLayout(character.items);
+		compareWarpaints = true;
 	} else {
 		Controller.dispatchEvent<string>(ControllerEvent.UseLayout, { detail: LOADOUT_LAYOUT });
+		compareWarpaints = true;
 	}
-
 }
 
 function loadoutChanged(item: Item): void {
@@ -38,6 +45,7 @@ function loadoutChanged(item: Item): void {
 }
 
 async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
+	weaponsToView.clear();
 	weaponLayout.views = [];
 	warpaintsGroup.removeChildren();
 
@@ -63,6 +71,17 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 
 			const item = entries.next().value;
 
+
+			const view = {
+				scene: weaponScene,
+				viewport: {
+					x: i * viewSide,
+					y: j * viewSide,
+					width: viewSide,
+					height: viewSide,
+				}
+			};
+
 			if (item) {
 				const weapon = item[1];
 				const weaponModel = await weapon.getModel();
@@ -71,18 +90,10 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 					// Compute bones for correct bounding box
 					await weaponModel.updateAsync(weaponScene, orbitCamera, 0);
 					centerModel(weaponModel);
+					weaponsToView.set(weaponModel, view);
 				}
 			}
-
-			weaponLayout.views.push({
-				scene: weaponScene,
-				viewport: {
-					x: i * viewSide,
-					y: j * viewSide,
-					width: viewSide,
-					height: viewSide,
-				}
-			});
+			weaponLayout.views.push(view);
 		}
 	}
 }
@@ -96,4 +107,43 @@ function centerModel(model: Source1ModelInstance): void {
 	vec3.sub(pos, boundingBox.center, pos);
 	vec3.transformQuat(pos, pos, rot);
 	model.setPosition(vec3.negate(pos, pos));
+}
+
+function handleDblClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
+	const model = pickEvent.detail.entity;
+	if (!model) {
+		return;
+	}
+
+	//this.#selectCharacterPerDynamicProp(model);
+	console.info(model);
+	const view = weaponsToView.get(model as Source1ModelInstance);
+	if (!view) {
+		return;
+	}
+
+	if (highlitView == view) {
+		view.viewport = highlitViewport ?? undefined;
+		highlitView = null;
+		highlitViewport = null;
+		for (const v of weaponLayout.views) {
+			if (v != view) {
+				v.enabled = undefined;
+			}
+		}
+		return;
+	}
+
+
+	for (const v of weaponLayout.views) {
+		if (v != view) {
+			v.enabled = false;
+		}
+	}
+
+	highlitViewport = view.viewport ?? null;
+
+	view.viewport = undefined;
+
+	highlitView = view;
 }
