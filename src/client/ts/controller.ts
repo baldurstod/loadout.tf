@@ -14,7 +14,6 @@ export enum ControllerEvent {
 	ShowBadge = 'showbadge',
 	ImportFile = 'importfile',
 	//HideAllPanels = 'hideallpanels',
-	ShowPanel = 'showpanel',
 	TogglePanel = 'togglepanel',
 	ShareLoadout = 'shareloadout',
 	SavePicture = 'savepicture',

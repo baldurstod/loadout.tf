@@ -13,11 +13,6 @@ export class DynamicPanel extends StaticPanel {
 	}
 
 	#initListeners(): void {
-		Controller.addEventListener(ControllerEvent.ShowPanel, (event: Event) => {
-			const panel = (event as CustomEvent<Panel>).detail;
-
-			display(this.getHTMLElement(), panel == this.#panelType);
-		});
 		Controller.addEventListener(ControllerEvent.TogglePanel, (event: Event) => {
 			const panel = (event as CustomEvent<Panel>).detail;
 

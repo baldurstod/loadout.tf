@@ -56,7 +56,7 @@ export class ItemManager {
 		Controller.addEventListener(ControllerEvent.ItemPinned, (event: Event) => this.#pinItem((event as CustomEvent<ItemPinned>).detail.item, (event as CustomEvent<ItemPinned>).detail.pinned));
 		//Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
 
-		Controller.addEventListener(ControllerEvent.ShowPanel, (event: Event) => {
+		Controller.addEventListener(ControllerEvent.TogglePanel, (event: Event) => {
 			if ((event as CustomEvent<Panel>).detail == Panel.Items || (event as CustomEvent<Panel>).detail == Panel.Effects) {
 				this.initItems();
 			}

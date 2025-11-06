@@ -16,10 +16,10 @@ export class Toolbar extends StaticPanel {
 
 	protected override initHTML(): void {
 		this.getShadowRoot().append(
-			TESTING && createButton('test', '#test', undefined, () => this.#showPanel(Panel.Printful)),
-			createButton('canvas', '#hide_all_panels', overscanSVG, () => this.#showPanel(Panel.None)),
-			createButton('item-list', '#show_item_list', playlistAddSVG, () => this.#showPanel(Panel.Items)),
-			createButton('effects', '#show_unusual_effects', fireSVG, () => this.#showPanel(Panel.Effects)),
+			TESTING && createButton('test', '#test', undefined, () => this.#togglePanel(Panel.Printful)),
+			createButton('canvas', '#hide_all_panels', overscanSVG, () => this.#togglePanel(Panel.None)),
+			createButton('item-list', '#show_item_list', playlistAddSVG, () => this.#togglePanel(Panel.Items)),
+			createButton('effects', '#show_unusual_effects', fireSVG, () => this.#togglePanel(Panel.Effects)),
 			createButton('pause', '#pause', pauseSVG, () => this.#setAnimSpeed(0)),
 			createButton('play', '#play', playSVG, () => this.#setAnimSpeed(1)),
 			createButton('flexes', '#facial_animations', sentimentExcitedSVG, () => this.#togglePanel(Panel.Flexes)),
@@ -36,10 +36,6 @@ export class Toolbar extends StaticPanel {
 			createButton('about', '#about', moreHorizSVG, () => Controller.dispatchEvent(ControllerEvent.ShowAboutNotification)),
 			createButton('patreon', '#patreon', patreonLogoSVG, () => Controller.dispatchEvent(ControllerEvent.PatreonClick)),
 		);
-	}
-
-	#showPanel(panel: Panel): void {
-		Controller.dispatchEvent<Panel>(ControllerEvent.ShowPanel, { detail: panel });
 	}
 
 	#togglePanel(panel: Panel): void {

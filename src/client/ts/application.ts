@@ -512,7 +512,7 @@ class Application {
 	async #initShortcuts(): Promise<void> {
 		ShortcutHandler.setShortcuts('loadout,3dview,scene-explorer', await OptionsManager.getOptionsPerType('shortcut'));
 		ShortcutHandler.addEventListener('app.shortcuts.currentcamera.reset', () => this.#resetCamera());
-		ShortcutHandler.addEventListener('app.shortcuts.itemlist.open', () => Controller.dispatchEvent<Panel>(ControllerEvent.ShowPanel, { detail: Panel.Items }));
+		ShortcutHandler.addEventListener('app.shortcuts.itemlist.open', () => Controller.dispatchEvent<Panel>(ControllerEvent.TogglePanel, { detail: Panel.Items }));
 		ShortcutHandler.addEventListener('app.shortcuts.picture', () => Controller.dispatchEvent(ControllerEvent.SavePicture));
 		//ShortcutHandler.addEventListener('app.shortcuts.warpaints.openeditor', () => this.#toggleWarpaintEditor());
 	}
