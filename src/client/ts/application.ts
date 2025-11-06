@@ -161,7 +161,7 @@ class Application {
 		Controller.addEventListener(ControllerEvent.PatreonClick, () => { this.#handlePatreonClick() });
 		Controller.addEventListener(ControllerEvent.ExportFbx, () => { this.#exportToFBX() });
 		Controller.addEventListener(ControllerEvent.Export3d, (event: Event) => { this.#export3D((event as CustomEvent<boolean>).detail) });
-		Controller.addEventListener(ControllerEvent.ExportSfm, (event: Event) => { this.#exportSfm() });
+		Controller.addEventListener(ControllerEvent.ExportSfm, () => { this.#exportSfm() });
 	}
 
 	/*
