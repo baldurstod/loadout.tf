@@ -1,5 +1,5 @@
 import { quat, vec3 } from 'gl-matrix';
-import { BoundingBox, CanvasLayout, CanvasView, GraphicMouseEventData, GraphicsEvent, GraphicsEvents, Group, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
+import { BoundingBox, CanvasLayout, CanvasView, Entity, GraphicMouseEventData, GraphicsEvent, GraphicsEvents, Group, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
 import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Character } from './characters/character';
@@ -18,6 +18,7 @@ const warpaintsGroup = new Group({ parent: loadoutScene, name: 'warpaints' });
 const weaponsToView = new Map<Source1ModelInstance, CanvasView>();
 let highlitView: CanvasView | null = null;
 let highlitViewport: Viewport | null = null;
+let highlitModel: Entity | null = null;
 
 Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => characterChanged((event as CustomEvent<Character>).detail));
 Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
@@ -48,6 +49,10 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 	weaponsToView.clear();
 	weaponLayout.views = [];
 	warpaintsGroup.removeChildren();
+	weaponLayout.views.push({
+		scene: new Scene({ background: loadoutColorBackground, camera: orbitCamera, }),
+		layer: -1,
+	});
 
 	const side = Math.max(Math.ceil(Math.sqrt(weapons.size)), 1);
 
@@ -61,13 +66,13 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 
 			const weaponScene = new Scene({
 				//parent: warpaintsGroup,
-				background: loadoutColorBackground,
+				//background: loadoutColorBackground,
 				childs: [
 					new SceneNode({ entity: customLightsContainer }),
 					new SceneNode({ entity: lightsContainer }),
-				]
+				],
+				camera: orbitCamera,
 			});
-			weaponScene.activeCamera = orbitCamera;
 			orbitCameraControl.target.setPosition(vec3.create());
 
 			const item = entries.next().value;
@@ -90,7 +95,7 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 					weaponScene.addChild(weaponModel);
 					// Compute bones for correct bounding box
 					await weaponModel.updateAsync(weaponScene, orbitCamera, 0);
-					//centerModel(weaponModel);
+					centerModel(weaponModel);
 					// Not sure wgy I have to do this, but this is needed for the degreaser
 					setTimeout(() => centerModel(weaponModel), 100);
 					weaponsToView.set(weaponModel, view);
@@ -118,13 +123,20 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
 		return;
 	}
 	if (highlitView) {
+		highlitView.layer = undefined;
+		highlitView.clearDepth = undefined;
 		highlitView.viewport = highlitViewport ?? undefined;
 		highlitView = null;
 		highlitViewport = null;
 		for (const v of weaponLayout.views) {
 			v.enabled = undefined;
 		}
-		return;
+
+		if (highlitModel == model) {
+			// The highlit model was clicked, close it
+			highlitModel = null;
+			return;
+		}
 	}
 
 	//this.#selectCharacterPerDynamicProp(model);
@@ -140,13 +152,16 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
 
 	for (const v of weaponLayout.views) {
 		if (v != view) {
-			v.enabled = false;
+			//v.enabled = false;
 		}
 	}
 
 	highlitViewport = view.viewport ?? null;
 
 	view.viewport = undefined;
+	view.clearDepth = true;
 
 	highlitView = view;
+	highlitView.layer = 10;
+	highlitModel = model;
 }
