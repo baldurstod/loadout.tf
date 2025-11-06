@@ -60,7 +60,7 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 		for (let j = 0; j < side; j++) {
 
 			const weaponScene = new Scene({
-				parent: warpaintsGroup,
+				//parent: warpaintsGroup,
 				background: loadoutColorBackground, childs: [
 					new SceneNode({ entity: customLightsContainer }),
 					new SceneNode({ entity: lightsContainer }),
@@ -89,7 +89,9 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 					weaponScene.addChild(weaponModel);
 					// Compute bones for correct bounding box
 					await weaponModel.updateAsync(weaponScene, orbitCamera, 0);
-					centerModel(weaponModel);
+					//centerModel(weaponModel);
+					// Not sure wgy I have to do this, but this is needed for the degreaser
+					setTimeout(() => centerModel(weaponModel), 100);
 					weaponsToView.set(weaponModel, view);
 				}
 			}
@@ -110,6 +112,16 @@ function centerModel(model: Source1ModelInstance): void {
 }
 
 function handleDblClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
+	if (highlitView) {
+		highlitView.viewport = highlitViewport ?? undefined;
+		highlitView = null;
+		highlitViewport = null;
+		for (const v of weaponLayout.views) {
+			v.enabled = undefined;
+		}
+		return;
+	}
+
 	const model = pickEvent.detail.entity;
 	if (!model) {
 		return;
@@ -121,19 +133,6 @@ function handleDblClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
 	if (!view) {
 		return;
 	}
-
-	if (highlitView == view) {
-		view.viewport = highlitViewport ?? undefined;
-		highlitView = null;
-		highlitViewport = null;
-		for (const v of weaponLayout.views) {
-			if (v != view) {
-				v.enabled = undefined;
-			}
-		}
-		return;
-	}
-
 
 	for (const v of weaponLayout.views) {
 		if (v != view) {
