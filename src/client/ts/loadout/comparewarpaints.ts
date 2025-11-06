@@ -23,7 +23,6 @@ Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => 
 Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
 Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
 GraphicsEvents.addEventListener(GraphicsEvent.MouseClick, (event: Event) => handleClick(event as CustomEvent<GraphicMouseEventData>));
-GraphicsEvents.addEventListener(GraphicsEvent.MouseDblClick, (event: Event) => handleDblClick(event as CustomEvent<GraphicMouseEventData>));
 
 function characterChanged(character: Character): void {
 	if (character.characterClass == Tf2Class.CompareWarpaints) {
@@ -118,6 +117,15 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
 	if (!model) {
 		return;
 	}
+	if (highlitView) {
+		highlitView.viewport = highlitViewport ?? undefined;
+		highlitView = null;
+		highlitViewport = null;
+		for (const v of weaponLayout.views) {
+			v.enabled = undefined;
+		}
+		return;
+	}
 
 	//this.#selectCharacterPerDynamicProp(model);
 	console.info(model);
@@ -141,16 +149,4 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
 	view.viewport = undefined;
 
 	highlitView = view;
-}
-
-function handleDblClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
-	if (highlitView) {
-		highlitView.viewport = highlitViewport ?? undefined;
-		highlitView = null;
-		highlitViewport = null;
-		for (const v of weaponLayout.views) {
-			v.enabled = undefined;
-		}
-		return;
-	}
 }
