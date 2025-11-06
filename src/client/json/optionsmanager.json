@@ -367,6 +367,11 @@
 			"default": "SHIFT+W"
 		},
 		{
+			"name": "app.shortcuts.viewer.hideui",
+			"type": "shortcut",
+			"default": "SHIFT+H"
+		},
+		{
 			"name": "engine.shadereditor.recompiledelay",
 			"type": "integer",
 			"default": "1000",

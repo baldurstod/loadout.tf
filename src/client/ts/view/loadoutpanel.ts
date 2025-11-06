@@ -1,3 +1,5 @@
+import { ShortcutHandler } from 'harmony-browser-utils';
+import { toggle } from 'harmony-ui';
 import loadoutCSS from '../../css/loadout.css';
 import { CharacterControlPanel } from './charactercontrolpanel';
 import { CharacterSelector } from './characterselector';
@@ -17,6 +19,7 @@ export class LoadoutPanel extends StaticPanel {
 
 	constructor() {
 		super([loadoutCSS]);
+		ShortcutHandler.addEventListener('app.shortcuts.viewer.hideui', () => this.#toggleUi());
 	}
 
 	protected override initHTML(): void {
@@ -28,5 +31,11 @@ export class LoadoutPanel extends StaticPanel {
 			this.#characterControlPanel.getHTMLElement(),
 			this.#flexesPanel.getHTMLElement(),
 		);
+	}
+
+	#toggleUi() {
+		toggle(this.#toolbar.getHTMLElement());
+		toggle(this.#characterSelector.getHTMLElement());
+		toggle(this.#characterControlPanel.getHTMLElement());
 	}
 }
