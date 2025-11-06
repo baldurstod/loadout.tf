@@ -1,4 +1,4 @@
-import { display, hide, toggle } from 'harmony-ui';
+import { hide, toggle } from 'harmony-ui';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
 import { StaticPanel } from './staticpanel';

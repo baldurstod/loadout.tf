@@ -22,6 +22,7 @@ let highlitViewport: Viewport | null = null;
 Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => characterChanged((event as CustomEvent<Character>).detail));
 Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
 Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
+GraphicsEvents.addEventListener(GraphicsEvent.MouseClick, (event: Event) => handleClick(event as CustomEvent<GraphicMouseEventData>));
 GraphicsEvents.addEventListener(GraphicsEvent.MouseDblClick, (event: Event) => handleDblClick(event as CustomEvent<GraphicMouseEventData>));
 
 function characterChanged(character: Character): void {
@@ -61,7 +62,8 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 
 			const weaponScene = new Scene({
 				//parent: warpaintsGroup,
-				background: loadoutColorBackground, childs: [
+				background: loadoutColorBackground,
+				childs: [
 					new SceneNode({ entity: customLightsContainer }),
 					new SceneNode({ entity: lightsContainer }),
 				]
@@ -111,17 +113,7 @@ function centerModel(model: Source1ModelInstance): void {
 	model.setPosition(vec3.negate(pos, pos));
 }
 
-function handleDblClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
-	if (highlitView) {
-		highlitView.viewport = highlitViewport ?? undefined;
-		highlitView = null;
-		highlitViewport = null;
-		for (const v of weaponLayout.views) {
-			v.enabled = undefined;
-		}
-		return;
-	}
-
+function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
 	const model = pickEvent.detail.entity;
 	if (!model) {
 		return;
@@ -131,6 +123,10 @@ function handleDblClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
 	console.info(model);
 	const view = weaponsToView.get(model as Source1ModelInstance);
 	if (!view) {
+		return;
+	}
+
+	if (view == highlitView) {
 		return;
 	}
 
@@ -145,4 +141,16 @@ function handleDblClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
 	view.viewport = undefined;
 
 	highlitView = view;
+}
+
+function handleDblClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
+	if (highlitView) {
+		highlitView.viewport = highlitViewport ?? undefined;
+		highlitView = null;
+		highlitViewport = null;
+		for (const v of weaponLayout.views) {
+			v.enabled = undefined;
+		}
+		return;
+	}
 }

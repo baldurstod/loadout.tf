@@ -33,7 +33,7 @@ export class LoadoutPanel extends StaticPanel {
 		);
 	}
 
-	#toggleUi() {
+	#toggleUi(): void {
 		toggle(this.#toolbar.getHTMLElement());
 		toggle(this.#characterSelector.getHTMLElement());
 		toggle(this.#characterControlPanel.getHTMLElement());
