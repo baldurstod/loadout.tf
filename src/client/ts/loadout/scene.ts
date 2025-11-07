@@ -6,6 +6,7 @@ export const loadoutColorBackground = new ColorBackground();
 export const orbitCamera = new Camera({ name: 'Orbit camera', nearPlane: 10, farPlane: 5000, autoResize: true });
 export const firstPersonCamera = new Camera({ nearPlane: 5, farPlane: 1000, verticalFov: 90, name: 'First person camera', autoResize: true });
 export const orbitCameraControl = new OrbitControl(orbitCamera);
+loadoutScene.addChild(orbitCameraControl.target);
 
 export let customLightsContainer: Entity;
 export const lightsContainer = new Group({ name: 'Lights' });

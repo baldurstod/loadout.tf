@@ -144,7 +144,7 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 	}
 
 	//this.#selectCharacterPerDynamicProp(model);
-	console.info(model);
+	//console.info(model);
 	const view = weaponsToView.get(model as Source1ModelInstance);
 	if (!view) {
 		return;

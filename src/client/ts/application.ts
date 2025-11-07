@@ -912,7 +912,6 @@ class Application {
 
 	async #loadJsonLoadout(loadout: string): Promise<void> {
 		try {
-
 			const json = JSON.parse(loadout);
 			if (json) {
 				await ItemManager.initItems();
@@ -920,7 +919,9 @@ class Application {
 				await ItemManager.initWorkshopItems();
 				importLoadout(json);
 			}
-		} catch (e) { }
+		} catch (e) {
+			console.error(e);
+		}
 	}
 }
 new Application();
