@@ -2,6 +2,7 @@ import { vec3, vec4 } from 'gl-matrix';
 import { AmbientLight, CameraProjection, Entity, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
+import { SfmExporter } from 'harmony-sfm';
 import { PaintKitDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
@@ -10,19 +11,20 @@ import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
-import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PATREON_IS_LOGGED, PRODUCTION } from './bundleoptions';
-import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
+import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PATREON_IS_LOGGED, PRODUCTION, TESTING } from './bundleoptions';
+import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, SHARE_LOADOUT_URL, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType, Panel } from './enums';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
 import { Team } from './loadout/enums';
+import { ItemManager } from './loadout/items/itemmanager';
 import { Loadout } from './loadout/loadout';
 import { addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
+import { importLoadout } from './loadout/serializer';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
-import { SfmExporter } from 'harmony-sfm';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -269,7 +271,7 @@ class Application {
 
 
 		I18n.start();
-
+		this.#loadUrlLoadout();
 	}
 
 	#beforeUnload(): void {
@@ -878,6 +880,48 @@ class Application {
 		}
 	}
 
+	async #loadUrlLoadout(): Promise<void> {
+		const pathname = document.location.pathname;
+		if (TESTING) {
+			//pathname = '/loadout/dist/@loadout/' + TESTING_LOADOUT_ID;
+		}
+
+		const loadoutResult = /\/@loadout\/(.*)/.exec(pathname);
+		if (loadoutResult) {
+			await this.#loadShareLoadout(loadoutResult[1]!);
+			return;
+		}
+
+		const loadoutResult2 = /\/@jsonloadout\/(.*)/.exec(pathname);
+		if (loadoutResult2) {
+			await this.#loadJsonLoadout(decodeURI(loadoutResult2[1]!));
+			return;
+		}
+	}
+
+	async #loadShareLoadout(loadoutId: string): Promise<void> {
+		const response = await fetch(SHARE_LOADOUT_URL + loadoutId);
+		const responseJSON = await response.json();
+		if (responseJSON.success) {
+			await ItemManager.initItems();
+			await ItemManager.initTournamentMedals();
+			await ItemManager.initWorkshopItems();
+			importLoadout(responseJSON.result);
+		}
+	}
+
+	async #loadJsonLoadout(loadout: string): Promise<void> {
+		try {
+
+			const json = JSON.parse(loadout);
+			if (json) {
+				await ItemManager.initItems();
+				await ItemManager.initTournamentMedals();
+				await ItemManager.initWorkshopItems();
+				importLoadout(json);
+			}
+		} catch (e) { }
+	}
 }
 new Application();
 

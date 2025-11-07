@@ -52,7 +52,7 @@ export class CharacterManager {
 	}
 
 	static async selectCharacter(characterClass: Tf2Class, slotId?: uint): Promise<Character> {
-		const slot = this.#getSlot(slotId);
+		const slot = this.getSlot(slotId);
 
 		if (slot.character?.characterClass == characterClass) {
 			// the same character is selected again
@@ -89,7 +89,7 @@ export class CharacterManager {
 	}
 
 	static removeCharacter(slotId?: uint): void {
-		const slot = this.#getSlot(slotId);
+		const slot = this.getSlot(slotId);
 		this.#removeCharacter(slot);
 	}
 
@@ -132,7 +132,7 @@ export class CharacterManager {
 		}
 	}
 
-	static #getSlot(slotId?: uint): CharacterSlot {
+	static getSlot(slotId?: uint): CharacterSlot {
 		if (slotId !== undefined) {
 			const slot = this.#characterSlots[slotId];
 			if (slot) {

@@ -87,7 +87,7 @@ export class Item {
 			}
 		}
 		if (this.#stattrakModule) {
-			this.#stattrakModule.setVisible(count == 0 ? false : undefined);
+			this.#stattrakModule.setVisible(count == null ? false : undefined);
 			const stattrakScale = Number.parseFloat(this.#itemTemplate.weaponStattrakModuleScale ?? 1);
 			this.#stattrakModule.materialsParams['StatTrakNumber'] = count;
 			const stattrackBone = this.#model?.getBoneByName('c_weapon_stattrack');
