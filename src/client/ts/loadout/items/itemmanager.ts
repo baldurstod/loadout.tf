@@ -501,8 +501,8 @@ export class ItemManager {
 	}
 
 	static async initTournamentMedals(): Promise<void> {
-		if (!this.#initWorkshopPromise) {
-			this.#initWorkshopPromise = new Promise<void>((resolve): void => {
+		if (!this.#initMedalsPromise) {
+			this.#initMedalsPromise = new Promise<void>((resolve): void => {
 				(async (): Promise<void> => {
 					const response = await fetch(`${TF2_REPOSITORY}generated/items/medals_${this.#lang}.json`);
 					const json = await response.json();
@@ -514,6 +514,6 @@ export class ItemManager {
 				})()
 			});
 		}
-		await this.#initWorkshopPromise;
+		await this.#initMedalsPromise;
 	}
 }
