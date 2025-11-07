@@ -117,7 +117,11 @@ function centerModel(model: Source1ModelInstance): void {
 	model.setPosition(vec3.negate(pos, pos));
 }
 
-function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>) {
+function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
+	if (!compareWarpaints) {
+		return;
+	}
+
 	const model = pickEvent.detail.entity;
 	if (!model) {
 		return;

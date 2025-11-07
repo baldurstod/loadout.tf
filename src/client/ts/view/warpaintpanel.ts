@@ -155,8 +155,9 @@ export class WarpaintPanel extends DynamicPanel {
 	}
 
 	#handleWearChangeClick(wear: number): void {
-		console.info(wear);
-		//this.#currentItem?.paintKitWear = Number((event.target as HTMLSelectElement).selectedOptions[0].getAttribute('data-value'));
+		for (const item of this.#currentItems) {
+			item.setPaintKitWear(wear);
+		}
 	}
 
 	#handlePaintKitClick(warpaintId: number): void {
