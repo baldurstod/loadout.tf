@@ -424,7 +424,7 @@ class Application {
 				loadoutScene.removeChild(customLightsContainer);
 				setCustomLightsContainer(await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent>).detail.value as string)) as Entity);
 				loadoutScene.addChild(customLightsContainer);
-				customLightsContainer.setVisible(OptionsManager.getItem('app.lights.usecustomlights'));
+				customLightsContainer?.setVisible(OptionsManager.getItem('app.lights.usecustomlights'));
 			})()
 		});
 

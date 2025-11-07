@@ -8,7 +8,7 @@ export const firstPersonCamera = new Camera({ nearPlane: 5, farPlane: 1000, vert
 export const orbitCameraControl = new OrbitControl(orbitCamera);
 loadoutScene.addChild(orbitCameraControl.target);
 
-export let customLightsContainer: Entity;
+export let customLightsContainer: Entity | undefined;
 export const lightsContainer = new Group({ name: 'Lights' });
 
 export function setCustomLightsContainer(container: Entity): void {

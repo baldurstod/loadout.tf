@@ -24,6 +24,7 @@ Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => 
 Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
 Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
 GraphicsEvents.addEventListener(GraphicsEvent.MouseClick, (event: Event) => handleClick(event as CustomEvent<GraphicMouseEventData>));
+GraphicsEvents.addEventListener(GraphicsEvent.Tick, animate);
 
 function characterChanged(character: Character): void {
 	if (character.characterClass == Tf2Class.CompareWarpaints) {
@@ -168,4 +169,16 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 	highlitView = view;
 	highlitView.layer = 10;
 	highlitModel = model;
+}
+
+const tempQuat = quat.create();
+function animate(): void {
+	if (!compareWarpaints) {
+		return;
+	}
+
+	orbitCamera.getQuaternion(tempQuat)
+	customLightsContainer?.setQuaternion(tempQuat);
+	lightsContainer.setQuaternion(tempQuat);
+
 }
