@@ -95,15 +95,28 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 
 	const character = await CharacterManager.selectCharacter(tf2Class, context.slot);
 
+	const jsonToItem = new Map<itemJSON, Item>();
 	if (characterJSON.items) {
+		// Phase 1: create the items
 		for (const itemJSON of characterJSON.items) {
-			await importItem(context, character, itemJSON)
+			const item = await importItem1(context, character, itemJSON);
+			if (item) {
+				jsonToItem.set(itemJSON, item);
+			}
+		}
+
+		// Phase 2: set the items attributes
+		for (const itemJSON of characterJSON.items) {
+			const item = await jsonToItem.get(itemJSON);
+			if (item) {
+				importItem2(context, item, itemJSON);
+			}
 		}
 	}
 	return true;
 }
 
-async function importItem(context: ImportContext, character: Character, itemJSON: itemJSON): Promise<boolean> {
+async function importItem1(context: ImportContext, character: Character, itemJSON: itemJSON): Promise<Item | null> {
 	const result = true;
 
 	let itemId = itemJSON.id;
@@ -116,11 +129,14 @@ async function importItem(context: ImportContext, character: Character, itemJSON
 	}
 
 	if (!itemTemplate) {
-		return false;
+		return null;
 	}
 
 	const [item] = await character.addItem(itemTemplate);
+	return item;
+}
 
+function importItem2(context: ImportContext, item: Item, itemJSON: itemJSON): void {
 	const paintId = itemJSON.paint_id ?? itemJSON.paintId;
 	if (paintId !== undefined) {
 		item.setPaint(getPaint(paintId));
@@ -137,20 +153,6 @@ async function importItem(context: ImportContext, character: Character, itemJSON
 	item.setPaintKitId(itemJSON.paint_kit_id ?? itemJSON.paintKitId ?? null);
 	item.setPaintKitWear(itemJSON.paint_kit_wear ?? itemJSON.paintKitWear ?? 0);
 	item.setPaintKitSeed(BigInt(itemJSON.paint_kit_seed ?? itemJSON.paintKitSeed ?? 0));
-
-
-	/*
-	paint_kit_id: this.#paintKitId,
-	paint_kit_wear: this.#paintKitWear != DEFAULT_PAINTKIT_WEAR ? this.#paintKitWear : undefined,
-	paint_kit_seed: this.#paintKitSeed != DEFAULT_PAINTKIT_SEED ? String(this.#paintKitSeed) : undefined,
-	show_festivizer: this.#showFestivizer || undefined,
-	*/
-
-
-	//let item = await this.addItem(itemTemplate);
-
-
-	return result;
 }
 
 export function exportLoadout(): loadoutJSON {
@@ -178,7 +180,7 @@ function exportCharacterLoadout(character: Character): characterJSON {
 }
 
 function exportItem(item: Item): itemJSON {
-	let idStyle = item.id.split('~');
+	const idStyle = item.id.split('~');
 
 	const paintId = item.getPaint()?.id;
 	const sheenId = item.getSheen()?.id;

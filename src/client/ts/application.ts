@@ -945,7 +945,7 @@ class Application {
 		}
 		const loadoutUrl = `https://loadout.tf/@loadout/${result}`//TODO: const
 
-		let notificationText = `${I18n.getString('#share_this_loadout')}<input value='${loadoutUrl}'>`;
+		const notificationText = `${I18n.getString('#share_this_loadout')}<input value='${loadoutUrl}'>`;
 		try {
 			navigator.clipboard.writeText(loadoutUrl).then(
 				() => addNotification(I18n.getString('#share_link_clipboard_ok'), NotificationType.Info, 5),
