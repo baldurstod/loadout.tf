@@ -539,6 +539,7 @@ export class ItemsPanel extends DynamicPanel {
 	}
 
 	#handleWarpaintClick(template: ItemTemplate): void {
+		Controller.dispatchEvent<void>(ControllerEvent.InitWarpaints);
 		const character = CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;

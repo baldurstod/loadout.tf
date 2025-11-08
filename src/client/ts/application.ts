@@ -156,7 +156,7 @@ class Application {
 
 		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => { Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier); return; });
 
-		Controller.addEventListener(ControllerEvent.WarpaintClick, () => { this.#initWarpaints(); return; });
+		Controller.addEventListener(ControllerEvent.InitWarpaints, () => { this.#initWarpaints(); return; });
 
 		Controller.addEventListener(ControllerEvent.ShowAboutNotification, () => this.#showAboutLayer());
 		Controller.addEventListener(ControllerEvent.ShowBugNotification, () => this.#showBugNotification());
@@ -952,6 +952,7 @@ class Application {
 				() => addNotification(notificationText, NotificationType.Info, 15)
 			);
 		} catch (e) {
+			console.error(e);
 			addNotification(notificationText, NotificationType.Info, 15);
 		}
 	}

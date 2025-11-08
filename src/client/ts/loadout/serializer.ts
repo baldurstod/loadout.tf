@@ -1,14 +1,15 @@
 import { quat, vec3 } from 'gl-matrix';
-import { getKillstreak, getKillstreakColor, Killstreak, KillstreakColor } from '../paints/killstreaks';
+import { Controller, ControllerEvent } from '../controller';
+import { getKillstreak, getKillstreakColor, KillstreakColor } from '../paints/killstreaks';
 import { getPaint } from '../paints/paints';
 import { Character } from './characters/character';
 import { CharacterManager } from './characters/charactermanager';
 import { npcToClass } from './characters/characters';
+import { Effect } from './effects/effect';
+import { EffectType } from './effects/effecttemplate';
 import { Team } from './enums';
 import { Item } from './items/item';
 import { ItemManager } from './items/itemmanager';
-import { Effect } from './effects/effect';
-import { EffectType } from './effects/effecttemplate';
 
 export const DEFAULT_PAINTKIT_WEAR = 0;
 export const DEFAULT_PAINTKIT_SEED = 0n;
@@ -111,6 +112,11 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 
 	const character = await CharacterManager.selectCharacter(tf2Class, context.slot);
 
+	if (characterJSON.team !== undefined) {
+		character.setTeam(characterJSON.team);
+
+	}
+
 	const jsonToItem = new Map<itemJSON, Item>();
 	if (characterJSON.items) {
 		// Phase 1: create the items
@@ -123,7 +129,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 
 		// Phase 2: set the items attributes
 		for (const itemJSON of characterJSON.items) {
-			const item = await jsonToItem.get(itemJSON);
+			const item = jsonToItem.get(itemJSON);
 			if (item) {
 				importItem2(context, item, itemJSON);
 			}
@@ -164,8 +170,6 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 }
 
 async function importItem1(context: ImportContext, character: Character, itemJSON: itemJSON): Promise<Item | null> {
-	const result = true;
-
 	let itemId = itemJSON.id;
 	if (itemJSON.style) {
 		itemId += '~' + itemJSON.style;
@@ -183,7 +187,7 @@ async function importItem1(context: ImportContext, character: Character, itemJSO
 	return item;
 }
 
-function importItem2(context: ImportContext, item: Item, itemJSON: itemJSON): void {
+async function importItem2(context: ImportContext, item: Item, itemJSON: itemJSON): Promise<void> {
 	const paintId = itemJSON.paint_id ?? itemJSON.paintId;
 	if (paintId !== undefined) {
 		item.setPaint(getPaint(paintId));
@@ -197,12 +201,14 @@ function importItem2(context: ImportContext, item: Item, itemJSON: itemJSON): vo
 	item.toggleStattrak(itemJSON.kill_count ?? itemJSON.killCount ?? null);
 
 	item.setWeaponEffectId(itemJSON.weapon_effect_id ?? itemJSON.weaponEffectId ?? null);
-	item.setPaintKitId(itemJSON.paint_kit_id ?? itemJSON.paintKitId ?? null);
-	item.setPaintKitWear(itemJSON.paint_kit_wear ?? itemJSON.paintKitWear ?? 0);
-	item.setPaintKitSeed(BigInt(itemJSON.paint_kit_seed ?? itemJSON.paintKitSeed ?? 0));
+	const warpaint = itemJSON.paint_kit_id ?? itemJSON.paintKitId;
+	if (warpaint) {
+		await initWarpaints();
+		item.setPaintKit(warpaint, itemJSON.paint_kit_wear ?? itemJSON.paintKitWear ?? 0, BigInt(itemJSON.paint_kit_seed ?? itemJSON.paintKitSeed ?? 0));
+	}
 }
 
-async function importEffect(context: ImportContext, character: Character, effectJSON: effectJSON): Promise<Effect | null> {
+function importEffect(context: ImportContext, character: Character, effectJSON: effectJSON): Effect | null {
 	const result = ItemManager.getEffectTemplateById(Number(effectJSON.id));
 
 	if (!result) {
@@ -270,3 +276,25 @@ function exportItem(item: Item): itemJSON {
 		show_festivizer: item.getShowFestivizer() ? item.getShowFestivizer() : undefined,
 	};
 }
+
+let initWarpaintsResolve: () => void;
+const initWarpaintsPromise = new Promise<void>((resolve) => {
+	initWarpaintsResolve = resolve;
+});
+
+let initialized = false;
+async function initWarpaints(): Promise<void> {
+	if (!initialized) {
+		Controller.dispatchEvent<void>(ControllerEvent.InitWarpaints);
+		initialized = true;
+	}
+
+	await initWarpaintsPromise;
+}
+
+function handleWarpaintsLoaded(): void {
+	initWarpaintsResolve();
+	Controller.removeEventListener(ControllerEvent.WarpaintsLoaded, handleWarpaintsLoaded);
+}
+
+Controller.addEventListener(ControllerEvent.WarpaintsLoaded, handleWarpaintsLoaded);
