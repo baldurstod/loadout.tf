@@ -81,6 +81,16 @@
 			]
 		},
 		{
+			"name": "app.warpaints.compare.lowqualitythreshold",
+			"type": "number",
+			"default": 9
+		},
+		{
+			"name": "app.warpaints.compare.midqualitythreshold",
+			"type": "number",
+			"default": 4
+		},
+		{
 			"name": "app.characters.highlightselected",
 			"type": "boolean",
 			"default": true

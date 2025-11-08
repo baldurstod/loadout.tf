@@ -1,12 +1,12 @@
 import { quat, vec3 } from 'gl-matrix';
 import { BoundingBox, CanvasLayout, CanvasView, Entity, GraphicMouseEventData, GraphicsEvent, GraphicsEvents, Group, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
-import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT, LOW_QUALITY_TEXTURE_SIZE } from '../constants';
+import { OptionsManager } from 'harmony-browser-utils';
+import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT, LOW_QUALITY_TEXTURE_SIZE, MID_QUALITY_TEXTURE_SIZE } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Character } from './characters/character';
 import { Tf2Class } from './characters/characters';
 import { Item } from './items/item';
 import { customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl } from './scene';
-import { OptionsManager } from 'harmony-browser-utils';
 
 export const weaponLayout: CanvasLayout = {
 	name: COMPARE_WARPAINTS_LAYOUT,
@@ -48,6 +48,8 @@ function loadoutChanged(item: Item): void {
 	initWeaponLayout(character.items);
 }
 
+let backgroundTextureSize = LOW_QUALITY_TEXTURE_SIZE;
+
 async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 	weaponsToView.clear();
 	modelToItem.clear();
@@ -64,6 +66,20 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 	const viewSide = 1 / side;
 
 	const entries = weapons.entries();
+
+	const forceLowQuality = weapons.size > OptionsManager.getItem('app.warpaints.compare.lowqualitythreshold');
+	const forceMidQuality = !forceLowQuality && (weapons.size > OptionsManager.getItem('app.warpaints.compare.midqualitythreshold'));
+
+	switch (true) {
+		case forceLowQuality:
+			backgroundTextureSize = LOW_QUALITY_TEXTURE_SIZE;
+			break;
+		case forceMidQuality:
+			backgroundTextureSize = MID_QUALITY_TEXTURE_SIZE;
+			break;
+		default:
+			backgroundTextureSize = OptionsManager.getItem('warpaints.texture.size');
+	}
 
 	for (let i = 0; i < side; i++) {
 		for (let j = 0; j < side; j++) {
@@ -98,8 +114,8 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 				if (weaponModel) {
 					modelToItem.set(weaponModel, weapon);
 					weaponScene.addChild(weaponModel);
-					weapon.changeTextureSize = LOW_QUALITY_TEXTURE_SIZE;
-					weapon.setTextureSize(LOW_QUALITY_TEXTURE_SIZE);
+					weapon.changeTextureSize = backgroundTextureSize;
+					weapon.setTextureSize(backgroundTextureSize);
 					// Compute bones for correct bounding box
 					await weaponModel.updateAsync(weaponScene, orbitCamera, 0);
 					centerModel(weaponModel);
@@ -147,7 +163,7 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 		const highlitItem = modelToItem.get(highlitModel as Source1ModelInstance);
 		if (highlitItem) {
 			// Set the texture size to low quality
-			highlitItem.changeTextureSize = LOW_QUALITY_TEXTURE_SIZE;
+			highlitItem.changeTextureSize = backgroundTextureSize;
 		}
 
 		if (highlitModel == model) {
