@@ -459,4 +459,16 @@ export class CharacterManager {
 		}
 		return this.#presets.get(npc) ?? null;
 	}
+
+	static getCharacters(): Set<Character> {
+		const characters = new Set<Character>();
+
+		for (const slot of this.#characterSlots) {
+			if (slot.character) {
+				characters.add(slot.character);
+			}
+		}
+
+		return characters;
+	}
 }

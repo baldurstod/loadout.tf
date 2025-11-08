@@ -5,7 +5,13 @@ import { Character } from './characters/character';
 import { CharacterManager } from './characters/charactermanager';
 import { npcToClass } from './characters/characters';
 import { Team } from './enums';
+import { Item } from './items/item';
 import { ItemManager } from './items/itemmanager';
+
+export const DEFAULT_PAINTKIT_WEAR = 0;
+export const DEFAULT_PAINTKIT_SEED = 0n;
+export const DEFAULT_PAINT_ID = 0;
+export const DEFAULT_SHEEN_ID = 0;
 
 export type itemJSON = {
 	id: string,
@@ -22,7 +28,7 @@ export type itemJSON = {
 	show_festivizer?: boolean,
 
 	// For lagacy loadouts. This is only in use for importing loadouts
-	paintId: number,
+	paintId?: number,
 	sheenId?: number,
 	killCount?: number,
 	weaponEffectId?: number,
@@ -36,8 +42,8 @@ export type itemJSON = {
 export type characterJSON = {
 	npc: string;
 	team?: Team;
-	items?: [itemJSON];
-	effects?: [itemJSON];
+	items?: itemJSON[];
+	effects?: never[];
 	position?: vec3;
 	orientation?: quat;
 
@@ -69,7 +75,7 @@ export async function importLoadout(json: loadoutJSON): Promise<boolean> {
 	return result;
 }
 
-export async function importCharacterLoadout(context: ImportContext, characterJSON: characterJSON): Promise<boolean> {
+async function importCharacterLoadout(context: ImportContext, characterJSON: characterJSON): Promise<boolean> {
 	const tf2Class = npcToClass(characterJSON.npc);
 	if (!tf2Class) {
 		return false;
@@ -97,7 +103,7 @@ export async function importCharacterLoadout(context: ImportContext, characterJS
 	return true;
 }
 
-export async function importItem(context: ImportContext, character: Character, itemJSON: itemJSON): Promise<boolean> {
+async function importItem(context: ImportContext, character: Character, itemJSON: itemJSON): Promise<boolean> {
 	const result = true;
 
 	let itemId = itemJSON.id;
@@ -147,10 +153,47 @@ export async function importItem(context: ImportContext, character: Character, i
 	return result;
 }
 
-/*
+export function exportLoadout(): loadoutJSON {
+	const charactersJSON: characterJSON[] = [];
 
-export function exportLoadout(characters: Character[]): loadoutJSON {
+	const characters = CharacterManager.getCharacters();
+	for (const character of characters) {
+		charactersJSON.push(exportCharacterLoadout(character));
+	}
 
-	return {};
+	return { characters: charactersJSON };
 }
-*/
+
+
+function exportCharacterLoadout(character: Character): characterJSON {
+	const characterJSON: characterJSON = { npc: character.npc };
+
+	if (character.items.size) {
+		characterJSON.items = [];
+		for (const [, item] of character.items) {
+			characterJSON.items.push(exportItem(item));
+		}
+	}
+	return characterJSON;
+}
+
+function exportItem(item: Item): itemJSON {
+	let idStyle = item.id.split('~');
+
+	const paintId = item.getPaint()?.id;
+	const sheenId = item.getSheen()?.id;
+	const paintKitWear = item.getPaintKitWear();
+
+	return {
+		id: idStyle[0]!,
+		style: idStyle[1],
+		paint_id: paintId,
+		sheen_id: sheenId != 0 ? sheenId : undefined,
+		kill_count: item.getKillCount() ?? undefined,
+		weapon_effect_id: item.getWeaponEffectId() ?? undefined,
+		paint_kit_id: item.getPaintKitId() ?? undefined,
+		paint_kit_wear: paintKitWear != DEFAULT_PAINTKIT_WEAR ? paintKitWear : undefined,
+		paint_kit_seed: item.getPaintKitSeed() != 0n ? String(item.getPaintKitSeed()) : undefined,
+		show_festivizer: item.getShowFestivizer() ? item.getShowFestivizer() : undefined,
+	};
+}

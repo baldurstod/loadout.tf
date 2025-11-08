@@ -556,7 +556,7 @@ export class Item {
 		}
 	}
 
-	get paintKitId(): number | null {
+	getPaintKitId(): number | null {
 		return this.#paintKitId ?? null;
 	}
 

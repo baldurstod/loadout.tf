@@ -32,6 +32,7 @@ export const enum Ragdoll {
 export class Character {
 	readonly characterClass: Tf2Class;
 	readonly name: string;
+	readonly npc: string;
 	readonly items = new Map<string, Item>();
 	#showBodyParts = new Map<string, boolean>();
 	#model: Source1ModelInstance | null = null;
@@ -60,6 +61,7 @@ export class Character {
 	constructor(characterClass: Tf2Class) {
 		this.characterClass = characterClass;
 		this.name = CharactersList.get(characterClass)?.name ?? '';
+		this.npc = CharactersList.get(characterClass)?.npc ?? '';
 	}
 
 	async loadModel(path: string, name: string): Promise<void> {
@@ -726,8 +728,8 @@ export class Character {
 			presetItem.isWorkshop = item.getTemplate().isWorkshop();
 			presetItem.isTournamentMedal = item.getTemplate().isTournamentMedal();
 
-			if (item.paintKitId !== null) {
-				presetItem.paintkitId = item.paintKitId;
+			if (item.getPaintKitId() !== null) {
+				presetItem.paintkitId = item.getPaintKitId()!;
 			}
 
 			if (item.getPaintKitSeed() != 0n) {

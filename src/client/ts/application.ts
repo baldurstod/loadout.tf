@@ -22,7 +22,7 @@ import { Team } from './loadout/enums';
 import { ItemManager } from './loadout/items/itemmanager';
 import { Loadout } from './loadout/loadout';
 import { addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
-import { importLoadout } from './loadout/serializer';
+import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
 
@@ -164,6 +164,7 @@ class Application {
 		Controller.addEventListener(ControllerEvent.ExportFbx, () => { this.#exportToFBX() });
 		Controller.addEventListener(ControllerEvent.Export3d, (event: Event) => { this.#export3D((event as CustomEvent<boolean>).detail) });
 		Controller.addEventListener(ControllerEvent.ExportSfm, () => { this.#exportSfm() });
+		Controller.addEventListener(ControllerEvent.ShareLoadout, () => { this.#shareLoadout() });
 	}
 
 	/*
@@ -922,6 +923,58 @@ class Application {
 		} catch (e) {
 			console.error(e);
 		}
+	}
+
+	async #shareLoadout(): Promise<void> {
+		const loadoutJSON = exportLoadout();
+		//saveFile(new File([JSON.stringify(loadoutJSON)], 'loadout.json'));
+		/*
+		let loadout = CharacterManager.exportLoadout();
+		if (TESTING) {
+			console.log(loadout);
+		}
+		*/
+		const result = await this.#uploadLoadout(loadoutJSON);
+
+		if (!result) {
+			addNotification(I18n.getString('#failed_to_upload_this_loadout'), NotificationType.Error, 5);
+			return;
+		}
+		if (TESTING) {
+			console.log(result);
+		}
+		const loadoutUrl = `https://loadout.tf/@loadout/${result}`//TODO: const
+
+		let notificationText = `${I18n.getString('#share_this_loadout')}<input value='${loadoutUrl}'>`;
+		try {
+			navigator.clipboard.writeText(loadoutUrl).then(
+				() => addNotification(I18n.getString('#share_link_clipboard_ok'), NotificationType.Info, 5),
+				() => addNotification(notificationText, NotificationType.Info, 15)
+			);
+		} catch (e) {
+			addNotification(notificationText, NotificationType.Info, 15);
+		}
+	}
+
+	async #uploadLoadout(loadout: loadoutJSON): Promise<boolean> {
+		try {
+			const response = await fetch(SHARE_LOADOUT_URL, { method: 'POST', body: JSON.stringify(loadout) });
+			if (!response) {
+				return false;
+			}
+			const responseJSON = await response.json();
+			if (!responseJSON) {
+				return false;
+			}
+			if (responseJSON.success) {
+				return responseJSON.result;
+			} else {
+				return false;
+			}
+		} catch (e) {
+			console.error(e);
+		}
+		return false;
 	}
 }
 new Application();
