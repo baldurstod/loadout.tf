@@ -93,6 +93,24 @@ export class ItemManager {
 		return this.#effectTemplates.get(type, id) ?? null;
 	}
 
+	static getEffectTemplateById(id: number): [EffectType, EffectTemplate] | null {
+		for (const [effectType, effectId, template] of this.#effectTemplates) {
+			if (id == effectId) {
+				return [effectType, template];
+			}
+		}
+		return null;
+	}
+
+	static getEffectTemplateBySystem(system: string): [EffectType, number, EffectTemplate] | null {
+		for (const [effectType, effectId, template] of this.#effectTemplates) {
+			if (system == template.getSystem()) {
+				return [effectType, effectId, template];
+			}
+		}
+		return null;
+	}
+
 	static getFilteredItems(excluded: { e: number }/*TODO: find a better way to do that*/): Map<string, ItemTemplate> {
 		const filteredItems = new Map<string, ItemTemplate>();
 		excluded.e = 0;

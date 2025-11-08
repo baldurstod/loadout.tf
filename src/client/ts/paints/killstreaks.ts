@@ -54,6 +54,25 @@ export function getKillstreak(killstreak: KillstreakColor): Killstreak | null {
 	return null;
 }
 
+export function getKillstreakColor(color: vec3): KillstreakColor | null {
+	const colors: [vec3, vec3] = [vec3.create(), vec3.create()];
+	for (const [killstreakColor, definition] of killstreakList) {
+		colorToTint(definition.color1Blu, colors[0]);
+		colorToTint(definition.color1Red, colors[1]);
+		for (let i = 0; i < 2; i++) {
+			if (
+				Math.abs(color[0] - colors[i]![0]) < 0.001 &&
+				Math.abs(color[1] - colors[i]![1]) < 0.001 &&
+				Math.abs(color[2] - colors[i]![2]) < 0.001
+			) {
+				return killstreakColor;
+			}
+		}
+	}
+
+	return null;
+}
+
 function colorToTint(color: number, tint: vec3): void {
 	tint[0] = ((color & 0xFF0000) >> 16) / 255.0;
 	tint[1] = ((color & 0x00FF00) >> 8) / 255.0;

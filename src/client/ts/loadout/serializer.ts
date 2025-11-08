@@ -1,5 +1,5 @@
 import { quat, vec3 } from 'gl-matrix';
-import { getKillstreak } from '../paints/killstreaks';
+import { getKillstreak, getKillstreakColor, Killstreak, KillstreakColor } from '../paints/killstreaks';
 import { getPaint } from '../paints/paints';
 import { Character } from './characters/character';
 import { CharacterManager } from './characters/charactermanager';
@@ -7,6 +7,8 @@ import { npcToClass } from './characters/characters';
 import { Team } from './enums';
 import { Item } from './items/item';
 import { ItemManager } from './items/itemmanager';
+import { Effect } from './effects/effect';
+import { EffectType } from './effects/effecttemplate';
 
 export const DEFAULT_PAINTKIT_WEAR = 0;
 export const DEFAULT_PAINTKIT_SEED = 0n;
@@ -39,6 +41,17 @@ export type itemJSON = {
 	showFestivizer?: boolean,
 }
 
+export type effectJSON = {
+	id: number;
+	offset?: vec3;
+	color?: KillstreakColor;
+}
+
+export type legacyKillstreakEffectJSON = {
+	effect: string;
+	color: vec3;
+}
+
 export type characterJSON = {
 	npc: string;
 	team?: Team;
@@ -47,8 +60,11 @@ export type characterJSON = {
 	position?: vec3;
 	orientation?: quat;
 
-	// For lagacy loadouts. This is only in use for importing loadouts
+	// For legacy loadouts. This is only in use for importing loadouts
 	quaternion?: quat;
+	unusualEffects?: [];
+	killstreak_effect?: legacyKillstreakEffectJSON;
+	taunt_effect?: string;
 }
 
 export type loadoutJSON = {
@@ -113,6 +129,37 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 			}
 		}
 	}
+
+	if (characterJSON.unusualEffects) {
+		for (const effect of characterJSON.unusualEffects) {
+			importEffect(context, character, effect);
+		}
+	}
+
+	if (characterJSON.killstreak_effect) {
+		const result = ItemManager.getEffectTemplateBySystem(characterJSON.killstreak_effect.effect);
+		const killstreakColor = getKillstreakColor(characterJSON.killstreak_effect.color);
+
+		if (result) {
+			//console.info(template, killstreakColor);
+			const [, , template] = result;
+			if (template && killstreakColor) {
+				character.setKillsteakEffect(template, killstreakColor);
+			}
+		}
+	}
+
+	if (characterJSON.taunt_effect) {
+		const result = ItemManager.getEffectTemplateBySystem(characterJSON.taunt_effect);
+
+		if (result) {
+			const [, , template] = result;
+			if (template) {
+				character.setTauntEffect(template);
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -153,6 +200,30 @@ function importItem2(context: ImportContext, item: Item, itemJSON: itemJSON): vo
 	item.setPaintKitId(itemJSON.paint_kit_id ?? itemJSON.paintKitId ?? null);
 	item.setPaintKitWear(itemJSON.paint_kit_wear ?? itemJSON.paintKitWear ?? 0);
 	item.setPaintKitSeed(BigInt(itemJSON.paint_kit_seed ?? itemJSON.paintKitSeed ?? 0));
+}
+
+async function importEffect(context: ImportContext, character: Character, effectJSON: effectJSON): Promise<Effect | null> {
+	const result = ItemManager.getEffectTemplateById(Number(effectJSON.id));
+
+	if (!result) {
+		return null;
+	}
+
+	const [type, template] = result;
+
+	switch (type) {
+		case EffectType.Cosmetic:
+			character.addEffect(template);
+			break;
+		case EffectType.Killstreak:
+			character.setKillsteakEffect(template, effectJSON.color);
+			break;
+		case EffectType.Taunt:
+			character.setTauntEffect(template);
+			break;
+	}
+
+	return null;
 }
 
 export function exportLoadout(): loadoutJSON {
