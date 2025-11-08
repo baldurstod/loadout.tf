@@ -14,7 +14,7 @@ export class PresetItem {
 	weaponEffect?: number;
 	sheen?: number;
 	showFestivizer = false;
-	killCount? = 0;
+	killCount?: number;
 
 	fromJSON(json: JSONObject): boolean {
 		if (json.id !== undefined) {
