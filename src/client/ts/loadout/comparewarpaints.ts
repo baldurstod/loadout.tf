@@ -1,11 +1,12 @@
 import { quat, vec3 } from 'gl-matrix';
 import { BoundingBox, CanvasLayout, CanvasView, Entity, GraphicMouseEventData, GraphicsEvent, GraphicsEvents, Group, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
-import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT } from '../constants';
+import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT, LOW_QUALITY_TEXTURE_SIZE } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Character } from './characters/character';
 import { Tf2Class } from './characters/characters';
 import { Item } from './items/item';
 import { customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl } from './scene';
+import { OptionsManager } from 'harmony-browser-utils';
 
 export const weaponLayout: CanvasLayout = {
 	name: COMPARE_WARPAINTS_LAYOUT,
@@ -16,6 +17,7 @@ let compareWarpaints = false;
 const warpaintsGroup = new Group({ parent: loadoutScene, name: 'warpaints' });
 
 const weaponsToView = new Map<Source1ModelInstance, CanvasView>();
+const modelToItem = new Map<Source1ModelInstance, Item>();
 let highlitView: CanvasView | null = null;
 let highlitViewport: Viewport | null = null;
 let highlitModel: Entity | null = null;
@@ -48,6 +50,7 @@ function loadoutChanged(item: Item): void {
 
 async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 	weaponsToView.clear();
+	modelToItem.clear();
 	weaponLayout.views = [];
 	warpaintsGroup.removeChildren();
 	weaponLayout.views.push({
@@ -93,7 +96,10 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 				const weapon = item[1];
 				const weaponModel = await weapon.getModel();
 				if (weaponModel) {
+					modelToItem.set(weaponModel, weapon);
 					weaponScene.addChild(weaponModel);
+					weapon.changeTextureSize = LOW_QUALITY_TEXTURE_SIZE;
+					weapon.setTextureSize(LOW_QUALITY_TEXTURE_SIZE);
 					// Compute bones for correct bounding box
 					await weaponModel.updateAsync(weaponScene, orbitCamera, 0);
 					centerModel(weaponModel);
@@ -127,6 +133,7 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 	if (!model) {
 		return;
 	}
+
 	if (highlitView) {
 		highlitView.layer = undefined;
 		highlitView.clearDepth = undefined;
@@ -135,6 +142,12 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 		highlitViewport = null;
 		for (const v of weaponLayout.views) {
 			v.enabled = undefined;
+		}
+
+		const highlitItem = modelToItem.get(highlitModel as Source1ModelInstance);
+		if (highlitItem) {
+			// Set the texture size to low quality
+			highlitItem.changeTextureSize = LOW_QUALITY_TEXTURE_SIZE;
 		}
 
 		if (highlitModel == model) {
@@ -169,6 +182,13 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 	highlitView = view;
 	highlitView.layer = 10;
 	highlitModel = model;
+
+	const item = modelToItem.get(model as Source1ModelInstance);
+	if (item) {
+		const textureSize = OptionsManager.getItem('warpaints.texture.size');
+		item.changeTextureSize = textureSize;
+		item.setTextureSize(textureSize);
+	}
 }
 
 const tempQuat = quat.create();

@@ -39,6 +39,8 @@ export class Item {
 	#paintKitId: number | null = null;
 	#paintKitSeed = 0n;
 	#materialOverride: string | null = null;
+	#textureSize?: number;
+	changeTextureSize?: number;
 
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
@@ -150,7 +152,7 @@ export class Item {
 			}
 
 			if (this.#paintKitId !== null) {
-				WeaponManager.refreshPaint(this);
+				this.#refreshWarPaint();
 			}
 		}
 
@@ -549,6 +551,7 @@ export class Item {
 	setPaintKitId(paintKitId: number | null): void {
 		if (this.#paintKitId != paintKitId) {
 			this.#paintKitId = paintKitId;
+			this.#textureSize = this.changeTextureSize;
 			this.#refreshWarPaint();
 		}
 	}
@@ -560,6 +563,7 @@ export class Item {
 	setPaintKitWear(paintKitWear: number): void {
 		if (this.#paintKitWear != paintKitWear) {
 			this.#paintKitWear = paintKitWear;
+			this.#textureSize = this.changeTextureSize;
 			this.#refreshWarPaint();
 		}
 	}
@@ -571,6 +575,7 @@ export class Item {
 	setPaintKitSeed(paintKitSeed: bigint): void {
 		if (this.#paintKitSeed != paintKitSeed) {
 			this.#paintKitSeed = paintKitSeed;
+			this.#textureSize = this.changeTextureSize;
 			this.#refreshWarPaint();
 		}
 	}
@@ -585,19 +590,30 @@ export class Item {
 			this.#paintKitId = paintKitId;
 			this.#paintKitWear = paintKitWear;
 			this.#paintKitSeed = paintKitSeed;
+			this.#textureSize = this.changeTextureSize;
 			this.#refreshWarPaint();
 		}
 	}
 
+	setTextureSize(textureSize: number): void {
+		if (this.#textureSize !== undefined && this.#textureSize >= textureSize) {
+			return;
+		}
+		this.#textureSize = textureSize;
+
+		this.#refreshWarPaint();
+	}
+
 	#refreshWarPaint(): void {
 		if (this.#model && this.#paintKitId !== null && this.#materialOverride === null) {
-			WeaponManager.refreshItem({
+			WeaponManager.refreshWarpaint({
 				id: this.id,
 				paintKitId: this.#paintKitId,
 				paintKitWear: this.#paintKitWear,
 				paintKitSeed: this.#paintKitSeed,
 				model: this.#model,
 				team: this.#team,
+				textureSize: this.#textureSize,
 			});
 		}
 	}
