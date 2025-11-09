@@ -684,6 +684,10 @@ export class Character {
 		return this.#setKillsteakEffect(this.#decapitationEffects, template, Eye.Left);
 	}
 
+	getDecapitationLevel(): number {
+		return this.#decapitationLevel;
+	}
+
 	async setTauntEffect(template: EffectTemplate | null): Promise<Effect | null> {
 		if (this.#tauntEffect) {
 			this.#tauntEffect.system?.stop();
@@ -701,6 +705,14 @@ export class Character {
 		this.#setEffectsTeam();
 
 		return effect;
+	}
+
+	getTauntEffect(): Effect | null {
+		return this.#tauntEffect;
+	}
+
+	getKillstreakEffects(): [Effect | null, Effect | null] {
+		return this.#killstreakEffects;
 	}
 
 	setPoseParameter(name: string, value: number): void {

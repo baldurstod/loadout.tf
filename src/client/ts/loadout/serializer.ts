@@ -16,6 +16,8 @@ export const DEFAULT_PAINTKIT_SEED = 0n;
 export const DEFAULT_PAINT_ID = 0;
 export const DEFAULT_SHEEN_ID = 0;
 
+export const NULL_VECTOR = vec3.create();
+
 export type itemJSON = {
 	id: string,
 	style?: string,
@@ -57,9 +59,10 @@ export type characterJSON = {
 	npc: string;
 	team?: Team;
 	items?: itemJSON[];
-	effects?: never[];
+	effects?: effectJSON[];
 	position?: vec3;
 	orientation?: quat;
+	decapitation_level?: number;
 
 	// For legacy loadouts. This is only in use for importing loadouts
 	quaternion?: quat;
@@ -133,6 +136,16 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 			if (item) {
 				importItem2(context, item, itemJSON);
 			}
+		}
+	}
+
+	if (characterJSON.decapitation_level) {
+		character.setDecapitationLevel(characterJSON.decapitation_level);
+	}
+
+	if (characterJSON.effects) {
+		for (const effect of characterJSON.effects) {
+			importEffect(context, character, effect);
 		}
 	}
 
@@ -245,14 +258,41 @@ export function exportLoadout(): loadoutJSON {
 
 
 function exportCharacterLoadout(character: Character): characterJSON {
-	const characterJSON: characterJSON = { npc: character.npc };
+	const characterJSON: characterJSON = { npc: character.npc, items: [], effects: [] };
 
-	if (character.items.size) {
-		characterJSON.items = [];
-		for (const [, item] of character.items) {
-			characterJSON.items.push(exportItem(item));
+	for (const [, item] of character.items) {
+		characterJSON.items!.push(exportItem(item));
+	}
+	for (const effect of character.effects) {
+		characterJSON.effects!.push(exportEffect(effect));
+	}
+
+	const tauntEffect = character.getTauntEffect();
+	if (tauntEffect) {
+		characterJSON.effects!.push(exportEffect(tauntEffect));
+	}
+
+	const killstreakEffects = character.getKillstreakEffects();
+	if (killstreakEffects) {
+		for (const effect of killstreakEffects) {
+			if (effect) {
+				characterJSON.effects!.push(exportEffect(effect));
+				break;
+			}
 		}
 	}
+
+	if (character.getDecapitationLevel() > 0) {
+		characterJSON.decapitation_level = character.getDecapitationLevel();
+	}
+
+	if (!characterJSON.items!.length) {
+		characterJSON.items = undefined;
+	}
+	if (!characterJSON.effects!.length) {
+		characterJSON.effects = undefined;
+	}
+
 	return characterJSON;
 }
 
@@ -275,6 +315,14 @@ function exportItem(item: Item): itemJSON {
 		paint_kit_seed: item.getPaintKitSeed() != 0n ? String(item.getPaintKitSeed()) : undefined,
 		show_festivizer: item.getShowFestivizer() ? item.getShowFestivizer() : undefined,
 	};
+}
+
+function exportEffect(effect: Effect): effectJSON {
+	return {
+		id: effect.template.id,
+		offset: vec3.exactEquals(NULL_VECTOR, effect.offset) ? undefined : effect.offset,
+		color: effect.killstreakColor ? effect.killstreakColor : undefined,
+	}
 }
 
 let initWarpaintsResolve: () => void;

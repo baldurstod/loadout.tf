@@ -927,7 +927,7 @@ class Application {
 
 	async #shareLoadout(): Promise<void> {
 		const loadoutJSON = exportLoadout();
-		//saveFile(new File([JSON.stringify(loadoutJSON)], 'loadout.json'));
+		//saveFile(new File([JSON.stringify(loadoutJSON)], 'loadout.json'));return;
 		/*
 		let loadout = CharacterManager.exportLoadout();
 		if (TESTING) {
