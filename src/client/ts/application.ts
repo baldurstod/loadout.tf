@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, Entity, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, Group, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, Group, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -165,6 +165,8 @@ class Application {
 		Controller.addEventListener(ControllerEvent.Export3d, (event: Event) => { this.#export3D((event as CustomEvent<boolean>).detail) });
 		Controller.addEventListener(ControllerEvent.ExportSfm, () => { this.#exportSfm() });
 		Controller.addEventListener(ControllerEvent.ShareLoadout, () => { this.#shareLoadout() });
+
+		EntityObserver.addEventListener(EntityObserverEventType.PropertyChanged, (event: Event) => this.#handlePropertyChanged((event as CustomEvent).detail));
 	}
 
 	/*
@@ -979,6 +981,27 @@ class Application {
 			console.error(e);
 		}
 		return false;
+	}
+
+	#handlePropertyChanged(detail: EntityObserverPropertyChangedEvent) {
+		if (!document.hasFocus() || !this.#replicateCamera) {
+			return;
+		}
+
+		const entity = detail.entity;
+		switch (entity) {
+			case orbitCamera:
+				if (detail.propertyName == 'position') {
+					this.#broadcastChannel.postMessage({ message: 'camera_position', position: entity.getPosition() });
+				}
+				break;
+			case orbitCameraControl.target:
+				if (detail.propertyName == 'position') {
+					this.#broadcastChannel.postMessage({ message: 'target_position', position: entity.getPosition() });
+				}
+				break;
+		}
+
 	}
 }
 new Application();
