@@ -375,7 +375,7 @@ export class OptionsPanel extends DynamicPanel {
 
 		cameraTypeRadioGroup.addEventListener('change', (event: Event) => {
 			if ((event as CustomEvent).detail.state) {
-				Controller.dispatchEvent<CameraType>(ControllerEvent.ImportFile, { detail: (event as CustomEvent).detail.value });
+				Controller.dispatchEvent<CameraType>(ControllerEvent.SelectCamera, { detail: (event as CustomEvent).detail.value as CameraType });
 			}
 		});
 		/*

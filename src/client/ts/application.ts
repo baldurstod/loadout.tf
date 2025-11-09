@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, Entity, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, Group, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, Entity, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, Group, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -21,7 +21,7 @@ import { Tf2Class } from './loadout/characters/characters';
 import { Team } from './loadout/enums';
 import { ItemManager } from './loadout/items/itemmanager';
 import { Loadout } from './loadout/loadout';
-import { addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
+import { activeCameraControl, addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
 import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
@@ -559,11 +559,14 @@ class Application {
 	#startupRenderer(): void {
 		const animate = (event: Event): void => {
 			WebGLStats.tick();
+			const delta = (event as CustomEvent).detail.delta;
+			activeCameraControl.update(delta);
+
 			/*if (this.#composer?.enabled) {
 				this.#composer.render((event as CustomEvent).detail.delta, {});
 			} else */{
 				//Graphics.render(loadoutScene, loadoutScene.activeCamera ?? this.#activeCamera, (event as CustomEvent).detail.delta, {});
-				Graphics.renderMultiCanvas((event as CustomEvent<GraphicTickEvent>).detail.delta);
+				Graphics.renderMultiCanvas(delta);
 			}
 			/*
 			if (this.#recording) {

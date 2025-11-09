@@ -7,6 +7,7 @@ import { startAnim, TF2_TOOLBOX_MODEL } from '../../constants';
 import { Controller, ControllerEvent } from '../../controller';
 import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
+import { firstPersonCamera } from '../scene';
 import { ClassAnimations, getClassAnimations } from './animations';
 import { Character, Ragdoll } from './character';
 import { CharactersList, Tf2Class } from './characters';
@@ -119,6 +120,8 @@ export class CharacterManager {
 				if (!selectedEntity || !selectedEntity.isParent(model)) { // Only switch entity if not parent of currently selected entity
 					getSceneExplorer().selectEntity(model);
 				}
+
+				model.getBoneByName('bip_head')?.addChild(firstPersonCamera);
 			}
 		})();
 	}

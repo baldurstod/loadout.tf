@@ -1,11 +1,25 @@
-import { Camera, ColorBackground, Entity, Group, HALF_PI, OrbitControl, Scene, SceneExplorer, Source1ModelInstance, Source1ModelManager } from 'harmony-3d';
+import { Camera, CameraControl, ColorBackground, Entity, FirstPersonControl, Group, HALF_PI, OrbitControl, Scene, SceneExplorer, Source1ModelInstance, Source1ModelManager } from 'harmony-3d';
 import { CameraType } from '../enums';
 
 export const loadoutScene = new Scene();
 export const loadoutColorBackground = new ColorBackground();
 export const orbitCamera = new Camera({ name: 'Orbit camera', nearPlane: 10, farPlane: 5000, autoResize: true });
-export const firstPersonCamera = new Camera({ nearPlane: 5, farPlane: 1000, verticalFov: 90, name: 'First person camera', autoResize: true });
+export const firstPersonCamera = new Camera({
+	nearPlane: 5,
+	farPlane: 1000,
+	verticalFov: 90,
+	name: 'First person camera',
+	autoResize: true,
+	position: [0, 5, -7],
+	quaternion: [0, 0, 1, 0],
+});
 export const orbitCameraControl = new OrbitControl(orbitCamera);
+export const firstPersonCameraControl = new FirstPersonControl(orbitCamera);
+firstPersonCameraControl.movementSpeed = 100;
+firstPersonCameraControl.lookSpeed = 0.1;
+export let activeCameraControl: CameraControl = orbitCameraControl;
+setActiveCamera(CameraType.Orbit);
+
 loadoutScene.addChild(orbitCameraControl.target);
 
 export let customLightsContainer: Entity | undefined;
@@ -55,23 +69,27 @@ export function setActiveCamera(cameraType: CameraType): void {
 	switch (cameraType) {
 		case CameraType.Orbit:
 			camera = orbitCamera;
+			setActiveCameraControl(orbitCameraControl);
 			break;
 		case CameraType.FreeFly:
 			camera = orbitCamera;
-			//this.#setActiveCameraControl(this.#orbitCameraControl);
+			setActiveCameraControl(firstPersonCameraControl);
 			break;
-		/*
-		case 'freefly':
-			this.camera = this.#orbitCamera;
-			this.#setActiveCameraControl(this.#firstPersonCameraControl)
-			break;
-			*/
 		case CameraType.FirstPerson:
 			camera = firstPersonCamera;
+			setActiveCameraControl(null);
 			break;
 	}
 
-
 	activeCamera = camera;
 	camera.setActiveCamera();
+}
+
+function setActiveCameraControl(control: CameraControl | null): void {
+	firstPersonCameraControl.enabled = false;
+	orbitCameraControl.enabled = false;
+	if (control) {
+		activeCameraControl = control;
+		control.enabled = true;
+	}
 }
