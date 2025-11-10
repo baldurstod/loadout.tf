@@ -167,7 +167,7 @@ class Application {
 		Controller.addEventListener(ControllerEvent.ExportSfm, () => { this.#exportSfm() });
 		Controller.addEventListener(ControllerEvent.ShareLoadout, () => { this.#shareLoadout() });
 
-		Controller.addEventListener(ControllerEvent.ImportFiles, (event: Event) => this.#importFiles((event as CustomEvent<File[]>).detail));
+		Controller.addEventListener(ControllerEvent.ImportFiles, (event: Event) => { this.#importFiles((event as CustomEvent<File[]>).detail) });
 
 		EntityObserver.addEventListener(EntityObserverEventType.PropertyChanged, (event: Event) => this.#handlePropertyChanged((event as CustomEvent).detail));
 	}
@@ -986,7 +986,7 @@ class Application {
 		return false;
 	}
 
-	#handlePropertyChanged(detail: EntityObserverPropertyChangedEvent) {
+	#handlePropertyChanged(detail: EntityObserverPropertyChangedEvent): void {
 		if (!document.hasFocus() || !this.#replicateCamera) {
 			return;
 		}
