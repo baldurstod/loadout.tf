@@ -25,6 +25,7 @@ import { activeCameraControl, addTF2Model, customLightsContainer, lightsContaine
 import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
+import { importFile } from './fileimporter';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -165,6 +166,8 @@ class Application {
 		Controller.addEventListener(ControllerEvent.Export3d, (event: Event) => { this.#export3D((event as CustomEvent<boolean>).detail) });
 		Controller.addEventListener(ControllerEvent.ExportSfm, () => { this.#exportSfm() });
 		Controller.addEventListener(ControllerEvent.ShareLoadout, () => { this.#shareLoadout() });
+
+		Controller.addEventListener(ControllerEvent.ImportFiles, (event: Event) => this.#importFiles((event as CustomEvent<File[]>).detail));
 
 		EntityObserver.addEventListener(EntityObserverEventType.PropertyChanged, (event: Event) => this.#handlePropertyChanged((event as CustomEvent).detail));
 	}
@@ -1001,7 +1004,13 @@ class Application {
 				}
 				break;
 		}
+	}
 
+	async #importFiles(files: File[]): Promise<void> {
+		const overrideModels = OptionsManager.getItem('app.repositories.import.overridemodels');
+		for (const file of files) {
+			await importFile(file, overrideModels);
+		}
 	}
 }
 new Application();

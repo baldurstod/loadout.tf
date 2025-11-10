@@ -1,16 +1,19 @@
-import { AudioMixer, SceneExplorer, ShaderEditor } from 'harmony-3d';
+import { AudioMixer, Entity, Repository, RepositoryEntry, SceneExplorer, ShaderEditor } from 'harmony-3d';
+import { defineRepository, HTMLRepositoryElement } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
-import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement } from 'harmony-ui';
+import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
 import optionsCSS from '../../css/options.css';
+import repositoryEntryCSS from '../../css/repositoryentry.css';
 import { TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, CameraType, Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { loadoutScene } from '../loadout/scene';
+import { addTF2Model, loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 
 export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;
+	//#htmlTabImport?: HTMLHarmonyTabElement;
 	#htmlLanguageSelector?: HTMLSelectElement;
 	#htmlColorPicker?: HTMLHarmonyColorPickerElement;
 	#htmlCSSTheme?: HTMLHarmonyRadioElement;
@@ -24,10 +27,11 @@ export class OptionsPanel extends DynamicPanel {
 	#htmlSceneExplorerTab?: HTMLHarmonyTabElement;
 	#htmlVerticalFovSlider?: HTMLInputElement;
 	#htmlVerticalFovValue?: HTMLLabelElement;
+	#htmlOverrideGameModels?: HTMLHarmonySwitchElement;
 	#shaderEditor = new ShaderEditor();
 
 	constructor() {
-		super(Panel.Options, []);
+		super(Panel.Options, [optionsCSS]);
 		hide(this.getShadowRoot());
 		this.#initListeners();
 	}
@@ -51,6 +55,7 @@ export class OptionsPanel extends DynamicPanel {
 		this.#initHtmlMeetTheTeamOptions();
 		this.#initHtmlSceneExplorer();
 		this.#initHtmlShaderEditor();
+		this.#initHtmlImportFiles();
 		this.#initLanguages();
 	}
 
@@ -627,6 +632,86 @@ export class OptionsPanel extends DynamicPanel {
 			htmlShaderEditorTab.append(this.#shaderEditor);
 		});
 	}
+
+	#initHtmlImportFiles(): void {
+		defineHarmonyFileInput();
+		defineRepository();
+		const htmlTabImport = createElement('harmony-tab', {
+			parent: this.#htmlTabGroup,
+			'data-i18n': '#import_files',
+			childs: [
+				createElement('group', {
+					class: 'misc',
+					i18n: {
+						title: '#import_models_locally',
+					},
+					childs: [
+						createElement('harmony-file-input', {
+							'data-i18n': '#import_models_locally',
+							'data-accept': '.zip,.vpk',
+							'data-tooltip-i18n': '#import_models_zip_tooltip',
+							//$change: (event: Event) => this.#importModels((event.target as HTMLHarmonyFileInputElement).files, this.#htmlOverrideGameModels!.state as boolean),
+							$change: (event: Event) => Controller.dispatchEvent<File[]>(ControllerEvent.ImportFiles, { detail: [...((event.target as HTMLHarmonyFileInputElement).files ?? [])] }),
+						}),
+						this.#htmlOverrideGameModels = createElement('harmony-switch', {
+							'data-i18n': '#override_game_models',
+							$change: () => OptionsManager.setItem('app.repositories.import.overridemodels', this.#htmlOverrideGameModels!.state),
+						}) as HTMLHarmonySwitchElement,
+					],
+				}),
+			]
+		}) as HTMLHarmonyTabElement;
+
+		OptionsManagerEvents.addEventListener('app.repositories.import.overridemodels', (event: Event) => this.#htmlOverrideGameModels!.state = (event as CustomEvent).detail.value);
+
+
+		async function addModel(entry: RepositoryEntry, parent?: Entity | null): Promise<void> {
+			const model = await addTF2Model(entry.getFullName(), entry.getRepository().name);
+
+			if (parent && model) {
+				parent.addChild(model);
+			}
+		}
+
+		Controller.addEventListener(ControllerEvent.RepositoryAdded, (event: Event) => {
+			const repository = (event as CustomEvent<Repository>).detail;
+
+			const repositoryView = createElement('harmony3d-repository', {
+				parent: htmlTabImport,
+				adoptStyle: repositoryEntryCSS,
+				events: {
+					fileclick: (event: CustomEvent) => console.info((event).detail.getFullName()),
+					directoryclick: (event: CustomEvent) => console.info((event).detail.getFullName(), event),
+					entrycreated: (event: CustomEvent) => {
+						createElement('div', {
+							class: 'custom-buttons',
+							parent: (event).detail.view,
+							slot: 'custom',
+							childs: [
+								createElement('button', {
+									i18n: '#add_to_scene',
+									events: {
+										click: () => addModel((event).detail.entry),
+									}
+								}),
+								createElement('button', {
+									i18n: '#add_to_current_character',
+									events: {
+										click: async () => addModel((event).detail.entry, await CharacterManager.getCurrentCharacter()?.getModel()),
+									}
+								}),
+							]
+						});
+						I18n.observeElement((event).detail.view);
+					},
+				}
+			}) as HTMLRepositoryElement;
+			repositoryView.setFilter({ extension: 'mdl', directories: false });
+			repositoryView.setRepository(repository);
+
+		});
+	}
+
 
 	/*
 	async #importModels(files: FileList | null, overrideModels: boolean) {

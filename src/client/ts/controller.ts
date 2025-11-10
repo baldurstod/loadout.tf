@@ -12,7 +12,7 @@ export enum ControllerEvent {
 	SetBackgroundType = 'setbackgroundtype',
 	OverrideTextures = 'overridetextures',
 	ShowBadge = 'showbadge',
-	ImportFile = 'importfile',
+	ImportFiles = 'importfiles',
 	//HideAllPanels = 'hideallpanels',
 	TogglePanel = 'togglepanel',
 	ShareLoadout = 'shareloadout',
@@ -59,6 +59,7 @@ export enum ControllerEvent {
 	PresetsUpdated = 'presetsupdated',
 	UseLayout = 'uselayout',
 	SelectWarpaints = 'selectwarpaints',
+	RepositoryAdded = 'repositoryAdded',
 }
 
 export type SetBackgroundType = {

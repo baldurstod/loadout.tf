@@ -107,14 +107,18 @@ export class ApplicationPanel {
 			return;
 		}
 
+		const files: File[] = [];
 		for (const item of event.dataTransfer.items) {
 			if (item.kind === "file") {
 				const file = item.getAsFile();
 				if (file) {
-					Controller.dispatchEvent<File>(ControllerEvent.ImportFile, { detail: file });
-					//this.#importModels2(file, this.#htmlOverrideGameModels.state as boolean);
+					files.push(file);
 				}
 			}
+		}
+
+		if (files.length) {
+			Controller.dispatchEvent<File[]>(ControllerEvent.ImportFiles, { detail: files });
 		}
 	}
 

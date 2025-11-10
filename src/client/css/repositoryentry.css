@@ -1,0 +1,8 @@
+.custom-buttons {
+	display: flex;
+	white-space: nowrap;
+}
+
+button {
+	cursor: pointer;
+}
