@@ -6,7 +6,6 @@ export class StaticPanel {
 
 	constructor(adoptStyles?: string[]) {
 		this.#shadowRoot = createShadowRoot('div', {
-			class: this.constructor.name,
 			adoptStyles: adoptStyles,
 		});
 	}

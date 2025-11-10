@@ -1,0 +1,408 @@
+import { AdditionalPlacements } from './model/additionalplacements';
+import { Category } from './model/category';
+import { Product } from './model/product';
+import { ProductPlacement } from './model/productplacement';
+import { ProductPrices } from './model/productprices';
+import { Technique } from './model/technique';
+import { Variant } from './model/variant';
+import { fetchShopAPI } from './shop';
+import { formatPrice } from './utils';
+
+/*#productId: number = -1;
+#variantId: number = -1;
+#technique: Technique = Technique.Unknwown;
+#placement: string = 'default';*/
+const products = new Map<number, Product>();
+const variants = new Map<number, Variant>();
+const prices = new Map<number, Map<string, ProductPrices>>();
+const categories = new Map<number, Category>();
+//const variantsProducts = new Map<number, number>();
+const variantPrices = new Map<string, Map<number, Map<string, string>>>();
+
+let currency = 'USD';
+
+let readyPromiseResolve!: (value: boolean) => void;
+const ready = new Promise<boolean>(resolve => readyPromiseResolve = resolve);
+let productInizialized = false;
+let categoriestInizialized = false;
+
+export async function initProducts(region = 'US') {
+	if (productInizialized) {
+		return;
+	}
+
+	productInizialized = true;
+	const { response: productsResponse } = await fetchShopAPI('get-printful-products', 1, {
+		currency: currency,
+	});
+	//const { response: availableProductsResponse } = await FetchAPI('available-products', 1, { region: region });
+
+	if (productsResponse.success/* && availableProductsResponse.success*/) {
+		for (let product of productsResponse.result.products) {
+			const p = new Product();
+			p.fromJSON(product);
+			products.set(product.id, p);
+		}
+
+		if (productsResponse.result.prices) {
+			for (let variant of productsResponse.result.prices) {
+				setVariantPrice(currency, variant.id, variant.technique, variant.price);
+			}
+		}
+
+		/*
+		const variants = productsResponse.result.variants;
+		for (let variantId in variants) {
+			variantsProducts.set(Number(variantId), variants[variantId]);
+		}
+		*/
+		readyPromiseResolve(true);
+	}
+}
+
+function productsReady() {
+	return ready;
+}
+
+export function isParent(product: Product, parentCategoryId: number): boolean {
+	let categoryId = product.mainCategoryId;
+	if (categoryId == parentCategoryId) {
+		return true;
+	}
+
+	while (true) {
+		const category = categories.get(categoryId);
+
+		if (!category) {
+			return false;
+		}
+
+		if (category.parentId == 0) {
+			return false;
+		}
+
+		if (category.parentId == parentCategoryId) {
+			return true;
+		}
+
+		categoryId = category.parentId;
+	}
+
+}
+
+export async function getAvailableProducts(categoryId: number = 0) {
+	if (categoryId != 0) {
+		await initCategories();
+	}
+
+	await productsReady();
+	const availableProducts: Array<Product> = [];
+
+	for (let [id, product] of products) {
+		if (id == 0 ||
+			product.isDiscontinued ||
+			product.catalogVariantIds.length == 0
+		) {
+			continue;
+		}
+
+		if (product.getTechniques().length == 0) {
+			continue;
+		}
+
+		if (categoryId == 0 || isParent(product, categoryId)) {
+			availableProducts.push(product);
+		}
+	}
+
+	return availableProducts;
+}
+
+export async function getProduct(id: number) {
+	await productsReady();
+	return products.get(id);
+}
+
+export async function getProductVariants(productId: number): Promise<Array<Variant>> {
+	await productsReady();
+	//return products.get(id);
+	const variants: Array<Variant> = [];
+	const product = products.get(productId);
+	if (!product) {
+		console.error(`product not found ${productId}`);
+		return variants;
+	}
+
+	for (const variantId of (product.catalogVariantIds as Array<number>)) {
+		const variant = await getVariant(variantId);
+		if (variant) {
+			variants.push(variant);
+		}
+	}
+	return variants;
+}
+
+export async function getVariant(id: number): Promise<Variant | undefined> {
+	await productsReady();
+
+	if (!variants.get(id)) {
+		await initVariant(id);
+	}
+
+	return variants.get(id);
+}
+
+function variantIdToProductId(variantId: number): number {
+	for (const [_, product] of products) {
+		if (product.catalogVariantIds) {
+			for (const id of product.catalogVariantIds as Array<number>) {
+				if (id === variantId) {
+					return product.id as number;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
+async function initVariant(id: number) {
+	const productId = variantIdToProductId(id);
+
+	if (productId == -1) {
+		console.error(`product not found for variant ${id}`);
+		return null;
+	}
+
+	const { response: productResponse } = await fetchShopAPI('get-printful-product', 1, { 'product_id': productId });
+
+	if (!productResponse.success) {
+		console.error(`fetch get-product failed for product ${productId}`);
+		return null;
+	}
+
+	//	console.error(productsResponse);
+	const v = productResponse.result.variants ?? [];
+	for (const variant of v) {
+		const va = new Variant();
+		va.fromJSON(variant);
+		variants.set(va.id as number, va);
+	}
+}
+
+export async function getTechniques(productId: number): Promise<Set<Technique>> {
+	const techniques = new Set<Technique>();
+	const product = await getProduct(productId);
+	if (!product) {
+		return techniques;
+	}
+
+	for (const technique of product.getTechniques()) {
+		techniques.add(technique);
+	}
+
+	return techniques;
+}
+
+export async function getPlacements(productId: number, technique: string): Promise<Array<ProductPlacement>> {
+	const placements = new Array<ProductPlacement>();
+	const product = await getProduct(productId);
+	if (!product) {
+		return placements;
+	}
+
+	return product.getPlacements(technique);
+}
+
+export async function getProductPrices(productId: number) {
+	await productsReady();
+
+	if (!prices.get(productId)?.get(currency)) {
+		await initProductPrices(productId);
+	}
+
+	return prices.get(productId)?.get(currency);
+}
+
+export async function getPlacementsPrices(productId: number, technique: string, placements: Set<string>): Promise<Map<string, number>> {
+	await productsReady();
+
+	if (!prices.get(productId)?.get(currency)) {
+		await initProductPrices(productId);
+	}
+
+	const placementsPrices = new Map<string, number>();
+	const productPrices = prices.get(productId)?.get(currency);
+	if (!productPrices) {
+		return placementsPrices;
+	}
+
+	// Populate the prices
+	for (const placementPrice of productPrices.product.placements) {
+		if (placementPrice.techniqueKey == technique && placements.has(placementPrice.id)) {
+			placementsPrices.set(placementPrice.id, Number(placementPrice.price));
+		}
+	}
+
+	// Find highest price
+	let maxPrice = 0;
+	let maxPricePlacement = '';
+	for (const [placement, price] of placementsPrices) {
+		if (price > maxPrice) {
+			maxPrice = price;
+			maxPricePlacement = placement;
+		}
+	}
+
+	if (maxPricePlacement) {
+		placementsPrices.set(maxPricePlacement, 0);
+	}
+
+	return placementsPrices;
+}
+
+async function initProductPrices(productId: number) {
+	const { response: productResponse } = await fetchShopAPI('get-printful-product-prices', 1, { 'product_id': productId, currency: currency });
+
+	if (!productResponse.success) {
+		console.error(`fetch get-product failed for product ${productId}`);
+		return null;
+	}
+
+	const p = new ProductPrices();
+	p.fromJSON(productResponse.result.prices);
+
+	if (!prices.has(productId)) {
+		prices.set(productId, new Map());
+	}
+
+	prices.get(productId)!.set(currency, p);
+}
+
+
+export async function GetPlacementPrice(productId: number, technique: string, placement: string): Promise<AdditionalPlacements | undefined> {
+	const productPrices = await getProductPrices(productId);
+
+	if (!productPrices) {
+		return;
+	}
+
+	return productPrices.getPlacementPrice(technique, placement);
+}
+
+export async function initCategories() {
+	if (categoriestInizialized) {
+		return;
+	}
+
+	categoriestInizialized = true;
+	const { response: categoriesResponse } = await fetchShopAPI('get-printful-categories', 1);
+
+	if (categoriesResponse.success && categoriesResponse.result?.categories) {
+		for (let category of categoriesResponse.result.categories) {
+			const c = new Category();
+			c.fromJSON(category);
+			categories.set(c.id, c);
+		}
+	}
+}
+
+export async function getCategories(parentId?: number): Promise<Array<Category>> {
+	await initCategories();
+
+	const ret: Array<Category> = [];
+
+	for (const [_, category] of categories) {
+		if (parentId == undefined || category.parentId == parentId) {
+			ret.push(category);
+		}
+	}
+
+	return ret;
+}
+
+export async function categoryHasProducts(category: Category, products: Array<Product>): Promise<boolean> {
+	for (const product of products) {
+		if (isParent(product, category.id)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+export async function categoryHasSubCategories(parentId: number): Promise<boolean> {
+	await initCategories();
+
+	for (const [_, category] of categories) {
+		if (category.parentId == parentId) {
+			return true
+		}
+	}
+	return false;
+}
+
+
+export async function isConflicting(productID: number, placement1: string, placement2: string): Promise<boolean> {
+	const product = await getProduct(productID);
+	if (!product) {
+		return true;
+	}
+
+	const placements = product.getPlacements();
+	for (const placement of placements) {
+		if (placement.getPlacement() == placement1) {
+			if (placement.isConflicting(placement2)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+function setVariantPrice(currency: string, id: number, technique: string, price: string) {
+	let c = variantPrices.get(currency);
+	if (!c) {
+		c = new Map();
+		variantPrices.set(currency, c);
+	}
+
+	let i = c.get(id);
+	if (!i) {
+		i = new Map();
+		c.set(id, i);
+	}
+
+	let t = i.get(technique);
+	if (!t) {
+		i.set(technique, price);
+	}
+}
+
+function getVariantPrices(currency: string, id: number) {
+	return variantPrices.get(currency)?.get(id);
+}
+
+export async function getProductPrice(productID: number): Promise<string> {
+	await productsReady();
+	const product = products.get(productID);
+	if (!product) {
+		return '';
+	}
+
+	let minPrice = Infinity;
+	let maxPrice = 0;
+
+	for (const variantID of product.catalogVariantIds) {
+		const variantPrice = getVariantPrices(currency, variantID);
+		if (variantPrice) {
+			for (const [_, price] of variantPrice) {
+				const p = Number(price);
+				if (!isNaN(p)) {
+					minPrice = Math.min(minPrice, p);
+					maxPrice = Math.max(maxPrice, p);
+				}
+			}
+		}
+	}
+	return formatPrice(minPrice, currency);
+}

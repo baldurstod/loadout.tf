@@ -15,8 +15,12 @@ export class Toolbar extends StaticPanel {
 	}
 
 	protected override initHTML(): void {
+
+		if (TESTING) {
+			this.getShadowRoot().append(createButton('test', '#test', undefined, () => this.#togglePanel(Panel.Printful)),);
+		}
+
 		this.getShadowRoot().append(
-			TESTING && createButton('test', '#test', undefined, () => this.#togglePanel(Panel.Printful)),
 			createButton('canvas', '#hide_all_panels', overscanSVG, () => this.#togglePanel(Panel.None)),
 			createButton('item-list', '#show_item_list', playlistAddSVG, () => this.#togglePanel(Panel.Items)),
 			createButton('effects', '#show_unusual_effects', fireSVG, () => this.#togglePanel(Panel.Effects)),

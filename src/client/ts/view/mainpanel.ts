@@ -3,6 +3,7 @@ import mainCSS from '../../css/main.css';
 import { ENABLE_PATREON_BASE } from '../bundleoptions';
 import { AdPanel } from './adpanel';
 import { LoadoutPanel } from './loadoutpanel';
+import { PrintfulPanel } from './printfulpanel';
 
 //const AD_DELAY = 1000;
 
@@ -10,6 +11,7 @@ export class MainPanel {
 	#shadowRoot?: ShadowRoot;
 	#loadoutView = new LoadoutPanel();
 	#adPanel = new AdPanel();
+	#printfulPanel = new PrintfulPanel();
 
 	#initHTML(): HTMLElement {
 		this.#shadowRoot = createShadowRoot('div', {
@@ -18,6 +20,7 @@ export class MainPanel {
 			childs: [
 				this.#loadoutView.getHTMLElement(),
 				ENABLE_PATREON_BASE ? this.#adPanel.getHTMLElement() : null,
+				this.#printfulPanel.getHTMLElement(),
 			],
 		});
 		I18n.observeElement(this.#shadowRoot);

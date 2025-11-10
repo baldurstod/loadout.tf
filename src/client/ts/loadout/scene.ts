@@ -18,7 +18,6 @@ export const firstPersonCameraControl = new FirstPersonControl(orbitCamera);
 firstPersonCameraControl.movementSpeed = 100;
 firstPersonCameraControl.lookSpeed = 0.1;
 export let activeCameraControl: CameraControl = orbitCameraControl;
-setActiveCamera(CameraType.Orbit);
 
 loadoutScene.addChild(orbitCameraControl.target);
 
@@ -30,6 +29,7 @@ export function setCustomLightsContainer(container: Entity): void {
 }
 
 export let activeCamera = orbitCamera;
+setActiveCamera(CameraType.Orbit);
 new SceneExplorer().setScene(loadoutScene);
 loadoutScene.activeCamera = orbitCamera;
 loadoutScene.addChild(orbitCamera);
