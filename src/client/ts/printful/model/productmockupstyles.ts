@@ -1,16 +1,15 @@
 import { JSONObject } from 'harmony-types';
 import { MockupStyles } from './mockupstyles';
-import { MockupTemplate } from './mockuptemplate';
 
 export class ProductMockupStyles {
-	productId: number = -1;
-	styles: Array<MockupStyles> = [];
+	productId = -1;
+	styles: MockupStyles[] = [];
 
 	constructor(productId: number) {
 		this.productId = productId;
 	}
 
-	fromJSON(json: JSONObject) {
+	fromJSON(json: JSONObject): void {
 		this.styles = [];
 
 		if (!Array.isArray(json)) {
@@ -38,8 +37,8 @@ export class ProductMockupStyles {
 		}
 		*/
 
-	getStyles(options: { variantId?: number, technique?: string, placement?: string } = {}): Array<MockupStyles> {
-		const styles: Array<MockupStyles> = [];
+	getStyles(options: { variantId?: number, technique?: string, placement?: string } = {}): MockupStyles[] {
+		const styles: MockupStyles[] = [];
 
 		for (const style of this.styles) {
 			if (options.variantId !== undefined && !style.includesId(options.variantId)) {

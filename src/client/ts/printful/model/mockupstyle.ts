@@ -4,9 +4,9 @@ export class MockupStyle {
 	id = -1;
 	categoryName = '';
 	viewName = '';
-	restrictedToVariants: Array<number> = [];
+	restrictedToVariants: number[] = [];
 
-	fromJSON(json: JSONObject) {
+	fromJSON(json: JSONObject): void {
 		this.id = json.id as number ?? -1;
 		this.categoryName = json.category_name as string ?? '';
 		this.viewName = json.view_name as string ?? '';

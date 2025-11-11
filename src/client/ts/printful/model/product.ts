@@ -5,28 +5,28 @@ import { ProductPlacement } from './productplacement';
 import { Technique } from './technique';
 
 export class Product {
-	id: number = 0;
-	mainCategoryId: number = 0;
-	type: string = '';
-	name: string = '';
-	brand: string = '';
-	model: string = '';
-	image: string = '';
-	variantCount: number = 0;
-	catalogVariantIds: Array<number> = [];
-	isDiscontinued: boolean = false;
-	description: string = '';
-	sizes: Array<string> = [];
-	colors: Array<ProductColor> = [];
-	#techniques: Array<Technique> = [];
-	placements: Array<ProductPlacement> = [];
-	productOptions: Array<any/*TODO: create type CatalogOption*/> = [];
+	id = 0;
+	mainCategoryId = 0;
+	type = '';
+	name = '';
+	brand = '';
+	model = '';
+	image = '';
+	variantCount = 0;
+	catalogVariantIds: number[] = [];
+	isDiscontinued = false;
+	description = '';
+	sizes: string[] = [];
+	colors: ProductColor[] = [];
+	#techniques: Technique[] = [];
+	placements: ProductPlacement[] = [];
+	productOptions: any[] = [];
 
-	getTechniques(): Array<Technique> {
-		const techniques: Array<Technique> = [];
+	getTechniques(): Technique[] {
+		const techniques: Technique[] = [];
 
 		for (const technique of this.#techniques) {
-			if (technique.key != Techniques.Embroidery) {
+			if (technique.key as Techniques != Techniques.Embroidery) {
 				techniques.push(technique);
 			}
 		}
@@ -34,8 +34,8 @@ export class Product {
 		return techniques;
 	}
 
-	getPlacements(technique?: string): Array<ProductPlacement> {
-		const placements: Array<ProductPlacement> = [];
+	getPlacements(technique?: string): ProductPlacement[] {
+		const placements: ProductPlacement[] = [];
 		for (const placement of this.placements) {
 			if (placement.getPlacement() == 'mockup') {
 				continue;
@@ -47,7 +47,7 @@ export class Product {
 		return placements;
 	}
 
-	fromJSON(j: JSONObject) {
+	fromJSON(j: JSONObject): void {
 		this.id = j.id as number;
 		this.mainCategoryId = j.main_category_id as number;
 		this.type = j.type as string;
@@ -56,13 +56,13 @@ export class Product {
 		this.model = j.model as string;
 		this.image = j.image as string;
 		this.variantCount = j.variant_count as number;
-		this.catalogVariantIds = j.catalog_variant_ids as Array<number>;
+		this.catalogVariantIds = j.catalog_variant_ids as number[];
 		this.isDiscontinued = j.is_discontinued as boolean ?? false;
 		this.description = j.description as string;
-		this.sizes = j.sizes as Array<string>;
+		this.sizes = j.sizes as string[];
 
 		this.colors = [];
-		for (const color of j.colors as Array<JSONObject>) {
+		for (const color of j.colors as JSONObject[]) {
 			//layers.push(item.toJSON());
 			const c = new ProductColor();
 			c.fromJSON(color);
@@ -70,7 +70,7 @@ export class Product {
 		}
 
 		this.#techniques = [];
-		for (const technique of j.techniques as Array<JSONObject>) {
+		for (const technique of j.techniques as JSONObject[]) {
 			//layers.push(item.toJSON());
 			const t = new Technique();
 			t.fromJSON(technique);
@@ -78,14 +78,14 @@ export class Product {
 		}
 
 		this.placements = [];
-		for (const placement of j.placements as Array<JSONObject>) {
+		for (const placement of j.placements as JSONObject[]) {
 			const t = new ProductPlacement();
 			t.fromJSON(placement);
 			this.placements.push(t);
 		}
 
 		this.productOptions = [];
-		for (const option of j.product_options as Array<JSONObject>) {
+		for (const option of j.product_options as JSONObject[]) {
 			this.productOptions.push(option);
 		}
 	}

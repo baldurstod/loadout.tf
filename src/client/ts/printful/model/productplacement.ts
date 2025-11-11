@@ -5,23 +5,23 @@ export class ProductPlacement {
 	#placement: string;
 	#technique: string;
 	#printAreaType = 'simple';
-	#layers: Array<Layer> = [];
-	#conflictingPlacements: Array<string> = [];
+	#layers: Layer[] = [];
+	#conflictingPlacements: string[] = [];
 
-	constructor(placement: string = '', technique: string = '') {
+	constructor(placement = '', technique = '') {
 		this.#placement = placement;
 		this.#technique = technique;
 	}
 
-	getPlacement() {
+	getPlacement(): string {
 		return this.#placement;
 	}
 
-	getTechnique() {
+	getTechnique(): string {
 		return this.#technique;
 	}
 
-	addLayer(layer: Layer) {
+	addLayer(layer: Layer): void {
 		this.#layers.push(layer);
 	}
 
@@ -34,13 +34,13 @@ export class ProductPlacement {
 		return false;
 	}
 
-	fromJSON(j: JSONObject) {
+	fromJSON(j: JSONObject): void {
 		this.#placement = j.placement as string;
 		this.#technique = j.technique as string;
 
 		this.#layers = [];
 		if (j.layers) {
-			for (const layer of j.layers as Array<JSONObject>) {
+			for (const layer of j.layers as JSONObject[]) {
 				const l = new Layer();
 				l.fromJSON(layer);
 				this.#layers.push(l);
@@ -49,7 +49,7 @@ export class ProductPlacement {
 
 		this.#conflictingPlacements = [];
 		if (j.conflicting_placements) {
-			for (const conflictingPlacement of j.conflicting_placements as Array<string>) {
+			for (const conflictingPlacement of j.conflicting_placements as string[]) {
 				this.#conflictingPlacements.push(conflictingPlacement);
 			}
 		}

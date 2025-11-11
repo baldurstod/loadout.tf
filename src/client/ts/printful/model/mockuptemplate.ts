@@ -2,7 +2,7 @@ import { JSONObject } from 'harmony-types';
 import { Orientation, Positioning } from './enums';
 
 export class MockupTemplate {
-	catalogVariantIds: Array<number> = [];
+	catalogVariantIds: number[] = [];
 	placement = '';
 	technique = '';
 	imageURL = '';
@@ -18,8 +18,8 @@ export class MockupTemplate {
 	templatePositioning = Positioning.Background;
 	orientation = Orientation.Any;
 
-	fromJSON(json: JSONObject) {
-		this.catalogVariantIds = Array.from(json.catalog_variant_ids as Array<number> ?? []);
+	fromJSON(json: JSONObject): void {
+		this.catalogVariantIds = Array.from(json.catalog_variant_ids as number[] ?? []);
 		this.placement = json.placement as string ?? '';
 		this.technique = json.technique as string ?? '';
 		this.imageURL = json.image_url as string ?? '';

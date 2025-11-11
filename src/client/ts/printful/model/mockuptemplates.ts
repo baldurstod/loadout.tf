@@ -2,14 +2,14 @@ import { JSONObject } from 'harmony-types';
 import { MockupTemplate } from './mockuptemplate';
 
 export class MockupTemplates {
-	productId: number = -1;
-	templates: Array<MockupTemplate> = [];
+	productId = -1;
+	templates: MockupTemplate[] = [];
 
 	constructor(productId: number) {
 		this.productId = productId;
 	}
 
-	fromJSON(json: JSONObject) {
+	fromJSON(json: JSONObject): void {
 		//this.productId = json.product_id as number ?? -1;
 		this.templates = [];
 
@@ -25,8 +25,8 @@ export class MockupTemplates {
 		}
 	}
 
-	getTemplates(options: { variantId?: number, technique?: string, placement?: string } = {}): Array<MockupTemplate> {
-		const templates: Array<MockupTemplate> = [];
+	getTemplates(options: { variantId?: number, technique?: string, placement?: string } = {}): MockupTemplate[] {
+		const templates: MockupTemplate[] = [];
 
 		for (const template of this.templates) {
 			if (options.variantId !== undefined && !template.includesId(options.variantId)) {

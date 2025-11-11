@@ -4,7 +4,7 @@ export type createProductRequest = {
 		variant_id: number,
 		technique: string,
 		//name: string,
-		placements: Array<createProductRequestPlacement>,
+		placements: createProductRequestPlacement[],
 	}
 }
 

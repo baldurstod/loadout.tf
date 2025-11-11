@@ -1,8 +1,16 @@
 import { JSONObject } from 'harmony-types';
 
-export async function fetchShopAPI(action: string, version: number, params?: JSONObject) {
+export type ApiResponse = {
+	requestId: string;
+	response: {
+		'success': boolean,
+		'result': JSONObject,
+	};
+}
+
+export async function fetchShopAPI(action: string, version: number, params?: JSONObject): Promise<ApiResponse> {
 	const requestId = crypto.randomUUID();
-	let fetchOptions = {
+	const fetchOptions = {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',

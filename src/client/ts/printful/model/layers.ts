@@ -2,17 +2,17 @@ import { JSONObject } from 'harmony-types';
 import { LayerOptionPrices } from './layeroptionprices';
 
 export class Layers {
-	type: string = '';
-	additionalPrice: string = '';
-	options: Array<LayerOptionPrices> = [];
+	type = '';
+	additionalPrice = '';
+	options: LayerOptionPrices[] = [];
 
-	fromJSON(j: JSONObject) {
+	fromJSON(j: JSONObject): void {
 		this.type = j.type as string;
 		this.additionalPrice = j.additional_price as string;
 
 		this.options = [];
 		if (j.layer_options) {
-			for (const layer of j.layer_options as Array<JSONObject>) {
+			for (const layer of j.layer_options as JSONObject[]) {
 				const l = new LayerOptionPrices();
 				l.fromJSON(layer);
 				this.options.push(l);

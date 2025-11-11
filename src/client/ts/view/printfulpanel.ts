@@ -1,11 +1,13 @@
 import { quat, vec2, vec3, vec4 } from 'gl-matrix';
-import { Camera, Composer, DEG_TO_RAD, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, Graphics, Group, RAD_TO_DEG, Scene } from 'harmony-3d';
+import { Camera, Composer, DEG_TO_RAD, Graphics, Group, RAD_TO_DEG, Scene } from 'harmony-3d';
 import { addNotification, NotificationType, ShortcutHandler } from 'harmony-browser-utils';
 import { arrowDownwardAltSVG, arrowLeftAltSVG, arrowRightAltSVG, arrowUpwardAltSVG, borderClearSVG, brickLayoutSVG, cropPortraitSVG, gridOffsetSVG, gridRegularSVG, lockOpenRightSVG, lockSVG, rotateLeftSVG, rotateRightSVG, tableRowsSVG, viewColumnSVG, zoomInSVG, zoomOutSVG } from 'harmony-svg';
 import { JSONArray, JSONObject, Radian } from 'harmony-types';
 import { createElement, defineHarmony2dManipulator, defineHarmonyMenu, defineHarmonySlider, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonyMenuItem, hide, HTMLHarmony2dManipulatorElement, HTMLHarmonyMenuElement, HTMLHarmonyRadioElement, HTMLHarmonySliderElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyToggleButtonElement, I18n, ManipulatorUpdatedEventData, ManipulatorUpdatedEventType, RadioChangedEventData, show, updateElement } from 'harmony-ui';
 import printfulCSS from '../../css/printful.css';
+import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
+import { activeCamera, loadoutScene } from '../loadout/scene';
 import { categoryHasProducts, categoryHasSubCategories, getAvailableProducts, getCategories, getPlacements, getPlacementsPrices, getProduct, getProductPrice, getProductVariants, getTechniques, getVariant, initProducts, isParent } from '../printful/catalog';
 import { GetMockupStyle, GetMockupStyles } from '../printful/mockupstyles';
 import { GetMockupTemplate } from '../printful/mockuptemplates';
@@ -21,8 +23,6 @@ import { PrintfulProductElement } from '../printful/printfulproduct';
 import { fetchShopAPI } from '../printful/shop';
 import { formatPrice } from '../printful/utils';
 import { DynamicPanel } from './dynamicpanel';
-import { Controller, ControllerEvent } from '../controller';
-import { activeCamera, loadoutScene } from '../loadout/scene';
 export { PrintfulProductElement };
 
 const MOVE_SCALE = 5;
@@ -143,8 +143,8 @@ export class PrintfulPanel extends DynamicPanel {
 	//#selection: { productId: number, variantId: number, technique: Techniques, placement: string, orientation?: Orientation } = { productId: -1, variantId: -1, technique: Techniques.Unknwown, placement: '' };
 	#initOnce = true;
 	#initCategoriesOnce = true;
-	#categories: Array<number> = [];
-	#htmlCategoryMenuItems: Map<number, any> = new Map();
+	#categories: number[] = [];
+	#htmlCategoryMenuItems = new Map<number, any>();
 	#productPreset: ProductPreset = new ProductPreset();
 	#placeManipulator = true;
 	#dirtyBackground = true;
@@ -204,7 +204,6 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#scene.addChild(this.#sceneContainer);
 		this.#scene.addChild(this.#camera);
 		//Graphics.ready.then(() => this.#renderTarget = new RenderTarget());
-		EntityObserver.addEventListener(EntityObserverEventType.PropertyChanged, (event: Event) => this.#handlePropertyChanged((event as CustomEvent).detail));
 
 	}
 
@@ -215,7 +214,7 @@ export class PrintfulPanel extends DynamicPanel {
 	*/
 
 	initHTML(): void {
-		ShortcutHandler.addEventListener('app.shortcuts.printful.refreshtemplate', (event) => this.#refreshTemplate());
+		ShortcutHandler.addEventListener('app.shortcuts.printful.refreshtemplate', () => this.#refreshTemplate());
 		//let htmlElement = createElement('div', {class: 'printful-client'});
 
 
@@ -278,8 +277,8 @@ export class PrintfulPanel extends DynamicPanel {
 		//this.#htmlElement = htmlElement;
 	}
 
-	#initSelectProductTab() {
-		let htmlProductSelectionTab = createElement('harmony-tab', { 'data-i18n': '#select_product', class: 'printful-template-tab product-tab' }) as HTMLHarmonyTabElement;
+	#initSelectProductTab(): HTMLHarmonyTabElement {
+		const htmlProductSelectionTab = createElement('harmony-tab', { 'data-i18n': '#select_product', class: 'printful-template-tab product-tab' }) as HTMLHarmonyTabElement;
 
 		this.#htmlCategories = createElement('harmony-menu', {
 			parent: htmlProductSelectionTab,
@@ -382,7 +381,7 @@ export class PrintfulPanel extends DynamicPanel {
 		return htmlProductSelectionTab;
 	}
 
-	#initTemplateTab() {
+	#initTemplateTab(): HTMLHarmonyTabElement {
 		let htmlTemplate;
 		this.#htmlTemplateTab = createElement('harmony-tab', {
 			class: 'templates',
@@ -852,7 +851,6 @@ export class PrintfulPanel extends DynamicPanel {
 				this.#htmlManipulator = createElement('harmony-2d-manipulator', {
 					'resize-origin': 'center',
 					$change: async (event: CustomEvent<ManipulatorUpdatedEventData>) => {
-						const manipulator = event.target as HTMLHarmony2dManipulatorElement;
 						//console.info(event.detail.width, event.detail.height);
 						const template = await GetMockupTemplate(this.#productPreset.productId, this.#productPreset.variantId, this.#productPreset.getTechnique(), this.#productPreset.getSelectedPlacement());
 						if (template) {
@@ -878,10 +876,10 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#htmlTemplateCanvasCtx = this.#htmlTemplateCanvas.getContext('2d');
 		this.#htmlTemplateCanvasForegroundCtx = this.#htmlTemplateCanvasForeground.getContext('2d');
 
-		this.#htmlTemplateCanvas!.style.transformOrigin = 'top left';
-		this.#htmlTemplateCanvas!.style.opacity = String(0.75);
-		this.#htmlTemplateCanvasBackground!.style.transformOrigin = 'top left';
-		this.#htmlTemplateCanvasForeground!.style.transformOrigin = 'top left';
+		this.#htmlTemplateCanvas.style.transformOrigin = 'top left';
+		this.#htmlTemplateCanvas.style.opacity = String(0.75);
+		this.#htmlTemplateCanvasBackground.style.transformOrigin = 'top left';
+		this.#htmlTemplateCanvasForeground.style.transformOrigin = 'top left';
 
 		this.#htmlManipulator.set({
 			rotation: 0,
@@ -903,7 +901,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#htmlTemplateControlRotation?.setValue(data.rotation * RAD_TO_DEG);
 	}
 
-	#updateControls() {
+	#updateControls(): void {
 		const preset = this.#productPreset.getSelectedPreset();
 
 		this.#htmlPatterns?.select(preset.getPattern());
@@ -915,7 +913,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#htmlTemplateControlHorizontalGap!.setValue(preset.getHorizontalGap() * 100);
 	}
 
-	#resizeTemplateCanvas() {
+	#resizeTemplateCanvas(): void {
 		if (!this.#htmlTemplateContainer || !this.#htmlTemplateCanvasContainer) {
 			return;
 		}
@@ -930,7 +928,6 @@ export class PrintfulPanel extends DynamicPanel {
 		const w = outRect.width / inRect.width * this.#templateScale;
 		const h = outRect.height / inRect.height * this.#templateScale;
 
-		let ratio = 1;
 		if (w <= h) {
 			this.#templateScale = w;
 		} else {
@@ -952,7 +949,7 @@ export class PrintfulPanel extends DynamicPanel {
 		//console.log(entry.target, rect);
 	}
 
-	#initProductTab() {
+	#initProductTab(): HTMLHarmonyTabElement {
 		this.#htmlProductTab = createElement('harmony-tab', { 'data-i18n': '#product', 'disabled': true }) as HTMLHarmonyTabElement;
 
 		this.#htmlCreateProductSuccess = createElement('div', { i18n: '#product_successfully_created', class: 'printful-product-created', parent: this.#htmlProductTab, hidden: true });
@@ -985,15 +982,15 @@ export class PrintfulPanel extends DynamicPanel {
 	}
 
 
-	#enableCreateProductButton() {
+	#enableCreateProductButton(): void {
 		this.#htmlCreateProductButton!.disabled = this.#productPreset.getIncludedPlacements().length == 0;
 	}
 
-	#disableCreateProductButton() {
+	#disableCreateProductButton(): void {
 		this.#htmlCreateProductButton!.disabled = true;
 	}
 
-	async #createProduct() {
+	async #createProduct(): Promise<void> {
 		this.#disableCreateProductButton();
 		const success = await this.#generatePrintFiles();
 
@@ -1004,7 +1001,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	#refreshTemplate() {
+	#refreshTemplate(): void {
 		if (this.#refreshing) {
 			return;
 		}
@@ -1021,14 +1018,14 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	#displayTemplateTab() {
+	#displayTemplateTab(): void {
 		if (this.#htmlTemplateTab) {
 			this.#htmlTemplateTab.disabled = false;
 			this.#htmlTemplateTab.setActive(true);
 		}
 	}
 
-	#initSale(scene: Scene, camera: Camera, composer?: Composer) {
+	#initSale(scene: Scene, camera: Camera, composer?: Composer): void {
 		//this.#initHtml();
 		this.#sceneContainer.addChild(scene);
 		this.#camera.copy(camera);
@@ -1044,7 +1041,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#refreshTemplate();
 	}
 
-	close() {
+	close(): void {
 		this.hide();
 		this.#sceneContainer.removeChildren();
 	}
@@ -1079,15 +1076,12 @@ export class PrintfulPanel extends DynamicPanel {
 	}
 		*/
 
-	async #createShopProduct() {
+	async #createShopProduct(): Promise<void> {
 		/*
 		if (!this.#htmlVariants) {
 			return;
 		}
 		*/
-		const imageURLs = new Map<PlacementPreset, string>();
-		const images: Array<string> = [];
-		const placements: Array<PlacementPreset> = [];
 
 		/*
 		for (const placement of this.#productPreset.getIncludedPlacements()) {
@@ -1162,7 +1156,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 		show(this.#htmlCreateProductSuccess);
 
-		let shopUrl = `${this.#shopEndpoint}/@product/${(product as JSONObject).id}`;
+		const shopUrl = `${this.#shopEndpoint}/@product/${(product as JSONObject).id as string}`;
 
 		open(shopUrl, '_blank');
 		createElement('a', {
@@ -1191,7 +1185,7 @@ export class PrintfulPanel extends DynamicPanel {
 		if (selectedVariant) {
 			console.log(selectedVariant);
 
-			let response = await fetch(this.#shopEndpoint + '/api', {
+			const response = await fetch(this.#shopEndpoint + '/api', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -1209,13 +1203,13 @@ export class PrintfulPanel extends DynamicPanel {
 					},
 				}),
 			});
-			let json = await response.json();
+			const json = await response.json();
 			console.log(json);
 			this.#processSyncProductJson(json);
 		}
 	}
 
-	async #processSyncProductJson(json: JSONObject/*TODO: improve type*/) {
+	#processSyncProductJson(json: JSONObject/*TODO: improve type*/): void {
 		if (json && json.success) {
 			this.#processSyncProductSuccess(json.result as JSONObject);
 		} else {
@@ -1223,7 +1217,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	async #processSyncProductSuccess(result: JSONObject/*TODO: improve type*/) {
+	#processSyncProductSuccess(result: JSONObject/*TODO: improve type*/): void {
 		console.log(result);
 		const products = result.products as JSONArray;
 		if (!products) {
@@ -1241,7 +1235,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 		show(this.#htmlCreateProductSuccess);
 
-		let shopUrl = `${this.#shopEndpoint}/@product/${(product as JSONObject).id}`;
+		const shopUrl = `${this.#shopEndpoint}/@product/${(product as JSONObject).id as string}`;
 
 		open(shopUrl, '_blank');
 		createElement('a', {
@@ -1265,21 +1259,20 @@ export class PrintfulPanel extends DynamicPanel {
 	*/
 	}
 
-	async #onProductNotificationClicked(json: JSONObject/*TODO: improve type*/) {
-		console.log('onProductNotificationClicked');
-
+	#onProductNotificationClicked(json: JSONObject/*TODO: improve type*/): void {
+		console.log('onProductNotificationClicked', json);
 	}
 
-	async #createProductNotification(json: JSONObject/*TODO: improve type*/) {
+	async #createProductNotification(json: JSONObject/*TODO: improve type*/): Promise<void> {
 		if (await this.#requestNotifications()) {
-			let options = { requireInteraction: true };
-			let notification = new Notification('Hi there!', options);
-			notification.addEventListener('click', () => this.#onProductNotificationClicked(json));
-			notification.addEventListener('close', () => this.#onProductNotificationClicked(json));
+			const options = { requireInteraction: true };
+			const notification = new Notification('Hi there!', options);
+			notification.addEventListener('click', () => { this.#onProductNotificationClicked(json) });
+			notification.addEventListener('close', () => { this.#onProductNotificationClicked(json) });
 		}
 	}
 
-	async #requestNotifications() {
+	async #requestNotifications(): Promise<boolean> {
 		if (Notification.permission == 'default') {
 			show(this.#htmlEnableNotificationsButton);
 			await this.#notificationPromise;
@@ -1292,11 +1285,11 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	async #processSyncProductFailure() {
+	#processSyncProductFailure(): void {
 		addNotification(I18n.getString('#failed_to_create_the_product'), NotificationType.Error, 0);
 	}
 
-	#setTemplateTransparent(transparent: boolean) {
+	#setTemplateTransparent(transparent: boolean): void {
 		if (this.#productPreset.getSelectedPreset().isTransparent() == transparent) {
 			return;
 		}
@@ -1305,7 +1298,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#generateTemplates();
 	}
 
-	#setTemplatePattern(pattern: Pattern) {
+	#setTemplatePattern(pattern: Pattern): void {
 		if (pattern == this.#productPreset.getSelectedPreset().getPattern()) {
 			return;
 		}
@@ -1340,7 +1333,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#generateTemplates();
 	}
 
-	#setTemplateScale(scale: number) {
+	#setTemplateScale(scale: number): void {
 		if (scale == this.#productPreset.getSelectedPreset().getScale()) {
 			return;
 		}
@@ -1349,7 +1342,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#generateTemplates();
 	}
 
-	#setTemplateRotation(rotation: Radian) {
+	#setTemplateRotation(rotation: Radian): void {
 		if (rotation == this.#productPreset.getSelectedPreset().getRotation()) {
 			return;
 		}
@@ -1360,7 +1353,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#updateControls();
 	}
 
-	#setTemplateWidth(width: number) {
+	#setTemplateWidth(width: number): void {
 		if (width > 2) {
 			return;
 		}
@@ -1375,7 +1368,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#updateControls();
 	}
 
-	#setTemplateHeight(height: number) {
+	#setTemplateHeight(height: number): void {
 		if (height > 2) {
 			return;
 		}
@@ -1389,7 +1382,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#updateControls();
 	}
 
-	async #updateManipulator(width: number | undefined, height: number | undefined, rotation: Radian | undefined) {
+	async #updateManipulator(width: number | undefined, height: number | undefined, rotation: Radian | undefined): Promise<void> {
 		const template = await GetMockupTemplate(this.#productPreset.productId, this.#productPreset.variantId, this.#productPreset.getTechnique(), this.#productPreset.getSelectedPlacement());
 		if (template) {
 
@@ -1401,7 +1394,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	#setTemplateHorizontalGap(gap: number) {
+	#setTemplateHorizontalGap(gap: number): void {
 		//this.#template.horizontalGap = gap;
 		if (this.#productPreset.getSelectedPreset().getHorizontalGap() == gap) {
 			return;
@@ -1411,7 +1404,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#generateTemplates();
 	}
 
-	#setTemplateVerticalGap(gap: number) {
+	#setTemplateVerticalGap(gap: number): void {
 		//this.#template.verticalGap = gap;
 		if (this.#productPreset.getSelectedPreset().getVerticalGap() == gap) {
 			return;
@@ -1421,7 +1414,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#generateTemplates();
 	}
 
-	#setTemplateVerticalOffset(verticalOffset: number) {
+	#setTemplateVerticalOffset(verticalOffset: number): void {
 		//this.#template.verticalOffset = verticalOffset;
 		if (this.#productPreset.getSelectedPreset().getVerticalOffset() == verticalOffset) {
 			return;
@@ -1430,7 +1423,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#updateControls();
 	}
 
-	#setTemplateHorizontalOffset(horizontalOffset: number) {
+	#setTemplateHorizontalOffset(horizontalOffset: number): void {
 		//this.#template.horizontalOffset = horizontalOffset;
 		if (this.#productPreset.getSelectedPreset().getHorizontalOffset() == horizontalOffset) {
 			return;
@@ -1439,7 +1432,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#updateControls();
 	}
 
-	#setTemplateSymmetry(symmetry: boolean) {
+	#setTemplateSymmetry(symmetry: boolean): void {
 		//this.#template.symmetry = symmetry;
 		this.#productPreset.getSelectedPreset().setSymmetry(symmetry);
 		this.#generateTemplates();
@@ -1458,17 +1451,17 @@ export class PrintfulPanel extends DynamicPanel {
 	}
 	*/
 
-	#moveTemplate(x: number, y: number, z: number) {
+	#moveTemplate(x: number, y: number, z: number): void {
 		//Note: Camera is by default facing -Z. Switch Y and Z to get an expected behavior
 		const v = vec3.fromValues(x, z, -y);
 
-		vec3.transformQuat(v, v, this.#camera.quaternion);
+		vec3.transformQuat(v, v, this.#camera.getQuaternion());
 		this.#sceneContainer.translate(v);
 		this.#regenerateSelectedPlacement();
 		this.#generateTemplates();
 	}
 
-	#rotateTemplate(x: number, y: number, z: number) {
+	#rotateTemplate(x: number, y: number, z: number): void {
 		this.#sceneContainer.rotateX(x);
 		this.#sceneContainer.rotateY(y);
 		this.#sceneContainer.rotateZ(z);
@@ -1476,19 +1469,19 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#generateTemplates();
 	}
 
-	#resetRotation() {
-		this.#sceneContainer.quaternion = quat.create();
+	#resetRotation(): void {
+		this.#sceneContainer.setQuaternion(quat.create());
 		this.#regenerateSelectedPlacement();
 		this.#generateTemplates();
 	}
 
-	#resetPosition() {
-		this.#sceneContainer.position = vec3.create();
+	#resetPosition(): void {
+		this.#sceneContainer.setPosition(vec3.create());
 		this.#regenerateSelectedPlacement();
 		this.#generateTemplates();
 	}
 
-	#regenerateSelectedPlacement() {
+	#regenerateSelectedPlacement(): void {
 		this.#productPreset.getSelectedPreset().regeneratePlacement();
 	}
 
@@ -1545,11 +1538,10 @@ export class PrintfulPanel extends DynamicPanel {
 		const printWidth = Math.ceil(mockupStyle.printAreaWidth * mockupStyle.dpi);
 		const printHeight = Math.ceil(mockupStyle.printAreaHeight * mockupStyle.dpi);
 
-		let printFileWidth, printFileHeight, printFileLeft = 0, printFileTop = 0, spaceBetween;
+		let printFileWidth, printFileHeight, printFileLeft = 0, printFileTop = 0;
 		const printFileCenter = vec2.create();
 
 		let sourceImage: HTMLImageElement | null;
-		let sourceBitmap: ImageBitmap | null = null;
 
 		if (this.#productPreset.getSelectedPreset().isDirty()) {
 			// generate a new image
@@ -1558,7 +1550,6 @@ export class PrintfulPanel extends DynamicPanel {
 				return false;
 			}
 			sourceImage = result[0];
-			sourceBitmap = result[1];
 		} else {
 			sourceImage = this.#productPreset.getSelectedPreset().getImage();
 		}
@@ -1646,7 +1637,7 @@ export class PrintfulPanel extends DynamicPanel {
 			});
 		}
 
-		await drawPattern(
+		drawPattern(
 			this.#htmlTemplateCanvasCtx!,
 			sourceImage,
 			printFileLeft,
@@ -1824,7 +1815,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#dirtyForeground = false;
 
 		if (this.#htmlDrawGrid!.state) {
-			await drawGrid(
+			drawGrid(
 				this.#htmlTemplateCanvasForegroundCtx!,
 				template.templateWidth,
 				template.templateHeight,
@@ -1878,7 +1869,6 @@ export class PrintfulPanel extends DynamicPanel {
 			return false;
 		}
 
-		const overSample = 2.0;
 		const printWidth = Math.ceil(mockupStyle.printAreaWidth * mockupStyle.dpi) * overSample;
 		const printHeight = Math.ceil(mockupStyle.printAreaHeight * mockupStyle.dpi) * overSample;
 
@@ -1931,7 +1921,7 @@ export class PrintfulPanel extends DynamicPanel {
 			this.#offscreenCanvasCtx!.clearRect(0, 0, printWidth, printHeight);
 		}
 
-		await drawPattern(
+		drawPattern(
 			this.#offscreenCanvasCtx!,
 			sourceImage,
 			0,
@@ -1993,7 +1983,7 @@ export class PrintfulPanel extends DynamicPanel {
 		return null;
 	}
 
-	async #initCategories() {
+	async #initCategories(): Promise<void> {
 		if (!this.#initCategoriesOnce) {
 			return;
 		}
@@ -2005,22 +1995,22 @@ export class PrintfulPanel extends DynamicPanel {
 		const item = { name: 'All items', opened: true, submenu: [] };
 		this.#htmlCategoryMenuItems.set(0, item);
 
-		for (let category of categories) {
-			if (await categoryHasProducts(category, products)) {
+		for (const category of categories) {
+			if (categoryHasProducts(category, products)) {
 				await this.#addCategoryItem(category);
 			}
 		}
 
 		for (const category of categories) {
 			if (this.#htmlCategoryMenuItems.has(category.parentId) && this.#htmlCategoryMenuItems.has(category.id)) {
-				this.#htmlCategoryMenuItems.get(category.parentId)?.submenu.push(this.#htmlCategoryMenuItems.get(category.id)!);
+				this.#htmlCategoryMenuItems.get(category.parentId)?.submenu.push(this.#htmlCategoryMenuItems.get(category.id));
 			}
 		}
 
 		this.#htmlCategories?.show([item]);
 	}
 
-	async #refreshProducts() {
+	async #refreshProducts(): Promise<void> {
 		if (this.#refreshingProducts) {
 			return;
 		}
@@ -2037,7 +2027,7 @@ export class PrintfulPanel extends DynamicPanel {
 				);
 			};
 
-			for (let product of products) {
+			for (const product of products) {
 				this.#addProductOption(product);
 			}
 
@@ -2051,12 +2041,12 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	#selectCategory(categoryId: number) {
+	#selectCategory(categoryId: number): void {
 		this.#productFilter.categoryId = categoryId;
 		this.#applyProductFilter();
 	}
 
-	async #selectProduct(productId: number) {
+	async #selectProduct(productId: number): Promise<void> {
 		if (productId == this.#productPreset.productId) {
 			return;
 		}
@@ -2082,14 +2072,14 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#htmlProductPrice!.innerText = '';
 
 		if (product) {
-			this.#initProduct(product.id as number);
+			this.#initProduct(product.id);
 
-			this.#htmlProductTitle!.innerText = product.name as string;
+			this.#htmlProductTitle!.innerText = product.name;
 			this.#htmlProductPrice!.innerText = await getProductPrice(this.#productPreset.productId);
-			this.#htmlProductDesciption!.innerText = product.description as string;
+			this.#htmlProductDesciption!.innerText = product.description;
 
 			//hide(this.#htmlProductPrice);
-			this.#htmlVariantImage!.src = product.image as string;
+			this.#htmlVariantImage!.src = product.image;
 
 			hide(this.#htmlProductSizes);
 			hide(this.#htmlProductColors);
@@ -2128,7 +2118,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	async #selectVariantByColor(hex: string) {
+	async #selectVariantByColor(hex: string): Promise<void> {
 		const variants = await getProductVariants(this.#productPreset.productId);
 		if (!variants) {
 			return;
@@ -2158,7 +2148,7 @@ export class PrintfulPanel extends DynamicPanel {
 			return false;
 		}
 
-		this.#htmlVariantImage!.src = variant.image as string;
+		this.#htmlVariantImage!.src = variant.image;
 
 		//this.#htmlProductTitle!.innerText = variant.name as string;
 
@@ -2166,15 +2156,15 @@ export class PrintfulPanel extends DynamicPanel {
 		return true;
 	}
 
-	#selectTechnique(technique: string) {
+	#selectTechnique(technique: Techniques): void {
 		if (this.#productPreset.getTechnique() == technique) {
 			return;
 		}
-		this.#productPreset.setTechnique(technique as Techniques);//TODO: check technique ?
+		this.#productPreset.setTechnique(technique);
 		this.#refreshPlacements();
 	}
 
-	async #refreshTechniques() {
+	async #refreshTechniques(): Promise<void> {
 		//const techniques: Array<any/*TODO: create technique type*/> = this.#selection.product?.techniques ?? [];
 		this.#htmlTechniques!.clear();
 
@@ -2206,15 +2196,15 @@ export class PrintfulPanel extends DynamicPanel {
 
 		this.#htmlTechniques!.select(firstTechnique, true);
 
-		this.#selectTechnique(firstTechnique);
+		this.#selectTechnique(firstTechnique as Techniques);
 	}
 
-	#lockPlacement(placement: string, lock: boolean) {
+	#lockPlacement(placement: string, lock: boolean): void {
 		this.#productPreset.getPreset(placement).setLock(lock);
 		this.#refreshControls();
 	}
 
-	#selectPlacement(placement: string) {
+	#selectPlacement(placement: string): void {
 		if (placement == this.#productPreset.getSelectedPlacement()) {
 			return;
 		}
@@ -2229,7 +2219,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#refreshPlacementsPrice();
 	}
 
-	#setPlacementSource(source: PlacementSource) {
+	#setPlacementSource(source: PlacementSource): void {
 		const preset = this.#productPreset.getSelectedPreset();
 		if (preset.getSource() == source) {
 			return;
@@ -2241,7 +2231,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#refreshPlacementsPrice();
 	}
 
-	async #refreshControls() {
+	#refreshControls(): void {
 		const preset = this.#productPreset.getSelectedPreset();
 		if (!this.#htmlBasicControls) {
 			return;
@@ -2262,8 +2252,8 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#htmlPlacementSource?.select(preset.getSource());
 	}
 
-	async #refreshPlacements() {
-		const placements: Array<ProductPlacement> = await getPlacements(this.#productPreset.productId, this.#productPreset.getTechnique());
+	async #refreshPlacements(): Promise<void> {
+		const placements: ProductPlacement[] = await getPlacements(this.#productPreset.productId, this.#productPreset.getTechnique());
 
 		this.#htmlPlacements!.clear();
 		this.#placementsPrice.clear();
@@ -2349,8 +2339,8 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#generateTemplates();
 	}
 
-	async #refreshPlacementsPrice() {
-		const includedPlacements: Array<string> = this.#productPreset.getIncludedPlacements().map((p: PlacementPreset) => p.getPlacement());
+	async #refreshPlacementsPrice(): Promise<void> {
+		const includedPlacements: string[] = this.#productPreset.getIncludedPlacements().map((p: PlacementPreset) => p.getPlacement());
 		console.info(includedPlacements);
 
 		const prices = await getPlacementsPrices(this.#productPreset.productId, this.#productPreset.getTechnique(), new Set(includedPlacements));
@@ -2359,7 +2349,7 @@ export class PrintfulPanel extends DynamicPanel {
 		for (const [placement, button] of this.#placementsPrice) {
 			const price = prices.get(placement);
 
-			let value: string = '';
+			let value = '';
 			if (price == 0) {
 				//if (includedPlacements.length > 1)
 				{
@@ -2390,13 +2380,13 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#refreshPlacementsButton();
 	}
 
-	async #refreshPlacementsButton() {
+	async #refreshPlacementsButton(): Promise<void> {
 		for (const [placement, button] of this.#placementsButtons) {
 			button.disabled = await this.#productPreset.isConflictingPlacement(placement);;
 		}
 	}
 
-	async #initProduct(productId: number) {
+	async #initProduct(productId: number): Promise<void> {
 
 		//this.#htmlVariants!.replaceChildren();
 		//this.#htmlVariants!.disabled = true;
@@ -2411,11 +2401,11 @@ export class PrintfulPanel extends DynamicPanel {
 		const variants = await getProductVariants(productId);
 		//this.#htmlVariants!.disabled = variants.length < 2;
 
-		for (let variant of variants) {
+		for (const variant of variants) {
 			//this.#variants.set(variant.id, variant);
 			//this.#addVariantOption(variant);
 			if (firstVariant === undefined) {
-				firstVariant = variant?.id as number;
+				firstVariant = variant?.id;
 			}
 		}
 		if (firstVariant !== undefined) {
@@ -2426,7 +2416,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}*/
 	}
 
-	async #addCategoryItem(category: Category) {
+	async #addCategoryItem(category: Category): Promise<void> {
 		const item: HarmonyMenuItem = { name: category.title, f: () => this.#selectCategory(category.id) };
 		if (await categoryHasSubCategories(category.id)) {
 			item.submenu = [];
@@ -2435,15 +2425,15 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#htmlCategoryMenuItems.set(category.id, item);
 	}
 
-	#addProductOption(product: any/*TODO: improve type*/) {
+	#addProductOption(product: any/*TODO: improve type*/): void {
 		if (!this.#productOptions.has(product.id)) {
-			let htmlProductOption = createElement('option', {
+			const htmlProductOption = createElement('option', {
 				innerText: product.name,
 				value: product.id,
 				parent: this.#htmlProducts,
 
 			}) as HTMLOptionElement;
-			let htmlProduct = createElement('printful-product', {
+			const htmlProduct = createElement('printful-product', {
 				innerText: product.name,
 				value: product.id,
 				parent: this.#htmlProductsList,
@@ -2461,31 +2451,13 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	#addVariantOption(variant: any/*TODO: improve type*/) {//Remove me
-		/*
-		if (this.#htmlVariantOptions.has(variant.id)) {
-			this.#htmlVariants!.append(this.#htmlVariantOptions.get(variant.id)!);
-			return;
-		}
-
-		let htmlProductOption = createElement('option', {
-			innerText: variant.name,
-			value: variant.id,
-			parent: this.#htmlVariants,
-
-		}) as HTMLOptionElement;
-
-		this.#htmlVariantOptions.set(variant.id, htmlProductOption);
-		*/
-	}
-
-	#applyProductFilter() {
-		let firstProduct: number = -1;
+	#applyProductFilter(): void {
+		let firstProduct = -1;
 		for (const [htmlOption, product] of this.#productOption) {
 			const match = this.#matchFilter(product);
 			display(htmlOption, match);
 			if (firstProduct == -1 && match) {
-				firstProduct = product.id as number;
+				firstProduct = product.id;
 			}
 		}
 
@@ -2510,12 +2482,12 @@ export class PrintfulPanel extends DynamicPanel {
 		return true
 	}
 
-	hide() {
+	hide(): void {
 		hide(this.getShadowRoot());
 		//this.onClosed();
 	}
 
-	show() {
+	show(): void {
 		show(this.getShadowRoot());
 	}
 
@@ -2524,20 +2496,6 @@ export class PrintfulPanel extends DynamicPanel {
 		this.dispatchEvent(new CustomEvent('closed'));
 	}
 	*/
-
-	#handlePropertyChanged(detail: EntityObserverPropertyChangedEvent) {
-		return;
-		/*
-		if (this.#originalCamera && detail.entity == this.#originalCamera) {
-			if (
-				(!vec3.exactEquals(this.#originalCamera.position, this.#camera.position)) ||
-				(!quat.exactEquals(this.#originalCamera.quaternion, this.#camera.quaternion))
-			) {
-				this.#refreshTemplate();
-			}
-		}
-		*/
-	}
 
 	/*
 	async #drawTemplate(
@@ -2739,7 +2697,7 @@ function drawPicture(
 	context.restore();
 }
 
-async function drawPattern(
+function drawPattern(
 	context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 	image: ImageBitmap | HTMLImageElement,
 	left: number,
@@ -2757,7 +2715,7 @@ async function drawPattern(
 	pattern: Pattern,
 	transparent: boolean,
 	clearColor: vec4
-): Promise<void> {
+): void {
 	if (transparent) {
 		context.fillStyle = 'rgba(0, 0, 0, 0)';
 	} else {
@@ -2802,13 +2760,13 @@ async function drawPattern(
 	for (let i = 0; i < xCount; i++) {
 		let offsetY = 0;
 
-		let x = i - (xCount - 1) * 0.5;
+		const x = i - (xCount - 1) * 0.5;
 		if (pattern == Pattern.HalfDrop && (x % 2 != 0)) {
 			offsetY = 0.5;
 		}
 		for (let j = 0; j < yCount + offsetY; j++) {
 			let offsetX = 0;
-			let y = j - (yCount - 1) * 0.5;
+			const y = j - (yCount - 1) * 0.5;
 			if (pattern == Pattern.Brick && (y % 2 != 0)) {
 				offsetX = 0.5;
 			}
@@ -2832,7 +2790,7 @@ async function drawPattern(
 	}
 }
 
-async function drawGrid(
+function drawGrid(
 	context: CanvasRenderingContext2D,
 	templateWidth: number,
 	templateHeight: number,
@@ -2840,7 +2798,7 @@ async function drawGrid(
 	top: number,
 	width: number,
 	height: number,
-): Promise<void> {
+): void {
 	try {
 		const maxDim = Math.max(templateWidth, templateHeight);
 
@@ -2869,7 +2827,9 @@ async function drawGrid(
 		context.moveTo(left, printFileHorizontalCenter);
 		context.lineTo(printFileRight, printFileHorizontalCenter);
 		context.stroke();
-	} catch (e) { }
+	} catch (e) {
+		console.error(e);
+	}
 }
 
 async function drawBackground(

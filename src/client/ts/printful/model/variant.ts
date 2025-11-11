@@ -2,27 +2,27 @@
 import { JSONObject } from 'harmony-types';
 
 export class Availability {
-	region: string = '';
-	status: string = '';
+	region = '';
+	status = '';
 
-	fromJSON(j: JSONObject) {
+	fromJSON(j: JSONObject): void {
 		this.region = j.region as string;
 		this.status = j.status as string;
 	}
 }
 
 export class Variant {
-	id: number = 0;
-	name: string = '';
-	catalogProductID: number = 0;
-	color: string = '';
-	colorCode: string = '';
-	colorCode2: string = '';
-	image: string = '';
-	size: string = '';
-	availability: Array<Availability> = [];
+	id = 0;
+	name = '';
+	catalogProductID = 0;
+	color = '';
+	colorCode = '';
+	colorCode2 = '';
+	image = '';
+	size = '';
+	availability: Availability[] = [];
 
-	fromJSON(j: JSONObject) {
+	fromJSON(j: JSONObject): void {
 		this.id = j.id as number;
 		this.name = j.name as string;
 		this.catalogProductID = j.catalog_product_id as number;
@@ -35,7 +35,7 @@ export class Variant {
 		this.availability = [];
 
 		if (j.availability) {
-			for (const availability of j.availability as Array<JSONObject>) {
+			for (const availability of j.availability as JSONObject[]) {
 				const a = new Availability();
 				a.fromJSON(availability);
 				this.availability.push(a);

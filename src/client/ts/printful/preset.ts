@@ -9,19 +9,19 @@ export enum PlacementSource {
 }
 
 export class ProductPreset {
-	productId: number = -1;
-	variantId: number = -1;
+	productId = -1;
+	variantId = -1;
 	#technique: Techniques = Techniques.Unknwown;
-	#selectedPlacement: string = '';
-	#placements: Map<string, PlacementPreset> = new Map();
+	#selectedPlacement = '';
+	#placements = new Map<string, PlacementPreset>();
 
-	#initPlacement(placement: string) {
+	#initPlacement(placement: string): void {
 		if (!this.#placements.has(placement)) {
 			this.#placements.set(placement, new PlacementPreset(placement));
 		}
 	}
 
-	setTechnique(technique: Techniques) {
+	setTechnique(technique: Techniques): void {
 		if (this.#technique == technique) {
 			return;
 		}
@@ -33,7 +33,7 @@ export class ProductPreset {
 		return this.#technique;
 	}
 
-	selectPlacement(placement: string) {
+	selectPlacement(placement: string): void {
 		this.#selectedPlacement = placement;
 		this.getSelectedPreset().setIncluded(true);
 	}
@@ -52,16 +52,16 @@ export class ProductPreset {
 		return this.#placements.get(placement)!;
 	}
 
-	regenerateAllPlacements() {
-		for (const [_, placement] of this.#placements) {
+	regenerateAllPlacements(): void {
+		for (const [, placement] of this.#placements) {
 			placement.regeneratePlacement();
 		}
 	}
 
-	getIncludedPlacements(): Array<PlacementPreset> {
-		const placements: Array<PlacementPreset> = [];
+	getIncludedPlacements(): PlacementPreset[] {
+		const placements: PlacementPreset[] = [];
 
-		for (const [_, placement] of this.#placements) {
+		for (const [, placement] of this.#placements) {
 			if (placement.isIncluded()) {
 				placements.push(placement);
 			}
@@ -70,8 +70,8 @@ export class ProductPreset {
 		return placements;
 	}
 
-	async isConflictingPlacement(placement: string) {
-		for (const [_, placement2] of this.#placements) {
+	async isConflictingPlacement(placement: string): Promise<boolean> {
+		for (const [, placement2] of this.#placements) {
 			if (placement2.isIncluded() && await isConflicting(this.productId, placement, placement2.getPlacement())) {
 				return true;
 			}
@@ -84,24 +84,24 @@ export class PlacementPreset {
 	#locked = false;
 	#included = false;
 	#dirty = true;
-	#name: string = '';
-	#placement: string = '';
-	orientation: string = 'any';
-	#transparent: boolean = true;
-	#symmetry: boolean = false;
+	#name = '';
+	#placement = '';
+	orientation = 'any';
+	#transparent = true;
+	#symmetry = false;
 	#pattern: Pattern = Pattern.None;
-	#scale: number = 1;
+	#scale = 1;
 	#rotation: Radian = 0;
 	/** Gap between two consecutive images on the horizontal axis, in relative image width. */
-	#horizontalGap: number = 0;
+	#horizontalGap = 0;
 	/** Gap between two consecutive images on the vertical axis, in relative image height. */
-	#verticalGap: number = 0;
+	#verticalGap = 0;
 	/** Offset from the canvas center, in relative canvas width, applied before rotation. */
-	#horizontalOffset: number = 0;
+	#horizontalOffset = 0;
 	/** Offset from the canvas center, in relative canvas height, applied before rotation. */
-	#verticalOffset: number = 0;
-	#width: number = 1;
-	#height: number = 1;
+	#verticalOffset = 0;
+	#width = 1;
+	#height = 1;
 	#source = PlacementSource.Scene;
 	#image: HTMLImageElement | null = null;
 	#printImage: HTMLImageElement | null = null;
@@ -110,31 +110,31 @@ export class PlacementPreset {
 		this.#placement = placement;
 	}
 
-	setLock(lock: boolean) {
+	setLock(lock: boolean): void {
 		this.#locked = lock;
 	}
 
-	isLocked() {
+	isLocked(): boolean {
 		return this.#locked;
 	}
 
-	setIncluded(included: boolean) {
+	setIncluded(included: boolean): void {
 		this.#included = included && this.#source != PlacementSource.None;
 	}
 
-	isIncluded() {
+	isIncluded(): boolean {
 		return this.#included;
 	}
 
-	isDirty() {
+	isDirty(): boolean {
 		return this.#dirty;
 	}
 
-	getPlacement() {
+	getPlacement(): string {
 		return this.#placement;
 	}
 
-	setTransparent(transparent: boolean) {
+	setTransparent(transparent: boolean): void {
 		if (this.#locked) {
 			return;
 		}
@@ -142,11 +142,11 @@ export class PlacementPreset {
 		this.#transparent = transparent;
 	}
 
-	isTransparent() {
+	isTransparent(): boolean {
 		return this.#transparent;
 	}
 
-	setSymmetry(symmetry: boolean) {
+	setSymmetry(symmetry: boolean): void {
 		if (this.#locked) {
 			return;
 		}
@@ -154,11 +154,11 @@ export class PlacementPreset {
 		this.#symmetry = symmetry;
 	}
 
-	getSymmetry() {
+	getSymmetry(): boolean {
 		return this.#symmetry;
 	}
 
-	setPattern(pattern: Pattern) {
+	setPattern(pattern: Pattern): void {
 		if (this.#locked) {
 			return;
 		}
@@ -166,11 +166,11 @@ export class PlacementPreset {
 		this.#pattern = pattern;
 	}
 
-	getPattern() {
+	getPattern(): Pattern {
 		return this.#pattern;
 	}
 
-	setScale(scale: number) {
+	setScale(scale: number): void {
 		if (this.#locked) {
 			return;
 		}
@@ -178,11 +178,11 @@ export class PlacementPreset {
 		this.#scale = scale;
 	}
 
-	getScale() {
+	getScale(): number {
 		return this.#scale;
 	}
 
-	setRotation(rotation: Radian) {
+	setRotation(rotation: Radian): void {
 		if (this.#locked) {
 			return;
 		}
@@ -193,7 +193,7 @@ export class PlacementPreset {
 		return this.#rotation;
 	}
 
-	setVerticalGap(verticalGap: number) {
+	setVerticalGap(verticalGap: number): void {
 		if (this.#locked) {
 			return;
 		}
@@ -201,11 +201,11 @@ export class PlacementPreset {
 		this.#verticalGap = verticalGap;
 	}
 
-	getVerticalGap() {
+	getVerticalGap(): number {
 		return this.#verticalGap;
 	}
 
-	setHorizontalGap(horizontalGap: number) {
+	setHorizontalGap(horizontalGap: number): void {
 		if (this.#locked) {
 			return;
 		}
@@ -213,33 +213,33 @@ export class PlacementPreset {
 		this.#horizontalGap = horizontalGap;
 	}
 
-	getHorizontalGap() {
+	getHorizontalGap(): number {
 		return this.#horizontalGap;
 	}
 
-	setVerticalOffset(verticalOffset: number) {
+	setVerticalOffset(verticalOffset: number): void {
 		if (this.#locked) {
 			return;
 		}
 		this.#verticalOffset = verticalOffset;
 	}
 
-	getVerticalOffset() {
+	getVerticalOffset(): number {
 		return this.#verticalOffset;
 	}
 
-	setHorizontalOffset(horizontalOffset: number) {
+	setHorizontalOffset(horizontalOffset: number): void {
 		if (this.#locked) {
 			return;
 		}
 		this.#horizontalOffset = horizontalOffset;
 	}
 
-	getHorizontalOffset() {
+	getHorizontalOffset(): number {
 		return this.#horizontalOffset;
 	}
 
-	setWidth(width: number) {
+	setWidth(width: number): void {
 		if (this.#locked) {
 			return;
 		}
@@ -247,11 +247,11 @@ export class PlacementPreset {
 		this.#width = width;
 	}
 
-	getWidth() {
+	getWidth(): number {
 		return this.#width;
 	}
 
-	setHeight(height: number) {
+	setHeight(height: number): void {
 		if (this.#locked) {
 			return;
 		}
@@ -259,11 +259,11 @@ export class PlacementPreset {
 		this.#height = height;
 	}
 
-	getHeight() {
+	getHeight(): number {
 		return this.#height;
 	}
 
-	setSource(source: PlacementSource) {
+	setSource(source: PlacementSource): void {
 		if (this.#locked) {
 			return;
 		}
@@ -277,11 +277,11 @@ export class PlacementPreset {
 		*/
 	}
 
-	getSource() {
+	getSource(): PlacementSource {
 		return this.#source;
 	}
 
-	setImage(image: HTMLImageElement) {
+	setImage(image: HTMLImageElement): void {
 		if (this.#locked) {
 			return;
 		}
@@ -289,11 +289,11 @@ export class PlacementPreset {
 		this.#image = image;
 	}
 
-	getImage() {
+	getImage(): HTMLImageElement | null {
 		return this.#image;
 	}
 
-	setPrintImage(originalImage: HTMLImageElement) {
+	setPrintImage(originalImage: HTMLImageElement): void {
 		this.#printImage = originalImage;
 	}
 
@@ -301,7 +301,7 @@ export class PlacementPreset {
 		return this.#printImage;
 	}
 
-	regeneratePlacement() {
+	regeneratePlacement(): void {
 		if (!this.#locked) {
 			this.#dirty = true;
 		}

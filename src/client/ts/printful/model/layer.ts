@@ -1,11 +1,11 @@
 import { JSONObject } from 'harmony-types';
 
 export class Layer {
-	#type: string = 'file';
+	#type = 'file';
 	#url: string;
 	#position?: LayerPosition;
 
-	constructor(url: string = '', position?: LayerPosition) {
+	constructor(url = '', position?: LayerPosition) {
 		this.#url = url;
 		this.#position = position;
 	}
@@ -14,7 +14,7 @@ export class Layer {
 		this.#position = position;
 	}
 
-	fromJSON(j: JSONObject) {
+	fromJSON(j: JSONObject): void {
 		this.#url = j.url as string;
 
 		if (j.position) {

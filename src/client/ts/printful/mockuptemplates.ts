@@ -1,3 +1,4 @@
+import { JSONObject } from 'harmony-types';
 import { Techniques } from './model/enums';
 import { MockupTemplate } from './model/mockuptemplate';
 import { MockupTemplates } from './model/mockuptemplates';
@@ -5,19 +6,19 @@ import { fetchShopAPI } from './shop';
 
 const mockupTemplates = new Map<number, MockupTemplates>();
 
-export async function GetMockupTemplates(productId: number/*, variantId: number, placement: string, technique: Technique, orientation: Orientation*/): Promise<MockupTemplates | undefined> {
+export async function GetMockupTemplates(productId: number/*, variantId: number, placement: string, technique: Technique, orientation: Orientation*/): Promise<MockupTemplates | null> {
 	if (!mockupTemplates.has(productId)) {
 		const { response: json } = await fetchShopAPI('get-printful-mockup-templates', 1, { product_id: productId });
 		if (json && json.success) {
 			const templates = new MockupTemplates(productId);
-			templates.fromJSON(json.result.templates);
+			templates.fromJSON(json.result.templates as JSONObject);
 			mockupTemplates.set(productId, templates);
 		}
 	}
 
 	const templates = mockupTemplates.get(productId);
 	if (!templates) {
-		return;
+		return null;
 	}
 
 	return templates;
@@ -57,15 +58,15 @@ export async function GetMockupTemplates(productId: number/*, variantId: number,
 	//return filteredTemplates;
 }
 
-export async function GetMockupTemplate(productId: number, variantId: number, technique: Techniques, placement: string): Promise<MockupTemplate | undefined> {
+export async function GetMockupTemplate(productId: number, variantId: number, technique: Techniques, placement: string): Promise<MockupTemplate | null> {
 	const mockupTemplates = await GetMockupTemplates(productId);
 	if (!mockupTemplates) {
-		return undefined;
+		return null;
 	}
 
 	const templates = mockupTemplates.getTemplates({ variantId: variantId, technique: technique, placement: placement });
 
-	let filteredTemplates: Array<MockupTemplate> = [];
+	let filteredTemplates: MockupTemplate[] = [];
 
 
 	for (const template of templates) {
@@ -79,7 +80,7 @@ export async function GetMockupTemplate(productId: number, variantId: number, te
 	// TODO: check if array only has one element
 	if (filteredTemplates.length > 1) {
 		console.error('check templates', filteredTemplates);
-		const filteredTemplates2: Array<MockupTemplate> = [];
+		const filteredTemplates2: MockupTemplate[] = [];
 
 		for (const template of filteredTemplates) {
 			if (template.printAreaTop > 0 && template.printAreaLeft > 0) {
@@ -91,9 +92,9 @@ export async function GetMockupTemplate(productId: number, variantId: number, te
 
 		if (filteredTemplates.length > 1) {
 			console.error('check templates', filteredTemplates);
-			const filteredTemplates2: Array<MockupTemplate> = [];
+			//const filteredTemplates2: MockupTemplate[] = [];
 		}
 	}
 
-	return filteredTemplates[0];
+	return filteredTemplates[0] ?? null;
 }

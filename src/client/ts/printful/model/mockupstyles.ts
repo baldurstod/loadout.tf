@@ -10,9 +10,9 @@ export class MockupStyles {
 	printAreaHeight = 0;
 	printAreaType = PrintAreaType.Simple;
 	dpi = 300;
-	styles: Array<MockupStyle> = [];
+	styles: MockupStyle[] = [];
 
-	fromJSON(json: JSONObject) {
+	fromJSON(json: JSONObject): void {
 		this.placement = json.placement as string ?? '';
 		this.displayName = json.display_name as string ?? '';
 		this.technique = json.technique as string ?? '';
@@ -31,8 +31,8 @@ export class MockupStyles {
 		}
 	}
 
-	getStyles(options: { variantId?: number, technique?: string, placement?: string } = {}): Array<MockupStyle> {
-		const styles: Array<MockupStyle> = [];
+	getStyles(options: { variantId?: number, technique?: string, placement?: string } = {}): MockupStyle[] {
+		const styles: MockupStyle[] = [];
 
 		for (const style of this.styles) {
 			if (options.variantId !== undefined && !style.includesId(options.variantId)) {

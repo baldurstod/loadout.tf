@@ -27,15 +27,15 @@ export class ProductPrices {
 
 
 export class VariantsPriceData {
-	id: number = 0;
-	techniques: Array<TechniquePriceInfo> = [];
+	id = 0;
+	techniques: TechniquePriceInfo[] = [];
 
-	fromJSON(j: JSONObject) {
+	fromJSON(j: JSONObject): void {
 		this.id = j.id as number;
 
 		this.techniques = [];
 		if (j.techniques) {
-			for (const placement of j.techniques as Array<JSONObject>) {
+			for (const placement of j.techniques as JSONObject[]) {
 				const l = new TechniquePriceInfo();
 				l.fromJSON(placement);
 				this.techniques.push(l);
@@ -52,12 +52,12 @@ type VariantsPriceData struct {
 */
 
 export class TechniquePriceInfo {
-	price: string = '';
-	discountedPrice: string = '';
-	techniqueKey: string = '';
-	displayName: string = '';
+	price = '';
+	discountedPrice = '';
+	techniqueKey = '';
+	displayName = '';
 
-	fromJSON(j: JSONObject) {
+	fromJSON(j: JSONObject): void {
 		this.price = j.price as string;
 		this.discountedPrice = j.discounted_price as string;
 		this.techniqueKey = j.technique_key as string;

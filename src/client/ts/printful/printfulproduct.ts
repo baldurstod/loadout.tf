@@ -14,14 +14,14 @@ export class PrintfulProductElement extends HTMLElement {
 	#htmlPrice?: HTMLElement;
 	#doOnce = true;
 
-	connectedCallback() {
+	connectedCallback(): void {
 		if (!this.#doOnce) {
 			return;
 		}
 
 		this.#doOnce = false;
 		this.#initHTML();
-		let callback: IntersectionObserverCallback = (entries, observer) => {
+		const callback: IntersectionObserverCallback = (entries, observer) => {
 			entries.forEach(entry => {
 				if (entry.isIntersecting && (entry.target as PrintfulProductElement).setVisible) {
 					(entry.target as PrintfulProductElement).setVisible(true);
@@ -32,24 +32,24 @@ export class PrintfulProductElement extends HTMLElement {
 		new IntersectionObserver(callback, { threshold: 0 }).observe(this);
 	}
 
-	setProduct(product: any/*TODO: improve type*/) {
+	setProduct(product: any/*TODO: improve type*/): void {
 		this.#product = product;
 		if (product) {
 			this.#refresh();
 		}
 	}
 
-	setVisible(visible: boolean) {
+	setVisible(visible: boolean): void {
 		this.#visible = visible;
 		if (visible) {
 			this.#refresh();
 		}
 	}
 
-	async #refresh() {
+	async #refresh(): Promise<void> {
 		if (this.#product && this.#visible) {
 
-			let product = this.#product;
+			const product = this.#product;
 			this.#htmlProductName!.innerHTML = product.name;
 			this.#htmlProductName!.title = product.name;
 
@@ -88,7 +88,7 @@ export class PrintfulProductElement extends HTMLElement {
 		}
 	}
 
-	#initHTML() {
+	#initHTML(): void {
 		if (this.#initialized) {
 			return;
 		}

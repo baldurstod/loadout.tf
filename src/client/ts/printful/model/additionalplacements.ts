@@ -3,15 +3,15 @@ import { FileOptionPrices } from './layeroptionprices';
 import { Layers } from './layers';
 
 export class AdditionalPlacements {
-	id: string = '';
-	title: string = '';
-	type: string = '';
-	techniqueKey: string = '';
-	price: string = '';
-	placementOptions: Array<FileOptionPrices> = [];
-	layers: Array<Layers> = [];
+	id = '';
+	title = '';
+	type = '';
+	techniqueKey = '';
+	price = '';
+	placementOptions: FileOptionPrices[] = [];
+	layers: Layers[] = [];
 
-	fromJSON(j: JSONObject) {
+	fromJSON(j: JSONObject): void {
 		this.id = j.id as string;
 		this.title = j.title as string;
 		this.type = j.type as string;
@@ -20,7 +20,7 @@ export class AdditionalPlacements {
 
 		this.placementOptions = [];
 		if (j.placement_options) {
-			for (const placementOption of j.placement_options as Array<JSONObject>) {
+			for (const placementOption of j.placement_options as JSONObject[]) {
 				const f = new FileOptionPrices();
 				f.fromJSON(placementOption);
 				this.placementOptions.push(f);
@@ -29,7 +29,7 @@ export class AdditionalPlacements {
 
 		this.layers = [];
 		if (j.layers) {
-			for (const layer of j.layers as Array<JSONObject>) {
+			for (const layer of j.layers as JSONObject[]) {
 				const l = new Layers();
 				l.fromJSON(layer);
 				this.layers.push(l);
