@@ -57,6 +57,7 @@ export enum ControllerEvent {
 	SetRagdoll = 'setragdoll',
 	SetApplyToAll = 'setapplytoall',
 	PresetsUpdated = 'presetsupdated',
+	ImportPresets = 'importpresets',
 	UseLayout = 'uselayout',
 	SelectWarpaints = 'selectwarpaints',
 	RepositoryAdded = 'repositoryAdded',

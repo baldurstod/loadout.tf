@@ -1,13 +1,13 @@
-import { createElement, hide } from 'harmony-ui';
+import { saveFile } from 'harmony-browser-utils';
+import { closeSVG } from 'harmony-svg';
+import { createElement, defineHarmonyFileInput, hide, HTMLHarmonyFileInputElement } from 'harmony-ui';
 import presetsCSS from '../../css/presets.css';
+import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { DynamicPanel } from './dynamicpanel';
-import { saveFile } from 'harmony-browser-utils';
-import { closeSVG } from 'harmony-svg';
 import { ItemManager } from '../loadout/items/itemmanager';
-import { inventoryPath } from '../constants';
+import { DynamicPanel } from './dynamicpanel';
 
 export class PresetsPanel extends DynamicPanel {
 	#htmlPresets?: HTMLElement;
@@ -24,6 +24,7 @@ export class PresetsPanel extends DynamicPanel {
 		let htmlPresetName: HTMLInputElement;
 		const shadowRoot = this.getShadowRoot();
 		shadowRoot.host.addEventListener('click', () => hide(shadowRoot));
+		defineHarmonyFileInput();
 
 		createElement('div', {
 			class: 'inner',
@@ -67,6 +68,13 @@ export class PresetsPanel extends DynamicPanel {
 					htmlPresetName = createElement('input', {
 						i18n: { placeholder: '#preset_name', },
 					}) as HTMLInputElement,
+					createElement('harmony-file-input', {
+						'data-i18n': '#import_preset',
+						'data-accept': '.json',
+						//'data-tooltip-i18n': '#import_models_zip_tooltip',
+						multiple: true,
+						$change: (event: Event) => Controller.dispatchEvent<File[]>(ControllerEvent.ImportPresets, { detail: [...((event.target as HTMLHarmonyFileInputElement).files ?? [])] }),
+					}),
 				],
 			}),
 			this.#htmlPresets = createElement('div', {

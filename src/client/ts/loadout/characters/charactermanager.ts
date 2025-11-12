@@ -11,7 +11,7 @@ import { firstPersonCamera } from '../scene';
 import { ClassAnimations, getClassAnimations } from './animations';
 import { Character, Ragdoll } from './character';
 import { CharactersList, Tf2Class } from './characters';
-import { Presets } from './preset';
+import { Preset, Presets } from './preset';
 
 type CharacterSlot = {
 	character: Character | null;
@@ -47,6 +47,7 @@ export class CharacterManager {
 		Controller.addEventListener(ControllerEvent.SetAnim, (event: Event) => this.#setAnim((event as CustomEvent<string>).detail));
 		Controller.addEventListener(ControllerEvent.SetApplyToAll, (event: Event) => this.#applyToAll = (event as CustomEvent<boolean>).detail);
 		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => this.#useBots = (event as CustomEvent<boolean>).detail);
+		Controller.addEventListener(ControllerEvent.ImportPresets, (event: Event) => {this.#importPresets((event as CustomEvent<File[]>).detail)});
 
 		OptionsManagerEvents.addEventListener('app.loadout.presets', (event: Event) => this.#loadPresets((event as CustomEvent).detail.value));
 		this.#initDispositions();
@@ -369,7 +370,7 @@ export class CharacterManager {
 			return;
 		}
 
-		const npc = CharactersList.get(this.#currentCharacter.characterClass)!.name;
+		const npc = this.#currentCharacter.npc;
 		let presets = this.#presets.get(npc)!;
 		if (!presets) {
 			presets = new Presets();
@@ -390,6 +391,48 @@ export class CharacterManager {
 		this.savePresets();
 		//this.#updatePresetsPanel();
 		Controller.dispatchEvent(ControllerEvent.PresetsUpdated);
+	}
+
+	static async #importPresets(files: File[]): Promise<void> {
+		for (const file of files) {
+			await this.#importPreset(file);
+		}
+		Controller.dispatchEvent(ControllerEvent.PresetsUpdated);
+	}
+
+	static async #importPreset(file: File): Promise<void> {
+		if (!this.#currentCharacter) {
+			return;
+		}
+		let json: JSONObject;
+		try {
+			json = JSON.parse(await file.text()) as JSONObject;
+
+			if (!json) {
+				return;
+			}
+		} catch (e) {
+			console.error(e);
+			return;
+		}
+
+		const npc = this.#currentCharacter.npc;
+		let presets = this.#presets.get(npc)!;
+		if (!presets) {
+			presets = new Presets();
+			this.#presets.set(npc, presets);
+		}
+
+		const preset = new Preset();
+		preset.fromJSON(json);
+
+		if (!preset.name || presets.getPreset(preset.name)) {
+			preset.name = this.createPresetName();
+		}
+
+		presets.addPreset(preset);
+
+
 	}
 
 	static createPresetName(): string {
