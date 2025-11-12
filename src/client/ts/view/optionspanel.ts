@@ -359,10 +359,10 @@ export class OptionsPanel extends DynamicPanel {
 
 		for (let i = 0; i < 151; ++i) {
 			const v = i == 0 ? '' : i;
-			createElement('option', { innerHTML: String(v), value: v, parent: this.#htmlBadgeLevel })
+			createElement('option', { innerHTML: String(v), value: String(v), parent: this.#htmlBadgeLevel })
 		}
 		for (let i = 1; i < 9; ++i) {
-			createElement('option', { innerHTML: String(i), value: i, parent: this.#htmlBadgeTier })
+			createElement('option', { innerHTML: String(i), value: String(i), parent: this.#htmlBadgeTier })
 		}
 		/**************** Casual badge ****************/
 	}
@@ -562,7 +562,7 @@ export class OptionsPanel extends DynamicPanel {
 					class: 'option-button',
 					i18n: '#setup_meet_the_team',
 					events: {
-						click: () => CharacterManager.setupMeetTheTeam(),
+						click: () => { CharacterManager.setupMeetTheTeam() },
 					}
 				}),
 				createElement('div', {
@@ -691,12 +691,13 @@ export class OptionsPanel extends DynamicPanel {
 								createElement('button', {
 									i18n: '#add_to_scene',
 									events: {
-										click: () => addModel((event).detail.entry),
+										click: () => { addModel((event).detail.entry) },
 									}
 								}),
 								createElement('button', {
 									i18n: '#add_to_current_character',
 									events: {
+										// eslint-disable-next-line @typescript-eslint/no-misused-promises
 										click: async () => addModel((event).detail.entry, await CharacterManager.getCurrentCharacter()?.getModel()),
 									}
 								}),

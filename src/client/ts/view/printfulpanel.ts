@@ -539,7 +539,7 @@ export class PrintfulPanel extends DynamicPanel {
 							max: 2,
 							'has-input': 1,
 							'input-step': 0.01,
-							value: 1,
+							value: '1',
 							$input: (event: Event) => this.#setTemplateScale(Number((event.target as HTMLInputElement).value)),
 						}) as HTMLInputElement,
 
@@ -549,7 +549,7 @@ export class PrintfulPanel extends DynamicPanel {
 							max: 1,
 							'has-input': 1,
 							'input-step': 0.01,
-							value: 0.5,
+							value: '0.5',
 							//hidden: true,
 							$input: (event: Event) => {
 								this.#setTemplateWidth(Number((event.target as HTMLInputElement).value));
@@ -563,7 +563,7 @@ export class PrintfulPanel extends DynamicPanel {
 							max: 1,
 							'has-input': 1,
 							'input-step': 0.01,
-							value: 0.5,
+							value: '0.5',
 							//hidden: true,
 							$input: (event: Event) => {
 								this.#setTemplateHeight(Number((event.target as HTMLInputElement).value));
@@ -577,7 +577,7 @@ export class PrintfulPanel extends DynamicPanel {
 							max: 180,
 							'has-input': 1,
 							'input-step': 0.01,
-							value: 0,
+							value: '0',
 							$input: (event: Event) => {
 								this.#setTemplateRotation(Number((event.target as HTMLInputElement).value) * DEG_TO_RAD);
 								this.#generateTemplates();
@@ -590,7 +590,7 @@ export class PrintfulPanel extends DynamicPanel {
 							max: 90,
 							'has-input': 1,
 							'input-step': 0.1,
-							value: 0,
+							value: '0',
 							hidden: true,
 							$input: (event: Event) => this.#setTemplateHorizontalGap(Number((event.target as HTMLInputElement).value) * 0.01),
 						}) as HTMLHarmonySliderElement,
@@ -601,7 +601,7 @@ export class PrintfulPanel extends DynamicPanel {
 							max: 90,
 							'has-input': 1,
 							'input-step': 0.01,
-							value: 0,
+							value: '0',
 							hidden: true,
 							$input: (event: Event) => this.#setTemplateVerticalGap(Number((event.target as HTMLInputElement).value) * 0.01),
 						}) as HTMLHarmonySliderElement,
@@ -762,7 +762,7 @@ export class PrintfulPanel extends DynamicPanel {
 					i18n: '#create_product',
 					parent: htmlTemplate,
 					events: {
-						click: () => this.#createProduct()
+						click: () => { this.#createProduct() }
 					},
 				}) as HTMLButtonElement,
 			]
@@ -850,6 +850,7 @@ export class PrintfulPanel extends DynamicPanel {
 				this.#htmlTemplateCameraControls,
 				this.#htmlManipulator = createElement('harmony-2d-manipulator', {
 					'resize-origin': 'center',
+					// eslint-disable-next-line @typescript-eslint/no-misused-promises
 					$change: async (event: CustomEvent<ManipulatorUpdatedEventData>) => {
 						//console.info(event.detail.width, event.detail.height);
 						const template = await GetMockupTemplate(this.#productPreset.productId, this.#productPreset.variantId, this.#productPreset.getTechnique(), this.#productPreset.getSelectedPlacement());
@@ -2111,7 +2112,7 @@ export class PrintfulPanel extends DynamicPanel {
 						class: 'color',
 						...(c2) && { style: `background:linear-gradient(to right, ${color.value} 0%, ${color.value} 50%, ${c2} 50%, ${c2} 100%)` },
 						...(!c2) && { style: `background-color:${color.value}` },
-						$click: () => this.#selectVariantByColor(color.value),
+						$click: () => { this.#selectVariantByColor(color.value) },
 					});
 				}
 			}

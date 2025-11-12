@@ -136,12 +136,7 @@ export class EffectsPanel extends DynamicPanel {
 						level: i,
 					},
 				},
-				value: i,
-
-				events: {
-					//click: () => setKillstreakEffect(this.#currentCharacter, undefined, 'eye_powerup_green_lvl_' + i, undefined, true),
-					//this.validate(event.target.getAttribute('data-paint-name'))
-				}
+				value: String(i),
 			});
 		}
 

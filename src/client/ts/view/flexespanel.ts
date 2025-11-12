@@ -24,7 +24,7 @@ export class FlexesPanel extends DynamicPanel {
 			i18n: '#reset_all',
 			parent: this.getShadowRoot(),
 			events: {
-				click: () => this.#resetFlexesAnims(),
+				click: () => { this.#resetFlexesAnims() },
 			},
 		});
 		this.#htmlControllers = createElement('div', {
@@ -55,9 +55,9 @@ export class FlexesPanel extends DynamicPanel {
 					type: 'range',
 					min: controllerValue.min * 100,
 					max: controllerValue.max * 100,
-					value: 0,
+					value: '0',
 					events: {
-						input: () => character.setFlexControllerValue(controllerName, Number(htmlControllerInput.value) * 0.01),
+						input: () => { character.setFlexControllerValue(controllerName, Number(htmlControllerInput.value) * 0.01) },
 					},
 					innerText: controllerName,
 				}) as HTMLInputElement;

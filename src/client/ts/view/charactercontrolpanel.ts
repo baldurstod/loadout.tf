@@ -73,7 +73,7 @@ export class CharacterControlPanel extends StaticPanel {
 				class: 'apply-to-all',
 				'data-i18n': '#apply_to_all',
 				attributes: {
-					state: true,
+					state: 'true',
 				},
 				$change: (event: CustomEvent) => Controller.dispatchEvent<boolean>(ControllerEvent.SetApplyToAll, { detail: event.detail.state }),
 			}) as HTMLHarmonySwitchElement,

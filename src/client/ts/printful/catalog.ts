@@ -27,7 +27,7 @@ const ready = new Promise<boolean>(resolve => readyPromiseResolve = resolve);
 let productInizialized = false;
 let categoriestInizialized = false;
 
-export async function initProducts(region = 'US'): Promise<void> {
+export async function initProducts(/*region = 'US'*/): Promise<void> {
 	if (productInizialized) {
 		return;
 	}

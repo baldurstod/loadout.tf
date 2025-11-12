@@ -108,7 +108,7 @@ export class ItemsPanel extends DynamicPanel {
 							],
 						}),
 						htmlTypeRadio = createElement('harmony-radio', {
-							attributes: { multiple: 0 },
+							attributes: { multiple: '1' },
 							childs: [
 								createElement('button', {
 									i18n: '#medals',
@@ -145,7 +145,7 @@ export class ItemsPanel extends DynamicPanel {
 							],
 						}) as HTMLHarmonyRadioElement,
 						createElement('harmony-radio', {
-							attributes: { multiple: 0 },
+							attributes: { multiple: '1' },
 							childs: [
 								createElement('button', {
 									i18n: '#one_class',
@@ -174,8 +174,8 @@ export class ItemsPanel extends DynamicPanel {
 						}),
 						createElement('harmony-switch', {
 							attributes: {
-								ternary: true,
-								state: undefined,
+								ternary: 'true',
+								state: 'undefined',
 							},
 							class: 'large',
 							'data-i18n': '#hide_conflicting_items',
@@ -189,7 +189,7 @@ export class ItemsPanel extends DynamicPanel {
 						}) as HTMLHarmonySwitchElement,
 						htmlShowHalloween = createElement('harmony-switch', {
 							attributes: {
-								ternary: true,
+								ternary: 'true',
 							},
 							class: 'large',
 							'data-i18n': '#show_halloween_restricted_items',
@@ -200,7 +200,7 @@ export class ItemsPanel extends DynamicPanel {
 						}) as HTMLHarmonySwitchElement,
 						htmlShowPaintable = createElement('harmony-switch', {
 							attributes: {
-								ternary: true,
+								ternary: 'true',
 							},
 							class: 'large',
 							'data-i18n': '#show_paintable_items',
@@ -211,7 +211,7 @@ export class ItemsPanel extends DynamicPanel {
 						}) as HTMLHarmonySwitchElement,
 						htmlShowWarpaintable = createElement('harmony-switch', {
 							attributes: {
-								ternary: true,
+								ternary: 'true',
 							},
 							class: 'large',
 							'data-i18n': '#show_warpaintable_items',
@@ -302,7 +302,7 @@ export class ItemsPanel extends DynamicPanel {
 			class: 'items',
 			parent: shadowRoot,
 			attributes: {
-				tabindex: 1,
+				tabindex: '1',
 			},
 		});
 

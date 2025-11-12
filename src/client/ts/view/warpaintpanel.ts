@@ -54,7 +54,7 @@ export class WarpaintPanel extends DynamicPanel {
 					childs: [
 						createElement('label', { i18n: '#wear' }),
 						this.#paintsDivHeaderWearSelect = createElement('select', {
-							value: 0,
+							value: '0',
 							$input: (event: Event) => this.#handleWearChangeClick(Number((event.target as HTMLSelectElement).value)),
 						}) as HTMLSelectElement,
 					],
@@ -107,7 +107,7 @@ export class WarpaintPanel extends DynamicPanel {
 				this.#htmlWarpaints = createElement('div', {
 					class: 'warpaints',
 					attributes: {
-						tabindex: 1,
+						tabindex: '1',
 					},
 				}),
 			],
@@ -120,7 +120,7 @@ export class WarpaintPanel extends DynamicPanel {
 			createElement('option', {
 				parent: this.#paintsDivHeaderWearSelect,
 				i18n: wearLevels[i],
-				value: i,
+				value: String(i),
 			});
 		}
 		ShortcutHandler.addContext('loadout', this.#htmlWarpaints);

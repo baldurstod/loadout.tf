@@ -25,6 +25,7 @@
 
 .presets {
 	overflow: auto;
+	flex: 1;
 }
 
 .presets {

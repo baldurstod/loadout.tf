@@ -58,7 +58,7 @@ export class PaintPanel extends DynamicPanel {
 		const cancelButton = createElement('button', { class: 'cancelButton' });
 		cancelButton.innerHTML = 'Cancel';
 
-		const htmlVariablePaintTime = createElement('input', { type: 'range', min: -1, max: 255, value: -1 }) as HTMLInputElement;
+		const htmlVariablePaintTime = createElement('input', { type: 'range', min: -1, max: 255, value: '-1' }) as HTMLInputElement;
 		htmlVariablePaintTime.min = '-1';
 		htmlVariablePaintTime.max = '255';
 		htmlVariablePaintTime.addEventListener('input', (event) => {
