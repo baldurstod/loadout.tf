@@ -3,17 +3,16 @@
 	display: flex;
 	flex-direction: column;
 	position: relative;
+	background-color: var(--main-bg-color-bright);
 }
 
 .line-active {
 	flex: 0;
-	background-color: blue;
 	display: flex;
 }
 
 .line-filters {
 	flex: 0;
-	background-color: blueviolet;
 	flex-flow: column;
 	transition: 0.2s;
 	display: flex;
@@ -21,7 +20,6 @@
 
 .line-name-filter {
 	flex: 0;
-	background-color: green;
 	display: flex;
 }
 
@@ -31,7 +29,6 @@
 
 .items {
 	flex: 1;
-	background-color: darkcyan;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
