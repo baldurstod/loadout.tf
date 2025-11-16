@@ -45,6 +45,11 @@ item-manager-item {
 	position: relative;
 }
 
+item-manager-item a {
+	color: white;
+}
+
+
 .item-selected {
 	background-color: rgba(0, 85, 170, 0.5);
 }
