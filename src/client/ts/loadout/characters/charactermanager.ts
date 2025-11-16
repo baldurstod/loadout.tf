@@ -522,7 +522,7 @@ export class CharacterManager {
 	static async #changeAnimFrame(frame: number): Promise<void> {
 		const source1Model = await this.getCurrentCharacter()?.getModel();
 		if (source1Model) {
-			let sequence = source1Model.sequences[Object.keys(source1Model.sequences)[0]!];
+			const sequence = source1Model.sequences[Object.keys(source1Model.sequences)[0]!];
 			if (sequence) {
 				source1Model.frame = frame * (sequence.s?.length ?? 1);
 			}

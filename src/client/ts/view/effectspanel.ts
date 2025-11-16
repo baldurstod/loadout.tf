@@ -32,6 +32,8 @@ export class EffectsPanel extends DynamicPanel {
 	#killstreakColor = KillstreakColor.TeamShine;
 	#killstreakEffect: EffectTemplate | null = null;
 	#killstreakHighGlow = true;
+	#unusualFilter = '';
+	#tauntFilter = '';
 
 	constructor() {
 		super(Panel.Effects, [effectsPanelCSS]);
@@ -69,6 +71,12 @@ export class EffectsPanel extends DynamicPanel {
 					'data-i18n': '#unusual_effects',
 					childs: [
 						this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
+						createElement('input', {
+							events: {
+								change: (event: Event) => this.#setUnusualFilterName((event.target as HTMLInputElement).value),
+								keyup: (event: Event) => this.#setUnusualFilterName((event.target as HTMLInputElement).value),
+							},
+						}),
 						this.#htmlEffectsList = createElement('div', { class: 'effects-list' }),
 					],
 				}) as HTMLHarmonyTabElement,
@@ -102,9 +110,16 @@ export class EffectsPanel extends DynamicPanel {
 					],
 				}) as HTMLHarmonyTabElement,
 				this.#htmlTauntTab = createElement('harmony-tab', {
+					class: 'effects',
 					'data-i18n': '#taunt_effects',
 					childs: [
 						//this.#htmlActiveEffects = createElement('div', { class: 'active-effects' }),
+						createElement('input', {
+							events: {
+								change: (event: Event) => this.#setTauntFilterName((event.target as HTMLInputElement).value),
+								keyup: (event: Event) => this.#setTauntFilterName((event.target as HTMLInputElement).value),
+							},
+						}),
 						createElement('div', {
 							class: 'remove-taunt',
 							i18n: '#remove_taunt_effect',
@@ -167,6 +182,10 @@ export class EffectsPanel extends DynamicPanel {
 				htmlEffect.setEffectTemplate(template);
 
 				this.#htmlEffects.set(id, htmlEffect);
+			}
+
+			if (this.#unusualFilter != '' && !template.getName().toLowerCase().includes(this.#unusualFilter)) {
+				hide(htmlEffect);
 			}
 		}
 	}
@@ -349,6 +368,20 @@ export class EffectsPanel extends DynamicPanel {
 
 				this.#htmlTauntEffects.set(id, htmlEffect);
 			}
+
+			if (this.#tauntFilter != '' && !template.getName().toLowerCase().includes(this.#tauntFilter)) {
+				hide(htmlEffect);
+			}
 		}
+	}
+
+	#setUnusualFilterName(filter: string): void {
+		this.#unusualFilter = filter.toLowerCase();
+		this.#refreshUnusualEffects();
+	}
+
+	#setTauntFilterName(filter: string): void {
+		this.#tauntFilter = filter.toLowerCase();
+		this.#refreshTauntEffects();
 	}
 }

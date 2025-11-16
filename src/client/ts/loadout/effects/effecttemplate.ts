@@ -27,7 +27,7 @@ export class EffectTemplate {
 	*/
 
 	getName(): string {
-		return this.#definition.name as string;
+		return this.#definition.name as string ?? '';
 	}
 
 	getSystem(): string {
