@@ -289,7 +289,7 @@ for(int x=0;x<SS;x++)
 	}
 	pos += t*ray;
 
-    vec3 colb = vec3(0.0);//texture( iChannel1, ray ).xyz;
+	vec3 colb = vec3(0.0);//texture( iChannel1, ray ).xyz;
 
 	vec2 uv = UVMapping( pos.xy );
 	vec3 col = Pattern( uv );
@@ -298,16 +298,16 @@ for(int x=0;x<SS;x++)
 
 	float nl = dot(normal,normalize(vec3(-1,1,-2)));
 	float l = max( nl, .0 );
-    vec3 r = reflect(ray,normal);
+	vec3 r = reflect(ray,normal);
 
-    col *= 0.6*vec3(l)+pow(max(dot(-ray,normal),0.0),5.0)*0.4*max(dot(r,normal),0.0);//sss
+	col *= 0.6*vec3(l)+pow(max(dot(-ray,normal),0.0),5.0)*0.4*max(dot(r,normal),0.0);//sss
 
 	col = mix( col, colb, weave.a );
 	fragColor += vec4(pow(col,vec3(1.0)),1.0);
 
 }
-    fragColor /=float(SS);
+	fragColor /=float(SS);
 
 
-    //fragColor *= 3.0;
+	//fragColor *= 3.0;
 }

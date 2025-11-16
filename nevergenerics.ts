@@ -1,15 +1,15 @@
 interface SetConstructor {
-  new(): Set<never>
+	new(): Set<never>
 }
 
 interface WeakSetConstructor {
-  new(): WeakSet<never>
+	new(): WeakSet<never>
 }
 
 interface MapConstructor {
-  new(): Map<never, never>;
+	new(): Map<never, never>;
 }
 
 interface WeakMapConstructor {
-  new(): WeakMap<never, never>;
+	new(): WeakMap<never, never>;
 }
