@@ -109,3 +109,20 @@ input {
 	font-size: 2rem;
 	color: var(--theme-text-color);
 }
+
+.dispositions {
+	pointer-events: all;
+	display: flex;
+	flex-direction: column;
+}
+
+.dispositions label {
+	padding: 0.5rem;
+	display: flex;
+	gap: 0.3rem;
+}
+
+.dispositions label span {
+	width: 10rem;
+
+}

@@ -7,7 +7,7 @@ import repositoryEntryCSS from '../../css/repositoryentry.css';
 import { TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, CameraType, Panel } from '../enums';
-import { CharacterManager } from '../loadout/characters/charactermanager';
+import { CharacterManager, CustomDisposition } from '../loadout/characters/charactermanager';
 import { addTF2Model, loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -28,7 +28,9 @@ export class OptionsPanel extends DynamicPanel {
 	#htmlVerticalFovSlider?: HTMLInputElement;
 	#htmlVerticalFovValue?: HTMLLabelElement;
 	#htmlOverrideGameModels?: HTMLHarmonySwitchElement;
+	#htmlCharacterDisposition?: HTMLElement;
 	#shaderEditor = new ShaderEditor();
+	#customDisposition: CustomDisposition = { countX: 1, countY: 1, countZ: 1 };
 
 	constructor() {
 		super(Panel.Options, [optionsCSS]);
@@ -558,6 +560,7 @@ export class OptionsPanel extends DynamicPanel {
 			},
 			childs: [
 				//CharacterManager.htmlCharacterDisposition,
+				this.#htmlCharacterDisposition = createElement('div', { class: 'dispositions' }),
 				createElement('div', {
 					class: 'option-button',
 					i18n: '#setup_meet_the_team',
@@ -613,6 +616,8 @@ export class OptionsPanel extends DynamicPanel {
 			],
 		});
 		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => showHiddenCharacters.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+
+		this.#initDispositions();
 	}
 
 	#initHtmlSceneExplorer(): void {
@@ -876,5 +881,94 @@ export class OptionsPanel extends DynamicPanel {
 		if (group == 'master') {
 			this.#htmlMuteSounds.state = mute;
 		}
+	}
+
+	#initDispositions() {
+		this.#htmlCharacterDisposition?.replaceChildren();
+
+		let select: HTMLSelectElement;
+		createElement('label', {
+			parent: this.#htmlCharacterDisposition,
+			childs: [
+				createElement('span', {
+					i18n: '#preset',
+				}),
+				select = createElement('select', {
+					id: 'character-disposition-select',
+					$change: (event: Event) => CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
+					$click: (event: Event) => CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
+				}) as HTMLSelectElement,
+			],
+
+		})
+		//this.htmlCharacterDisposition.append(select);
+
+		//for (let i = 0; i < this.#charactersDispositions.length; i++) {
+		for (const [position] of CharacterManager.getSlotsPositions()) {
+			let option: HTMLOptionElement = createElement('option') as HTMLOptionElement;
+			select.append(option);
+			option.innerText = position;
+			option.value = position;
+		}
+		//select.addEventListener('change', (event) => { this.#useDisposition(Number((event.target as HTMLSelectElement).value)); });
+		//select.addEventListener('click', (event) => { this.#useDisposition(Number((event.target as HTMLSelectElement).value)); });
+
+
+		createElement('label', {
+			parent: this.#htmlCharacterDisposition,
+			childs: [
+				createElement('span', {
+					i18n: '#count_x',
+				}),
+				createElement('input', {
+					attributes: {
+						type: 'number',
+					},
+					value: String(this.#customDisposition.countX),
+					$change: (event: InputEvent) => {
+						this.#customDisposition.countX = Number((event.target as HTMLInputElement).value);
+						CharacterManager.refreshCustomDisposition(this.#customDisposition);
+					},
+				})
+			],
+		});
+		createElement('label', {
+			parent: this.#htmlCharacterDisposition,
+			childs: [
+				createElement('span', {
+					i18n: '#count_y',
+				}),
+				createElement('input', {
+					attributes: {
+						type: 'number',
+					},
+					value: String(this.#customDisposition.countY),
+					$change: (event: InputEvent) => {
+						this.#customDisposition.countY = Number((event.target as HTMLInputElement).value);
+						CharacterManager.refreshCustomDisposition(this.#customDisposition);
+					},
+				})
+			],
+		});
+		createElement('label', {
+			parent: this.#htmlCharacterDisposition,
+			childs: [
+				createElement('span', {
+					i18n: '#count_z',
+				}),
+				createElement('input', {
+					attributes: {
+						type: 'number',
+					},
+					value: String(this.#customDisposition.countZ),
+					$change: (event: InputEvent) => {
+						this.#customDisposition.countZ = Number((event.target as HTMLInputElement).value);
+						CharacterManager.refreshCustomDisposition(this.#customDisposition);
+					},
+				})
+			],
+		});
+
+		I18n.i18n();
 	}
 }

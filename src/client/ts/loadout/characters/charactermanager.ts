@@ -24,6 +24,12 @@ type CharacterPosition = {
 	orientation: quat;
 }
 
+export type CustomDisposition = {
+	countX: number,
+	countY: number,
+	countZ: number,
+}
+
 const DEFAULT_ORIENTATION = quat.fromValues(0, 0, -1, 1);
 const TOOLBOX_POSITION = vec3.fromValues(-71.0726394653, 195.8566589355, 0);
 const TOOLBOX_ORIENTATION = quat.fromValues(0, 0, -0.5927425026893616, 0.8053920269012451);
@@ -146,7 +152,7 @@ export class CharacterManager {
 		}
 
 		for (const slot of this.#characterSlots) {
-			if (!slot.character) {
+			if (!slot.character || slot.character.characterClass == Tf2Class.None || slot.character.characterClass == Tf2Class.Empty || slot.character.characterClass == Tf2Class.CompareWarpaints) {
 				return slot;
 			}
 		}
@@ -248,11 +254,13 @@ export class CharacterManager {
 		}
 	}
 
-	static #useDisposition(name: string): void {
+	static useDisposition(name: string): void {
 		const dispositions = this.#slotsPositions.get(name);
 		if (!dispositions) {
 			return;
 		}
+
+		this.setSlotsSize(dispositions.length);
 
 		for (let i = 0; i < this.#characterSlots.length; i++) {
 			const slot = this.#characterSlots[i]!;
@@ -267,7 +275,7 @@ export class CharacterManager {
 
 	static async setupMeetTheTeam(): Promise<void> {
 		this.setSlotsSize(9, true);
-		this.#useDisposition('mtt');
+		this.useDisposition('mtt');
 
 		let botDelta = 0;
 		if (this.#useBots) {
@@ -527,5 +535,43 @@ export class CharacterManager {
 				source1Model.frame = frame * (sequence.s?.length ?? 1);
 			}
 		}
+	}
+
+	static getSlotsPositions(): Map<string, CharacterPosition[]> {
+		return this.#slotsPositions;
+	}
+
+	static refreshCustomDisposition(customDisposition: CustomDisposition): void {
+		const positions: CharacterPosition[] = [];
+		const deltaX = 40;
+		const deltaY = 50;
+		const deltaZ = 80;
+
+		const startX = -deltaX * 0.5 * (customDisposition.countX - 1);
+		const startY = -deltaY * 0.5 * (customDisposition.countY - 1);
+		const startZ = -deltaZ * 0.5 * (customDisposition.countZ - 1);
+
+		this.setSlotsSize(customDisposition.countX * customDisposition.countY * customDisposition.countZ);
+
+		for (let x = 0; x < customDisposition.countX; x++) {
+			for (let y = 0; y < customDisposition.countY; y++) {
+				for (let z = 0; z < customDisposition.countZ; z++) {
+					positions.push({
+						//origin: [0, deltaY * ((x % 2) * -2 + 1) * Math.floor((x + 1) / 2), 0],
+						position: [
+							startX + x * deltaX,
+							startY + y * deltaY,
+							startZ + z * deltaZ,
+						],
+						orientation: [0, 0, -1, 1],
+					})
+				}
+			}
+		}
+
+		this.#slotsPositions.set('custom', positions);
+		//this.#setCharactersPositions(new CharactersPositions(positions, true));
+
+		this.useDisposition('custom');
 	}
 }
