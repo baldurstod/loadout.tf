@@ -47,7 +47,8 @@ export class CharacterManager {
 		Controller.addEventListener(ControllerEvent.SetAnim, (event: Event) => this.#setAnim((event as CustomEvent<string>).detail));
 		Controller.addEventListener(ControllerEvent.SetApplyToAll, (event: Event) => this.#applyToAll = (event as CustomEvent<boolean>).detail);
 		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => this.#useBots = (event as CustomEvent<boolean>).detail);
-		Controller.addEventListener(ControllerEvent.ImportPresets, (event: Event) => {this.#importPresets((event as CustomEvent<File[]>).detail)});
+		Controller.addEventListener(ControllerEvent.ImportPresets, (event: Event) => { this.#importPresets((event as CustomEvent<File[]>).detail) });
+		Controller.addEventListener(ControllerEvent.ChangeAnimFrame, (event: Event) => { this.#changeAnimFrame((event as CustomEvent<number>).detail) });
 
 		OptionsManagerEvents.addEventListener('app.loadout.presets', (event: Event) => this.#loadPresets((event as CustomEvent).detail.value));
 		this.#initDispositions();
@@ -207,7 +208,7 @@ export class CharacterManager {
 		}
 	};
 
-	static async  #setInvulnerable(invulnerable: boolean): Promise<void> {
+	static async #setInvulnerable(invulnerable: boolean): Promise<void> {
 		this.#isInvulnerable = invulnerable;
 		if (this.#applyToAll) {
 			for (const slot of this.#characterSlots) {
@@ -220,7 +221,7 @@ export class CharacterManager {
 		}
 	}
 
-	static async  #setRagdoll(ragdoll: Ragdoll): Promise<void> {
+	static async #setRagdoll(ragdoll: Ragdoll): Promise<void> {
 		if (this.#applyToAll) {
 			for (const slot of this.#characterSlots) {
 				if (slot) {
@@ -516,5 +517,15 @@ export class CharacterManager {
 		}
 
 		return characters;
+	}
+
+	static async #changeAnimFrame(frame: number): Promise<void> {
+		const source1Model = await this.getCurrentCharacter()?.getModel();
+		if (source1Model) {
+			let sequence = source1Model.sequences[Object.keys(source1Model.sequences)[0]!];
+			if (sequence) {
+				source1Model.frame = frame * (sequence.s?.length ?? 1);
+			}
+		}
 	}
 }

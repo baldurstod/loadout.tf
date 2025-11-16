@@ -61,6 +61,7 @@ export enum ControllerEvent {
 	UseLayout = 'uselayout',
 	SelectWarpaints = 'selectwarpaints',
 	RepositoryAdded = 'repositoryAdded',
+	ChangeAnimFrame = 'changeanimframe',
 }
 
 export type SetBackgroundType = {

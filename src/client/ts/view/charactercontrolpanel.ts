@@ -2,9 +2,9 @@ import { createElement, defineHarmonyRadio, HTMLHarmonySwitchElement } from 'har
 import characterControlCSS from '../../css/charactercontrol.css';
 import { Controller, ControllerEvent } from '../controller';
 import { Ragdoll } from '../loadout/characters/character';
+import { CharacterManager } from '../loadout/characters/charactermanager';
 import { StaticPanel } from './staticpanel';
 import { TeamSelector } from './teamselector';
-import { CharacterManager } from '../loadout/characters/charactermanager';
 
 export class CharacterControlPanel extends StaticPanel {
 	#teamSelector = new TeamSelector();
@@ -35,6 +35,16 @@ export class CharacterControlPanel extends StaticPanel {
 			id: 'anim-selector-datalist',
 			parent: this.getShadowRoot(),
 		}) as HTMLDataListElement;
+
+		createElement('input', {
+			parent: this.getShadowRoot(),
+			class: 'character-manager-anim-slider',
+			type: 'range',
+			min: 0,
+			max: 1,
+			step: 0.01,
+			$input: (event: Event) => Controller.dispatchEvent<number>(ControllerEvent.ChangeAnimFrame, { detail: Number((event.target as HTMLInputElement).value) }),
+		});
 
 		createElement('harmony-radio', {
 			'data-i18n': '#invulnerable',
