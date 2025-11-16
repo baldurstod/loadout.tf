@@ -105,8 +105,8 @@ export class CharacterControlPanel extends StaticPanel {
 
 	#refreshAnimList(): void {
 		const animsList = CharacterManager.getAnimList();
+		this.#htmlAnimSelectorDataList?.replaceChildren();
 		if (animsList) {
-			this.#htmlAnimSelectorDataList?.replaceChildren();
 			const list = animsList.animations;
 			for (const animI in list) {
 				const anim = list[animI]!;

@@ -312,8 +312,8 @@ export class CharacterManager {
 	}
 
 	static getAnimList(): ClassAnimations | null {
-		const currentClass = this.#currentCharacter?.characterClass;
-		if (currentClass) {
+		const currentClass: Tf2Class | null = this.#currentCharacter?.characterClass ?? null;
+		if (currentClass !== null) {
 			return getClassAnimations(currentClass);
 		}
 		return null;
