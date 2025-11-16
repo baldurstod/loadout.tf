@@ -35,7 +35,7 @@ function characterChanged(character: Character): void {
 		compareWarpaints = true;
 	} else {
 		Controller.dispatchEvent<string>(ControllerEvent.UseLayout, { detail: LOADOUT_LAYOUT });
-		compareWarpaints = true;
+		compareWarpaints = false;
 	}
 }
 

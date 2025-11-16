@@ -41,7 +41,7 @@ export class CharacterManager {
 	static #presets = new Map<string, Presets>();
 
 	static {
-		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.updatePaintColor());
+		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.#updatePaintColor());
 		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<boolean>).detail); return; },);
 		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<Ragdoll>).detail); return; },);
 		Controller.addEventListener(ControllerEvent.SetAnim, (event: Event) => this.#setAnim((event as CustomEvent<string>).detail));
@@ -200,7 +200,7 @@ export class CharacterManager {
 		}
 	};
 
-	static updatePaintColor(): void {
+	static #updatePaintColor(): void {
 		for (const slot of this.#characterSlots) {
 			if (slot) {
 				slot.character?.updatePaintColor();
