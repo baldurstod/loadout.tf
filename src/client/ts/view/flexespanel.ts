@@ -10,7 +10,7 @@ export class FlexesPanel extends DynamicPanel {
 	#htmlControllers?: HTMLElement;
 
 	constructor() {
-		super(Panel.Flexes, [flexesPanelCSS]);
+		super(Panel.Flexes, [flexesPanelCSS], false);
 		hide(this.getShadowRoot());
 
 		Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => {

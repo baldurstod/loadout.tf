@@ -3,13 +3,18 @@ import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
 import { StaticPanel } from './staticpanel';
 
+const panels = new Set<DynamicPanel>;
+
 export class DynamicPanel extends StaticPanel {
 	#panelType: Panel;
+	readonly exclusive: boolean;
 
-	constructor(panelType: Panel, adoptStyles?: string[]) {
+	constructor(panelType: Panel, adoptStyles?: string[], exclusive = true) {
 		super(adoptStyles);
 		this.#panelType = panelType;
+		this.exclusive = exclusive;
 		this.#initListeners();
+		panels.add(this);
 	}
 
 	#initListeners(): void {
@@ -18,8 +23,17 @@ export class DynamicPanel extends StaticPanel {
 
 			if (panel == this.#panelType) {
 				toggle(this.getHTMLElement());
-			} else {
-				hide(this.getHTMLElement());
+				if (this.exclusive) {
+					for (const panel of panels) {
+						if (panel == this) {
+							continue;
+						}
+
+						if ((panel.exclusive)) {
+							hide(panel.getHTMLElement());
+						}
+					}
+				}
 			}
 		});
 	}
