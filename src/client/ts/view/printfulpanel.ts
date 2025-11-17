@@ -87,6 +87,7 @@ export class PrintfulPanel extends DynamicPanel {
 	#htmlTemplateRemovePlacement?: HTMLButtonElement;
 	#htmlTemplateRegeneratePlacement?: HTMLButtonElement;
 	#htmlTemplateControlTransparent?: HTMLHarmonySwitchElement;
+	#htmlTemplateControlScale?: HTMLHarmonySliderElement;
 	#htmlTemplateControlWidth?: HTMLHarmonySliderElement;
 	#htmlTemplateControlHeight?: HTMLHarmonySliderElement;
 	#htmlTemplateControlRotation?: HTMLHarmonySliderElement;
@@ -533,7 +534,7 @@ export class PrintfulPanel extends DynamicPanel {
 							],
 						}),
 
-						createElement('harmony-slider', {
+						this.#htmlTemplateControlScale = createElement('harmony-slider', {
 							label: '#scale',
 							min: 0.5,
 							max: 2,
@@ -541,7 +542,7 @@ export class PrintfulPanel extends DynamicPanel {
 							'input-step': 0.01,
 							value: '1',
 							$input: (event: Event) => this.#setTemplateScale(Number((event.target as HTMLInputElement).value)),
-						}) as HTMLInputElement,
+						}) as HTMLHarmonySliderElement,
 
 						this.#htmlTemplateControlWidth = createElement('harmony-slider', {
 							label: '#image_width',
@@ -907,11 +908,21 @@ export class PrintfulPanel extends DynamicPanel {
 
 		this.#htmlPatterns?.select(preset.getPattern());
 		this.#htmlTemplateControlTransparent!.state = preset.isTransparent();
+		this.#htmlTemplateControlScale!.setValue(preset.getScale());
 		this.#htmlTemplateControlWidth!.setValue(preset.getWidth());
 		this.#htmlTemplateControlHeight!.setValue(preset.getHeight());
 		this.#htmlTemplateControlRotation!.setValue(preset.getRotation() * RAD_TO_DEG);
 		this.#htmlTemplateControlVerticalGap!.setValue(preset.getVerticalGap() * 100);
 		this.#htmlTemplateControlHorizontalGap!.setValue(preset.getHorizontalGap() * 100);
+
+		const showControls = PatternShowControls.get(preset.getPattern());
+		if (showControls) {
+			display(this.#htmlTemplateControlWidth, showControls[0]);
+			display(this.#htmlTemplateControlHeight, showControls[1]);
+
+			display(this.#htmlTemplateControlHorizontalGap, showControls[0]);
+			display(this.#htmlTemplateControlVerticalGap, showControls[1]);
+		}
 	}
 
 	#resizeTemplateCanvas(): void {
@@ -1300,22 +1311,13 @@ export class PrintfulPanel extends DynamicPanel {
 	}
 
 	#setTemplatePattern(pattern: Pattern): void {
+		this.#updateControls();
+
 		if (pattern == this.#productPreset.getSelectedPreset().getPattern()) {
 			return;
 		}
 		//this.#template.pattern = pattern;
 		this.#productPreset.getSelectedPreset().setPattern(pattern);
-		this.#updateControls();
-
-		const showControls = PatternShowControls.get(pattern);
-
-		if (showControls) {
-			display(this.#htmlTemplateControlWidth, showControls[0]);
-			display(this.#htmlTemplateControlHeight, showControls[1]);
-
-			display(this.#htmlTemplateControlHorizontalGap, showControls[0]);
-			display(this.#htmlTemplateControlVerticalGap, showControls[1]);
-		}
 
 		switch (pattern) {
 			case Pattern.FullDrop:
