@@ -583,13 +583,13 @@ export class CharacterManager {
 		this.useDisposition('custom');
 	}
 
-	static #pickedModel(pickEvent: CustomEvent<GraphicMouseEventData>) {
+	static #pickedModel(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 		const model = pickEvent.detail.entity;
 		if (model) {
 			this.#selectCharacterPerDynamicProp(model);
 		}
 	}
-	static async #selectCharacterPerDynamicProp(prop: Entity) {
+	static async #selectCharacterPerDynamicProp(prop: Entity): Promise<void> {
 		for (const slot of this.#characterSlots) {
 			if (!slot.character) {
 				continue;
@@ -600,7 +600,7 @@ export class CharacterManager {
 			while (currentEntity) {
 				if (characterModel == currentEntity) {
 					this.#currentSlot = slot;
-					this.#setCurrentCharacter(slot.character!);
+					this.#setCurrentCharacter(slot.character);
 					return;
 				}
 

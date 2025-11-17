@@ -244,6 +244,7 @@ export class Character {
 
 	async #addItem(template: ItemTemplate): Promise<Item> {
 		const item = new Item(template, this);
+		item.setTeam(this.#team);
 		this.items.set(template.id, item);
 		const npc = CharactersList.get(this.characterClass)!.name
 		item.loadModel(npc);
