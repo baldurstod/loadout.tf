@@ -1,5 +1,5 @@
 import { WeaponManager, WeaponManagerEvents } from 'harmony-3d-utils';
-import { OptionsManager } from 'harmony-browser-utils';
+import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { setLegacyPaintKit } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { Map2 } from 'harmony-utils';
@@ -54,6 +54,9 @@ export class ItemManager {
 		Controller.addEventListener(ControllerEvent.SetItemSortType, (event: Event) => this.#setSortingType((event as CustomEvent<string>).detail));
 
 		Controller.addEventListener(ControllerEvent.ItemPinned, (event: Event) => this.#pinItem((event as CustomEvent<ItemPinned>).detail.item, (event as CustomEvent<ItemPinned>).detail.pinned));
+
+		Controller.addEventListener(ControllerEvent.ItemAdded, () => Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated));
+		Controller.addEventListener(ControllerEvent.ItemRemoved, () => Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated));
 		//Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
 
 		Controller.addEventListener(ControllerEvent.TogglePanel, (event: Event) => {
@@ -66,6 +69,8 @@ export class ItemManager {
 			const detail = (event as CustomEvent).detail;
 			this.#addWarpaint(String(detail.p1), String(detail.p2), detail.p3, detail.p4);
 		});
+
+		OptionsManagerEvents.addEventListener('app.items.pinned', (event: Event) => this.#setPinned((event as CustomEvent).detail.value));
 	}
 
 	static #setItemFilter(filter: SetItemFilter): void {
@@ -115,8 +120,16 @@ export class ItemManager {
 		const filteredItems = new Map<string, ItemTemplate>();
 		excluded.e = 0;
 
+		const activeItems = new Set<Item>;
+
+		if (this.#currentCharacter) {
+			for (const [, item] of this.#currentCharacter.items) {
+				activeItems.add(item);
+			}
+		}
+
 		for (const [id, itemTemplate] of this.#itemTemplates) {
-			const match = this.#filters.matchFilter(itemTemplate, excluded, this.#currentCharacter?.characterClass ?? null, new Set<Item>)
+			const match = this.#filters.matchFilter(itemTemplate, excluded, this.#currentCharacter?.characterClass ?? null, activeItems)
 			if (match == ItemFilterResult.Ok) {
 				filteredItems.set(id, itemTemplate);
 			}
@@ -303,6 +316,11 @@ export class ItemManager {
 		}
 
 		OptionsManager.setItem('app.items.pinned', pinned);
+	}
+
+	static #setPinned(pinned: string[]): void {
+		this.#filters.pinned = pinned;
+		Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated);
 	}
 
 	/*

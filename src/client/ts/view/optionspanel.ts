@@ -883,7 +883,7 @@ export class OptionsPanel extends DynamicPanel {
 		}
 	}
 
-	#initDispositions() {
+	#initDispositions(): void {
 		this.#htmlCharacterDisposition?.replaceChildren();
 
 		let select: HTMLSelectElement;
@@ -905,7 +905,7 @@ export class OptionsPanel extends DynamicPanel {
 
 		//for (let i = 0; i < this.#charactersDispositions.length; i++) {
 		for (const [position] of CharacterManager.getSlotsPositions()) {
-			let option: HTMLOptionElement = createElement('option') as HTMLOptionElement;
+			const option: HTMLOptionElement = createElement('option') as HTMLOptionElement;
 			select.append(option);
 			option.innerText = position;
 			option.value = position;
