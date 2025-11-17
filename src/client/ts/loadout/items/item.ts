@@ -63,12 +63,10 @@ export class Item {
 	}
 
 	async setTeam(team: Team): Promise<void> {
-		if (this.#team != team) {
-			this.#team = team;
-			await this.#refreshSkin();
-			await this.#refreshSheen();
-			this.#refreshWarPaint();
-		}
+		this.#team = team;
+		await this.#refreshSkin();
+		await this.#refreshSheen();
+		this.#refreshWarPaint();
 	}
 
 	getEquipRegions(): string[] {
