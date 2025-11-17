@@ -23,7 +23,7 @@ export class Item {
 	#attachedModels: Source1ModelInstance[] = [];
 	#festivizerModel?: Source1ModelInstance | null;
 	#stattrakModule?: Source1ModelInstance | null;
-	#team = Team.Red;
+	#team = Team.None;
 	#killCount: number | null = null;
 	#refreshingSkin = false;
 	#showFestivizer = false;
