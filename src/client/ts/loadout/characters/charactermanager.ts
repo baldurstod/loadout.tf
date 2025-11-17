@@ -269,6 +269,13 @@ export class CharacterManager {
 			if (disposition) {
 				slot.position = disposition.position;
 				slot.orientation = disposition.orientation;
+
+				if (slot.character) {
+					slot.character.getModel().then((model) => {
+						model?.setPosition(disposition.position);
+						model?.setQuaternion(disposition.orientation);
+					});
+				}
 			}
 		}
 	}
