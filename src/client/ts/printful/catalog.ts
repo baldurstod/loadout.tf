@@ -1,11 +1,12 @@
 import { JSONObject } from 'harmony-types';
-import { initCategories, isParent } from './categories';
+import { initCategories } from './categories';
 import { AdditionalPlacements } from './model/additionalplacements';
 import { Product } from './model/product';
 import { ProductPlacement } from './model/productplacement';
 import { ProductPrices } from './model/productprices';
 import { Technique } from './model/technique';
 import { Variant } from './model/variant';
+import { ProductFilter, ProductFilterResult } from './productfilter';
 import { fetchShopAPI } from './shop';
 import { formatPrice } from './utils';
 
@@ -24,6 +25,8 @@ const currency = 'USD';
 let readyPromiseResolve!: (value: boolean) => void;
 const ready = new Promise<boolean>(resolve => readyPromiseResolve = resolve);
 let productInizialized = false;
+
+const productFilter = new ProductFilter();
 
 export async function initProducts(/*region = 'US'*/): Promise<void> {
 	if (productInizialized) {
@@ -63,30 +66,17 @@ function productsReady(): Promise<boolean> {
 	return ready;
 }
 
-
-
-export async function getAvailableProducts(categoryId = 0): Promise<Product[]> {
+export async function getAvailableProducts(categoryId = 0): Promise<Set<Product>> {
 	if (categoryId != 0) {
 		await initCategories();
 	}
 
 	await productsReady();
-	const availableProducts: Product[] = [];
+	const availableProducts = new Set<Product>;
 
 	for (const [id, product] of products) {
-		if (id == 0 ||
-			product.isDiscontinued ||
-			product.catalogVariantIds.length == 0
-		) {
-			continue;
-		}
-
-		if (product.getTechniques().length == 0) {
-			continue;
-		}
-
-		if (categoryId == 0 || isParent(product, categoryId)) {
-			availableProducts.push(product);
+		if (productFilter.matchFilter(product) == ProductFilterResult.Ok) {
+			availableProducts.add(product);
 		}
 	}
 

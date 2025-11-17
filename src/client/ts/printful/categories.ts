@@ -63,7 +63,7 @@ export async function getCategories(parentId?: number): Promise<Category[]> {
 	return ret;
 }
 
-export function categoryHasProducts(category: Category, products: Product[]): boolean {
+export function categoryHasProducts(category: Category, products: Set<Product>): boolean {
 	for (const product of products) {
 		if (isParent(product, category.id)) {
 			return true;

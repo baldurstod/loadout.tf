@@ -62,6 +62,7 @@ export enum ControllerEvent {
 	SelectWarpaints = 'selectwarpaints',
 	RepositoryAdded = 'repositoryAdded',
 	ChangeAnimFrame = 'changeanimframe',
+	SetProductFilter = 'setproductfilter',
 }
 
 export type SetBackgroundType = {
@@ -73,7 +74,6 @@ export type ShowBadge = {
 	tier: number;
 	level: number;
 }
-
 
 export enum ItemFilterAttribute {
 	Name,
@@ -94,6 +94,7 @@ export enum ItemFilterAttribute {
 	DisplayTaunts,
 	Collection,
 }
+
 export type SetItemFilter = {
 	attribute: ItemFilterAttribute;
 	/*'name' | 'selected' | 'workshop' | 'hideConflict' | 'tournamentMedals' | 'showMultiClass' | 'showOneClass' | 'showAllClass' | 'doNotFilterPerClass'
@@ -120,6 +121,10 @@ export type SetRagdoll = {
 export type KillstreakClicked = {
 	effect: EffectTemplate | null;
 	color: KillstreakColor;
+}
+
+export enum ProductFilterAttribute {
+	Name,
 }
 
 export class Controller {
