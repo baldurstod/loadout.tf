@@ -8,7 +8,7 @@ export enum ProductFilterResult {
 }
 
 export class ProductFilter {
-	name?: string;
+	name = '';
 
 	matchFilter(product: Product, categoryId = 0): ProductFilterResult {
 		if (product.id == 0 ||
@@ -23,6 +23,14 @@ export class ProductFilter {
 		}
 
 		if (categoryId != 0 && !isParent(product, categoryId)) {
+			return ProductFilterResult.ExcludedFilter;
+		}
+
+		if (product.name.toLowerCase().includes('all-over')) {
+			return ProductFilterResult.ExcludedFilter;
+		}
+
+		if (this.name != '' && !product.name.toLowerCase().includes(this.name.toLowerCase())) {
 			return ProductFilterResult.ExcludedFilter;
 		}
 
