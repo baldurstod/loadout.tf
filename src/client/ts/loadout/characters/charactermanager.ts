@@ -256,6 +256,7 @@ export class CharacterManager {
 	}
 
 	static useDisposition(name: string): void {
+		//console.info('use disposition: ', name)
 		const dispositions = this.#slotsPositions.get(name);
 		if (!dispositions) {
 			return;

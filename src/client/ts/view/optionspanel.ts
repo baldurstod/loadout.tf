@@ -896,7 +896,7 @@ export class OptionsPanel extends DynamicPanel {
 				select = createElement('select', {
 					id: 'character-disposition-select',
 					$change: (event: Event) => CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
-					$click: (event: Event) => CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
+					//$click: (event: Event) => CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
 				}) as HTMLSelectElement,
 			],
 
