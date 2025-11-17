@@ -116,8 +116,9 @@ export class ItemManager {
 		return null;
 	}
 
-	static getFilteredItems(excluded: { e: number }/*TODO: find a better way to do that*/): Map<string, ItemTemplate> {
+	static getFilteredItems(excluded: { e: number }/*TODO: find a better way to do that*/): [Map<string, ItemTemplate>, Map<string, ItemTemplate>] {
 		const filteredItems = new Map<string, ItemTemplate>();
+		const conflictingItems = new Map<string, ItemTemplate>();
 		excluded.e = 0;
 
 		const activeItems = new Set<Item>;
@@ -130,11 +131,15 @@ export class ItemManager {
 
 		for (const [id, itemTemplate] of this.#itemTemplates) {
 			const match = this.#filters.matchFilter(itemTemplate, excluded, this.#currentCharacter?.characterClass ?? null, activeItems)
-			if (match == ItemFilterResult.Ok) {
+			if (match == ItemFilterResult.Ok || match == ItemFilterResult.Conflicting) {
 				filteredItems.set(id, itemTemplate);
 			}
+
+			if (match == ItemFilterResult.Conflicting) {
+				conflictingItems.set(id, itemTemplate);
+			}
 		}
-		return filteredItems;
+		return [filteredItems, conflictingItems];
 	}
 
 	static getSelectedItems(): Set<string> {

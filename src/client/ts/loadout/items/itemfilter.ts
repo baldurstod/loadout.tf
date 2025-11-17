@@ -250,8 +250,12 @@ export class ItemFilter {
 							//for (const k of equip1) {
 							//for (const l of equip2) {
 							if (hasConflict(equip1, equip2)) {
-								++excludedItems.e;
-								return ItemFilterResult.ExcludedFilter;
+								if (this.hideConflict) {
+									++excludedItems.e;
+									return ItemFilterResult.ExcludedFilter;
+								} else {
+									highlightConflict = true;
+								}
 							}
 							//}
 							//}

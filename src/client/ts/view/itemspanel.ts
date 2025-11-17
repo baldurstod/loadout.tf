@@ -401,7 +401,8 @@ export class ItemsPanel extends DynamicPanel {
 
 		const selectedItems = ItemManager.getSelectedItems();
 		const excludedItems = { e: 0 };
-		for (const [id, item] of ItemManager.getFilteredItems(excludedItems)) {
+		const [items, conflictingItems] = ItemManager.getFilteredItems(excludedItems);
+		for (const [id, item] of items) {
 			let htmlItem = this.#htmlItems.get(id);
 			if (htmlItem) {
 				this.#htmlItemsContainer?.append(htmlItem);
@@ -421,11 +422,15 @@ export class ItemsPanel extends DynamicPanel {
 
 				this.#htmlItems.set(id, htmlItem);
 			}
+			htmlItem?.classList.remove('conflicting');
 
 			if (selectedItems.has(id)) {
 				htmlItem?.classList.add('item-selected');
 			} else {
 				htmlItem?.classList.remove('item-selected');
+				if (conflictingItems.has(id)) {
+					htmlItem?.classList.add('conflicting');
+				}
 			}
 		}
 		this.#refreshActiveListAndConflicts();
