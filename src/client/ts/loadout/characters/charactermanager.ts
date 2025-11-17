@@ -1,5 +1,5 @@
 import { quat, vec3 } from 'gl-matrix';
-import { getSceneExplorer, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
+import { Entity, getSceneExplorer, GraphicMouseEventData, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { JSONObject, uint } from 'harmony-types';
 import positionJSON from '../../../json/slotsposition.json';
@@ -36,7 +36,7 @@ const TOOLBOX_ORIENTATION = quat.fromValues(0, 0, -0.5927425026893616, 0.8053920
 
 export class CharacterManager {
 	static #characterSlots: CharacterSlot[] = [{ character: null, position: vec3.create(), orientation: quat.clone(DEFAULT_ORIENTATION) }];
-	static #currentSlot = 0;
+	static #currentSlot: CharacterSlot | null = null;
 	static #unusedCharacters: Character[] = [];
 	static #currentCharacter: Character | null = null;
 	static #team: Team = Team.Red;
@@ -48,6 +48,7 @@ export class CharacterManager {
 
 	static {
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.#updatePaintColor());
+		GraphicsEvents.addEventListener(GraphicsEvent.MouseDown, (event: Event) => this.#pickedModel(event as CustomEvent<GraphicMouseEventData>));
 		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<boolean>).detail); return; },);
 		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<Ragdoll>).detail); return; },);
 		Controller.addEventListener(ControllerEvent.SetAnim, (event: Event) => this.#setAnim((event as CustomEvent<string>).detail));
@@ -152,7 +153,7 @@ export class CharacterManager {
 		}
 
 		for (const slot of this.#characterSlots) {
-			if (!slot.character || slot.character.characterClass == Tf2Class.None || slot.character.characterClass == Tf2Class.Empty || slot.character.characterClass == Tf2Class.CompareWarpaints) {
+			if (slot == this.#currentSlot || !slot.character || slot.character.characterClass == Tf2Class.None || slot.character.characterClass == Tf2Class.Empty || slot.character.characterClass == Tf2Class.CompareWarpaints) {
 				return slot;
 			}
 		}
@@ -580,5 +581,31 @@ export class CharacterManager {
 		//this.#setCharactersPositions(new CharactersPositions(positions, true));
 
 		this.useDisposition('custom');
+	}
+
+	static #pickedModel(pickEvent: CustomEvent<GraphicMouseEventData>) {
+		const model = pickEvent.detail.entity;
+		if (model) {
+			this.#selectCharacterPerDynamicProp(model);
+		}
+	}
+	static async #selectCharacterPerDynamicProp(prop: Entity) {
+		for (const slot of this.#characterSlots) {
+			if (!slot.character) {
+				continue;
+			}
+
+			const characterModel = await slot.character?.getModel();
+			let currentEntity: Entity | null = prop;
+			while (currentEntity) {
+				if (characterModel == currentEntity) {
+					this.#currentSlot = slot;
+					this.#setCurrentCharacter(slot.character!);
+					return;
+				}
+
+				currentEntity = currentEntity.parent;
+			}
+		}
 	}
 }
