@@ -1,4 +1,4 @@
-import { Camera, CameraControl, ColorBackground, Entity, FirstPersonControl, Group, HALF_PI, OrbitControl, Scene, SceneExplorer, Source1ModelInstance, Source1ModelManager } from 'harmony-3d';
+import { Camera, CameraControl, ColorBackground, Entity, FirstPersonControl, Group, HALF_PI, OrbitControl, PointLight, Scene, SceneExplorer, Source1ModelInstance, Source1ModelManager } from 'harmony-3d';
 import { CameraType } from '../enums';
 
 export const loadoutScene = new Scene();
@@ -34,6 +34,11 @@ new SceneExplorer().setScene(loadoutScene);
 loadoutScene.activeCamera = orbitCamera;
 loadoutScene.addChild(orbitCamera);
 loadoutScene.background = loadoutColorBackground;
+
+export const mapLightsContainer = new Group({ name: 'Photo studio lights', parent: loadoutScene, visible: false });
+for (let i = 0; i < 3; ++i) {
+	let pl = new PointLight({ name: 'Photo studio point light ' + i, position: [i * 200 - 200, -200, 50], range: 700, parent: mapLightsContainer });
+}
 
 export function setPolarRotation(polarRotation: boolean): void {
 	if (polarRotation) {

@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, Group, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, Group, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -15,17 +15,17 @@ import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PATREON_IS_LOGGED, PRODU
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, SHARE_LOADOUT_URL, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType, Panel } from './enums';
+import { importFile } from './fileimporter';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
 import { Team } from './loadout/enums';
 import { ItemManager } from './loadout/items/itemmanager';
 import { Loadout } from './loadout/loadout';
-import { activeCameraControl, addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
+import { activeCameraControl, addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, mapLightsContainer, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
 import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
-import { importFile } from './fileimporter';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -39,7 +39,6 @@ class Application {
 	//#customLightsContainer?: Entity;
 	#serializedEntity?: Entity;
 	//readonly #lightsContainer = new Group({ name: 'Lights' });
-	#mapLightsContainer = new Group({ name: 'Photo studio lights', parent: loadoutScene });
 	#ambientLight = new AmbientLight();
 	#pointLights: PointLight[] = [];
 	#competitiveStage?: Source1ModelInstance;
@@ -169,6 +168,11 @@ class Application {
 		Controller.addEventListener(ControllerEvent.ShareLoadout, () => { this.#shareLoadout() });
 
 		Controller.addEventListener(ControllerEvent.ImportFiles, (event: Event) => { this.#importFiles((event as CustomEvent<File[]>).detail) });
+		Controller.addEventListener(ControllerEvent.ActivateMeetTheTeamMap, (event) => {
+			lightsContainer.setVisible(false);
+			mapLightsContainer.setVisible(true && (!OptionsManager.getItem('app.lights.usecustomlights')));
+			this.#mapStartup('sfm_photostudio_lite.bsp');
+		});
 
 		EntityObserver.addEventListener(EntityObserverEventType.PropertyChanged, (event: Event) => this.#handlePropertyChanged((event as CustomEvent).detail));
 	}
@@ -452,7 +456,7 @@ class Application {
 			}
 			if ((event as CustomEvent<OptionsManagerEvent>).detail.value) {
 				lightsContainer?.setVisible(false);
-				this.#mapLightsContainer?.setVisible(false);
+				mapLightsContainer?.setVisible(false);
 			} else {
 				lightsContainer?.setVisible(undefined);
 			}
@@ -1011,6 +1015,23 @@ class Application {
 		const overrideModels = OptionsManager.getItem('app.repositories.import.overridemodels');
 		for (const file of files) {
 			await importFile(file, overrideModels);
+		}
+	}
+
+	async #mapStartup(mapName: string) {
+		if (mapName) {
+			mapName = 'maps/' + mapName.replace(/\.bsp$/, '') + '.bsp';
+
+			let map: SourceBSP = await (new Source1BspLoader()).load('tf2', mapName) as SourceBSP;
+			if (map) {
+				if (this.#map) {
+					this.#map.remove();
+				}
+				loadoutScene.addChild(map);
+				map.initMap();
+				this.#map = map;
+				map.setVisible(OptionsManager.getItem('app.map.rendermap'));
+			}
 		}
 	}
 }

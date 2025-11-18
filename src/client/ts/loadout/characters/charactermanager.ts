@@ -308,6 +308,7 @@ export class CharacterManager {
 			toolbox.setPosition(TOOLBOX_POSITION);
 			toolbox.setQuaternion(TOOLBOX_ORIENTATION);
 		}
+		Controller.dispatchEvent(ControllerEvent.ActivateMeetTheTeamMap);
 	}
 
 	static #selectAnim(anim: string, applyToAll: boolean, force = false): void {

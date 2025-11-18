@@ -63,6 +63,7 @@ export enum ControllerEvent {
 	RepositoryAdded = 'repositoryAdded',
 	ChangeAnimFrame = 'changeanimframe',
 	SetProductFilter = 'setproductfilter',
+	ActivateMeetTheTeamMap = 'activatemeettheteammap',
 }
 
 export type SetBackgroundType = {
