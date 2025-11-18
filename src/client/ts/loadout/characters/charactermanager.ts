@@ -65,6 +65,7 @@ export class CharacterManager {
 		const slot = this.getSlot(slotId);
 
 		if (slot.character?.characterClass == characterClass) {
+			slot.character.setVisible(true);
 			// the same character is selected again
 			return slot.character;
 		}

@@ -20,7 +20,8 @@
 		"harmony-types": "github:baldurstod/harmony-types",
 		"harmony-ui": "github:baldurstod/harmony-ui",
 		"harmony-utils": "github:baldurstod/harmony-utils",
-		"harmony-vpk": "github:baldurstod/harmony-vpk"
+		"harmony-vpk": "github:baldurstod/harmony-vpk",
+		"pyodide": "^0.29.0"
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^28.0.8",

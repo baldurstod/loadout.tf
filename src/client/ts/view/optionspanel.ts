@@ -4,12 +4,13 @@ import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmo
 import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
 import optionsCSS from '../../css/options.css';
 import repositoryEntryCSS from '../../css/repositoryentry.css';
-import { TESTING } from '../bundleoptions';
+import { ENABLE_PATREON_POWERUSER, TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, CameraType, Panel } from '../enums';
 import { CharacterManager, CustomDisposition } from '../loadout/characters/charactermanager';
 import { addTF2Model, loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
+import { ScriptEditor } from './scripteditor';
 
 export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;
@@ -30,6 +31,7 @@ export class OptionsPanel extends DynamicPanel {
 	#htmlOverrideGameModels?: HTMLHarmonySwitchElement;
 	#htmlCharacterDisposition?: HTMLElement;
 	#shaderEditor = new ShaderEditor();
+	#scriptEditor = new ScriptEditor();
 	#customDisposition: CustomDisposition = { countX: 1, countY: 1, countZ: 1 };
 
 	constructor() {
@@ -57,6 +59,9 @@ export class OptionsPanel extends DynamicPanel {
 		this.#initHtmlMeetTheTeamOptions();
 		this.#initHtmlSceneExplorer();
 		this.#initHtmlShaderEditor();
+		if (ENABLE_PATREON_POWERUSER) {
+			this.#initHtmlScripEditor();
+		}
 		this.#initHtmlImportFiles();
 		this.#initLanguages();
 	}
@@ -635,6 +640,16 @@ export class OptionsPanel extends DynamicPanel {
 		htmlShaderEditorTab.addEventListener('activated', () => {
 			this.#shaderEditor.initEditor({ aceUrl: './assets/js/ace-builds/src-min/ace.js', displayCustomShaderButtons: true });
 			htmlShaderEditorTab.append(this.#shaderEditor);
+		});
+	}
+
+	#initHtmlScripEditor(): void {
+		const htmlScriptEditorTab = createElement('harmony-tab', { 'data-i18n': '#script_editor' });
+		this.#htmlTabGroup?.append(htmlScriptEditorTab);
+
+		htmlScriptEditorTab.addEventListener('activated', () => {
+			this.#scriptEditor.initEditor({ aceUrl: './assets/js/ace-builds/src-min/ace.js' });
+			htmlScriptEditorTab.append(this.#scriptEditor);
 		});
 	}
 
