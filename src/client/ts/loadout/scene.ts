@@ -37,7 +37,7 @@ loadoutScene.background = loadoutColorBackground;
 
 export const mapLightsContainer = new Group({ name: 'Photo studio lights', parent: loadoutScene, visible: false });
 for (let i = 0; i < 3; ++i) {
-	let pl = new PointLight({ name: 'Photo studio point light ' + i, position: [i * 200 - 200, -200, 50], range: 700, parent: mapLightsContainer });
+	new PointLight({ name: 'Photo studio point light ' + i, position: [i * 200 - 200, -200, 50], range: 700, parent: mapLightsContainer });
 }
 
 export function setPolarRotation(polarRotation: boolean): void {

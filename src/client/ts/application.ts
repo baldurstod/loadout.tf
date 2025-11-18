@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, Group, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -168,7 +168,7 @@ class Application {
 		Controller.addEventListener(ControllerEvent.ShareLoadout, () => { this.#shareLoadout() });
 
 		Controller.addEventListener(ControllerEvent.ImportFiles, (event: Event) => { this.#importFiles((event as CustomEvent<File[]>).detail) });
-		Controller.addEventListener(ControllerEvent.ActivateMeetTheTeamMap, (event) => {
+		Controller.addEventListener(ControllerEvent.ActivateMeetTheTeamMap, () => {
 			lightsContainer.setVisible(false);
 			mapLightsContainer.setVisible(true && (!OptionsManager.getItem('app.lights.usecustomlights')));
 			this.#mapStartup('sfm_photostudio_lite.bsp');
@@ -1018,11 +1018,11 @@ class Application {
 		}
 	}
 
-	async #mapStartup(mapName: string) {
+	async #mapStartup(mapName: string): Promise<void> {
 		if (mapName) {
 			mapName = 'maps/' + mapName.replace(/\.bsp$/, '') + '.bsp';
 
-			let map: SourceBSP = await (new Source1BspLoader()).load('tf2', mapName) as SourceBSP;
+			const map: SourceBSP = await (new Source1BspLoader()).load('tf2', mapName) as SourceBSP;
 			if (map) {
 				if (this.#map) {
 					this.#map.remove();
