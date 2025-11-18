@@ -9,6 +9,16 @@ export class DynamicPanel extends StaticPanel {
 	#panelType: Panel;
 	readonly exclusive: boolean;
 
+	static {
+		Controller.addEventListener(ControllerEvent.TogglePanel, (event: Event) => {
+			if ((event as CustomEvent<Panel>).detail == Panel.None) {
+				for (const panel of panels) {
+					hide(panel.getHTMLElement());
+				}
+			}
+		});
+	}
+
 	constructor(panelType: Panel, adoptStyles?: string[], exclusive = true) {
 		super(adoptStyles);
 		this.#panelType = panelType;
