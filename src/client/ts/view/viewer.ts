@@ -3,7 +3,7 @@ import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHand
 import { JSONObject } from 'harmony-types';
 import { createElement, createShadowRoot } from 'harmony-ui';
 import viewerCSS from '../../css/viewer.css';
-import { LOADOUT_LAYOUT, RECORDER_DEFAULT_FILENAME, SHADERTOY_DIRECTORY } from '../constants';
+import { LOADOUT_LAYOUT, MAIN_CANVAS, RECORDER_DEFAULT_FILENAME, SHADERTOY_DIRECTORY } from '../constants';
 import { Controller, ControllerEvent, SetBackgroundType } from '../controller';
 import { BackgroundType } from '../enums';
 import { weaponLayout } from '../loadout/comparewarpaints';
@@ -40,8 +40,8 @@ export class Viewer {
 	}
 
 	#initHTML(): HTMLElement {
-		this.#mainCanvas = Graphics.addCanvas(undefined, {
-			name: 'main_canvas',
+		this.#mainCanvas = Graphics.addCanvas({
+			name: MAIN_CANVAS,
 			layouts: [
 				{
 					name: LOADOUT_LAYOUT,
@@ -307,7 +307,7 @@ export class Viewer {
 	#savePicture(): void {
 		const value = this.#getPictureSize();
 		this.#showHighLights(false);
-		Graphics.exportCanvas(this.#htmlCanvas, 'loadout.png', value?.w, value?.h);
+		Graphics.exportCanvas(MAIN_CANVAS, 'loadout.png', value?.w, value?.h);
 		this.#showHighLights(true);
 	}
 

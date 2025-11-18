@@ -1,4 +1,6 @@
+import { CanvasAttributes, Graphics } from 'harmony-3d';
 import { uint } from 'harmony-types';
+import { MAIN_CANVAS } from '../constants';
 import { Character } from '../loadout/characters/character';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { Tf2Class } from '../loadout/characters/characters';
@@ -15,5 +17,9 @@ export class Loadout {
 
 	async setupMeetTheTeam(): Promise<void> {
 		await CharacterManager.setupMeetTheTeam();
+	}
+
+	getCanvas(): CanvasAttributes {
+		return Graphics.getCanvas(MAIN_CANVAS)!;
 	}
 }

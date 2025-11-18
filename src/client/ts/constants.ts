@@ -81,3 +81,5 @@ export const COMPARE_WARPAINTS_LAYOUT = 'compare warpaints';
 
 export const LOW_QUALITY_TEXTURE_SIZE = 256;
 export const MID_QUALITY_TEXTURE_SIZE = 512;
+
+export const MAIN_CANVAS = 'main_canvas';
