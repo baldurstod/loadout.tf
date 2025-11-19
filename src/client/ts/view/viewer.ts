@@ -1,4 +1,4 @@
-import { CanvasAttributes, ColorBackground, Composer, CopyPass, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvent, GraphicsEvents, OldMoviePass, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, SketchPass, WebGLStats } from 'harmony-3d';
+import { CanvasAttributes, CanvasLayout, CanvasView, ColorBackground, Composer, CopyPass, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvent, GraphicsEvents, OldMoviePass, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, SketchPass, WebGLStats } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, createShadowRoot } from 'harmony-ui';
@@ -43,15 +43,15 @@ export class Viewer {
 		this.#mainCanvas = Graphics.addCanvas({
 			name: MAIN_CANVAS,
 			layouts: [
-				{
-					name: LOADOUT_LAYOUT,
-					views: [
-						{
+				new CanvasLayout(LOADOUT_LAYOUT,
+					[
+						new CanvasView({
+							name: 'main',
 							scene: loadoutScene,
 							composer: this.#composer,
-						},
+						}),
 					],
-				},
+				),
 				weaponLayout,
 			],
 			autoResize: true,

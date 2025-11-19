@@ -8,10 +8,7 @@ import { Tf2Class } from './characters/characters';
 import { Item } from './items/item';
 import { customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl } from './scene';
 
-export const weaponLayout: CanvasLayout = {
-	name: COMPARE_WARPAINTS_LAYOUT,
-	views: [],
-}
+export const weaponLayout: CanvasLayout = new CanvasLayout(COMPARE_WARPAINTS_LAYOUT);
 
 let compareWarpaints = false;
 const warpaintsGroup = new Group({ parent: loadoutScene, name: 'warpaints' });
@@ -53,12 +50,13 @@ let backgroundTextureSize = LOW_QUALITY_TEXTURE_SIZE;
 async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 	weaponsToView.clear();
 	modelToItem.clear();
-	weaponLayout.views = [];
+	weaponLayout.views.clear();
 	warpaintsGroup.removeChildren();
-	weaponLayout.views.push({
+	weaponLayout.addView(new CanvasView({
+		name: 'background',
 		scene: new Scene({ background: loadoutColorBackground, camera: orbitCamera, }),
 		layer: -1,
-	});
+	}));
 
 	const side = Math.max(Math.ceil(Math.sqrt(weapons.size)), 1);
 
@@ -98,15 +96,16 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 			const item = entries.next().value;
 
 
-			const view = {
+			const view = new CanvasView({
+				name: `${i},${j}`,
 				scene: weaponScene,
-				viewport: {
+				viewport: new Viewport({
 					x: i * viewSide,
 					y: j * viewSide,
 					width: viewSide,
 					height: viewSide,
-				}
-			};
+				})
+			});
 
 			if (item) {
 				const weapon = item[1];
@@ -124,7 +123,7 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 					weaponsToView.set(weaponModel, view);
 				}
 			}
-			weaponLayout.views.push(view);
+			weaponLayout.addView(view);
 		}
 	}
 }
@@ -156,7 +155,7 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 		highlitView.viewport = highlitViewport ?? undefined;
 		highlitView = null;
 		highlitViewport = null;
-		for (const v of weaponLayout.views) {
+		for (const [, v] of weaponLayout.views) {
 			v.enabled = undefined;
 		}
 
@@ -184,7 +183,7 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 		return;
 	}
 
-	for (const v of weaponLayout.views) {
+	for (const [, v] of weaponLayout.views) {
 		if (v != view) {
 			//v.enabled = false;
 		}
