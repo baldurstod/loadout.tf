@@ -13,6 +13,7 @@ export class ScriptEditor extends HTMLElement {
 	#annotationsDelay = 500;
 	#shadowRoot?: ShadowRoot;
 	#scriptEditor?: any/*TODO: fix type*/;
+	#htmlErrors?: HTMLTextAreaElement;
 	//#interruptBuffer = new Uint8Array(new SharedArrayBuffer(1));
 	//#pyodideWorker = new Worker(new URL("pyodideworker.js", import.meta.url));
 
@@ -46,8 +47,8 @@ export class ScriptEditor extends HTMLElement {
 		}) as HTMLButtonElement;
 		*/
 
-		const container = createElement('div', { style: 'flex:1;' });
-		this.#shadowRoot.append(container);
+		const container = createElement('div', { style: 'flex:1;', parent: this.#shadowRoot });
+		this.#htmlErrors = createElement('textarea', { style: 'flex:1;', parent: this.#shadowRoot }) as HTMLTextAreaElement;
 
 		if (aceScript == '') {
 			this.#initEditor2(container);
@@ -60,16 +61,29 @@ export class ScriptEditor extends HTMLElement {
 		Utils.setInterrupt(false);
 		const scriptText = this.#scriptEditor.getValue();
 
-		try {
-			//this.#interruptBuffer[0] = 0;
 
-			(await getPyodide()).runPythonAsync(scriptText);
-			//this.#pyodideWorker.postMessage({ cmd: "runCode", scriptText });
-
-		} catch (e) {
-			// TODO: process error
-			console.error(e)
-		}
+		(await getPyodide()).runPythonAsync(scriptText).catch(
+			(e: unknown) => {
+				console.error(e);
+				if (e instanceof Error) {
+					let message;
+					/*
+					if (e.cause) {
+						message += e.cause;
+					}
+					*/
+					if (e.stack) {
+						message = e.stack;
+					} else {
+						message = e.name + ': ' + e.message;
+					}
+					this.#htmlErrors!.value = message;
+				} else {
+					this.#htmlErrors!.value = String(e);
+				}
+			}
+		);
+		//this.#pyodideWorker.postMessage({ cmd: "runCode", scriptText });
 	}
 
 	#stop(): void {

@@ -1,10 +1,11 @@
 import { CanvasAttributes, Graphics } from 'harmony-3d';
 import { MAIN_CANVAS } from '../constants';
-import { loadoutScene } from '../loadout/scene';
+import { loadoutScene, orbitCamera } from '../loadout/scene';
 
 
 export class Loadout {
 	readonly scene = loadoutScene;
+	readonly camera = orbitCamera;
 
 	/*
 	async addCharacter(tf2Class: Tf2Class, slotId?: uint): Promise<Character | null> {
