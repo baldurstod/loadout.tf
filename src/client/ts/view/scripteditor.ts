@@ -1,5 +1,7 @@
+import { EditSession } from 'ace-builds';
 import { loadScripts } from 'harmony-browser-utils';
-import { createElement, I18n } from 'harmony-ui';
+import { createElement, I18n, shadowRootStyle } from 'harmony-ui';
+import scriptEditorCSS from '../../css/scripteditor.css';
 import { ACE_EDITOR_URI } from '../constants';
 import { getPyodide } from '../scripting/pyodide';
 import { Utils } from '../scripting/utils';
@@ -9,11 +11,15 @@ export type ScriptEditorOptions = {
 };
 
 export class ScriptEditor extends HTMLElement {
+	#aceEditorResolve!: () => void;
+	#aceEditorReady = new Promise((resolve: (value: void) => void) => this.#aceEditorResolve = resolve);
 	#initialized = false;
 	#annotationsDelay = 500;
 	#shadowRoot?: ShadowRoot;
-	#scriptEditor?: any/*TODO: fix type*/;
+	#aceEditor?: any/*TODO: fix type*/;
 	#htmlErrors?: HTMLTextAreaElement;
+	#sessions = new Map<string, EditSession>;
+	#currentSession: EditSession | null = null;
 	//#interruptBuffer = new Uint8Array(new SharedArrayBuffer(1));
 	//#pyodideWorker = new Worker(new URL("pyodideworker.js", import.meta.url));
 
@@ -25,6 +31,7 @@ export class ScriptEditor extends HTMLElement {
 		//this.#pyodideWorker.postMessage({ cmd: "setInterruptBuffer", interruptBuffer: this.#interruptBuffer });
 
 		this.#shadowRoot = this.attachShadow({ mode: 'closed' });
+		shadowRootStyle(this.#shadowRoot, scriptEditorCSS);
 		I18n.observeElement(this.#shadowRoot);
 
 
@@ -55,11 +62,13 @@ export class ScriptEditor extends HTMLElement {
 		} else {
 			loadScripts([aceScript, './assets/js/ace-builds/src-min/ext-language_tools.js']).then(() => this.#initEditor2(container));
 		}
+
+		this.#addSession('test'/*TODO: change name*/);
 	}
 
 	async #run(): Promise<void> {
 		Utils.setInterrupt(false);
-		const scriptText = this.#scriptEditor.getValue();
+		const scriptText = this.#aceEditor.getValue();
 
 
 		(await getPyodide()).runPythonAsync(scriptText).catch(
@@ -81,6 +90,10 @@ export class ScriptEditor extends HTMLElement {
 				} else {
 					this.#htmlErrors!.value = String(e);
 				}
+
+				//const range = new (globalThis as any).ace.Range(0, 0, 0, 10);
+				//this.#currentSession?.addMarker(range, "ace_link_marker", "text", true);
+
 			}
 		);
 		//this.#pyodideWorker.postMessage({ cmd: "runCode", scriptText });
@@ -91,22 +104,25 @@ export class ScriptEditor extends HTMLElement {
 	}
 
 	#initEditor2(id: HTMLElement): void {
-		this.#scriptEditor = (globalThis as any).ace.edit(id);
-		this.#scriptEditor.setOptions({
+		this.#aceEditor = (globalThis as any).ace.edit(id);
+		this.#aceEditor.setOptions({
 			enableBasicAutocompletion: true,
 			enableSnippets: true,
 			enableLiveAutocompletion: true
 		});
-		this.#scriptEditor.renderer.attachToShadowRoot();
-		this.#scriptEditor.$blockScrolling = Infinity;
-		this.#scriptEditor.setTheme('ace/theme/monokai');
-		this.#scriptEditor.getSession().setMode('ace/mode/python');
+		this.#aceEditorResolve();
+		this.#aceEditor.renderer.attachToShadowRoot();
+		this.#aceEditor.$blockScrolling = Infinity;
+		this.#aceEditor.setTheme('ace/theme/monokai');
+		//this.#scriptEditor.getSession().setMode('ace/mode/python');
+		/*
 		this.#scriptEditor.getSession().on('change', () => {
 			//clearTimeout(this.#recompileTimeout);
 			//this.#recompileTimeout = setTimeout(() => { this.recompile() }, this.#recompileDelay);//TODO:
 		});
+		*/
 
-		this.#scriptEditor.commands.addCommand({
+		this.#aceEditor.commands.addCommand({
 			name: 'myCommand',
 			bindKey: { win: 'Ctrl-Shift-C', mac: 'Command-M' },
 			exec: () => {
@@ -121,6 +137,23 @@ export class ScriptEditor extends HTMLElement {
 			this.#scriptEditor.getSession().setAnnotations(ShaderManager.getCustomSourceAnnotations(shaderName));
 		}
 		*/
+	}
+
+	async #addSession(name: string): Promise<void> {
+		await this.#aceEditorReady;
+		const session = new (globalThis as any).ace.EditSession('');
+		session.setMode('ace/mode/python');
+
+		this.#sessions.set(name, session);
+		await this.setSession(session);
+	}
+
+
+
+	async setSession(session: EditSession): Promise<void> {
+		await this.#aceEditorReady;
+		this.#currentSession = session;
+		this.#aceEditor.setSession(session);
 	}
 	/*
 
