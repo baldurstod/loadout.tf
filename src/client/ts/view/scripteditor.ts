@@ -5,7 +5,7 @@ import { createElement, I18n, shadowRootStyle } from 'harmony-ui';
 import scriptEditorCSS from '../../css/scripteditor.css';
 import { ACE_EDITOR_URI } from '../constants';
 import { getPyodide } from '../scripting/pyodide';
-import { Utils } from '../scripting/utils';
+import { InterruptError, Utils } from '../scripting/utils';
 
 export type ScriptEditorOptions = {
 	aceUrl?: string;
@@ -47,6 +47,12 @@ export class ScriptEditor extends HTMLElement {
 			$click: () => { this.#run() },
 		}) as HTMLButtonElement;
 
+		createElement('button', {
+			parent: this.#shadowRoot,
+			i18n: '#stop',
+			$click: () => { this.#stop() },
+		}) as HTMLButtonElement;
+
 		/*
 		createElement('button', {
 			parent:this.#shadowRoot,
@@ -79,6 +85,10 @@ export class ScriptEditor extends HTMLElement {
 
 		(await getPyodide()).runPythonAsync(scriptText).catch(
 			(e: unknown) => {
+				if (e == InterruptError) {
+					// TODO: process interruption
+					return;
+				}
 				console.error(e);
 				if (e instanceof Error) {
 					let message;

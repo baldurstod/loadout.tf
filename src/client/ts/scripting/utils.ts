@@ -1,3 +1,5 @@
+export const InterruptError = new Error('stopped');
+
 export class Utils {
 	static #interrupt = false;
 
@@ -8,7 +10,7 @@ export class Utils {
 	static interrupt(): void {
 		if (this.#interrupt) {
 			this.#interrupt = false;
-			throw new Error('stopped')
+			throw InterruptError
 		}
 	}
 }
