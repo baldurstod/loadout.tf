@@ -3,7 +3,7 @@ import { Material, Source1MaterialManager, Source1ModelInstance, Source1Particle
 import { WeaponManager } from 'harmony-3d-utils';
 import { MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
 import { Killstreak } from '../../paints/killstreaks';
-import { Paint } from '../../paints/paints';
+import { getPaint, Paint, Paints } from '../../paints/paints';
 import { colorToVec3 } from '../../utils/colors';
 import { randomProperty } from '../../utils/randomproperty';
 import { Character, Ragdoll } from '../characters/character';
@@ -367,8 +367,13 @@ export class Item {
 		return hasConflict(this.getEquipRegions(), other.getEquipRegions());
 	}
 
-	setPaint(paint: Paint | null): void {
-		this.#paint = paint;
+	setPaint(paint: Paints | null): void {
+		if (paint !== null) {
+			this.#paint = getPaint(paint);
+		} else {
+			this.#paint = paint;
+		}
+
 		if (this.#model) {
 			if (paint == null) {
 				this.#model.tint = null;

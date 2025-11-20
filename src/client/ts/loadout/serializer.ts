@@ -203,7 +203,7 @@ async function importItem1(context: ImportContext, character: Character, itemJSO
 async function importItem2(context: ImportContext, item: Item, itemJSON: itemJSON): Promise<void> {
 	const paintId = itemJSON.paint_id ?? itemJSON.paintId;
 	if (paintId !== undefined) {
-		item.setPaint(getPaint(paintId));
+		item.setPaint(paintId);
 	}
 
 	const sheenId = itemJSON.sheen_id ?? itemJSON.sheenId;

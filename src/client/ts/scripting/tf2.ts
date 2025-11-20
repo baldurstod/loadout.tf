@@ -1,5 +1,6 @@
 import { Tf2Class } from '../loadout/characters/characters';
 import { Team } from '../loadout/enums';
+import { getPaint, Paints } from '../paints/paints';
 
 
 export class Tf2 {
@@ -31,4 +32,6 @@ export class Tf2 {
 
 	Blu = Team.Blu;
 	Red = Team.Red;
+
+	Paints = Paints;
 }

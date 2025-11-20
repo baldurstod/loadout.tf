@@ -124,11 +124,11 @@ export class PaintPanel extends DynamicPanel {
 
 	#validate2(def: PaintDefinition): void {
 		//CharacterManager.setPaintColor(this.#currentItem.id, paint.id);
-		this.#currentItem?.setPaint(getPaint(def.paint));
+		this.#currentItem?.setPaint(def.paint);
 	}
 
 	#cancel(): void {
-		this.#currentItem?.setPaint(this.#currentPaint);
+		this.#currentItem?.setPaint(this.#currentPaint?.id ?? null);
 		this.hide();
 	}
 
