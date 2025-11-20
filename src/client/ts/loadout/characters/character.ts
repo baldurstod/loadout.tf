@@ -858,8 +858,8 @@ export class Character {
 			//item.paintId = presetItem.paint ?? DEFAULT_PAINT_ID;
 			//item.weaponEffectId = presetItem.weaponEffect;
 			item.setWeaponEffectId(presetItem.weaponEffect ?? null);
-			item.setShowFestivizer(presetItem.showFestivizer);
-			item.toggleStattrak(presetItem.killCount ?? null);
+			item.showFestivizer(presetItem.showFestivizer);
+			item.setStatClock(presetItem.killCount ?? null);
 			item.setSheen(getKillstreak(presetItem.sheen ?? 0));
 		}
 	}

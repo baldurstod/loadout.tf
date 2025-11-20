@@ -73,7 +73,7 @@ export class Item {
 		return this.#itemTemplate.equipRegions;
 	}
 
-	async toggleStattrak(count: number | null): Promise<void> {
+	async setStatClock(count: number | null): Promise<void> {
 		this.#killCount = count;
 		if (!this.#stattrakModule) {
 			const stattrakPath = this.#itemTemplate.weaponUsesStattrakModule;
@@ -244,7 +244,7 @@ export class Item {
 		return this.#itemTemplate.repository ?? 'tf2';
 	}
 
-	async setShowFestivizer(showFestivizer: boolean): Promise<void> {
+	async showFestivizer(showFestivizer: boolean): Promise<void> {
 		this.#showFestivizer = showFestivizer;
 
 		if (showFestivizer && !this.#festivizerModel) {
@@ -266,7 +266,7 @@ export class Item {
 	}
 
 	async toggleFestivizer(): Promise<void> {
-		await this.setShowFestivizer(!this.#showFestivizer);
+		await this.showFestivizer(!this.#showFestivizer);
 	}
 
 	setCustomTexture(textureName: string): void {

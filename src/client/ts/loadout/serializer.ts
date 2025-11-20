@@ -211,7 +211,7 @@ async function importItem2(context: ImportContext, item: Item, itemJSON: itemJSO
 		item.setSheen(getKillstreak(sheenId));
 	}
 
-	item.toggleStattrak(itemJSON.kill_count ?? itemJSON.killCount ?? null);
+	item.setStatClock(itemJSON.kill_count ?? itemJSON.killCount ?? null);
 
 	item.setWeaponEffectId(itemJSON.weapon_effect_id ?? itemJSON.weaponEffectId ?? null);
 	const warpaint = itemJSON.paint_kit_id ?? itemJSON.paintKitId;

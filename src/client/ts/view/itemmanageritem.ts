@@ -248,7 +248,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			divStattrak.addEventListener('input', event => {
 				const i = CharacterManager.getCurrentCharacter()?.getItemById(item.id);
 				if (i) {
-					i.toggleStattrak(Number((event.target as HTMLInputElement).value));
+					i.setStatClock(Number((event.target as HTMLInputElement).value));
 				}
 				event.stopPropagation();
 			});
