@@ -90,8 +90,11 @@ export class ItemManager {
 		return new Map<string, ItemTemplate>(this.#itemTemplates);
 	}
 
-	static getItemTemplate(id: string): ItemTemplate | null {
-		return this.#itemTemplates.get(id) ?? null;
+	static getItemTemplate(id: string | number, style?: number): ItemTemplate | null {
+		if (style !== undefined) {
+			id += '~' + String(style);
+		}
+		return this.#itemTemplates.get(String(id)) ?? this.#itemTemplates.get(String(id) + '~0') ?? null;
 	}
 
 	static getEffectTemplate(type: EffectType, id: number): EffectTemplate | null {
