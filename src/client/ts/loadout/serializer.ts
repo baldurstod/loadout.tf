@@ -196,7 +196,7 @@ async function importItem1(context: ImportContext, character: Character, itemJSO
 		return null;
 	}
 
-	const [item] = await character.addItem(itemTemplate);
+	const item = await character.addItem(itemTemplate);
 	return item;
 }
 

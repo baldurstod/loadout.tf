@@ -193,13 +193,13 @@ export class Character {
 		}
 	}
 
-	async addItem(template: ItemTemplate): Promise<[Item, boolean]> {
+	async addItem(template: ItemTemplate): Promise<Item> {
 		const existingItem = this.items.get(template.id);
 
 		if (existingItem) {
-			return [existingItem, false];
+			return existingItem;
 		} else {
-			return [await this.#addItem(template), true];
+			return await this.#addItem(template);
 		}
 	}
 
@@ -246,7 +246,7 @@ export class Character {
 		const item = new Item(template, this);
 		this.items.set(template.id, item);
 		const npc = CharactersList.get(this.characterClass)!.name
-		item.loadModel(npc);
+		await item.loadModel(npc);
 		(await this.getModel())?.addChild(await item.getModel());
 		(await this.getModel())?.addChild(await item.getModelBlu());
 		(await this.getModel())?.addChild(await item.getModelExtraWearable());
@@ -852,7 +852,7 @@ export class Character {
 			item.setPaintKitSeed(presetItem.paintkitSeed ?? 0n);
 
 			if (presetItem.paint) {
-				item.setPaint(getPaint(presetItem.paint));
+				item.setPaint(presetItem.paint);
 			}
 
 			//item.paintId = presetItem.paint ?? DEFAULT_PAINT_ID;
