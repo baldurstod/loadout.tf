@@ -4,7 +4,6 @@ import { OptionsManager } from 'harmony-browser-utils';
 import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
 import { Controller, ControllerEvent } from '../../controller';
 import { getKillstreak, KillstreakColor, killstreakList } from '../../paints/killstreaks';
-import { getPaint } from '../../paints/paints';
 import { Effect } from '../effects/effect';
 import { EffectTemplate, EffectType } from '../effects/effecttemplate';
 import { Team } from '../enums';

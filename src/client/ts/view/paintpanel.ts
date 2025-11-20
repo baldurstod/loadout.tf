@@ -8,7 +8,7 @@ import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { Team } from '../loadout/enums';
 import { Item } from '../loadout/items/item';
-import { getPaint, Paint, PaintDefinition, paintList } from '../paints/paints';
+import { Paint, PaintDefinition, paintList } from '../paints/paints';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 

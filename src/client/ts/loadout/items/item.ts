@@ -22,7 +22,7 @@ export class Item {
 	#modelExtraWearable: Source1ModelInstance | null = null;
 	#attachedModels: Source1ModelInstance[] = [];
 	#festivizerModel?: Source1ModelInstance | null;
-	#stattrakModule?: Source1ModelInstance | null;
+	#stattrakModule?: Promise<Source1ModelInstance | null> | null;
 	#team = Team.None;
 	#killCount: number | null = null;
 	#refreshingSkin = false;
@@ -78,18 +78,20 @@ export class Item {
 		if (!this.#stattrakModule) {
 			const stattrakPath = this.#itemTemplate.weaponUsesStattrakModule;
 			if (stattrakPath) {
-				this.#stattrakModule = await addTF2Model(stattrakPath, undefined, 'Stat clock');
+				this.#stattrakModule = addTF2Model(stattrakPath, undefined, 'Stat clock');
 				//modelLayer.addEntity(this.#stattrakModule);
-				if (this.#stattrakModule) {
-					this.#model?.addChild(this.#stattrakModule);
+				if (await this.#stattrakModule) {
+					this.#model?.addChild(await this.#stattrakModule);
 					this.#refreshSkin();
 				}
 			}
 		}
-		if (this.#stattrakModule) {
-			this.#stattrakModule.setVisible(count == null ? false : undefined);
+
+		const module = await this.#stattrakModule;
+		if (module) {
+			module.setVisible(count == null ? false : undefined);
 			const stattrakScale = Number.parseFloat(this.#itemTemplate.weaponStattrakModuleScale ?? 1);
-			this.#stattrakModule.materialsParams['StatTrakNumber'] = count;
+			module.materialsParams['StatTrakNumber'] = count;
 			const stattrackBone = this.#model?.getBoneByName('c_weapon_stattrack');
 			if (stattrackBone) {
 				stattrackBone.scale = [stattrakScale, stattrakScale, stattrakScale];
@@ -191,8 +193,10 @@ export class Item {
 				this.#model.addChild(sys);
 				this.#model.attachSystem(sys, '');
 				this.#model.materialsParams['ModelGlowColor'] = glowColor;
-				if (this.#stattrakModule) {
-					this.#stattrakModule.materialsParams['ModelGlowColor'] = glowColor;
+
+				const module = await this.#stattrakModule;
+				if (module) {
+					module.materialsParams['ModelGlowColor'] = glowColor;
 				}
 			}
 			if (this.#team == Team.Red) {
@@ -205,8 +209,9 @@ export class Item {
 			if (this.#model) {
 				this.#model.materialsParams['ModelGlowColor'] = null;
 			}
-			if (this.#stattrakModule) {
-				this.#stattrakModule.materialsParams['ModelGlowColor'] = null;
+			const module = await this.#stattrakModule;
+			if (module) {
+				module.materialsParams['ModelGlowColor'] = null;
 			}
 		}
 
@@ -235,7 +240,7 @@ export class Item {
 		}
 
 		await this.#festivizerModel?.setSkin(String(this.#team));
-		await this.#stattrakModule?.setSkin(String(skin % 2));
+		await (await this.#stattrakModule)?.setSkin(String(skin % 2));
 
 		this.#refreshingSkin = false;
 	}
@@ -275,8 +280,12 @@ export class Item {
 		}
 	}
 
-	critBoost(): void {
-		this.#critBoost = !this.#critBoost;
+	critBoost(boost?: boolean): void {
+		if (boost !== undefined) {
+			this.#critBoost = boost;
+		} else {
+			this.#critBoost = !this.#critBoost;
+		}
 		this.#refreshSkin();
 	}
 
@@ -431,7 +440,7 @@ export class Item {
 
 		void this.#festivizerModel?.setMaterialOverride(material);
 
-		void this.#stattrakModule?.setMaterialOverride(material);
+		void (await this.#stattrakModule)?.setMaterialOverride(material);
 	}
 
 	setSheen(sheen: Killstreak | null): void {

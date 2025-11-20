@@ -1,7 +1,6 @@
 import { quat, vec3 } from 'gl-matrix';
 import { Controller, ControllerEvent } from '../controller';
 import { getKillstreak, getKillstreakColor, KillstreakColor } from '../paints/killstreaks';
-import { getPaint } from '../paints/paints';
 import { Character } from './characters/character';
 import { CharacterManager } from './characters/charactermanager';
 import { npcToClass } from './characters/characters';
