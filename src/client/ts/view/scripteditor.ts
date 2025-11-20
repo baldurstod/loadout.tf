@@ -1,4 +1,5 @@
-import { EditSession } from 'ace-builds';
+import { Editor, EditSession } from 'ace-builds';
+import { LineWidget } from 'ace-builds-internal/line_widgets';
 import { loadScripts } from 'harmony-browser-utils';
 import { createElement, I18n, shadowRootStyle } from 'harmony-ui';
 import scriptEditorCSS from '../../css/scripteditor.css';
@@ -16,8 +17,8 @@ export class ScriptEditor extends HTMLElement {
 	#initialized = false;
 	#annotationsDelay = 500;
 	#shadowRoot?: ShadowRoot;
-	#aceEditor?: any/*TODO: fix type*/;
-	#htmlErrors?: HTMLTextAreaElement;
+	#aceEditor?: Editor;
+	//#htmlErrors?: HTMLTextAreaElement;
 	#sessions = new Map<string, EditSession>;
 	#currentSession: EditSession | null = null;
 	//#interruptBuffer = new Uint8Array(new SharedArrayBuffer(1));
@@ -55,12 +56,15 @@ export class ScriptEditor extends HTMLElement {
 		*/
 
 		const container = createElement('div', { style: 'flex:1;', parent: this.#shadowRoot });
-		this.#htmlErrors = createElement('textarea', { style: 'flex:1;', parent: this.#shadowRoot }) as HTMLTextAreaElement;
+		//this.#htmlErrors = createElement('textarea', { style: 'flex:1;', parent: this.#shadowRoot }) as HTMLTextAreaElement;
 
 		if (aceScript == '') {
 			this.#initEditor2(container);
 		} else {
-			loadScripts([aceScript, './assets/js/ace-builds/src-min/ext-language_tools.js']).then(() => this.#initEditor2(container));
+			loadScripts([aceScript]).then(() => {
+				loadScripts(['./assets/js/ace-builds/src-min/ext-language_tools.js', './assets/js/ace-builds/src-min/ext-code_lens.js']).then(() => this.#initEditor2(container));
+				//loadScripts([aceScript]).then(() => this.#initEditor2(container));
+			})
 		}
 
 		this.#addSession('test'/*TODO: change name*/);
@@ -68,7 +72,9 @@ export class ScriptEditor extends HTMLElement {
 
 	async #run(): Promise<void> {
 		Utils.setInterrupt(false);
-		const scriptText = this.#aceEditor.getValue();
+		const scriptText = this.#aceEditor!.getValue();
+
+		const session = this.#currentSession!;
 
 
 		(await getPyodide()).runPythonAsync(scriptText).catch(
@@ -86,14 +92,15 @@ export class ScriptEditor extends HTMLElement {
 					} else {
 						message = e.name + ': ' + e.message;
 					}
-					this.#htmlErrors!.value = message;
+					//this.#htmlErrors!.value = message;
+					this.#addErrorWidget(session, message);
 				} else {
-					this.#htmlErrors!.value = String(e);
+					//this.#htmlErrors!.value = String(e);
+					this.#addErrorWidget(session, String(e));
 				}
 
 				//const range = new (globalThis as any).ace.Range(0, 0, 0, 10);
 				//this.#currentSession?.addMarker(range, "ace_link_marker", "text", true);
-
 			}
 		);
 		//this.#pyodideWorker.postMessage({ cmd: "runCode", scriptText });
@@ -104,7 +111,7 @@ export class ScriptEditor extends HTMLElement {
 	}
 
 	#initEditor2(id: HTMLElement): void {
-		this.#aceEditor = (globalThis as any).ace.edit(id);
+		this.#aceEditor = (globalThis as any).ace.edit(id) as Editor;
 		this.#aceEditor.setOptions({
 			enableBasicAutocompletion: true,
 			enableSnippets: true,
@@ -112,7 +119,7 @@ export class ScriptEditor extends HTMLElement {
 		});
 		this.#aceEditorResolve();
 		this.#aceEditor.renderer.attachToShadowRoot();
-		this.#aceEditor.$blockScrolling = Infinity;
+		//this.#aceEditor.$blockScrolling = Infinity;
 		this.#aceEditor.setTheme('ace/theme/monokai');
 		//this.#scriptEditor.getSession().setMode('ace/mode/python');
 		/*
@@ -153,8 +160,42 @@ export class ScriptEditor extends HTMLElement {
 	async setSession(session: EditSession): Promise<void> {
 		await this.#aceEditorReady;
 		this.#currentSession = session;
-		this.#aceEditor.setSession(session);
+		this.#aceEditor!.setSession(session);
 	}
+
+	#addLineWidget(session: EditSession, element: HTMLElement): LineWidget {
+		const LineWidgets = require("ace/line_widgets").LineWidgets;
+		if (!session.widgetManager) {
+			session.widgetManager = new LineWidgets(session);
+			session.widgetManager.attach(this.#aceEditor!);
+		}
+		const w: LineWidget = {
+			row: 0,
+			fixedWidth: true,
+			coverGutter: false,
+			el: element,
+		};
+
+		session.widgetManager.addLineWidget(w);
+		return w;
+	}
+
+	#addErrorWidget(session: EditSession, error: string): void {
+		const lineWidget = this.#addLineWidget(session, createElement('div', {
+			class: 'widget error',
+			childs: [
+				createElement('button', {
+					i18n: '#clear_error',
+					$click: () => session.widgetManager.removeLineWidget(lineWidget),
+				}),
+				createElement('div', {
+					class: 'text',
+					innerText: error,
+				}),
+			]
+		}));
+	}
+
 	/*
 
 	set annotationsDelay(delay: number) {
