@@ -90,6 +90,7 @@
 		"#graphic_options": "Graphic options",
 		"#shader_editor": "Shader editor",
 		"#script_editor": "Script editor",
+		"#script_warning": "Don't paste code that you don't understand or haven't reviewed yourself. This could allow attackers to take control of your computer.",
 		"#run": "Run",
 		"#import_files": "Import files",
 		"#import_models_locally": "Import models from your computer",

@@ -1,7 +1,7 @@
 import { Editor, EditSession } from 'ace-builds';
 import { LineWidget } from 'ace-builds-internal/line_widgets';
 import { loadScripts } from 'harmony-browser-utils';
-import { createElement, I18n, shadowRootStyle } from 'harmony-ui';
+import { createElement, defineHarmonyInfoBox, I18n, shadowRootStyle } from 'harmony-ui';
 import scriptEditorCSS from '../../css/scripteditor.css';
 import { ACE_EDITOR_URI } from '../constants';
 import { getPyodide } from '../scripting/pyodide';
@@ -28,6 +28,7 @@ export class ScriptEditor extends HTMLElement {
 		if (this.#initialized) {
 			return;
 		}
+		defineHarmonyInfoBox();
 
 		//this.#pyodideWorker.postMessage({ cmd: "setInterruptBuffer", interruptBuffer: this.#interruptBuffer });
 
@@ -51,6 +52,12 @@ export class ScriptEditor extends HTMLElement {
 			parent: this.#shadowRoot,
 			i18n: '#stop',
 			$click: () => { this.#stop() },
+		}) as HTMLButtonElement;
+
+		createElement('harmony-info-box', {
+			parent: this.#shadowRoot,
+			type: 'error',
+			i18n: '#script_warning',
 		}) as HTMLButtonElement;
 
 		/*
