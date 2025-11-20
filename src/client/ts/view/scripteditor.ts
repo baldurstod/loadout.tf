@@ -85,12 +85,11 @@ export class ScriptEditor extends HTMLElement {
 
 		(await getPyodide()).runPythonAsync(scriptText).catch(
 			(e: unknown) => {
-				if (e == InterruptError) {
-					// TODO: process interruption
-					return;
-				}
-				console.error(e);
 				if (e instanceof Error) {
+					if (e.stack?.includes(InterruptError)) {
+						// TODO: process interruption
+						return;
+					}
 					let message;
 					/*
 					if (e.cause) {
@@ -105,6 +104,7 @@ export class ScriptEditor extends HTMLElement {
 					//this.#htmlErrors!.value = message;
 					this.#addErrorWidget(session, message);
 				} else {
+					console.error(e);
 					//this.#htmlErrors!.value = String(e);
 					this.#addErrorWidget(session, String(e));
 				}

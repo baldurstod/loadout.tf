@@ -1,4 +1,4 @@
-export const InterruptError = new Error('stopped');
+export const InterruptError = 'pyodide execution interrupted by user';
 
 export class Utils {
 	static #interrupt = false;
@@ -10,7 +10,7 @@ export class Utils {
 	static interrupt(): void {
 		if (this.#interrupt) {
 			this.#interrupt = false;
-			throw InterruptError
+			throw new Error(InterruptError)
 		}
 	}
 }
