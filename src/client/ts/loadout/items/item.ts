@@ -73,7 +73,7 @@ export class Item {
 		return this.#itemTemplate.equipRegions;
 	}
 
-	async setStatClock(count: number | null): Promise<void> {
+	async setKillCount(count: number | null): Promise<void> {
 		this.#killCount = count;
 		if (!this.#stattrakModule) {
 			const stattrakPath = this.#itemTemplate.weaponUsesStattrakModule;

@@ -858,7 +858,7 @@ export class Character {
 			//item.weaponEffectId = presetItem.weaponEffect;
 			item.setWeaponEffectId(presetItem.weaponEffect ?? null);
 			item.showFestivizer(presetItem.showFestivizer);
-			item.setStatClock(presetItem.killCount ?? null);
+			item.setKillCount(presetItem.killCount ?? null);
 			item.setSheen(presetItem.sheen ?? 0);
 		}
 	}

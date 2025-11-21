@@ -214,7 +214,7 @@ async function importItem2(context: ImportContext, item: Item, itemJSON: itemJSO
 		item.setSheen(sheenId);
 	}
 
-	item.setStatClock(itemJSON.kill_count ?? itemJSON.killCount ?? null);
+	item.setKillCount(itemJSON.kill_count ?? itemJSON.killCount ?? null);
 
 	item.setWeaponEffectId(itemJSON.weapon_effect_id ?? itemJSON.weaponEffectId ?? null);
 	const warpaint = itemJSON.warpaint_id ?? itemJSON.paint_kit_id ?? itemJSON.warpaintId;
