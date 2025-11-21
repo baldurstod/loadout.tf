@@ -91,6 +91,7 @@
 		"#shader_editor": "Éditeur de shaders",
 		"#script_editor": "Éditeur de scripts",
 		"#script_warning": "Ne collez pas du code que vous ne comprenez pas ou que vous n'avez pas contrôllé vous même. Ceci permettrait à un assaillant de prendre contrôle de votre ordinateur.",
+		"#script_snippets": "Vous trouverez des examples à cette adresse:",
 		"#run": "Lancer",
 		"#import_files": "Importer des fichiers",
 		"#import_models_locally": "Importer des models depuis un zip local",

@@ -3,7 +3,7 @@ import { LineWidget } from 'ace-builds-internal/line_widgets';
 import { loadScripts } from 'harmony-browser-utils';
 import { createElement, defineHarmonyInfoBox, I18n, shadowRootStyle } from 'harmony-ui';
 import scriptEditorCSS from '../../css/scripteditor.css';
-import { ACE_EDITOR_URI } from '../constants';
+import { ACE_EDITOR_URI, SNIPPET_URL } from '../constants';
 import { getPyodide } from '../scripting/pyodide';
 import { InterruptError, Utils } from '../scripting/utils';
 
@@ -58,7 +58,15 @@ export class ScriptEditor extends HTMLElement {
 			parent: this.#shadowRoot,
 			type: 'error',
 			i18n: '#script_warning',
-		}) as HTMLButtonElement;
+		});
+		createElement('harmony-info-box', {
+			parent: this.#shadowRoot,
+			type: 'ok',
+			childs: [
+				createElement('span', { i18n: '#script_snippets', }),
+				createElement('a', { href: SNIPPET_URL, innerText: SNIPPET_URL, target: '_blank', style: 'color:white;' }),
+			],
+		});
 
 		/*
 		createElement('button', {

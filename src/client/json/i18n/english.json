@@ -91,6 +91,7 @@
 		"#shader_editor": "Shader editor",
 		"#script_editor": "Script editor",
 		"#script_warning": "Don't paste code that you don't understand or haven't reviewed yourself. This could allow attackers to take control of your computer.",
+		"#script_snippets": "You will find examples at this url:",
 		"#run": "Run",
 		"#import_files": "Import files",
 		"#import_models_locally": "Import models from your computer",
