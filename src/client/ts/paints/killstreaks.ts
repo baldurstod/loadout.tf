@@ -85,7 +85,7 @@ function colorToTint(color: number, tint: vec3): void {
 export class Killstreak {
 	readonly id: number;
 	#name: string;
-	#killstreak: KillstreakColor;
+	readonly killstreak: KillstreakColor;
 	#sheenRed = vec3.create();
 	#sheenBlu = vec3.create();
 	#color1Red = vec3.create();
@@ -97,7 +97,7 @@ export class Killstreak {
 	constructor(definition: KillstreakDefinition) {
 		this.id = definition.id;
 		this.#name = definition.name;
-		this.#killstreak = definition.sheen;
+		this.killstreak = definition.sheen;
 		colorToTint(definition.sheenRed, this.#sheenRed);
 		colorToTint(definition.sheenBlu, this.#sheenBlu);
 		colorToTint(definition.color1Red, this.#color1Red);

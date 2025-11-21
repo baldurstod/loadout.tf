@@ -8,14 +8,14 @@ import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { Team } from '../loadout/enums';
 import { Item } from '../loadout/items/item';
-import { getKillstreak, Killstreak, KillstreakDefinition, killstreakList } from '../paints/killstreaks';
+import { KillstreakColor, KillstreakDefinition, killstreakList } from '../paints/killstreaks';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 
 export class SheenPanel extends DynamicPanel {
 	#htmlSheensDivSheens?: HTMLElement;
 	#currentItem?: Item;
-	#currentSheen: Killstreak | null = null;
+	#currentSheen: KillstreakColor | null = null;
 	#htmlItemIcon?: HTMLElement;
 	#htmlSheenTitle?: HTMLElement;
 
@@ -105,7 +105,7 @@ export class SheenPanel extends DynamicPanel {
 	}
 
 	#cancel(): void {
-		this.#currentItem?.setSheen(this.#currentSheen?.id ?? null);
+		this.#currentItem?.setSheen(this.#currentSheen);
 		this.hide();
 	}
 

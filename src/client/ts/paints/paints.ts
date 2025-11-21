@@ -94,7 +94,7 @@ const kSamplePoints = 256;
 export class Paint {
 	readonly id: number;
 	#name: string;
-	#paint: Paints;
+	readonly paint: Paints;
 	#tintRed = vec3.create();
 	#tintBlu = vec3.create();
 	#tint = vec3.create();
@@ -105,7 +105,7 @@ export class Paint {
 	constructor(definition: PaintDefinition) {
 		this.id = definition.id;
 		this.#name = definition.name;
-		this.#paint = definition.paint;
+		this.paint = definition.paint;
 		colorToTint(definition.tintRed, this.#tintRed);
 		colorToTint(definition.tintBlu, this.#tintBlu);
 		this.spell = definition.spell;
@@ -136,7 +136,7 @@ export class Paint {
 		if (this.spell) {
 			//if (!this.computed)
 			{
-				const paintSamples = team == Team.Red ? pointSampleContentTeamRed.get(this.#paint) : pointSampleContentTeamBlu.get(this.#paint);
+				const paintSamples = team == Team.Red ? pointSampleContentTeamRed.get(this.paint) : pointSampleContentTeamBlu.get(this.paint);
 				if (paintSamples) {
 					const fScaledTime = time * 22.0;
 					const unSamplePoint0 = Math.floor(fScaledTime) % kSamplePoints;

@@ -1,6 +1,7 @@
 import { quat, vec3 } from 'gl-matrix';
 import { Controller, ControllerEvent } from '../controller';
 import { getKillstreakColor, KillstreakColor } from '../paints/killstreaks';
+import { Paints } from '../paints/paints';
 import { Character } from './characters/character';
 import { CharacterManager } from './characters/charactermanager';
 import { npcToClass } from './characters/characters';
@@ -302,15 +303,15 @@ function exportCharacterLoadout(character: Character): characterJSON {
 function exportItem(item: Item): itemJSON {
 	const idStyle = item.id.split('~');
 
-	const paintId = item.getPaint()?.id;
-	const sheenId = item.getSheen()?.id;
+	const paintId = item.getPaint() ?? Paints.None;
+	const sheenId = item.getSheen() ?? KillstreakColor.None;
 	const warpaintWear = item.getWarpaintWear();
 
 	return {
 		id: idStyle[0]!,
 		style: idStyle[1],
-		paint_id: paintId,
-		sheen_id: sheenId != 0 ? sheenId : undefined,
+		paint_id: paintId != Paints.None ? paintId : undefined,
+		sheen_id: sheenId != KillstreakColor.None ? sheenId : undefined,
 		kill_count: item.getKillCount() ?? undefined,
 		weapon_effect_id: item.getWeaponEffectId() ?? undefined,
 		paint_kit_id: item.getWarpaintId() ?? undefined,

@@ -18,12 +18,12 @@ class CharacterSlot {
 	readonly position = vec3.create();
 	readonly orientation = quat.clone(DEFAULT_ORIENTATION);
 
-	async setPosition(position: vec3) {
+	async setPosition(position: vec3): Promise<void> {
 		vec3.copy(this.position, position);
 		(await this.character?.getModel())?.setPosition(position);
 	}
 
-	async setOrientation(orientation: quat) {
+	async setOrientation(orientation: quat): Promise<void> {
 		quat.copy(this.orientation, orientation);
 		(await this.character?.getModel())?.setQuaternion(orientation);
 	}

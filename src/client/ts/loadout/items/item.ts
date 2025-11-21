@@ -41,6 +41,7 @@ export class Item {
 	#materialOverride: string | null = null;
 	#textureSize?: number;
 	changeTextureSize?: number;
+	#customTexture: string | null = null;
 
 	#readyPromiseResolve!: (value: any) => void;
 	#ready = new Promise<boolean>((resolve) => {
@@ -274,10 +275,15 @@ export class Item {
 		await this.showFestivizer(!this.#showFestivizer);
 	}
 
-	setCustomTexture(textureName: string): void {
+	setCustomTexture(textureName: string | null): void {
+		this.#customTexture = textureName;
 		if (this.#model) {
 			this.#model.materialsParams.customtexture = textureName;
 		}
+	}
+
+	getCustomTexture(): string | null {
+		return this.#customTexture;
 	}
 
 	critBoost(boost?: boolean): void {
@@ -287,6 +293,10 @@ export class Item {
 			this.#critBoost = !this.#critBoost;
 		}
 		this.#refreshSkin();
+	}
+
+	isCritBoosted(): boolean {
+		return this.#critBoost;
 	}
 
 	async loadModel(npc: string): Promise<void> {
@@ -401,8 +411,8 @@ export class Item {
 		}
 	}
 
-	getPaint(): Paint | null {
-		return this.#paint;
+	getPaint(): Paints | null {
+		return this.#paint?.paint ?? null;
 	}
 
 	async #refreshPaint(): Promise<void> {
@@ -456,8 +466,8 @@ export class Item {
 		}
 	}
 
-	getSheen(): Killstreak | null {
-		return this.#sheen;
+	getSheen(): KillstreakColor | null {
+		return this.#sheen?.killstreak ?? null;
 	}
 
 	async #refreshSheen(): Promise<void> {

@@ -8,7 +8,7 @@ import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { Team } from '../loadout/enums';
 import { Item } from '../loadout/items/item';
-import { Paint, PaintDefinition, paintList } from '../paints/paints';
+import { PaintDefinition, paintList, Paints } from '../paints/paints';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -16,7 +16,7 @@ export class PaintPanel extends DynamicPanel {
 	#htmlPaintsDivPaints?: HTMLElement;
 	//#htmlPaintsDivOuter?: HTMLElement;
 	#currentItem?: Item;
-	#currentPaint: Paint | null = null;
+	#currentPaint: Paints | null = null;
 	#htmlItemIcon?: HTMLElement;
 	#htmlPaintTitle?: HTMLElement;
 
@@ -128,7 +128,7 @@ export class PaintPanel extends DynamicPanel {
 	}
 
 	#cancel(): void {
-		this.#currentItem?.setPaint(this.#currentPaint?.id ?? null);
+		this.#currentItem?.setPaint(this.#currentPaint);
 		this.hide();
 	}
 

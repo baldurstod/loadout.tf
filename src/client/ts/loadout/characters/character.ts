@@ -752,14 +752,17 @@ export class Character {
 			}
 
 			const paint = item.getPaint();
-			if (paint && paint.id != 0) {
-				presetItem.paint = paint.id;
+			if (paint) {
+				presetItem.paint = paint;
 			}
 
 			presetItem.weaponEffect = item.getWeaponEffectId() ?? undefined;
 			presetItem.showFestivizer = item.getShowFestivizer();
 			presetItem.killCount = item.getKillCount() ?? undefined;
-			presetItem.sheen = item.getSheen()?.id;
+			const sheen = item.getSheen();
+			if (sheen) {
+				presetItem.sheen = sheen;
+			}
 
 			preset.addItem(presetItem);
 		}
