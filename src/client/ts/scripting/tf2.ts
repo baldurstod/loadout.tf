@@ -1,5 +1,6 @@
 import { Tf2Class } from '../loadout/characters/characters';
 import { Team } from '../loadout/enums';
+import { KillstreakColor } from '../paints/killstreaks';
 import { Paints } from '../paints/paints';
 
 
@@ -34,4 +35,6 @@ export class Tf2 {
 	Red = Team.Red;
 
 	Paints = Paints;
+
+	KillstreakColor = KillstreakColor;
 }

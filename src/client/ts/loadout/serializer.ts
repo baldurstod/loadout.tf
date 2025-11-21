@@ -207,7 +207,7 @@ async function importItem2(context: ImportContext, item: Item, itemJSON: itemJSO
 
 	const sheenId = itemJSON.sheen_id ?? itemJSON.sheenId;
 	if (sheenId !== undefined) {
-		item.setSheen(getKillstreak(sheenId));
+		item.setSheen(sheenId);
 	}
 
 	item.setStatClock(itemJSON.kill_count ?? itemJSON.killCount ?? null);

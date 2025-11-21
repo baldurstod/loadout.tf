@@ -859,7 +859,7 @@ export class Character {
 			item.setWeaponEffectId(presetItem.weaponEffect ?? null);
 			item.showFestivizer(presetItem.showFestivizer);
 			item.setStatClock(presetItem.killCount ?? null);
-			item.setSheen(getKillstreak(presetItem.sheen ?? 0));
+			item.setSheen(presetItem.sheen ?? 0);
 		}
 	}
 

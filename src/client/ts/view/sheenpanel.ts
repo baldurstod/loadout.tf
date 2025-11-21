@@ -101,11 +101,11 @@ export class SheenPanel extends DynamicPanel {
 	}
 
 	#validate2(def: KillstreakDefinition): void {
-		this.#currentItem?.setSheen(getKillstreak(def.sheen));
+		this.#currentItem?.setSheen(def.sheen);
 	}
 
 	#cancel(): void {
-		this.#currentItem?.setSheen(this.#currentSheen);
+		this.#currentItem?.setSheen(this.#currentSheen?.id ?? null);
 		this.hide();
 	}
 

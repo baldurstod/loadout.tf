@@ -2,7 +2,7 @@ import { vec3 } from 'gl-matrix';
 import { Material, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem } from 'harmony-3d';
 import { WeaponManager } from 'harmony-3d-utils';
 import { MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED } from '../../constants';
-import { Killstreak } from '../../paints/killstreaks';
+import { getKillstreak, Killstreak, KillstreakColor } from '../../paints/killstreaks';
 import { getPaint, Paint, Paints } from '../../paints/paints';
 import { colorToVec3 } from '../../utils/colors';
 import { randomProperty } from '../../utils/randomproperty';
@@ -443,8 +443,8 @@ export class Item {
 		void (await this.#stattrakModule)?.setMaterialOverride(material);
 	}
 
-	setSheen(sheen: Killstreak | null): void {
-		this.#sheen = sheen;
+	setSheen(sheen: KillstreakColor | null): void {
+		this.#sheen = getKillstreak(sheen ?? KillstreakColor.None);
 		if (this.#model) {
 			if (sheen == null) {
 				//this.#model.sheen = null;
