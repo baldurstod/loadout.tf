@@ -584,7 +584,8 @@ export class Item {
 		return this.#warpaintWear;
 	}
 
-	setWarpaintSeed(warpaintSeed: bigint): void {
+	setWarpaintSeed(warpaintSeed: bigint | number): void {
+		warpaintSeed = BigInt(warpaintSeed);
 		if (this.#warpaintSeed != warpaintSeed) {
 			this.#warpaintSeed = warpaintSeed;
 			this.#textureSize = this.changeTextureSize;
@@ -596,7 +597,8 @@ export class Item {
 		return this.#warpaintSeed;
 	}
 
-	setWarpaint(warpaintId: number, warpaintWear: number, warpaintSeed: bigint): void {
+	setWarpaint(warpaintId: number, warpaintWear: number, warpaintSeed: bigint | number): void {
+		warpaintSeed = BigInt(warpaintSeed);
 		if (this.#warpaintId != warpaintId || this.#warpaintWear != warpaintWear || this.#warpaintSeed != warpaintSeed) {
 
 			this.#warpaintId = warpaintId;
