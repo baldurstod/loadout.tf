@@ -628,6 +628,10 @@ export class Item {
 		this.#refreshWarPaint();
 	}
 
+	getTextureSize(): number | undefined {
+		return this.#textureSize;
+	}
+
 	#refreshWarPaint(): void {
 		if (this.#model && this.#warpaintId !== null && this.#materialOverride === null) {
 			WeaponManager.refreshWarpaint({

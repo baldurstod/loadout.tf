@@ -884,4 +884,52 @@ export class Character {
 		this.setKillsteakEffect(null);
 		this.setTauntEffect(null);
 	}
+
+	async copy(other: Character): Promise<void> {
+		this.removeAll();
+
+		for (const [, copiedItem] of other.items) {
+			const item = await this.addItem(copiedItem.getTemplate());
+
+			item.setKillCount(copiedItem.getKillCount());
+			item.showFestivizer(copiedItem.getShowFestivizer());
+			item.setCustomTexture(copiedItem.getCustomTexture());
+			item.critBoost(copiedItem.isCritBoosted());
+			item.setPaint(copiedItem.getPaint());
+			item.setSheen(copiedItem.getSheen());
+			item.setWeaponEffectId(copiedItem.getWeaponEffectId());
+
+			const textureSize = copiedItem.getTextureSize();
+			if (textureSize) {
+				item.setTextureSize(textureSize);
+			}
+
+			const warpaintId = copiedItem.getWarpaintId()
+			if (warpaintId !== null) {
+				item.setWarpaint(warpaintId, copiedItem.getWarpaintWear(), copiedItem.getWarpaintSeed());
+			}
+		}
+
+		for (const effect of other.effects) {
+			await this.addEffect(effect.template);
+		}
+
+		const tauntEffect = other.getTauntEffect();
+		if (tauntEffect) {
+			this.setTauntEffect(tauntEffect.template);
+		}
+
+		const killstreakEffects = other.getKillstreakEffects();
+		if (killstreakEffects) {
+			for (const effect of killstreakEffects) {
+				if (effect) {
+					this.setKillsteakEffect(effect.template, effect.killstreakColor);
+				}
+			}
+		}
+
+		if (other.getDecapitationLevel() > 0) {
+			this.setDecapitationLevel(other.getDecapitationLevel());
+		}
+	}
 }
