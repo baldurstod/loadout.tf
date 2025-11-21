@@ -6,9 +6,9 @@ import { EffectType } from '../effects/effecttemplate';
 export class PresetItem {
 	id = '';
 	paint?: number;
-	paintkitId?: number;
-	paintkitWear?: number;
-	paintkitSeed?: bigint;
+	warpaintId?: number;
+	warpaintWear?: number;
+	warpaintSeed?: bigint;
 	isTournamentMedal = false;
 	isWorkshop = false;
 	weaponEffect?: number;
@@ -23,14 +23,24 @@ export class PresetItem {
 		if (json.paint !== undefined) {
 			this.paint = json.paint as number;
 		}
+		if (json.warpaint_id !== undefined) {
+			this.warpaintId = json.warpaint_id as number;
+		}
+		if (json.warpaint_wear !== undefined) {
+			this.warpaintWear = json.warpaint_wear as number;
+		}
+		if (json.warpaint_seed !== undefined) {
+			this.warpaintSeed = BigInt(json.warpaint_seed as string);
+		}
+		// For legacy presets
 		if (json.paintkit_id !== undefined) {
-			this.paintkitId = json.paintkit_id as number;
+			this.warpaintId = json.paintkit_id as number;
 		}
 		if (json.paintkit_wear !== undefined) {
-			this.paintkitWear = json.paintkit_wear as number;
+			this.warpaintWear = json.paintkit_wear as number;
 		}
 		if (json.paintkit_seed !== undefined) {
-			this.paintkitSeed = BigInt(json.paintkit_seed as string);
+			this.warpaintSeed = BigInt(json.paintkit_seed as string);
 		}
 		if (json.weapon_effect !== undefined) {
 			this.weaponEffect = json.weapon_effect as number;
@@ -54,14 +64,14 @@ export class PresetItem {
 		if (this.paint !== undefined) {
 			j.paint = this.paint;
 		}
-		if (this.paintkitId !== undefined) {
-			j.paintkit_id = this.paintkitId;
+		if (this.warpaintId !== undefined) {
+			j.warpaint_id = this.warpaintId;
 		}
-		if (this.paintkitWear !== undefined) {
-			j.paintkit_wear = this.paintkitWear;
+		if (this.warpaintWear !== undefined) {
+			j.warpaint_wear = this.warpaintWear;
 		}
-		if (this.paintkitSeed !== undefined) {
-			j.paintkit_seed = String(this.paintkitSeed);
+		if (this.warpaintSeed !== undefined) {
+			j.warpaint_seed = String(this.warpaintSeed);
 		}
 		if (this.weaponEffect !== undefined) {
 			j.weapon_effect = this.weaponEffect;

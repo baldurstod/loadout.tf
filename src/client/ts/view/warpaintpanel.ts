@@ -27,7 +27,7 @@ export class WarpaintPanel extends DynamicPanel {
 	#htmlPaintSeed?: HTMLInputElement;
 	#warpaints = new Map<string, Warpaint>();
 	#filter: { name: string, teamColoredOnly: boolean } = { name: '', teamColoredOnly: false };
-	#paintKitPicsPromise?: Promise<JSONObject>;
+	#warpaintPicsPromise?: Promise<JSONObject>;
 
 	constructor() {
 		super(Panel.Warpaints, [warpaintPanelCSS]);
@@ -66,7 +66,7 @@ export class WarpaintPanel extends DynamicPanel {
 							$input: (event: Event) => {
 								OptionsManager.setItem('app.items.warpaints.filter.text', (event.target as HTMLInputElement).value);
 								this.#filter.name = (event.target as HTMLInputElement).value.toLowerCase();
-								this.#refreshPaintKitFilter();
+								this.#refreshWarpaintFilter();
 							},
 							//$keydown: (event: Event) => event.stopPropagation(),
 						}) as HTMLInputElement,
@@ -78,7 +78,7 @@ export class WarpaintPanel extends DynamicPanel {
 							childs: [
 								createElement('span', { i18n: '#seed', }),
 								this.#htmlPaintSeed = createElement('input', {
-									$change: (event: Event) => this.#setPaintKitSeed(BigInt((event.target as HTMLInputElement).value)),
+									$change: (event: Event) => this.#setWarpaintSeed(BigInt((event.target as HTMLInputElement).value)),
 								}) as HTMLInputElement,
 							],
 						}),
@@ -93,7 +93,7 @@ export class WarpaintPanel extends DynamicPanel {
 									type: 'checkbox',
 									$change: (event: Event) => {
 										this.#filter.teamColoredOnly = (event.target as HTMLInputElement).checked;
-										this.#refreshPaintKitFilter();
+										this.#refreshWarpaintFilter();
 									},
 								}) as HTMLInputElement,
 							],
@@ -156,35 +156,30 @@ export class WarpaintPanel extends DynamicPanel {
 
 	#handleWearChangeClick(wear: number): void {
 		for (const item of this.#currentItems) {
-			item.setPaintKitWear(wear);
+			item.setWarpaintWear(wear);
 		}
 	}
 
-	#handlePaintKitClick(warpaintId: number): void {
+	#handleWarpaintClick(warpaintId: number): void {
 		if (!this.#currentItems) {
 			return;
 		}
-		//item.setPaintKitId(event.currentTarget.paintKitId, event.currentTarget.paintKitWeaponName);
-		//item.setPaintKitWear(this.#paintsDivHeaderWearSelect.selectedOptions[0].getAttribute('data-value') * 1);
 		let seed = 0n;
 		try {
 			seed = BigInt(this.#htmlPaintSeed?.value ?? 0);
 		} catch (e) {
 			console.warn('Can\'t convert seed to bigint', e);
 		}
-		//item.setPaintKitSeed(seed, true);
-
-		//this.#currentItems.setPaintKit(warpaintId, Number(this.#paintsDivHeaderWearSelect?.selectedOptions[0]?.getAttribute('data-value')), seed);
 
 		for (const item of this.#currentItems) {
-			item.setPaintKit(warpaintId, Number(this.#paintsDivHeaderWearSelect?.selectedOptions[0]?.getAttribute('data-value')), seed);
+			item.setWarpaint(warpaintId, Number(this.#paintsDivHeaderWearSelect?.selectedOptions[0]?.getAttribute('data-value')), seed);
 		}
 	}
 
-	#refreshPaintKitFilter(): void {
-		for (const [, paintkit] of this.#warpaints) {
-			const node = paintkit.html;//nodeList[i];
-			const name = paintkit.warpaint.descToken.toLowerCase();//node.getAttribute('data-paintkit-name');
+	#refreshWarpaintFilter(): void {
+		for (const [, warpaint] of this.#warpaints) {
+			const node = warpaint.html;//nodeList[i];
+			const name = warpaint.warpaint.descToken.toLowerCase();
 			if (name.includes(this.#filter.name)) {
 				if (this.#paintsDivHeaderFilterTeamOnly?.checked) {
 					if (node.getAttribute('hasTeamTextures')) {
@@ -206,7 +201,7 @@ export class WarpaintPanel extends DynamicPanel {
 			return;
 		}
 
-		const paintKitPics = await this.#getPaintKitPics();
+		const warpaintPics = await this.#getWarpaintPics();
 
 		const firstItem = this.#currentItems.values().next().value!;
 		const warpaints = firstItem.getTemplate().warpaints;
@@ -215,60 +210,59 @@ export class WarpaintPanel extends DynamicPanel {
 
 		this.#warpaints.clear();
 		//let textureCombiner = WeaponManager.textureCombiner;
-		for (const [paintKitId, warpaint] of warpaints) {
+		for (const [warpaintId, warpaint] of warpaints) {
 			const weaponName = warpaint.weapon;
-			const paintKitName = warpaint.title;
-			let paintKitImage: HTMLImageElement;
+			const warpaintName = warpaint.title;
+			let warpaintImage: HTMLImageElement;
 			const d = createElement('div', {
 				class: 'warpaint',
 				parent: this.#htmlWarpaints,
-				'data-paintkit-name': paintKitName.toLowerCase(),
-				paintKitWeaponId: firstItem.id,
-				//paintKitId: paintKitId,
-				paintKitWeaponName: weaponName,
+				'data-warpaint-name': warpaintName.toLowerCase(),
+				warpaintWeaponId: firstItem.id,
+				warpaintWeaponName: weaponName,
 				//weapon: weapon,
-				child: paintKitImage = createElement('img', {
+				child: warpaintImage = createElement('img', {
 					class: 'warpaint-img',
-					'data-paintkit-url': paintKitPics[paintKitName],
+					'data-warpaint-url': warpaintPics[warpaintName],
 				}) as HTMLImageElement,
-				$click: (event: Event) => { this.#handlePaintKitClick(Number(paintKitId)); event.stopPropagation(); },
+				$click: (event: Event) => { this.#handleWarpaintClick(Number(warpaintId)); event.stopPropagation(); },
 			});
 
 			const callback: IntersectionObserverCallback = (entries, observer) => {
 				entries.forEach(entry => {
 					if (entry.isIntersecting) {
 						const img = (entry.target as HTMLImageElement);
-						img.src = STEAM_ECONOMY_IMAGE_PREFIX + entry.target.getAttribute('data-paintkit-url');
+						img.src = STEAM_ECONOMY_IMAGE_PREFIX + entry.target.getAttribute('data-warpaint-url');
 						observer.unobserve(img);
 					}
 				});
 			};
-			new IntersectionObserver(callback).observe(paintKitImage);
+			new IntersectionObserver(callback).observe(warpaintImage);
 
 			createElement('span', {
 				class: 'warpaint-name',
-				innerText: paintKitName,
+				innerText: warpaintName,
 				parent: d
 			});
 
-			this.#warpaints.set(paintKitId, { warpaint: { descToken: warpaint.title }, html: d });
+			this.#warpaints.set(warpaintId, { warpaint: { descToken: warpaint.title }, html: d });
 
-			const paintKitDefinition = await TextureCombiner._getDefindex({ type: 9, defindex: paintKitId });
-			if (paintKitDefinition.hasTeamTextures ?? paintKitDefinition.has_team_textures) {
+			const warpaintDefinition = await TextureCombiner._getDefindex({ type: 9, defindex: warpaintId });
+			if (warpaintDefinition.hasTeamTextures ?? warpaintDefinition.has_team_textures) {
 				d.setAttribute('hasTeamTextures', '1');
 			}
 
 		}
 		show(this.getHTMLElement());
-		this.#refreshPaintKitFilter();
-		this.#sortPaintkits();
+		this.#refreshWarpaintFilter();
+		this.#sortWarpaints();
 		this.#paintsDivHeaderFilterInput?.focus();
 	}
 
-	async #getPaintKitPics(): Promise<JSONObject> {
-		if (!this.#paintKitPicsPromise) {
+	async #getWarpaintPics(): Promise<JSONObject> {
+		if (!this.#warpaintPicsPromise) {
 
-			this.#paintKitPicsPromise = new Promise<JSONObject>((resolve): void => {
+			this.#warpaintPicsPromise = new Promise<JSONObject>((resolve): void => {
 				(async (): Promise<void> => {
 					const response = await customFetch(TF2_WARPAINT_PICTURES_URL);
 					const json = await response.json();
@@ -280,12 +274,12 @@ export class WarpaintPanel extends DynamicPanel {
 				})()
 			});
 		}
-		return this.#paintKitPicsPromise;
+		return this.#warpaintPicsPromise;
 	}
 
-	#sortPaintkits(): void {
-		for (const [, paintkit] of this.#warpaints) {
-			this.#htmlWarpaints?.append(paintkit.html);
+	#sortWarpaints(): void {
+		for (const [, warpaint] of this.#warpaints) {
+			this.#htmlWarpaints?.append(warpaint.html);
 		}
 	}
 
@@ -293,9 +287,9 @@ export class WarpaintPanel extends DynamicPanel {
 		hide(this.getHTMLElement());
 	}
 
-	#setPaintKitSeed(seed: bigint): void {
+	#setWarpaintSeed(seed: bigint): void {
 		for (const item of this.#currentItems) {
-			item.setPaintKitSeed(seed);
+			item.setWarpaintSeed(seed);
 		}
 	}
 }

@@ -739,16 +739,16 @@ export class Character {
 			presetItem.isWorkshop = item.getTemplate().isWorkshop();
 			presetItem.isTournamentMedal = item.getTemplate().isTournamentMedal();
 
-			if (item.getPaintKitId() !== null) {
-				presetItem.paintkitId = item.getPaintKitId()!;
+			if (item.getWarpaintId() !== null) {
+				presetItem.warpaintId = item.getWarpaintId()!;
 			}
 
-			if (item.getPaintKitSeed() != 0n) {
-				presetItem.paintkitSeed = item.getPaintKitSeed();
+			if (item.getWarpaintSeed() != 0n) {
+				presetItem.warpaintSeed = item.getWarpaintSeed();
 			}
 
-			if (item.getPaintKitWear() != 0) {
-				presetItem.paintkitWear = item.getPaintKitWear();
+			if (item.getWarpaintWear() != 0) {
+				presetItem.warpaintWear = item.getWarpaintWear();
 			}
 
 			const paint = item.getPaint();
@@ -846,9 +846,9 @@ export class Character {
 		const item = await this.#addItem(template);
 
 		if (item) {
-			item.setPaintKitId(presetItem.paintkitId ?? null);
-			item.setPaintKitWear(presetItem.paintkitWear ?? 0);
-			item.setPaintKitSeed(presetItem.paintkitSeed ?? 0n);
+			item.setWarpaintId(presetItem.warpaintId ?? null);
+			item.setWarpaintWear(presetItem.warpaintWear ?? 0);
+			item.setWarpaintSeed(presetItem.warpaintSeed ?? 0n);
 
 			if (presetItem.paint) {
 				item.setPaint(presetItem.paint);

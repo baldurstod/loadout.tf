@@ -35,9 +35,9 @@ export class Item {
 	#paint: Paint | null = null;
 	#sheen: Killstreak | null = null;
 	#weaponEffectId: number | null = null;
-	#paintKitWear = 0;
-	#paintKitId: number | null = null;
-	#paintKitSeed = 0n;
+	#warpaintWear = 0;
+	#warpaintId: number | null = null;
+	#warpaintSeed = 0n;
 	#materialOverride: string | null = null;
 	#textureSize?: number;
 	changeTextureSize?: number;
@@ -151,7 +151,7 @@ export class Item {
 				await this.#model?.setSkin(String(skin));
 			}
 
-			if (this.#paintKitId !== null) {
+			if (this.#warpaintId !== null) {
 				this.#refreshWarPaint();
 			}
 		}
@@ -560,48 +560,48 @@ export class Item {
 		return this.#weaponEffectId;
 	}
 
-	setPaintKitId(paintKitId: number | null): void {
-		if (this.#paintKitId != paintKitId) {
-			this.#paintKitId = paintKitId;
+	setWarpaintId(warpaintId: number | null): void {
+		if (this.#warpaintId != warpaintId) {
+			this.#warpaintId = warpaintId;
 			this.#textureSize = this.changeTextureSize;
 			this.#refreshWarPaint();
 		}
 	}
 
-	getPaintKitId(): number | null {
-		return this.#paintKitId ?? null;
+	getWarpaintId(): number | null {
+		return this.#warpaintId ?? null;
 	}
 
-	setPaintKitWear(paintKitWear: number): void {
-		if (this.#paintKitWear != paintKitWear) {
-			this.#paintKitWear = paintKitWear;
+	setWarpaintWear(warpaintWear: number): void {
+		if (this.#warpaintWear != warpaintWear) {
+			this.#warpaintWear = warpaintWear;
 			this.#textureSize = this.changeTextureSize;
 			this.#refreshWarPaint();
 		}
 	}
 
-	getPaintKitWear(): number {
-		return this.#paintKitWear;
+	getWarpaintWear(): number {
+		return this.#warpaintWear;
 	}
 
-	setPaintKitSeed(paintKitSeed: bigint): void {
-		if (this.#paintKitSeed != paintKitSeed) {
-			this.#paintKitSeed = paintKitSeed;
+	setWarpaintSeed(warpaintSeed: bigint): void {
+		if (this.#warpaintSeed != warpaintSeed) {
+			this.#warpaintSeed = warpaintSeed;
 			this.#textureSize = this.changeTextureSize;
 			this.#refreshWarPaint();
 		}
 	}
 
-	getPaintKitSeed(): bigint {
-		return this.#paintKitSeed;
+	getWarpaintSeed(): bigint {
+		return this.#warpaintSeed;
 	}
 
-	setPaintKit(paintKitId: number, paintKitWear: number, paintKitSeed: bigint): void {
-		if (this.#paintKitId != paintKitId || this.#paintKitWear != paintKitWear || this.#paintKitSeed != paintKitSeed) {
+	setWarpaint(warpaintId: number, warpaintWear: number, warpaintSeed: bigint): void {
+		if (this.#warpaintId != warpaintId || this.#warpaintWear != warpaintWear || this.#warpaintSeed != warpaintSeed) {
 
-			this.#paintKitId = paintKitId;
-			this.#paintKitWear = paintKitWear;
-			this.#paintKitSeed = paintKitSeed;
+			this.#warpaintId = warpaintId;
+			this.#warpaintWear = warpaintWear;
+			this.#warpaintSeed = warpaintSeed;
 			this.#textureSize = this.changeTextureSize;
 			this.#refreshWarPaint();
 		}
@@ -617,12 +617,12 @@ export class Item {
 	}
 
 	#refreshWarPaint(): void {
-		if (this.#model && this.#paintKitId !== null && this.#materialOverride === null) {
+		if (this.#model && this.#warpaintId !== null && this.#materialOverride === null) {
 			WeaponManager.refreshWarpaint({
 				id: this.id,
-				warpaintId: this.#paintKitId,
-				warpaintWear: this.#paintKitWear,
-				warpaintSeed: this.#paintKitSeed,
+				warpaintId: this.#warpaintId,
+				warpaintWear: this.#warpaintWear,
+				warpaintSeed: this.#warpaintSeed,
 				model: this.#model,
 				team: this.#team,
 				textureSize: this.#textureSize,

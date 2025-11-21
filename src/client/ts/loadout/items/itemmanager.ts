@@ -423,40 +423,21 @@ export class ItemManager {
 		return new Set(this.#itemCollections);
 	}
 
-	static async #addWarpaint(itemId: string, paintkitId: string, weaponName: string, descToken: string): Promise<void> {
+	static async #addWarpaint(itemId: string, warpaintId: string, weaponName: string, descToken: string): Promise<void> {
 		let template = this.getItemTemplate(itemId);
 		if (!template) {
 			itemId += '~0';
 			template = this.getItemTemplate(itemId);
 		}
 		if (template) {
-			/*
-			template.paintKits = template.paintKits || new Map();
-			let paintKits = template.paintKits;
-
-			if (!template.paintKitsInitialized) {
-				let div2 = createElement('img', {
-					src: paintkitBundle03PNG,
-					class: 'item-manager-item-icon-warpaint',
-					parent: template.view,
-					events: {
-						click: () => this.showPaintKitsPanel(template)
-					}
-				});
-				template.paintKitsInitialized = true;
-			}
-			paintKits.set(paintkitId, { 'weaponName': weaponName, 'descToken': descToken });
-			template.weaponName = weaponName;
-			*/
-
-			if ((Number(itemId) >= FIRST_LEGACY_WARPAINT) && (Number(itemId) <= LAST_LEGACY_WARPAINT)) {//old paintkits ID
+			if ((Number(itemId) >= FIRST_LEGACY_WARPAINT) && (Number(itemId) <= LAST_LEGACY_WARPAINT)) {//old warpaints
 				const weaponId = await this.#getWeaponByModel(await template.getModel(''/*TODO: set this parameter optional*/) ?? '');
 				if (weaponId !== null) {
-					await this.#addWarpaint(weaponId, paintkitId, weaponName, descToken);
+					await this.#addWarpaint(weaponId, warpaintId, weaponName, descToken);
 					setLegacyWarpaint(Number(itemId), weaponId);
 				}
 			} else {
-				template.addWarpaint(paintkitId, weaponName, descToken);
+				template.addWarpaint(warpaintId, weaponName, descToken);
 			}
 		} else {
 			console.error('weapon not found %i', itemId);

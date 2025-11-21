@@ -275,7 +275,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		}
 	}
 
-	#addPaintKitButton(): void {
+	#addWarpaintButton(): void {
 		createElement('img', {
 			class: 'warpaint-icon',
 			parent: this,
@@ -317,7 +317,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		});
 
 		if (itemTemplate.isWarPaintable()) {
-			this.#addPaintKitButton();
+			this.#addWarpaintButton();
 		}
 
 		if (itemTemplate.attachedModelsFestive) {
