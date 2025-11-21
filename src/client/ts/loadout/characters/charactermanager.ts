@@ -13,10 +13,20 @@ import { Character, Ragdoll } from './character';
 import { CharactersList, Tf2Class } from './characters';
 import { Preset, Presets } from './preset';
 
-type CharacterSlot = {
-	character: Character | null;
-	position: vec3;
-	orientation: quat;
+class CharacterSlot {
+	character: Character | null = null;
+	readonly position = vec3.create();
+	readonly orientation = quat.clone(DEFAULT_ORIENTATION);
+
+	async setPosition(position: vec3) {
+		vec3.copy(this.position, position);
+		(await this.character?.getModel())?.setPosition(position);
+	}
+
+	async setOrientation(orientation: quat) {
+		quat.copy(this.orientation, orientation);
+		(await this.character?.getModel())?.setQuaternion(orientation);
+	}
 }
 
 type CharacterPosition = {
@@ -35,7 +45,7 @@ const TOOLBOX_POSITION = vec3.fromValues(-71.0726394653, 195.8566589355, 0);
 const TOOLBOX_ORIENTATION = quat.fromValues(0, 0, -0.5927425026893616, 0.8053920269012451);
 
 export class CharacterManager {
-	static #characterSlots: CharacterSlot[] = [{ character: null, position: vec3.create(), orientation: quat.clone(DEFAULT_ORIENTATION) }];
+	static #characterSlots: CharacterSlot[] = [new CharacterSlot()];
 	static #currentSlot: CharacterSlot | null = null;
 	static #unusedCharacters: Character[] = [];
 	static #currentCharacter: Character | null = null;
@@ -162,7 +172,7 @@ export class CharacterManager {
 		return this.#characterSlots[this.#characterSlots.length - 1]!;
 	}
 
-	static setSlotsSize(size: uint, removeExisting = false): void {
+	static setSlotsCount(size: uint, removeExisting = false): void {
 		size = Math.max(size, 1);
 
 		const removeStart = removeExisting ? 0 : size - 1;
@@ -170,7 +180,7 @@ export class CharacterManager {
 			this.#removeCharacter(this.#characterSlots[i]!);
 		}
 		for (let i = this.#characterSlots.length; i < size; i++) {
-			this.#characterSlots.push({ character: null, position: vec3.create(), orientation: quat.create() });
+			this.#characterSlots.push(new CharacterSlot());
 		}
 	}
 
@@ -256,22 +266,22 @@ export class CharacterManager {
 		}
 	}
 
-	static useDisposition(name: string): void {
+	static useDisposition(name: string | number): void {
 		//console.info('use disposition: ', name)
-		const dispositions = this.#slotsPositions.get(name);
+		const dispositions = this.#slotsPositions.get(String(name));
 		if (!dispositions) {
 			return;
 		}
 
-		this.setSlotsSize(dispositions.length);
+		this.setSlotsCount(dispositions.length);
 
 		for (let i = 0; i < this.#characterSlots.length; i++) {
 			const slot = this.#characterSlots[i]!;
 			const disposition = dispositions[i];
 
 			if (disposition) {
-				slot.position = disposition.position;
-				slot.orientation = disposition.orientation;
+				slot.setPosition(disposition.position);
+				slot.setOrientation(disposition.orientation);
 
 				if (slot.character) {
 					slot.character.getModel().then((model) => {
@@ -284,7 +294,7 @@ export class CharacterManager {
 	}
 
 	static async setupMeetTheTeam(): Promise<void> {
-		this.setSlotsSize(9, true);
+		this.setSlotsCount(9, true);
 		this.useDisposition('mtt');
 
 		let botDelta = 0;
@@ -562,7 +572,7 @@ export class CharacterManager {
 		const startY = -deltaY * 0.5 * (customDisposition.countY - 1);
 		const startZ = -deltaZ * 0.5 * (customDisposition.countZ - 1);
 
-		this.setSlotsSize(customDisposition.countX * customDisposition.countY * customDisposition.countZ);
+		this.setSlotsCount(customDisposition.countX * customDisposition.countY * customDisposition.countZ);
 
 		for (let x = 0; x < customDisposition.countX; x++) {
 			for (let y = 0; y < customDisposition.countY; y++) {

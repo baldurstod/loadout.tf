@@ -87,7 +87,7 @@ export async function importLoadout(json: loadoutJSON): Promise<boolean> {
 	let result = true;
 	const context: ImportContext = { slot: 0, errors: [] };
 
-	CharacterManager.setSlotsSize(json.characters.length, true);
+	CharacterManager.setSlotsCount(json.characters.length, true);
 	for (const characterJSON of json.characters) {
 		if (await importCharacterLoadout(context, characterJSON)) {
 			++context.slot;
