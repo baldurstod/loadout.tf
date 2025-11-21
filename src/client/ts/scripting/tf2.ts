@@ -1,3 +1,4 @@
+import { Ragdoll } from '../loadout/characters/character';
 import { Tf2Class } from '../loadout/characters/characters';
 import { Team } from '../loadout/enums';
 import { KillstreakColor } from '../paints/killstreaks';
@@ -37,4 +38,8 @@ export class Tf2 {
 	Paints = Paints;
 
 	KillstreakColor = KillstreakColor;
+
+	NoRagdoll = Ragdoll.None;
+	GoldRagdoll = Ragdoll.Gold;
+	IceRagdoll = Ragdoll.Ice;
 }

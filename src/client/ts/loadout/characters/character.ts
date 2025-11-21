@@ -302,8 +302,8 @@ export class Character {
 		return this.#ragdoll;
 	}
 
-	async setRagdoll(ragdoll: Ragdoll): Promise<void> {
-		this.#ragdoll = ragdoll;
+	async setRagdoll(ragdoll: Ragdoll | null): Promise<void> {
+		this.#ragdoll = ragdoll ?? Ragdoll.None;
 		await this.#refreshSkinAll();
 	}
 
