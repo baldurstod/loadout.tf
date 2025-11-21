@@ -1,5 +1,5 @@
 import { OptionsManager } from 'harmony-browser-utils';
-import { PaintKitDefinitions } from 'harmony-tf2-utils';
+import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { HTMLHarmonySwitchElement, I18n, createElement, createShadowRoot, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle } from 'harmony-ui';
 import applicationCSS from '../../css/application.css';
 import htmlCSS from '../../css/html.css';
@@ -28,7 +28,7 @@ export class ApplicationPanel {
 		defineHarmonyRadio();
 		defineHarmonyTab();
 		defineHarmonyTabGroup();
-		PaintKitDefinitions.setWarpaintDefinitionsURL(TF2_WARPAINT_DEFINITIONS_URL);
+		WarpaintDefinitions.setWarpaintDefinitionsURL(TF2_WARPAINT_DEFINITIONS_URL);
 	}
 
 	constructor() {

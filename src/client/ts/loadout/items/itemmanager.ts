@@ -1,6 +1,6 @@
 import { WeaponManager, WeaponManagerEvents } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
-import { setLegacyPaintKit } from 'harmony-tf2-utils';
+import { setLegacyWarpaint } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { Map2 } from 'harmony-utils';
 import { FIRST_LEGACY_WARPAINT, LAST_LEGACY_WARPAINT, TF2_REPOSITORY, WORKSHOP_URL } from '../../constants';
@@ -65,7 +65,7 @@ export class ItemManager {
 			}
 		});
 
-		WeaponManager.addEventListener(WeaponManagerEvents.AddPaintKit, (event: Event) => {
+		WeaponManager.addEventListener(WeaponManagerEvents.AddWarpaint, (event: Event) => {
 			const detail = (event as CustomEvent).detail;
 			this.#addWarpaint(String(detail.p1), String(detail.p2), detail.p3, detail.p4);
 		});
@@ -453,7 +453,7 @@ export class ItemManager {
 				const weaponId = await this.#getWeaponByModel(await template.getModel(''/*TODO: set this parameter optional*/) ?? '');
 				if (weaponId !== null) {
 					await this.#addWarpaint(weaponId, paintkitId, weaponName, descToken);
-					setLegacyPaintKit(Number(itemId), weaponId);
+					setLegacyWarpaint(Number(itemId), weaponId);
 				}
 			} else {
 				template.addWarpaint(paintkitId, weaponName, descToken);

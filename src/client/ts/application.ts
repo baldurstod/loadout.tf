@@ -1,9 +1,9 @@
 import { vec3, vec4 } from 'gl-matrix';
 import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
-import { PaintDoneEvent, TextureCombiner, TextureCombinerEventTarget, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
+import { TextureCombiner, TextureCombinerEventTarget, WarpaintDoneEvent, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
-import { PaintKitDefinitions } from 'harmony-tf2-utils';
+import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
 import { setTimeoutPromise } from 'harmony-utils';
@@ -50,7 +50,7 @@ class Application {
 	#backgroundColorRed?: vec4;
 	#backgroundColorBlu?: vec4;
 	#map?: SourceBSP;
-	#initPaintKitsPromise?: Promise<void>;
+	#initWarpaintsPromise?: Promise<void>;
 	#zipEntries = new Map<string, Blob>();
 	#fetchRedirect = new Map<string, string>();
 	#speech = new LoadoutSpeech();
@@ -60,7 +60,7 @@ class Application {
 		defineHarmonyRadio();
 		defineHarmonyTab();
 		defineHarmonyTabGroup();
-		PaintKitDefinitions.setWarpaintDefinitionsURL(TF2_WARPAINT_DEFINITIONS_URL);
+		WarpaintDefinitions.setWarpaintDefinitionsURL(TF2_WARPAINT_DEFINITIONS_URL);
 	}
 
 	constructor() {
@@ -118,8 +118,8 @@ class Application {
 		this.#broadcastChannel.addEventListener('message', event => this.#processMessage(event));
 
 		TextureCombinerEventTarget.addEventListener('paintdone', (event: Event) => {
-			const paintDone = (event as CustomEvent<PaintDoneEvent>).detail;
-			const name = `weapon_${String(paintDone.weaponDefIndex).padStart(5, '0')}_paint_${String(paintDone.paintKitDefId).padStart(4, '0')}_wear_${paintDone.wearLevel}_seed_${paintDone.seed}`;
+			const paintDone = (event as CustomEvent<WarpaintDoneEvent>).detail;
+			const name = `weapon_${String(paintDone.weaponDefIndex).padStart(5, '0')}_paint_${String(paintDone.warpaintDefId).padStart(4, '0')}_wear_${paintDone.wearLevel}_seed_${paintDone.seed}`;
 			if (OptionsManager.getItem('app.warpaints.texture.save.png')) {
 				paintDone.node.savePicture(name + '.png');
 			}
@@ -762,16 +762,16 @@ class Application {
 	}
 
 	async #initWarpaints(): Promise<void> {
-		if (this.#initPaintKitsPromise) {
-			return this.#initPaintKitsPromise;
+		if (this.#initWarpaintsPromise) {
+			return this.#initWarpaintsPromise;
 		}
-		this.#initPaintKitsPromise = WeaponManager.initPaintKitDefinitions(TF2_WARPAINT_ENGLISH_URL);
+		this.#initWarpaintsPromise = WeaponManager.initWarpaintDefinitions(TF2_WARPAINT_ENGLISH_URL);
 
 		WeaponManager.initView();
 		//new WarpaintEditor().init(this.#htmlViewBottom);
 		//TextureCombiner.setTeam(CharacterManager.getTeam());
 
-		await this.#initPaintKitsPromise;
+		await this.#initWarpaintsPromise;
 
 		Controller.dispatchEvent<void>(ControllerEvent.WarpaintsLoaded);
 	}

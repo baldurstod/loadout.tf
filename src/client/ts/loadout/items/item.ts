@@ -620,9 +620,9 @@ export class Item {
 		if (this.#model && this.#paintKitId !== null && this.#materialOverride === null) {
 			WeaponManager.refreshWarpaint({
 				id: this.id,
-				paintKitId: this.#paintKitId,
-				paintKitWear: this.#paintKitWear,
-				paintKitSeed: this.#paintKitSeed,
+				warpaintId: this.#paintKitId,
+				warpaintWear: this.#paintKitWear,
+				warpaintSeed: this.#paintKitSeed,
 				model: this.#model,
 				team: this.#team,
 				textureSize: this.#textureSize,
