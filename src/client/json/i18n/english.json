@@ -148,6 +148,7 @@
 		"#replace_pattern": "Replace pattern",
 		"#seed": "Seed : ",
 		"#team_colored_only": "Team colored only",
+		"#import_warpaint_definition": "Import warpaint definitions",
 		"#manage_options": "manage options",
 		"#option_name": "name",
 		"#option_default_value": "default value",

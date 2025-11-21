@@ -148,6 +148,7 @@
 		"#replace_pattern": "Modifier motif",
 		"#seed": "Graine aléatoire : ",
 		"#team_colored_only": "Couleur d'équipe seulement",
+		"#import_warpaint_definition": "Importer les définitions des peintures de guerre",
 		"#manage_options": "gestion des options",
 		"#option_name": "nom",
 		"#option_default_value": "valeur par défaut",

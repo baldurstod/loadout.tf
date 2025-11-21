@@ -1,14 +1,15 @@
 import { customFetch } from 'harmony-3d';
-import { TextureCombiner } from 'harmony-3d-utils';
+import { TextureCombiner, WeaponManager } from 'harmony-3d-utils';
 import { OptionsManager, ShortcutHandler } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
-import { createElement, hide, show } from 'harmony-ui';
+import { createElement, hide, HTMLHarmonyFileInputElement, show } from 'harmony-ui';
 import warpaintPanelCSS from '../../css/warpaintpanel.css';
 import { STEAM_ECONOMY_IMAGE_PREFIX, TF2_WARPAINT_PICTURES_URL } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
 import { Item } from '../loadout/items/item';
 import { DynamicPanel } from './dynamicpanel';
+import { WarpaintDefinitions } from 'harmony-tf2-utils';
 
 type Warpaint = {
 	warpaint: {
@@ -100,6 +101,27 @@ export class WarpaintPanel extends DynamicPanel {
 						}),
 					],
 				}),
+				createElement('harmony-file-input', {
+					'data-i18n': '#import_warpaint_definition',
+					'data-accept': '.json',
+					$change: (event: Event) => {
+						//Controller.dispatchEvent<File[]>(ControllerEvent.ImportFiles, { detail: [...((event.target as HTMLHarmonyFileInputElement).files ?? [])] })
+						const file = (event.target as HTMLHarmonyFileInputElement).files?.[0];
+						if (!file || !file.type.match('application/json')) {
+							return;
+						}
+						const reader = new FileReader();
+
+						reader.addEventListener('load', async event => {
+							WarpaintDefinitions.setWarpaintDefinitions(JSON.parse(reader.result as string));
+							await WeaponManager.refreshWarpaintDefinitions();
+							this.#fillWarpaints();
+						});
+
+						reader.readAsText(file);
+					},
+				}),
+
 				createElement('div', {
 					childs: [],
 				}),

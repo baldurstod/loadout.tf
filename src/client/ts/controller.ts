@@ -10,7 +10,6 @@ export enum ControllerEvent {
 	InitMapList = 'initmaplist',
 	ToggleVideo = 'togglevideo',
 	SetBackgroundType = 'setbackgroundtype',
-	OverrideTextures = 'overridetextures',
 	ShowBadge = 'showbadge',
 	ImportFiles = 'importfiles',
 	//HideAllPanels = 'hideallpanels',

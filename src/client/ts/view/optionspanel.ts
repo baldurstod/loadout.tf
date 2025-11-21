@@ -276,63 +276,6 @@ export class OptionsPanel extends DynamicPanel {
 		}
 		/**************** Export ****************/
 
-		/**************** override textures ****************/
-		let htmlLoadedFiles: HTMLElement;
-		createElement('div', {
-			class: 'option-line',
-			parent: htmlGeneralOptionsTab,
-			childs: [
-				createElement('input', {
-					type: 'file',
-					parent: htmlGeneralOptionsTab,
-					$change: (evt: InputEvent) => {
-						htmlLoadedFiles.innerText = '';
-						const file = (evt.target as HTMLInputElement).files?.[0];
-						if (!file) {
-							return;
-						}
-
-						Controller.dispatchEvent<File>(ControllerEvent.OverrideTextures, { detail: file });
-
-						/*
-						const reader = new ZipReader(new BlobReader(file));
-
-						const entries = await reader.getEntries();
-						let loadedFiles = 0;
-						if (entries.length) {
-							for (const entry of entries) {
-								if (entry.directory) {
-									continue;
-								}
-								let filename = entry.filename
-								if (entry.directory || !filename.endsWith('.vtf') || (!filename.includes('materials/') && !filename.includes('materials\\'))) {
-									continue;
-								}
-								if (filename.includes('materials/')) {
-									filename = filename.substring(filename.indexOf('materials/'));
-								}
-								if (filename.includes('materials\\')) {
-									filename = filename.substring(filename.indexOf('materials\\'));
-								}
-
-								console.info(filename)
-
-								const blob = await entry.getData(new BlobWriter())
-								this.#zipEntries.set(filename.toLowerCase(), blob);
-								++loadedFiles;
-
-							}
-							htmlLoadedFiles.innerText = loadedFiles + ' files loaded';
-						}
-						*/
-					},
-					$keydown: (event: Event) => event.stopPropagation(),
-				}),
-				htmlLoadedFiles = createElement('span'),
-			]
-		});
-		/**************** override textures ****************/
-
 		/**************** Casual badge ****************/
 		createElement('group', {
 			i18n: {
