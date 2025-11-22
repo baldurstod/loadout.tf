@@ -48,6 +48,7 @@ export async function initPyodide(): Promise<boolean> {
 	pyodide.registerJsModule("entities", new Entities);
 	pyodide.registerJsModule("source1", new Source1);
 	pyodide.registerJsModule("glmatrix", new GlMatrix);
+	pyodide.registerJsModule("math", Math);
 	//pyodide.registerJsModule("characters", Characters);
 	pyodide.registerJsModule("utils", Utils);
 	readyPromiseResolve(true);

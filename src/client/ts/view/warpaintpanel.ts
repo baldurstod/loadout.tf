@@ -112,10 +112,12 @@ export class WarpaintPanel extends DynamicPanel {
 						}
 						const reader = new FileReader();
 
-						reader.addEventListener('load', async event => {
-							WarpaintDefinitions.setWarpaintDefinitions(JSON.parse(reader.result as string));
-							await WeaponManager.refreshWarpaintDefinitions();
-							this.#fillWarpaints();
+						reader.addEventListener('load', () => {
+							(async (): Promise<void> => {
+								WarpaintDefinitions.setWarpaintDefinitions(JSON.parse(reader.result as string));
+								await WeaponManager.refreshWarpaintDefinitions();
+								this.#fillWarpaints();
+							})();
 						});
 
 						reader.readAsText(file);
