@@ -1,7 +1,7 @@
 import { CanvasLayout, CanvasView, Graphics, GraphicsEvents, Viewport } from 'harmony-3d';
 
 export class Engine {
-	Graphics = Graphics;
+	"Graphics" = Graphics;
 	CanvasLayout = CanvasLayout;
 	CanvasView = CanvasView;
 	Viewport = Viewport;
