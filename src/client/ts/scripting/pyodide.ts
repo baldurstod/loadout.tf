@@ -5,7 +5,9 @@ import { CharacterManager } from '../loadout/characters/charactermanager';
 import { ItemManager } from '../loadout/items/itemmanager';
 import { Engine } from './engine';
 import { Entities } from './entities';
+import { GlMatrix } from './glmatrix';
 import { Loadout } from './loadout';
+import { Source1 } from './source1';
 import { Tf2 } from './tf2';
 import { Utils } from './utils';
 
@@ -44,6 +46,8 @@ export async function initPyodide(): Promise<boolean> {
 	pyodide.registerJsModule("items", ItemManager);
 	pyodide.registerJsModule("tf2", new Tf2);
 	pyodide.registerJsModule("entities", new Entities);
+	pyodide.registerJsModule("source1", new Source1);
+	pyodide.registerJsModule("glmatrix", new GlMatrix);
 	//pyodide.registerJsModule("characters", Characters);
 	pyodide.registerJsModule("utils", Utils);
 	readyPromiseResolve(true);

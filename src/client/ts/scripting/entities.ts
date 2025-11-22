@@ -1,11 +1,24 @@
-import { Box, Camera, Group, OrbitControl, Plane, Scene, Sphere } from 'harmony-3d';
+import { Box, Camera, Cone, Cylinder, FirstPersonControl, FullScreenQuad, Group, Line, LineSegments, OrbitControl, Plane, Scene, Sphere } from 'harmony-3d';
 
 export class Entities {
-	Box = Box;
-	Camera = Camera;
-	OrbitControl = OrbitControl;
-	Group = Group;
-	Plane = Plane;
+	// Basic entities
 	Scene = Scene;
+	Group = Group;
+
+	// Camera
+	Camera = Camera;
+
+	// Camera controls
+	OrbitControl = OrbitControl;
+	FirstPersonControl = FirstPersonControl;
+
+	// Primitives
+	Box = Box;
+	Cone = Cone;
+	Cylinder = Cylinder;
+	FullScreenQuad = FullScreenQuad;
+	Line = Line;
+	LineSegments = LineSegments;
+	Plane = Plane;
 	Sphere = Sphere;
 }
