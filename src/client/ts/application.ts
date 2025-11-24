@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { TextureCombiner, TextureCombinerEventTarget, WarpaintDoneEvent, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -61,6 +61,7 @@ class Application {
 		defineHarmonyTab();
 		defineHarmonyTabGroup();
 		WarpaintDefinitions.setWarpaintDefinitionsURL(TF2_WARPAINT_DEFINITIONS_URL);
+		FontManager.setFontsPath(new URL('./json/fonts/', document.location.origin));
 	}
 
 	constructor() {

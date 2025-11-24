@@ -1,0 +1,19 @@
+{
+	"fonts":{
+		"arial":{
+			"styles":{
+				"normal":"arial_regular.json"
+			}
+		},
+		"tf2":{
+			"styles":{
+				"normal":"tf2_regular.json"
+			}
+		},
+		"tf2 build":{
+			"styles":{
+				"normal":"tf2_build.json"
+			}
+		}
+	}
+}
