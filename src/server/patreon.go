@@ -79,6 +79,7 @@ func (pm *patreonMiddleware) middleware(r *gin.Engine) gin.HandlerFunc {
 					} else {
 						c.Request.URL.Path = "/js/application_supporter.js"
 					}
+					c.Abort()
 					r.HandleContext(c)
 				}
 			}

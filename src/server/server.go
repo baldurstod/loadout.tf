@@ -85,6 +85,7 @@ func rewriteURL(r *gin.Engine) gin.HandlerFunc {
 		if strings.HasPrefix(c.Request.URL.Path, "/@") {
 			c.Request.URL.Path = "/"
 			c.Request.URL.RawPath = "/"
+			c.Abort()
 			r.HandleContext(c)
 			c.Next()
 			return
@@ -92,6 +93,7 @@ func rewriteURL(r *gin.Engine) gin.HandlerFunc {
 		if !strings.HasPrefix(c.Request.URL.Path, "/static") {
 			c.Request.URL.Path = "/static" + c.Request.URL.Path
 			c.Request.URL.RawPath = "/static" + c.Request.URL.Path
+			c.Abort()
 			r.HandleContext(c)
 			c.Next()
 			return
