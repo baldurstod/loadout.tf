@@ -22,6 +22,7 @@ import { inventoryPath, STEAM_PROFILE_URL } from '../constants';
 import { Controller, ControllerEvent, ItemPinned } from '../controller';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { ItemTemplate } from '../loadout/items/itemtemplate';
+import { fileToImage } from 'harmony-utils';
 
 const SELECTED_CLASS = 'item-manager-item-selected';
 const WORKSHOP_URL = 'http://steamcommunity.com/sharedfiles/filedetails/?id=';
@@ -339,7 +340,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		}
 
 		if (itemTemplate.canCustomizeTexture()) {
-			function ProcessBackgroundImageUrlDrop(event: Event): void {
+			async function processCustomImageDrop(event: Event): Promise<void> {
 				event.preventDefault();
 				let files: FileList | null = null;
 				if (event.target) {
@@ -355,27 +356,13 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 						continue;
 					}
 
-					const reader = new FileReader();
+					const image = await fileToImage(f);
 
-					// Closure to capture the file information.
-					reader.onload = (() => {
-						return (e): void => {
-							const image = new Image();
-							image.onload = (): void => {
-								//let customTextureName = 'testCustomTexture2' + (this.customTextureId++);
-								//it.setCustomTexture(customTextureName);
-
-								const { name: textureName, texture: texture } = Source1TextureManager.addInternalTexture('tf2'/*TODO: get repository from item*/);
-								TextureManager.fillTextureWithImage(texture.getFrame(0)!, image);
-								//Source1TextureManager.addInternalTexture3(textureName, image);
-								CharacterManager.setCustomTexture(itemTemplate.id, textureName);
-							}
-							image.src = (e.target as FileReader).result as string;
-						};
-					})();
-					(event.target as HTMLInputElement).value = '';
-					// Read in the image file as a data URL.
-					reader.readAsDataURL(f);
+					if (image) {
+						const { name: textureName, texture: texture } = Source1TextureManager.addInternalTexture('tf2'/*TODO: get repository from item*/);
+						TextureManager.fillTextureWithImage(texture.getFrame(0)!, image);
+						CharacterManager.setCustomTexture(itemTemplate.id, textureName);
+					}
 				}
 			}
 
@@ -389,7 +376,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 					createElement('input', {
 						type: 'file',
 						accept: 'image/*',
-						$change: ProcessBackgroundImageUrlDrop,
+						$change: (event: Event) => { processCustomImageDrop(event) },
 						$click: (event: Event) => event.stopPropagation(),
 						$keydown: (event: Event) => event.stopPropagation(),
 					}),

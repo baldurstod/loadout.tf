@@ -3,7 +3,7 @@ import { Entity, getSceneExplorer, GraphicMouseEventData, GraphicsEvent, Graphic
 import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { JSONObject, uint } from 'harmony-types';
 import positionJSON from '../../../json/slotsposition.json';
-import { startAnim, TF2_TOOLBOX_MODEL } from '../../constants';
+import { TF2_TOOLBOX_MODEL } from '../../constants';
 import { Controller, ControllerEvent } from '../../controller';
 import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
