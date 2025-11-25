@@ -96,8 +96,9 @@ export class CharacterManager {
 			if (model) {
 				model.sourceModel.mdl.addExternalMdl('models/player/loadout_tf/' + modelName.toLowerCase().replace(/bots\/[^\/]*\/bot_/, 'player/') + '_loadout_tf_animations.mdl');
 				if (model) {
-					model.playSequence(startAnim);
-					model.setAnimation(0, startAnim, 1);
+					character.autoSelectAnim();
+					//model.playSequence(startAnim);
+					//model.setAnimation(0, startAnim, 1);
 					model.setPosition(slot.position);
 					model.setQuaternion(slot.orientation);
 				}

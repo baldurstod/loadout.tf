@@ -218,7 +218,7 @@ export class Character {
 				if (choreo) {
 					choreo.addEventListener(ChoreographyEventType.Stop, () => {
 						item.remove();
-						this.#autoSelectAnim();
+						this.autoSelectAnim();
 					});
 				} else {
 					item.remove();
@@ -315,7 +315,7 @@ export class Character {
 	}
 
 	#loadoutChanged(): void {
-		this.#autoSelectAnim();
+		this.autoSelectAnim();
 		this.#processSoul();
 		this.#checkBodyGroups();
 		//Controller.dispatchEvent(new CustomEvent('loadout-changed', { detail: { character: this } }));
@@ -372,7 +372,7 @@ export class Character {
 
 	setPose(pose: string): void {
 		this.#voicePose = pose;
-		this.#autoSelectAnim();
+		this.autoSelectAnim();
 	}
 
 	setUserAnim(userAnim: string): void {
@@ -380,7 +380,7 @@ export class Character {
 		if (userAnim) {
 			this.#playAnim(userAnim);
 		} else {
-			this.#autoSelectAnim();
+			this.autoSelectAnim();
 		}
 	}
 
@@ -391,7 +391,7 @@ export class Character {
 		await this.#model?.setAnimation(0, animName, 1);
 	}
 
-	#autoSelectAnim(): void {
+	autoSelectAnim(): void {
 		if (this.#userAnim) {
 			return;
 		}

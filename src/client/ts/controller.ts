@@ -128,17 +128,17 @@ export enum ProductFilterAttribute {
 }
 
 export class Controller {
-	static readonly eventTarget = new EventTarget();
+	static readonly #eventTarget = new EventTarget();
 
 	static addEventListener(type: ControllerEvent, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean): void {
-		this.eventTarget.addEventListener(type, callback, options);
+		this.#eventTarget.addEventListener(type, callback, options);
 	}
 
 	static dispatchEvent<T>(type: ControllerEvent, options?: CustomEventInit<T>): boolean {
-		return this.eventTarget.dispatchEvent(new CustomEvent<T>(type, options));
+		return this.#eventTarget.dispatchEvent(new CustomEvent<T>(type, options));
 	}
 
 	static removeEventListener(type: ControllerEvent, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean): void {
-		this.eventTarget.removeEventListener(type, callback, options);
+		this.#eventTarget.removeEventListener(type, callback, options);
 	}
 }
