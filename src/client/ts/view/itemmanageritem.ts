@@ -131,7 +131,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		show(this.#detail);
 		this.#detail!.style.left = '0px';
 		//this.#detail.style.right = 'unset';
-		const pinned = OptionsManager.getItem('app.items.pinned');
+		const pinned = OptionsManager.getItem('app.items.pinned') as string[];
 		const index = pinned.indexOf(this.#item!.id);
 		this.#htmlPinned!.state = (index != -1);
 

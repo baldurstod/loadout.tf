@@ -436,7 +436,7 @@ class Application {
 				loadoutScene.removeChild(customLightsContainer);
 				setCustomLightsContainer(await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent>).detail.value as string)) as Entity);
 				loadoutScene.addChild(customLightsContainer);
-				customLightsContainer?.setVisible(OptionsManager.getItem('app.lights.usecustomlights'));
+				customLightsContainer?.setVisible(OptionsManager.getItem('app.lights.usecustomlights') as boolean);
 			})()
 		});
 
@@ -513,7 +513,7 @@ class Application {
 		//change the default value in optionsmanager.json accordingly
 		let currentVersion = 0;
 
-		const storedVersion = OptionsManager.getItem('app.options.version');
+		const storedVersion = OptionsManager.getItem('app.options.version') as number;
 		if (storedVersion <= currentVersion || storedVersion == undefined) {
 			this.#resetCamera();
 			OptionsManager.resetItem('app.lights.ambient.intensity');
@@ -524,7 +524,7 @@ class Application {
 	}
 
 	async #initShortcuts(): Promise<void> {
-		ShortcutHandler.setShortcuts('loadout,3dview,scene-explorer', await OptionsManager.getOptionsPerType('shortcut'));
+		ShortcutHandler.setShortcuts('loadout,3dview,scene-explorer', await OptionsManager.getOptionsPerType('shortcut') as Map<string, string>);
 		ShortcutHandler.addEventListener('app.shortcuts.currentcamera.reset', () => this.#resetCamera());
 		ShortcutHandler.addEventListener('app.shortcuts.itemlist.open', () => Controller.dispatchEvent<Panel>(ControllerEvent.TogglePanel, { detail: Panel.Items }));
 		ShortcutHandler.addEventListener('app.shortcuts.picture', () => Controller.dispatchEvent(ControllerEvent.SavePicture));
@@ -749,7 +749,7 @@ class Application {
 	}
 
 	#showHighLights(show: boolean): void {
-		show = show && OptionsManager.getItem('app.characters.highlightselected');
+		show = show && OptionsManager.getItem('app.characters.highlightselected') as boolean;
 		if (show) {
 			Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
 		} else {
@@ -869,12 +869,12 @@ class Application {
 	async #export3D2(): Promise<void> {
 		let subdivisions = 0;
 		if (OptionsManager.getItem('app.objexporter.subdivide')) {
-			subdivisions = OptionsManager.getItem('app.objexporter.subdivide.iterations');
+			subdivisions = OptionsManager.getItem('app.objexporter.subdivide.iterations') as number;
 		}
 		const files = await new ObjExporter().exportMeshes({
 			meshes: loadoutScene.getMeshList(),
-			exportTexture: OptionsManager.getItem('app.objexporter.exporttextures'),
-			singleMesh: OptionsManager.getItem('app.objexporter.singlemesh'),
+			exportTexture: OptionsManager.getItem('app.objexporter.exporttextures') as boolean,
+			singleMesh: OptionsManager.getItem('app.objexporter.singlemesh') as boolean,
 			digits: 4,
 			subdivisions: subdivisions,
 			mergeTolerance: 0.001,
@@ -1013,7 +1013,7 @@ class Application {
 	}
 
 	async #importFiles(files: File[]): Promise<void> {
-		const overrideModels = OptionsManager.getItem('app.repositories.import.overridemodels');
+		const overrideModels = OptionsManager.getItem('app.repositories.import.overridemodels') as boolean;
 		for (const file of files) {
 			await importFile(file, overrideModels);
 		}
@@ -1031,7 +1031,7 @@ class Application {
 				loadoutScene.addChild(map);
 				map.initMap();
 				this.#map = map;
-				map.setVisible(OptionsManager.getItem('app.map.rendermap'));
+				map.setVisible(OptionsManager.getItem('app.map.rendermap') as boolean);
 			}
 		}
 	}

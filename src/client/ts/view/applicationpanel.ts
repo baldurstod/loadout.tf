@@ -125,10 +125,10 @@ export class ApplicationPanel {
 	open3DPopover(): void {
 		const popover = this.#getExport3DPopover();
 
-		this.#html3DExportTexture!.state = OptionsManager.getItem('app.objexporter.exporttextures');
-		this.#html3DSingleMesh!.state = OptionsManager.getItem('app.objexporter.singlemesh');
-		this.#html3DSmoothMesh!.state = OptionsManager.getItem('app.objexporter.subdivide');
-		this.#html3DShowDialog!.state = OptionsManager.getItem('app.objexporter.askoptions');
+		this.#html3DExportTexture!.state = OptionsManager.getItem('app.objexporter.exporttextures') as boolean;
+		this.#html3DSingleMesh!.state = OptionsManager.getItem('app.objexporter.singlemesh') as boolean;
+		this.#html3DSmoothMesh!.state = OptionsManager.getItem('app.objexporter.subdivide') as boolean;
+		this.#html3DShowDialog!.state = OptionsManager.getItem('app.objexporter.askoptions') as boolean;
 
 		popover.showPopover();
 	}

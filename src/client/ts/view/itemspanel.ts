@@ -335,7 +335,7 @@ export class ItemsPanel extends DynamicPanel {
 		//OptionsManagerEvents.addEventListener('app.items.filter.restoretext', (event: Event) => { if ((event as CustomEvent<OptionsManagerEvent>).detail.value) { this.#htmlFilterInput!.value = OptionsManager.getItem('app.items.filter.text'); } });
 		const populateName = (): void => {
 			if (OptionsManager.getItem('app.items.filter.restoretext')) {
-				const textFilter = OptionsManager.getItem('app.items.filter.text');
+				const textFilter = OptionsManager.getItem('app.items.filter.text') as string;
 				this.#htmlFilterInput!.value = textFilter;
 				setNameFilter(textFilter);
 			}
@@ -587,11 +587,11 @@ export class ItemsPanel extends DynamicPanel {
 		for (const collection of collections) {
 			createElement('option', { value: collection, innerText: collection, parent: this.#htmlFilterCollection });
 		}
-		this.#htmlFilterCollection!.value = OptionsManager.getItem('app.items.filter.collection');
+		this.#htmlFilterCollection!.value = OptionsManager.getItem('app.items.filter.collection') as string;
 	}
 
 	#setFilteredItems(excludedItems: number): void {
-		display(this.#htmlExcludedItems, excludedItems > 0 && OptionsManager.getItem('app.items.filter.displayexcludedcount'));
+		display(this.#htmlExcludedItems, excludedItems > 0 && OptionsManager.getItem('app.items.filter.displayexcludedcount') as boolean);
 		I18n.setValue(this.#htmlExcludedItems, 'count', excludedItems);
 	}
 }

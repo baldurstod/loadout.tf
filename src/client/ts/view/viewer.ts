@@ -211,7 +211,7 @@ export class Viewer {
 	}
 
 	#startRecording(): void {
-		Graphics.startRecording(60, OptionsManager.getItem('app.videorecording.bitrate'), this.#htmlCanvas);
+		Graphics.startRecording(60, OptionsManager.getItem('app.videorecording.bitrate') as number, this.#htmlCanvas);
 		if (this.#mainCanvas) {
 			const pictureSize = this.#getPictureSize();
 			if (pictureSize) {
@@ -230,7 +230,7 @@ export class Viewer {
 	}
 
 	#getPictureSize(): { w: number, h: number } | null {
-		const option = OptionsManager.getItem('app.picture.size');
+		const option = OptionsManager.getItem('app.picture.size') as string;
 		if (option) {
 			const regexSize = /(\d*)[\*|x|\X](\d*)/i;
 			const result = regexSize.exec(option);
@@ -292,7 +292,7 @@ export class Viewer {
 		this.#composer.addPass(this.#oldMoviePass);
 		this.#composer.addPass(copyPass);
 
-		this.#composer.enabled = OptionsManager.getItem('app.postprocessing.enabled');
+		this.#composer.enabled = OptionsManager.getItem('app.postprocessing.enabled') as boolean;
 	}
 
 	/*
@@ -312,7 +312,7 @@ export class Viewer {
 	}
 
 	#showHighLights(show: boolean): void {
-		show = show && OptionsManager.getItem('app.characters.highlightselected');
+		show = show && OptionsManager.getItem('app.characters.highlightselected') as boolean ;
 		if (show) {
 			Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
 		} else {

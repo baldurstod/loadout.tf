@@ -313,7 +313,7 @@ export class ItemManager {
 	}
 
 	static #pinItem(item: ItemTemplate, isPinned: boolean): void {
-		const pinned: string[] = OptionsManager.getItem('app.items.pinned') ?? [];
+		const pinned: string[] = OptionsManager.getItem('app.items.pinned') as string[] ?? [];
 		const index = pinned.indexOf(item.id);
 		if (isPinned) {
 			if (index == -1) {

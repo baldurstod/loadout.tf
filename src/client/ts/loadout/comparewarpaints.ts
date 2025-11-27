@@ -65,8 +65,8 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 
 	const entries = weapons.entries();
 
-	const forceLowQuality = weapons.size > OptionsManager.getItem('app.warpaints.compare.lowqualitythreshold');
-	const forceMidQuality = !forceLowQuality && (weapons.size > OptionsManager.getItem('app.warpaints.compare.midqualitythreshold'));
+	const forceLowQuality = weapons.size > (OptionsManager.getItem('app.warpaints.compare.lowqualitythreshold') as number);
+	const forceMidQuality = !forceLowQuality && (weapons.size > (OptionsManager.getItem('app.warpaints.compare.midqualitythreshold') as number));
 
 	switch (true) {
 		case forceLowQuality:
@@ -76,7 +76,7 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 			backgroundTextureSize = MID_QUALITY_TEXTURE_SIZE;
 			break;
 		default:
-			backgroundTextureSize = OptionsManager.getItem('warpaints.texture.size');
+			backgroundTextureSize = OptionsManager.getItem('warpaints.texture.size') as number;
 	}
 
 	for (let i = 0; i < side; i++) {
@@ -200,7 +200,7 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 
 	const item = modelToItem.get(model as Source1ModelInstance);
 	if (item) {
-		const textureSize = OptionsManager.getItem('warpaints.texture.size');
+		const textureSize = OptionsManager.getItem('warpaints.texture.size') as number;
 		item.changeTextureSize = textureSize;
 		item.setTextureSize(textureSize);
 	}
