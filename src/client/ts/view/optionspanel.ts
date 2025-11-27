@@ -1,4 +1,4 @@
-import { AudioMixer, Entity, Repository, RepositoryEntry, SceneExplorer, ShaderEditor } from 'harmony-3d';
+import { AudioMixer, Entity, Graphics, GraphicsEvent, GraphicsEvents, Line, Repository, RepositoryEntry, SceneExplorer, ShaderEditor, Sphere } from 'harmony-3d';
 import { defineRepository, HTMLRepositoryElement } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
@@ -11,6 +11,9 @@ import { CharacterManager, CustomDisposition } from '../loadout/characters/chara
 import { addTF2Model, loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 import { ScriptEditor } from './scripteditor';
+import { fileToImage } from 'harmony-utils';
+import { DrawingUtils, FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
+import { MAIN_CANVAS } from '../constants';
 
 export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;
@@ -561,6 +564,57 @@ export class OptionsPanel extends DynamicPanel {
 					'data-i18n': '#show_hidden_characters',
 					$change: () => OptionsManager.setItem('app.characters.showhidden', showHiddenCharacters.state),
 				}) as HTMLHarmonySwitchElement,
+				createElement('harmony-file-input', {
+					'data-i18n': '#import_image',
+					hidden: !TESTING,
+					//'data-accept': '.zip,.vpk',
+					'data-tooltip-i18n': '#import_image',
+					$change: async (event: Event) => {
+						for (const file of (event.target as HTMLHarmonyFileInputElement).files ?? []) {
+
+							const image = await fileToImage(file);
+
+							if (image) {
+								const vision = await FilesetResolver.forVisionTasks('assets/mediapipe/tasks-vision/wasm');
+								const poseLandmarker = await PoseLandmarker.createFromOptions(
+									vision,
+									{
+										baseOptions: {
+											modelAssetPath: 'assets/mediapipe/models/pose_landmarker_full.task',
+										},
+										runningMode: "IMAGE",
+										numPoses: 3,
+									}
+								);
+
+								const result = poseLandmarker.detect(image);
+								console.log(result);
+
+								for (const landmarks of result.landmarks) {
+									for (const landmark of landmarks) {
+										new Sphere({
+											position: [landmark.x * 100, landmark.z * 100, -landmark.y * 100],
+											parent: loadoutScene,
+										});
+									}
+
+									for (const connection of PoseLandmarker.POSE_CONNECTIONS) {
+										const startLandmark = landmarks[connection.start];
+										const endLandmark = landmarks[connection.end];
+										if (startLandmark && endLandmark) {
+											new Line({
+												//position: [landmark.x * 100, landmark.z * 100, -landmark.y * 100],
+												start: [startLandmark.x * 100, startLandmark.z * 100, -startLandmark.y * 100],
+												end: [endLandmark.x * 100, endLandmark.z * 100, -endLandmark.y * 100],
+												parent: loadoutScene,
+											});
+										}
+									}
+								}
+							}
+						}
+					},
+				}),
 			],
 		});
 		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => showHiddenCharacters.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
