@@ -25,3 +25,7 @@
 	max-height: 10rem;
 	overflow: auto;
 }
+
+.tabs{
+	height: unset;
+}

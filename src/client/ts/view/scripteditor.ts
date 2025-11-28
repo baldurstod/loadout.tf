@@ -1,7 +1,7 @@
 import { Editor, EditSession } from 'ace-builds';
 import { LineWidget } from 'ace-builds-internal/line_widgets';
-import { loadScripts } from 'harmony-browser-utils';
-import { createElement, defineHarmonyInfoBox, I18n, shadowRootStyle } from 'harmony-ui';
+import { loadScripts, PersistentStorage } from 'harmony-browser-utils';
+import { createElement, defineHarmonyInfoBox, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n, shadowRootStyle, updateElement } from 'harmony-ui';
 import scriptEditorCSS from '../../css/scripteditor.css';
 import { ACE_EDITOR_URI, SNIPPET_URL } from '../constants';
 import { getPyodide } from '../scripting/pyodide';
@@ -10,6 +10,29 @@ import { InterruptError, Utils } from '../scripting/utils';
 export type ScriptEditorOptions = {
 	aceUrl?: string;
 };
+
+const SCRIPT_PATH = '/scripts/';
+
+type scriptJSON = {
+	filename: string;
+	is_open: boolean;
+	/** Script content. Only used to export / import all scripts. */
+	content?: string;
+}
+
+type scriptsJSON = {
+	scripts: scriptJSON[];
+	//active: string;
+}
+
+type Script = {
+	filename: string;
+	isOpen: boolean;
+	content: string;
+	tab?: HTMLHarmonyTabElement;
+	modified: boolean;
+	persistent: boolean;
+}
 
 export class ScriptEditor extends HTMLElement {
 	#aceEditorResolve!: () => void;
@@ -21,14 +44,26 @@ export class ScriptEditor extends HTMLElement {
 	//#htmlErrors?: HTMLTextAreaElement;
 	#sessions = new Map<string, EditSession>;
 	#currentSession: EditSession | null = null;
+	#htmlSaveButton?: HTMLButtonElement;
+	#htmlFileTabs?: HTMLHarmonyTabGroupElement;
+	#knownScripts = new Map<string, Script>();
+	#scriptsInitialized = false;
+	#activeScript?: Script;
 	//#interruptBuffer = new Uint8Array(new SharedArrayBuffer(1));
 	//#pyodideWorker = new Worker(new URL("pyodideworker.js", import.meta.url));
+
+	constructor() {
+		super();
+		window.addEventListener('beforeunload', (event: Event) => this.#beforeUnload(event));
+	}
 
 	initEditor(options: ScriptEditorOptions = {}): void {
 		if (this.#initialized) {
 			return;
 		}
 		defineHarmonyInfoBox();
+		defineHarmonyTab();
+		defineHarmonyTabGroup();
 
 		//this.#pyodideWorker.postMessage({ cmd: "setInterruptBuffer", interruptBuffer: this.#interruptBuffer });
 
@@ -44,15 +79,35 @@ export class ScriptEditor extends HTMLElement {
 
 		createElement('button', {
 			parent: this.#shadowRoot,
+			i18n: '#new_script',
+			$click: () => { this.#newScript() },
+		}) as HTMLButtonElement;
+
+		this.#htmlSaveButton = createElement('button', {
+			parent: this.#shadowRoot,
+			i18n: {
+				innerText: '#save',
+				values: {
+					filename: '',
+				}
+			},
+			disabled: true,
+			$click: () => { this.#saveScript() },
+		}) as HTMLButtonElement;
+
+		createElement('button', {
+			parent: this.#shadowRoot,
 			i18n: '#run',
 			$click: () => { this.#run() },
 		}) as HTMLButtonElement;
 
+		/*
 		createElement('button', {
 			parent: this.#shadowRoot,
 			i18n: '#stop',
 			$click: () => { this.#stop() },
 		}) as HTMLButtonElement;
+		*/
 
 		createElement('harmony-info-box', {
 			parent: this.#shadowRoot,
@@ -76,6 +131,11 @@ export class ScriptEditor extends HTMLElement {
 		}) as HTMLButtonElement;
 		*/
 
+		this.#htmlFileTabs = createElement('harmony-tab-group', {
+			class: 'tabs',
+			parent: this.#shadowRoot,
+		}) as HTMLHarmonyTabGroupElement;
+
 		const container = createElement('div', { style: 'flex:1;', parent: this.#shadowRoot });
 		//this.#htmlErrors = createElement('textarea', { style: 'flex:1;', parent: this.#shadowRoot }) as HTMLTextAreaElement;
 
@@ -88,7 +148,111 @@ export class ScriptEditor extends HTMLElement {
 			})
 		}
 
-		this.#addSession('test'/*TODO: change name*/);
+		this.#initTabs();
+	}
+
+	async #initTabs(): Promise<void> {
+		this.#scriptsInitialized = true;
+		const file = await PersistentStorage.readFileAsString(SCRIPT_PATH + 'scripts.json');
+		if (file) {
+			const json = JSON.parse(file) as scriptsJSON;
+			if (json) {
+				this.#knownScripts.clear();
+				for (const scriptJSON of json.scripts) {
+					const content = await PersistentStorage.readFileAsString(SCRIPT_PATH + scriptJSON.filename);
+					if (content) {
+						const script: Script = { filename: scriptJSON.filename, isOpen: scriptJSON.is_open, content: content, modified: false, persistent: true };
+						this.#knownScripts.set(script.filename, script);
+						if (scriptJSON.is_open) {
+							this.#addTab(script);
+						}
+					}
+				}
+			}
+		} else {
+			//this.#addTab('script1', '');
+			await this.#newScript();
+		}
+	}
+
+	#addTab(script: Script): void {
+		script.tab = createElement('harmony-tab', {
+			$activated: () => this.#setActive(script),
+			parent: this.#htmlFileTabs,
+			'data-text': script.filename,
+		}) as HTMLHarmonyTabElement;
+		script.tab.activate();
+
+		this.#addSession(script.filename, script.content);
+	}
+
+	#setActive(script: Script): void {
+		this.#setSession(script.filename);
+
+		this.#refreshSaveButton(script);
+		this.#activeScript = script;
+
+		updateElement(this.#htmlSaveButton, {
+			i18n: {
+				values: {
+					filename: script.filename,
+				}
+			},
+		});
+	}
+
+	#refreshSaveButton(script: Script): void {
+		if (script.modified) {
+			this.#htmlSaveButton?.removeAttribute('disabled');
+			script.tab?.setAttribute('data-text', script.filename + ' *');
+
+		} else {
+			this.#htmlSaveButton?.setAttribute('disabled', '1');
+			script.tab?.setAttribute('data-text', script.filename);
+		}
+	}
+
+	async #newScript(): Promise<void> {
+		let index = 1;
+		const regex = /script(\d*).py/;
+		for (const [, knownScript] of this.#knownScripts) {
+			const result = regex.exec(knownScript.filename);
+			if (result && result?.length > 1) {
+				const existing = Number(result[1])
+				if (index <= existing) {
+					index = existing + 1;
+				}
+			}
+		}
+
+		const script: Script = { filename: `script${index}.py`, isOpen: true, content: `#script${index}.py`, modified: false, persistent: false };
+		this.#knownScripts.set(script.filename, script);
+		this.#addTab(script);
+	}
+
+	async #saveScript(): Promise<void> {
+		const script = this.#activeScript;
+		if (script) {
+			if (await PersistentStorage.writeFile(SCRIPT_PATH + script.filename, script.content)) {
+				script.modified = false;
+				script.persistent = true;
+				this.#refreshSaveButton(script);
+				await this.#saveScripts();
+			} else {
+				alert('Failed to save script');
+			}
+		}
+	}
+
+	async #saveScripts(): Promise<void> {
+		const json: scriptsJSON = { scripts: [] };
+		for (const [, script] of this.#knownScripts) {
+			if (script.persistent) {
+				json.scripts.push({ filename: script.filename, is_open: script.isOpen });
+			}
+		}
+
+		await PersistentStorage.writeFile(SCRIPT_PATH + 'scripts.json', JSON.stringify(json));
 	}
 
 	async #run(): Promise<void> {
@@ -171,21 +335,34 @@ export class ScriptEditor extends HTMLElement {
 		*/
 	}
 
-	async #addSession(name: string): Promise<void> {
+	async #addSession(name: string, content: string): Promise<void> {
 		await this.#aceEditorReady;
-		const session = new (globalThis as any).ace.EditSession('');
-		session.setMode('ace/mode/python');
+		const session = new (globalThis as any).ace.EditSession(content, 'ace/mode/python') as EditSession;
+		//session.setMode('ace/mode/python');
+
+		session.on('change', () => {
+			//this.#recompileTimeout = setTimeout(() => { this.recompile() }, this.#recompileDelay);//TODO:
+			const knownScript = this.#knownScripts.get(name);
+			if (knownScript) {
+				knownScript.modified = true;
+				knownScript.content = session.getValue();
+				this.#refreshSaveButton(knownScript);
+			}
+		});
+
 
 		this.#sessions.set(name, session);
-		await this.setSession(session);
+		await this.#setSession(name);
 	}
 
-
-
-	async setSession(session: EditSession): Promise<void> {
+	async #setSession(name: string): Promise<void> {
 		await this.#aceEditorReady;
-		this.#currentSession = session;
-		this.#aceEditor!.setSession(session);
+
+		const session = this.#sessions.get(name);
+		if (session) {
+			this.#currentSession = session;
+			this.#aceEditor!.setSession(session);
+		}
 	}
 
 	#addLineWidget(session: EditSession, element: HTMLElement): LineWidget {
@@ -221,12 +398,33 @@ export class ScriptEditor extends HTMLElement {
 		}));
 	}
 
-	/*
+	#beforeUnload(event: Event): void {
+		if (!this.#scriptsInitialized) {
+			return;
+		}
 
-	set annotationsDelay(delay: number) {
-		this.#annotationsDelay = delay;
-	}
+		for (const [, knownScript] of this.#knownScripts) {
+			if (knownScript.modified) {
+				event.preventDefault();
+				return;
+			}
+		}
+
+		//await PersistentStorage.writeFile(SCRIPT_PATH + 'scripts.json', '');
+		/*
+		const scripts: scriptsJSON = { scripts: [] };
+
+		for (const [, knownScript] of this.#knownScripts) {
+			scripts.scripts.push({ filename: knownScript.filename, is_open: knownScript.isOpen });
+			if (knownScript.modified) {
+				await PersistentStorage.writeFile(SCRIPT_PATH + knownScript.filename, knownScript.content);
+
+			}
+		}
+
+		await PersistentStorage.writeFile(SCRIPT_PATH + 'scripts.json', '');
 		*/
+	}
 }
 
 if (window.customElements) {
