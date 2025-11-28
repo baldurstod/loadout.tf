@@ -1,7 +1,9 @@
-import { AudioMixer, Entity, Graphics, GraphicsEvent, GraphicsEvents, Line, Repository, RepositoryEntry, SceneExplorer, ShaderEditor, Sphere } from 'harmony-3d';
+import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
+import { AudioMixer, Entity, Line, Repository, RepositoryEntry, SceneExplorer, ShaderEditor, Sphere } from 'harmony-3d';
 import { defineRepository, HTMLRepositoryElement } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
+import { fileToImage } from 'harmony-utils';
 import optionsCSS from '../../css/options.css';
 import repositoryEntryCSS from '../../css/repositoryentry.css';
 import { ENABLE_PATREON_POWERUSER, TESTING } from '../bundleoptions';
@@ -11,9 +13,6 @@ import { CharacterManager, CustomDisposition } from '../loadout/characters/chara
 import { addTF2Model, loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 import { ScriptEditor } from './scripteditor';
-import { fileToImage } from 'harmony-utils';
-import { DrawingUtils, FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
-import { MAIN_CANVAS } from '../constants';
 
 export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;

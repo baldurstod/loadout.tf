@@ -212,7 +212,7 @@ export class ScriptEditor extends HTMLElement {
 		}
 	}
 
-	async #newScript(): Promise<void> {
+	#newScript(): void {
 		let index = 1;
 		const regex = /script(\d*).py/;
 		for (const [, knownScript] of this.#knownScripts) {
