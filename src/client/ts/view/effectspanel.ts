@@ -106,6 +106,14 @@ export class EffectsPanel extends DynamicPanel {
 								}) as HTMLHarmonyRadioElement,
 							],
 						}),
+						createElement('div', {
+							class: 'remove-taunt',
+							i18n: '#remove_killstreak_effect',
+							$click: () => {
+								this.#killstreakEffect = null;
+								this.#updateKillstreak();
+							},
+						}),
 						this.#htmlKillstreakList = createElement('div', { class: 'effects-list' }),
 					],
 				}) as HTMLHarmonyTabElement,
