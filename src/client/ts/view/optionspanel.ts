@@ -444,9 +444,18 @@ export class OptionsPanel extends DynamicPanel {
 		addToggleSwitch('#render_particle_effects', 'app.effects.renderparticles', htmlGraphicOptions);
 		addToggleSwitch('#scout_blue_pants', 'app.characters.scout.bluepants', htmlGraphicOptions);
 
-		const htmlShadowQuality = createElement('select', {
-			$input: () => OptionsManager.setItem('engine.shadows.quality', htmlShadowQuality.value)
-		}) as HTMLSelectElement;
+		let htmlShadowQuality: HTMLSelectElement;
+		createElement('div', {
+			parent: htmlGraphicOptions,
+			childs: [
+				createElement('label', {
+					i18n: '#shadow_quality',
+				}),
+				htmlShadowQuality = createElement('select', {
+					$input: () => OptionsManager.setItem('engine.shadows.quality', htmlShadowQuality.value)
+				}) as HTMLSelectElement,
+			]
+		});
 		const qualities: Record<string, string> = {
 			'256': '#very_low',
 			'512': '#low',
@@ -469,7 +478,6 @@ export class OptionsPanel extends DynamicPanel {
 			}*/
 		}
 		OptionsManagerEvents.addEventListener('engine.shadows.quality', (event: Event) => htmlShadowQuality.value = (event as CustomEvent).detail.value);
-		htmlGraphicOptions.append(htmlShadowQuality);
 
 		addToggleSwitch('#enable_post_processing', 'app.postprocessing.enabled', htmlPostProcessingOptions);
 		addToggleSwitch('#post_processing_grain', 'app.postprocessing.grain.enabled', htmlPostProcessingOptions);
