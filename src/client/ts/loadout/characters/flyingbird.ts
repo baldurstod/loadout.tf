@@ -13,7 +13,7 @@ export class FlyingBird {
 	flGlideTime;
 	flyZ = 0;
 
-	constructor(parent: Source1ModelInstance | null | undefined, launchSpot: vec3, flyAngle: number, flyAngleRate: number, flAccelZ: number, flSpeed: number, flGlideTime: number) {
+	constructor(parent: Source1ModelInstance | null, launchSpot: vec3, flyAngle: number, flyAngleRate: number, flAccelZ: number, flSpeed: number, flGlideTime: number) {
 		this.parent = parent;
 		this.launchSpot = launchSpot;
 		this.flyAngle = flyAngle;
@@ -25,7 +25,7 @@ export class FlyingBird {
 	}
 
 	async #init(): Promise<void> {
-		const dove = await addTF2Model(TF2_DOVE_MODEL);
+		const dove = await addTF2Model(this.parent, TF2_DOVE_MODEL);
 		if (!dove) {
 			return;
 		}

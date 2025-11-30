@@ -690,7 +690,7 @@ export class OptionsPanel extends DynamicPanel {
 
 
 		async function addModel(entry: RepositoryEntry, parent?: Entity | null): Promise<void> {
-			const model = await addTF2Model(entry.getFullName(), entry.getRepository().name);
+			const model = await addTF2Model(loadoutScene, entry.getFullName(), entry.getRepository().name);
 
 			if (parent && model) {
 				parent.addChild(model);

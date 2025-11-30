@@ -718,7 +718,7 @@ class Application {
 
 	async #showCompetitiveStage(show: boolean): Promise<void> {
 		if (show) {
-			const prop = this.#competitiveStage || await addTF2Model(TF2_COMPETITIVE_STAGE);
+			const prop = this.#competitiveStage || await addTF2Model(loadoutScene, TF2_COMPETITIVE_STAGE);
 			if (!prop) {
 				return;
 			}

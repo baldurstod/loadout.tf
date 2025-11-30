@@ -1,13 +1,13 @@
 import { quat, vec3 } from 'gl-matrix';
-import { Entity, getSceneExplorer, GraphicMouseEventData, GraphicsEvent, GraphicsEvents } from 'harmony-3d';
+import { Entity, getSceneExplorer, GraphicMouseEventData, GraphicsEvent, GraphicsEvents, Scene } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { JSONObject, uint } from 'harmony-types';
 import positionJSON from '../../../json/slotsposition.json';
 import { TF2_TOOLBOX_MODEL } from '../../constants';
-import { Controller, ControllerEvent } from '../../controller';
+import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../../controller';
 import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
-import { firstPersonCamera } from '../scene';
+import { firstPersonCamera, loadoutScene } from '../scene';
 import { ClassAnimations, getClassAnimations } from './animations';
 import { Character, Ragdoll } from './character';
 import { CharactersList, Tf2Class } from './characters';
@@ -45,12 +45,11 @@ const TOOLBOX_POSITION = vec3.fromValues(-71.0726394653, 195.8566589355, 0);
 const TOOLBOX_ORIENTATION = quat.fromValues(0, 0, -0.5927425026893616, 0.8053920269012451);
 
 export class CharacterManager {
-	static #characterSlots: CharacterSlot[] = [new CharacterSlot()];
+	static #characterSlots = new Map<Scene, CharacterSlot[]>([[loadoutScene, [new CharacterSlot()]]])// = [new CharacterSlot()];
 	static #currentSlot: CharacterSlot | null = null;
 	static #unusedCharacters: Character[] = [];
-	static #currentCharacter: Character | null = null;
+	static #currentCharacter = new Map<Scene, Character | null>();
 	static #team: Team = Team.Red;
-	static #isInvulnerable = false;
 	static #slotsPositions = new Map<string, CharacterPosition[]>();
 	static #applyToAll = true;
 	static #useBots = false;
@@ -59,8 +58,8 @@ export class CharacterManager {
 	static {
 		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => this.#updatePaintColor());
 		GraphicsEvents.addEventListener(GraphicsEvent.MouseDown, (event: Event) => this.#pickedModel(event as CustomEvent<GraphicMouseEventData>));
-		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<boolean>).detail); return; },);
-		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<Ragdoll>).detail); return; },);
+		Controller.addEventListener(ControllerEvent.SetInvulnerable, (event: Event) => { this.#setInvulnerable((event as CustomEvent<SetInvulnerable>).detail.invulnerable, (event as CustomEvent<SetInvulnerable>).detail.scene); return; },);
+		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<SetRagdoll>).detail.ragdoll, (event as CustomEvent<SetRagdoll>).detail.scene); return; },);
 		Controller.addEventListener(ControllerEvent.SetAnim, (event: Event) => this.#setAnim((event as CustomEvent<string>).detail));
 		Controller.addEventListener(ControllerEvent.SetApplyToAll, (event: Event) => this.#applyToAll = (event as CustomEvent<boolean>).detail);
 		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => this.#useBots = (event as CustomEvent<boolean>).detail);
@@ -71,8 +70,8 @@ export class CharacterManager {
 		this.#initDispositions();
 	}
 
-	static async selectCharacter(characterClass: Tf2Class, slotId?: uint): Promise<Character> {
-		const slot = this.getSlot(slotId);
+	static async selectCharacter(characterClass: Tf2Class, slotId?: uint, scene: Scene = loadoutScene): Promise<Character> {
+		const slot = this.getSlot(slotId, scene);
 
 		if (slot.character?.characterClass == characterClass) {
 			slot.character.setVisible(true);
@@ -81,7 +80,7 @@ export class CharacterManager {
 		}
 
 		this.#removeCharacter(slot);
-		const character = this.#getUnusedCharacter(characterClass) ?? new Character(characterClass);
+		const character = this.#getUnusedCharacter(characterClass) ?? new Character(characterClass, scene);
 		slot.character = character;
 		// set the character visible
 		character.setVisible(true);
@@ -105,13 +104,13 @@ export class CharacterManager {
 			}
 		}
 
-		this.#setCurrentCharacter(character);
+		this.#setCurrentCharacter(character, scene);
 
 		return character;
 	}
 
-	static removeCharacter(slotId?: uint): void {
-		const slot = this.getSlot(slotId);
+	static removeCharacter(slotId?: uint, scene: Scene = loadoutScene): void {
+		const slot = this.getSlot(slotId, scene);
 		this.#removeCharacter(slot);
 	}
 
@@ -126,8 +125,8 @@ export class CharacterManager {
 		return null;
 	}
 
-	static #setCurrentCharacter(character: Character): void {
-		this.#currentCharacter = character;
+	static #setCurrentCharacter(character: Character, scene: Scene = loadoutScene): void {
+		this.#currentCharacter.set(scene, character);
 		//ItemManager.setCharacterClass(character.characterClass);
 		ItemManager.setCurrentCharacter(character);
 		//EffectManager.setCurrentCharacter(character);
@@ -156,45 +155,61 @@ export class CharacterManager {
 		}
 	}
 
-	static getSlot(slotId?: uint): CharacterSlot {
+	static getSlot(slotId?: uint, scene: Scene = loadoutScene): CharacterSlot {
+		let slots = this.#characterSlots.get(scene);
+		if (!slots) {
+			slots = [new CharacterSlot()];
+			this.#characterSlots.set(scene, slots);
+		}
+
 		if (slotId !== undefined) {
-			const slot = this.#characterSlots[slotId];
+			const slot = slots[slotId];
 			if (slot) {
 				return slot;
 			}
 		}
 
-		for (const slot of this.#characterSlots) {
+		for (const slot of slots) {
 			if (slot == this.#currentSlot || !slot.character || slot.character.characterClass == Tf2Class.None || slot.character.characterClass == Tf2Class.Empty || slot.character.characterClass == Tf2Class.CompareWarpaints) {
 				return slot;
 			}
 		}
 
-		return this.#characterSlots[this.#characterSlots.length - 1]!;
+		return slots[slots.length - 1]!;
 	}
 
-	static setSlotsCount(size: uint, removeExisting = false): void {
+	static setSlotsCount(size: uint, removeExisting = false, scene: Scene = loadoutScene): void {
+		const slots = this.#characterSlots.get(scene);
+		if (!slots) {
+			return;
+		}
+
 		size = Math.max(size, 1);
 
 		const removeStart = removeExisting ? 0 : size - 1;
-		for (let i = removeStart; i < this.#characterSlots.length; i++) {
-			this.#removeCharacter(this.#characterSlots[i]!);
+		for (let i = removeStart; i < slots.length; i++) {
+			this.#removeCharacter(slots[i]!);
 		}
-		for (let i = this.#characterSlots.length; i < size; i++) {
-			this.#characterSlots.push(new CharacterSlot());
+		for (let i = slots.length; i < size; i++) {
+			slots.push(new CharacterSlot());
 		}
 	}
 
-	static async setTeam(team: Team): Promise<void> {
+	static async setTeam(team: Team, scene: Scene = loadoutScene): Promise<void> {
+		const slots = this.#characterSlots.get(scene);
+		if (!slots) {
+			return;
+		}
+
 		this.#team = team;
 		if (this.#applyToAll) {
-			for (const slot of this.#characterSlots) {
+			for (const slot of slots) {
 				if (slot) {
 					await slot.character?.setTeam(team);
 				}
 			}
 		} else {
-			const character = this.#currentCharacter;
+			const character = this.getCurrentCharacter(scene);
 			if (character) {
 				character.setTeam(team);
 			}
@@ -205,12 +220,12 @@ export class CharacterManager {
 		return this.#team;
 	}
 
-	static getCurrentCharacter(): Character | null {
-		return this.#currentCharacter;
+	static getCurrentCharacter(scene: Scene = loadoutScene): Character | null {
+		return this.#currentCharacter.get(scene) ?? null;
 	}
 
-	static setCustomTexture(itemId: string, customTextureName: string): void {
-		const currentCharacter = this.getCurrentCharacter();
+	static setCustomTexture(itemId: string, customTextureName: string, scene: Scene = loadoutScene): void {
+		const currentCharacter = this.getCurrentCharacter(scene);
 		if (currentCharacter) {
 			const item = currentCharacter.getItemById(itemId);
 			if (item) {
@@ -220,35 +235,46 @@ export class CharacterManager {
 	};
 
 	static #updatePaintColor(): void {
-		for (const slot of this.#characterSlots) {
-			if (slot) {
-				slot.character?.updatePaintColor();
+		for (const [, slots] of this.#characterSlots) {
+			for (const slot of slots) {
+				if (slot) {
+					slot.character?.updatePaintColor();
+				}
 			}
 		}
 	};
 
-	static async #setInvulnerable(invulnerable: boolean): Promise<void> {
-		this.#isInvulnerable = invulnerable;
+	static async #setInvulnerable(invulnerable: boolean, scene: Scene = loadoutScene): Promise<void> {
+		let slots = this.#characterSlots.get(scene);
+		if (!slots) {
+			return;
+		}
+
 		if (this.#applyToAll) {
-			for (const slot of this.#characterSlots) {
+			for (const slot of slots) {
 				if (slot) {
 					await slot.character?.setInvulnerable(invulnerable);
 				}
 			}
 		} else {
-			await this.getCurrentCharacter()?.setInvulnerable(invulnerable);
+			await this.getCurrentCharacter(scene)?.setInvulnerable(invulnerable);
 		}
 	}
 
-	static async #setRagdoll(ragdoll: Ragdoll): Promise<void> {
+	static async #setRagdoll(ragdoll: Ragdoll, scene: Scene = loadoutScene): Promise<void> {
+		let slots = this.#characterSlots.get(scene);
+		if (!slots) {
+			return;
+		}
+
 		if (this.#applyToAll) {
-			for (const slot of this.#characterSlots) {
+			for (const slot of slots) {
 				if (slot) {
 					await slot.character?.setRagdoll(ragdoll);
 				}
 			}
 		} else {
-			await this.getCurrentCharacter()?.setRagdoll(ragdoll);
+			await this.getCurrentCharacter(scene)?.setRagdoll(ragdoll);
 		}
 	}
 
@@ -267,17 +293,21 @@ export class CharacterManager {
 		}
 	}
 
-	static useDisposition(name: string | number): void {
+	static useDisposition(name: string | number, scene: Scene = loadoutScene): void {
+		let slots = this.#characterSlots.get(scene);
+		if (!slots) {
+			return;
+		}
 		//console.info('use disposition: ', name)
 		const dispositions = this.#slotsPositions.get(String(name));
 		if (!dispositions) {
 			return;
 		}
 
-		this.setSlotsCount(dispositions.length);
+		this.setSlotsCount(dispositions.length, false, scene);
 
-		for (let i = 0; i < this.#characterSlots.length; i++) {
-			const slot = this.#characterSlots[i]!;
+		for (let i = 0; i < slots.length; i++) {
+			const slot = slots[i]!;
 			const disposition = dispositions[i];
 
 			if (disposition) {
@@ -294,25 +324,25 @@ export class CharacterManager {
 		}
 	}
 
-	static async setupMeetTheTeam(): Promise<void> {
-		this.setSlotsCount(9, true);
-		this.useDisposition('mtt');
+	static async setupMeetTheTeam(scene: Scene = loadoutScene): Promise<void> {
+		this.setSlotsCount(9, true, scene);
+		this.useDisposition('mtt', scene);
 
 		let botDelta = 0;
 		if (this.#useBots) {
 			botDelta = Tf2Class.ScoutBot;
 		}
 
-		await this.selectCharacter(Tf2Class.Pyro + botDelta, 0);
-		const engy = await this.selectCharacter(Tf2Class.Engineer + botDelta, 1);
-		await this.selectCharacter(Tf2Class.Spy + botDelta, 2);
-		await this.selectCharacter(Tf2Class.Heavy + botDelta, 3);
-		await this.selectCharacter(Tf2Class.Sniper + botDelta, 4);
-		await this.selectCharacter(Tf2Class.Scout + botDelta, 5);
-		await this.selectCharacter(Tf2Class.Soldier + botDelta, 6);
-		await this.selectCharacter(Tf2Class.Demoman + botDelta, 7);
-		await this.selectCharacter(Tf2Class.Medic + botDelta, 8);
-		this.#selectAnim('meettheteam', true);
+		await this.selectCharacter(Tf2Class.Pyro + botDelta, 0, scene);
+		const engy = await this.selectCharacter(Tf2Class.Engineer + botDelta, 1, scene);
+		await this.selectCharacter(Tf2Class.Spy + botDelta, 2, scene);
+		await this.selectCharacter(Tf2Class.Heavy + botDelta, 3, scene);
+		await this.selectCharacter(Tf2Class.Sniper + botDelta, 4, scene);
+		await this.selectCharacter(Tf2Class.Scout + botDelta, 5, scene);
+		await this.selectCharacter(Tf2Class.Soldier + botDelta, 6, scene);
+		await this.selectCharacter(Tf2Class.Demoman + botDelta, 7, scene);
+		await this.selectCharacter(Tf2Class.Medic + botDelta, 8, scene);
+		this.#selectAnim('meettheteam', true, false, scene);
 
 		const toolbox = await engy.addExtraModel(TF2_TOOLBOX_MODEL);
 		if (toolbox) {
@@ -322,27 +352,29 @@ export class CharacterManager {
 		Controller.dispatchEvent(ControllerEvent.ActivateMeetTheTeamMap);
 	}
 
-	static #selectAnim(anim: string, applyToAll: boolean, force = false): void {
+	static #selectAnim(anim: string, applyToAll: boolean, force = false, scene: Scene = loadoutScene): void {
 		/*
 		if (!force && this.#htmlAnimSelector.value != '') {
 			return;
 		}
 		*/
 		if (applyToAll) {
-			for (const slot of this.#characterSlots) {
-				slot.character?.setUserAnim(anim);
+			for (const [, slots] of this.#characterSlots) {
+				for (const slot of slots) {
+					slot.character?.setUserAnim(anim);
+				}
 			}
 		} else {
-			this.getCurrentCharacter()?.setUserAnim(anim)
+			this.getCurrentCharacter(scene)?.setUserAnim(anim)
 		}
 	}
 
-	static #setAnim(anim: string): void {
-		this.#selectAnim(anim, this.#applyToAll);
+	static #setAnim(anim: string, scene: Scene = loadoutScene): void {
+		this.#selectAnim(anim, this.#applyToAll, false, scene);
 	}
 
-	static getAnimList(): ClassAnimations | null {
-		const currentClass: Tf2Class | null = this.#currentCharacter?.characterClass ?? null;
+	static getAnimList(scene: Scene = loadoutScene): ClassAnimations | null {
+		const currentClass: Tf2Class | null = this.getCurrentCharacter(scene)?.characterClass ?? null;
 		if (currentClass !== null) {
 			return getClassAnimations(currentClass);
 		}
@@ -365,12 +397,13 @@ export class CharacterManager {
 		//this.#updatePresetsPanel();
 	}
 
-	static loadPreset(name: string): void {
-		if (!this.#currentCharacter) {
+	static loadPreset(name: string, scene: Scene = loadoutScene): void {
+		const currentCharacter = this.getCurrentCharacter(scene);
+		if (!currentCharacter) {
 			return;
 		}
 
-		const npc = CharactersList.get(this.#currentCharacter.characterClass)!.name
+		const npc = CharactersList.get(currentCharacter.characterClass)!.name
 		const presets = this.#presets.get(npc);
 		if (!presets) {
 			return;
@@ -381,7 +414,7 @@ export class CharacterManager {
 			return;
 		}
 
-		this.#currentCharacter.loadPreset(preset);
+		currentCharacter.loadPreset(preset);
 	}
 
 
@@ -396,12 +429,13 @@ export class CharacterManager {
 		OptionsManager.setItem('app.loadout.presets', JSON.stringify(j));
 	}
 
-	static savePreset(name?: string): void {
-		if (!this.#currentCharacter || name == '') {
+	static savePreset(name?: string, scene: Scene = loadoutScene): void {
+		const currentCharacter = this.getCurrentCharacter(scene);
+		if (!currentCharacter || name == '') {
 			return;
 		}
 
-		const npc = this.#currentCharacter.npc;
+		const npc = currentCharacter.npc;
 		let presets = this.#presets.get(npc)!;
 		if (!presets) {
 			presets = new Presets();
@@ -412,11 +446,10 @@ export class CharacterManager {
 			return;
 		}
 
-		presets.addPreset(this.#currentCharacter.savePreset(name ?? presets.selected!));
+		presets.addPreset(currentCharacter.savePreset(name ?? presets.selected!));
 		if (name) {
 			presets.selected = name;
 		}
-
 
 		//#presets = new Map<string, Presets>();
 		this.savePresets();
@@ -424,15 +457,16 @@ export class CharacterManager {
 		Controller.dispatchEvent(ControllerEvent.PresetsUpdated);
 	}
 
-	static async #importPresets(files: File[]): Promise<void> {
+	static async #importPresets(files: File[], scene: Scene = loadoutScene): Promise<void> {
 		for (const file of files) {
-			await this.#importPreset(file);
+			await this.#importPreset(file, scene);
 		}
 		Controller.dispatchEvent(ControllerEvent.PresetsUpdated);
 	}
 
-	static async #importPreset(file: File): Promise<void> {
-		if (!this.#currentCharacter) {
+	static async #importPreset(file: File, scene: Scene = loadoutScene): Promise<void> {
+		const currentCharacter = this.getCurrentCharacter(scene);
+		if (!currentCharacter) {
 			return;
 		}
 		let json: JSONObject;
@@ -447,7 +481,7 @@ export class CharacterManager {
 			return;
 		}
 
-		const npc = this.#currentCharacter.npc;
+		const npc = currentCharacter.npc;
 		let presets = this.#presets.get(npc)!;
 		if (!presets) {
 			presets = new Presets();
@@ -458,16 +492,15 @@ export class CharacterManager {
 		preset.fromJSON(json);
 
 		if (!preset.name || presets.getPreset(preset.name)) {
-			preset.name = this.createPresetName();
+			preset.name = this.createPresetName(scene);
 		}
 
 		presets.addPreset(preset);
-
-
 	}
 
-	static createPresetName(): string {
-		if (!this.#currentCharacter) {
+	static createPresetName(scene: Scene = loadoutScene): string {
+		const currentCharacter = this.getCurrentCharacter(scene);
+		if (!currentCharacter) {
 			return '';
 		}
 
@@ -495,7 +528,7 @@ export class CharacterManager {
 
 		const gen = nameGenerator();
 
-		const npc = CharactersList.get(this.#currentCharacter.characterClass)!.name
+		const npc = CharactersList.get(currentCharacter.characterClass)!.name
 		const presets = this.#presets.get(npc);
 		if (!presets) {
 			return gen.next().value;
@@ -515,6 +548,7 @@ export class CharacterManager {
 		}
 	}
 
+	/*
 	static setSelectedPreset(preset: string): void {
 		if (!this.#currentCharacter) {
 			return;
@@ -525,32 +559,37 @@ export class CharacterManager {
 			presets.selected = preset;
 		}
 	}
+	*/
 
-	static getPresets(): Presets | null {
-		if (!this.#currentCharacter) {
+	static getPresets(scene: Scene = loadoutScene): Presets | null {
+		const currentCharacter = this.getCurrentCharacter(scene);
+		if (!currentCharacter) {
 			return null;
 		}
-		const npc = CharactersList.get(this.#currentCharacter.characterClass)?.name
+		const npc = CharactersList.get(currentCharacter.characterClass)?.name
 		if (!npc) {
 			return null;
 		}
 		return this.#presets.get(npc) ?? null;
 	}
 
-	static getCharacters(): Set<Character> {
+	static getCharacters(scene: Scene = loadoutScene): Set<Character> {
+		let slots = this.#characterSlots.get(scene);
 		const characters = new Set<Character>();
 
-		for (const slot of this.#characterSlots) {
-			if (slot.character) {
-				characters.add(slot.character);
+		if (slots) {
+			for (const slot of slots) {
+				if (slot.character) {
+					characters.add(slot.character);
+				}
 			}
 		}
 
 		return characters;
 	}
 
-	static async #changeAnimFrame(frame: number): Promise<void> {
-		const source1Model = await this.getCurrentCharacter()?.getModel();
+	static async #changeAnimFrame(frame: number, scene: Scene = loadoutScene): Promise<void> {
+		const source1Model = await this.getCurrentCharacter(scene)?.getModel();
 		if (source1Model) {
 			const sequence = source1Model.sequences[Object.keys(source1Model.sequences)[0]!];
 			if (sequence) {
@@ -563,7 +602,7 @@ export class CharacterManager {
 		return this.#slotsPositions;
 	}
 
-	static refreshCustomDisposition(customDisposition: CustomDisposition): void {
+	static refreshCustomDisposition(customDisposition: CustomDisposition, scene: Scene = loadoutScene): void {
 		const positions: CharacterPosition[] = [];
 		const deltaX = 40;
 		const deltaY = 50;
@@ -573,7 +612,7 @@ export class CharacterManager {
 		const startY = -deltaY * 0.5 * (customDisposition.countY - 1);
 		const startZ = -deltaZ * 0.5 * (customDisposition.countZ - 1);
 
-		this.setSlotsCount(customDisposition.countX * customDisposition.countY * customDisposition.countZ);
+		this.setSlotsCount(customDisposition.countX * customDisposition.countY * customDisposition.countZ, false, scene);
 
 		for (let x = 0; x < customDisposition.countX; x++) {
 			for (let y = 0; y < customDisposition.countY; y++) {
@@ -594,7 +633,7 @@ export class CharacterManager {
 		this.#slotsPositions.set('custom', positions);
 		//this.#setCharactersPositions(new CharactersPositions(positions, true));
 
-		this.useDisposition('custom');
+		this.useDisposition('custom', scene);
 	}
 
 	static #pickedModel(pickEvent: CustomEvent<GraphicMouseEventData>): void {
@@ -603,8 +642,13 @@ export class CharacterManager {
 			this.#selectCharacterPerDynamicProp(model);
 		}
 	}
-	static async #selectCharacterPerDynamicProp(prop: Entity): Promise<void> {
-		for (const slot of this.#characterSlots) {
+	static async #selectCharacterPerDynamicProp(prop: Entity, scene: Scene = loadoutScene): Promise<void> {
+		let slots = this.#characterSlots.get(scene);
+		if (!slots) {
+			return;
+		}
+
+		for (const slot of slots) {
 			if (!slot.character) {
 				continue;
 			}
@@ -614,7 +658,7 @@ export class CharacterManager {
 			while (currentEntity) {
 				if (characterModel == currentEntity) {
 					this.#currentSlot = slot;
-					this.#setCurrentCharacter(slot.character);
+					this.#setCurrentCharacter(slot.character, scene);
 					return;
 				}
 

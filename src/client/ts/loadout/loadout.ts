@@ -3,12 +3,12 @@ import { TF2_CASUAL_BADGE } from '../constants';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { KillstreakColor } from '../paints/killstreaks';
 import { CharacterManager } from './characters/charactermanager';
+import { Tf2Class } from './characters/characters';
 import { Effect } from './effects/effect';
 import { EffectTemplate } from './effects/effecttemplate';
 import { Item } from './items/item';
 import { ItemTemplate } from './items/itemtemplate';
-import { addTF2Model } from './scene';
-import { Tf2Class } from './characters/characters';
+import { addTF2Model, loadoutScene } from './scene';
 
 export class Loadout {
 	static #badgeModel: Source1ModelInstance | null = null;
@@ -31,7 +31,7 @@ export class Loadout {
 		if (level) {
 			if (!this.#badgeModel) {
 				//this.#badgeModel.visible = false;
-				this.#badgeModel = await addTF2Model(TF2_CASUAL_BADGE);
+				this.#badgeModel = await addTF2Model(loadoutScene, TF2_CASUAL_BADGE);
 				if (this.#badgeModel) {
 					this.#badgeModel.setQuaternion([0, 0, -1, 1]);
 					this.#badgeModel.setPosition([0, 0, 40]);

@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import { ChoreographiesManager, ChoreographyEventType, Material, RandomFloat, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
+import { ChoreographiesManager, ChoreographyEventType, Material, RandomFloat, Scene, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
 import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
 import { Controller, ControllerEvent } from '../../controller';
@@ -29,6 +29,7 @@ export const enum Ragdoll {
 }
 
 export class Character {
+	readonly scene: Scene;
 	readonly characterClass: Tf2Class;
 	readonly name: string;
 	readonly npc: string;
@@ -57,8 +58,9 @@ export class Character {
 	#flexControllers = new Map<string, number>;
 	#decapitationLevel = 0;
 
-	constructor(characterClass: Tf2Class) {
+	constructor(characterClass: Tf2Class, scene: Scene) {
 		this.characterClass = characterClass;
+		this.scene = scene;
 		this.name = CharactersList.get(characterClass)?.name ?? '';
 		this.npc = CharactersList.get(characterClass)?.npc ?? '';
 	}
@@ -68,7 +70,7 @@ export class Character {
 			return;
 		}
 		this.#loaded = true;
-		this.#model = await addTF2Model(path);
+		this.#model = await addTF2Model(this.scene, path);
 		if (!this.#model) {
 			this.#readyPromiseResolve(false);
 			return;
@@ -92,7 +94,7 @@ export class Character {
 	}
 
 	async addExtraModel(path: string, repository?: string): Promise<Source1ModelInstance | null> {
-		const extraModel = await addTF2Model(path, repository);
+		const extraModel = await addTF2Model(null, path, repository);
 
 		if (extraModel) {
 			extraModel.setVisible(this.#visible);

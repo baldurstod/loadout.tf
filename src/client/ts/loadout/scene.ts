@@ -50,7 +50,7 @@ export function setPolarRotation(polarRotation: boolean): void {
 	}
 }
 
-export async function addTF2Model(path: string, repository?: string, name?: string): Promise<Source1ModelInstance | null> {
+export async function addTF2Model(parent: Entity | null, path: string, repository?: string, name?: string): Promise<Source1ModelInstance | null> {
 	const model = await Source1ModelManager.createInstance(repository ?? 'tf2', path, true);
 	if (!model) {
 		return null;
@@ -59,7 +59,7 @@ export async function addTF2Model(path: string, repository?: string, name?: stri
 		model.name = name;
 	}
 	model.setupPickingId();
-	loadoutScene?.addChild(model);
+	parent?.addChild(model);
 	const itemStartSeq = model.sourceModel.mdl.getSequenceById(0);
 	if (itemStartSeq) {
 		model.playSequence(itemStartSeq.name);

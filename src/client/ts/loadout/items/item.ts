@@ -79,10 +79,10 @@ export class Item {
 		if (!this.#stattrakModule) {
 			const stattrakPath = this.#itemTemplate.weaponUsesStattrakModule;
 			if (stattrakPath) {
-				this.#stattrakModule = addTF2Model(stattrakPath, undefined, 'Stat clock');
+				this.#stattrakModule = addTF2Model(this.#model, stattrakPath, undefined, 'Stat clock');
 				//modelLayer.addEntity(this.#stattrakModule);
 				if (await this.#stattrakModule) {
-					this.#model?.addChild(await this.#stattrakModule);
+					//this.#model?.addChild(await this.#stattrakModule);
 					this.#refreshSkin();
 				}
 			}
@@ -256,9 +256,9 @@ export class Item {
 		if (showFestivizer && !this.#festivizerModel) {
 			const festivizerPath = this.#itemTemplate.attachedModelsFestive;
 			if (festivizerPath) {
-				this.#festivizerModel = await addTF2Model(festivizerPath, this.getRepository(), this.#itemTemplate.name + ' Festivizer');
+				this.#festivizerModel = await addTF2Model(this.#model, festivizerPath, this.getRepository(), this.#itemTemplate.name + ' Festivizer');
 				if (this.#festivizerModel) {
-					this.#model?.addChild(this.#festivizerModel);
+					//this.#model?.addChild(this.#festivizerModel);
 					this.#refreshSkin();
 				}
 			}
@@ -306,12 +306,12 @@ export class Item {
 		this.#loaded = true;
 		const path = await this.#itemTemplate.getModel(npc);
 		if (path) {
-			this.#model = await addTF2Model(path, this.getRepository());
+			this.#model = await addTF2Model(null, path, this.getRepository());
 		}
 
 		const pathBlu = this.#itemTemplate.getModelBlue(npc);
 		if (pathBlu) {
-			this.#modelBlu = await addTF2Model(pathBlu, this.getRepository());
+			this.#modelBlu = await addTF2Model(null, pathBlu, this.getRepository());
 			this.#modelBlu?.setVisible(false);
 		}
 
@@ -320,9 +320,9 @@ export class Item {
 			const attachedModel = attachedModels;
 			//for (const attachedModel of attachedModels)
 			{
-				const extraModel = await addTF2Model(attachedModel, this.getRepository()/*, this.name + ' attached'*/);
+				const extraModel = await addTF2Model(this.#model, attachedModel, this.getRepository()/*, this.name + ' attached'*/);
 				if (extraModel) {
-					this.#model?.addChild(extraModel);
+					//this.#model?.addChild(extraModel);
 					this.#attachedModels.push(extraModel);
 				}
 			}
@@ -330,7 +330,7 @@ export class Item {
 
 		const pathExtraWearable = this.#itemTemplate.getExtraWearable();
 		if (pathExtraWearable) {
-			this.#modelExtraWearable = await addTF2Model(pathExtraWearable, this.getRepository());
+			this.#modelExtraWearable = await addTF2Model(null, pathExtraWearable, this.getRepository());
 		}
 
 		if (this.#model) {
