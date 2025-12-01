@@ -387,6 +387,9 @@ export class Item {
 	}
 
 	setPaint(paint: Paints | null): void {
+		if (paint == Paints.None) {
+			paint = null;
+		}
 		if (paint !== null) {
 			this.#paint = getPaint(paint);
 		} else {
