@@ -1,4 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-inferrable-types
 const __patreon_mode__: number = -1;
+// eslint-disable-next-line @typescript-eslint/no-inferrable-types
 const __isProduction__: boolean = false;
 
 export const ENABLE_PATREON_BASE = __patreon_mode__ == 0;

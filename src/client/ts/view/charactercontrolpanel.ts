@@ -1,8 +1,9 @@
 import { createElement, defineHarmonyRadio, HTMLHarmonySwitchElement } from 'harmony-ui';
 import characterControlCSS from '../../css/charactercontrol.css';
-import { Controller, ControllerEvent } from '../controller';
+import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../controller';
 import { Ragdoll } from '../loadout/characters/character';
 import { CharacterManager } from '../loadout/characters/charactermanager';
+import { loadoutScene } from '../loadout/scene';
 import { StaticPanel } from './staticpanel';
 import { TeamSelector } from './teamselector';
 
@@ -59,18 +60,18 @@ export class CharacterControlPanel extends StaticPanel {
 				//OptionsManager.setItem('app.css.theme', (event).detail.value);
 				switch (event.detail.value) {
 					case 'none':
-						Controller.dispatchEvent<boolean>(ControllerEvent.SetInvulnerable, { detail: false });
+						Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: false, scene: loadoutScene } });
 						Controller.dispatchEvent<Ragdoll>(ControllerEvent.SetRagdoll, { detail: Ragdoll.None });
 						break;
 					case 'invulnerable':
-						Controller.dispatchEvent<boolean>(ControllerEvent.SetInvulnerable, { detail: event.detail.state });
-						Controller.dispatchEvent<Ragdoll>(ControllerEvent.SetRagdoll, { detail: Ragdoll.None });
+						Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: event.detail.state, scene: loadoutScene } });
+						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.None, scene: loadoutScene } });
 						break;
 					case 'gold':
-						Controller.dispatchEvent<Ragdoll>(ControllerEvent.SetRagdoll, { detail: Ragdoll.Gold });
+						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Gold, scene: loadoutScene } });
 						break;
 					case 'ice':
-						Controller.dispatchEvent<Ragdoll>(ControllerEvent.SetRagdoll, { detail: Ragdoll.Ice });
+						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Ice, scene: loadoutScene } });
 						break;
 				}
 			},
