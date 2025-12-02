@@ -26,6 +26,7 @@ import { activeCameraControl, addTF2Model, customLightsContainer, lightsContaine
 import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
+import { compareWarpaints } from './loadout/comparewarpaints';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -536,6 +537,10 @@ class Application {
 		OptionsManager.resetItem('app.cameras.orbit.quaternion');
 		OptionsManager.resetItem('app.cameras.orbit.target');
 		loadoutScene.addChild(orbitCamera);
+
+		if (compareWarpaints) {
+			orbitCameraControl.target.setPosition(vec3.create());// TODO: optimize
+		}
 	}
 
 	#setupAnalytics(): void {

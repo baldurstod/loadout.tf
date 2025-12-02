@@ -10,7 +10,7 @@ import { loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl }
 
 export const weaponLayout: CanvasLayout = new CanvasLayout(COMPARE_WARPAINTS_LAYOUT);
 
-let compareWarpaints = false;
+export let compareWarpaints = false;
 const warpaintsGroup = new Group({ parent: loadoutScene, name: 'warpaints' });
 
 const weaponsToView = new Map<Source1ModelInstance, CanvasView>();
@@ -39,8 +39,13 @@ function characterChanged(character: Character): void {
 		initWeaponLayout(character.items);
 		compareWarpaints = true;
 	} else {
+		const compareWarpaintsOld = compareWarpaints;
 		Controller.dispatchEvent<string>(ControllerEvent.UseLayout, { detail: LOADOUT_LAYOUT });
 		compareWarpaints = false;
+		if (compareWarpaintsOld) {
+			// Reset the camera if we were previously in a compare warpaint layout
+			Controller.dispatchEvent<void>(ControllerEvent.ResetCamera)
+		}
 	}
 }
 
@@ -87,6 +92,7 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 			backgroundTextureSize = OptionsManager.getItem('warpaints.texture.size') as number;
 	}
 
+	orbitCameraControl.target.setPosition(vec3.create());
 	for (let i = 0; i < side; i++) {
 		for (let j = 0; j < side; j++) {
 
@@ -96,7 +102,6 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 				],
 				camera: orbitCamera,
 			});
-			orbitCameraControl.target.setPosition(vec3.create());
 
 			const item = entries.next().value;
 
