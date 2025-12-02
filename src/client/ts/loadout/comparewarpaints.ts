@@ -1,12 +1,12 @@
 import { quat, vec3 } from 'gl-matrix';
-import { BoundingBox, CanvasLayout, CanvasView, Entity, GraphicMouseEventData, GraphicsEvent, GraphicsEvents, Group, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
+import { AmbientLight, BoundingBox, CanvasLayout, CanvasView, Entity, GraphicMouseEventData, GraphicsEvent, GraphicsEvents, Group, PointLight, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
 import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT, LOW_QUALITY_TEXTURE_SIZE, MID_QUALITY_TEXTURE_SIZE } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Character } from './characters/character';
 import { Tf2Class } from './characters/characters';
 import { Item } from './items/item';
-import { customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl } from './scene';
+import { loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl } from './scene';
 
 export const weaponLayout: CanvasLayout = new CanvasLayout(COMPARE_WARPAINTS_LAYOUT);
 
@@ -18,6 +18,14 @@ const modelToItem = new Map<Source1ModelInstance, Item>();
 let highlitView: CanvasView | null = null;
 let highlitViewport: Viewport | null = null;
 let highlitModel: Entity | null = null;
+const warpaintsLights = new Group({
+	name: 'Warpaints lights',
+	childs: [
+		new AmbientLight(),
+		new PointLight({ range: 200, intensity: 2, position: [0, 0, 150] }),
+		new PointLight({ range: 200, intensity: 2, position: [0, 0, -150] }),
+	],
+});
 
 Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => characterChanged((event as CustomEvent<Character>).detail));
 Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
@@ -83,11 +91,8 @@ async function initWeaponLayout(weapons: Map<string, Item>): Promise<void> {
 		for (let j = 0; j < side; j++) {
 
 			const weaponScene = new Scene({
-				//parent: warpaintsGroup,
-				//background: loadoutColorBackground,
 				childs: [
-					new SceneNode({ entity: customLightsContainer }),
-					new SceneNode({ entity: lightsContainer }),
+					new SceneNode({ entity: warpaintsLights }),
 				],
 				camera: orbitCamera,
 			});
@@ -206,14 +211,12 @@ function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
 	}
 }
 
-const tempQuat = quat.create();
 function animate(): void {
 	if (!compareWarpaints) {
 		return;
 	}
 
-	orbitCamera.getQuaternion(tempQuat)
-	customLightsContainer?.setQuaternion(tempQuat);
-	lightsContainer.setQuaternion(tempQuat);
-
+	const tempVec3 = vec3.create();
+	orbitCamera.getWorldPosition(tempVec3);
+	warpaintsLights?.lookAt(tempVec3);
 }
