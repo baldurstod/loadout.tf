@@ -193,12 +193,17 @@ export class Item {
 				sys.start();
 				this.#model.addChild(sys);
 				this.#model.attachSystem(sys, '');
+				for await (const child of this.getAllModels()) {
+					child.materialsParams['ModelGlowColor'] = glowColor;
+				}
+				/*
 				this.#model.materialsParams['ModelGlowColor'] = glowColor;
 
 				const module = await this.#stattrakModule;
 				if (module) {
 					module.materialsParams['ModelGlowColor'] = glowColor;
 				}
+				*/
 			}
 			if (this.#team == Team.Red) {
 				this.#critBoostSysRed = sys;
@@ -207,12 +212,17 @@ export class Item {
 			}
 
 		} else {
+			/*
 			if (this.#model) {
 				this.#model.materialsParams['ModelGlowColor'] = null;
 			}
 			const module = await this.#stattrakModule;
 			if (module) {
 				module.materialsParams['ModelGlowColor'] = null;
+			}
+				*/
+			for await (const child of this.getAllModels()) {
+				child.materialsParams['ModelGlowColor'] = null;
 			}
 		}
 
@@ -652,5 +662,28 @@ export class Item {
 
 	getCharacter(): Character {
 		return this.#character;
+	}
+
+	async *getAllModels(): AsyncGenerator<Source1ModelInstance, void, unknown> {
+		if (this.#model) {
+			yield this.#model;
+		}
+
+		for (const attachedModel of this.#attachedModels) {
+			yield attachedModel;
+		}
+
+		if (this.#festivizerModel) {
+			yield this.#festivizerModel;
+		}
+
+		if (this.#modelExtraWearable) {
+			yield this.#modelExtraWearable;
+		}
+
+		const stattrakModule = await this.#stattrakModule;
+		if (stattrakModule) {
+			yield stattrakModule;
+		}
 	}
 }
