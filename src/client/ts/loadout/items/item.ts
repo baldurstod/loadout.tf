@@ -344,6 +344,10 @@ export class Item {
 		}
 
 		if (this.#model) {
+			if (this.#itemTemplate.usePerClassBodygroups) {
+				this.#model.setBodyPartModel('class', this.#character.characterClass);
+			}
+
 			this.#readyPromiseResolve(true);
 			//this.#model.setFlexes();
 			this.#model.setPoseParameter('move_x', 1);

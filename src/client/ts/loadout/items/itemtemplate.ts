@@ -146,8 +146,8 @@ export class ItemTemplate {
 		return this.#definition.wm_bodygroup_override as Record<string, string>;
 	}
 
-	get usePerClassBodygroups(): string {
-		return this.#definition.use_per_class_bodygroups as string;
+	get usePerClassBodygroups(): boolean {
+		return this.#definition.use_per_class_bodygroups  == '1';;
 	}
 
 	getExtraWearable(): string {
