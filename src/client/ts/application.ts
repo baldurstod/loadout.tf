@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { TextureCombiner, TextureCombinerEventTarget, WarpaintDoneEvent, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -19,6 +19,7 @@ import { importFile } from './fileimporter';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
+import { compareWarpaints } from './loadout/comparewarpaints';
 import { Team } from './loadout/enums';
 import { ItemManager } from './loadout/items/itemmanager';
 import { Loadout } from './loadout/loadout';
@@ -26,7 +27,6 @@ import { activeCameraControl, addTF2Model, customLightsContainer, lightsContaine
 import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
-import { compareWarpaints } from './loadout/comparewarpaints';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -77,6 +77,7 @@ class Application {
 		this.#initLights();
 		this.#initOptions();
 		this.#initShortcuts();
+		this.#initSounds();
 		this.#setupAnalytics();
 		this.#initDefaultCharacter();
 
@@ -108,7 +109,7 @@ class Application {
 			autoResize: true,
 			webGL: {
 				alpha: true,
-				premultipliedAlpha: false,
+				premultipliedAlpha: true,
 				depth: true,
 			}
 		});
@@ -530,6 +531,16 @@ class Application {
 		ShortcutHandler.addEventListener('app.shortcuts.itemlist.open', () => Controller.dispatchEvent<Panel>(ControllerEvent.TogglePanel, { detail: Panel.Items }));
 		ShortcutHandler.addEventListener('app.shortcuts.picture', () => Controller.dispatchEvent(ControllerEvent.SavePicture));
 		//ShortcutHandler.addEventListener('app.shortcuts.warpaints.openeditor', () => this.#toggleWarpaintEditor());
+	}
+
+	async #initSounds() {
+		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds_vo.txt');
+		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds_vo_handmade.txt');
+		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds_player.txt');
+		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds_taunt_workshop.txt');
+		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds_music.txt');
+		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds_vo_taunts.txt');
+		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds.txt');
 	}
 
 	#resetCamera(): void {
