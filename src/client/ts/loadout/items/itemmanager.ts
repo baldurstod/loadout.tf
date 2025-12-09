@@ -404,6 +404,13 @@ export class ItemManager {
 		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
 			yield* [...this.entries()].sort(
 				(a, b) => {
+					if (a[1].name.toLowerCase().includes('romevision')) {
+						return 1;
+					}
+					if (b[1].name.toLowerCase().includes('romevision')) {
+						return -1;
+					}
+
 					const aname = a[1].id;
 					const bname = b[1].id;
 					const aId = parseInt(aname, 10);

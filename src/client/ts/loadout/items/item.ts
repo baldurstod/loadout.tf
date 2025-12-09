@@ -186,6 +186,8 @@ export class Item {
 				systemName = 'critgun_weaponmodel_blu';
 			}
 
+			//for soda popper hype
+			//glowColor = [50, 2, 48];
 			if (systemName && glowColor) {
 				if (!sys) {
 					sys = await Source1ParticleControler.createSystem('tf2', systemName);
