@@ -195,7 +195,7 @@ export class ItemManager {
 	static initItems(): Promise<void> {
 		if (!this.#loadItemsPromise) {
 			this.#loadItemsPromise = new Promise((resolve) => {
-				const url = `${TF2_REPOSITORY}generated/items/items_${this.#lang}.json`;
+				const url = `${TF2_REPOSITORY}generated/items/items_${this.#lang}.json?t=${new Date().getTime()}`;
 				fetch(new Request(url)).then((response) => {
 					response.json().then((json) => {
 						if (json) {
