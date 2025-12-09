@@ -34,7 +34,6 @@ export class ApplicationPanel {
 
 	#initHTML(): void {
 		this.#shadowRoot = createShadowRoot('div', {
-			class: 'ApplicationPanel',
 			parent: document.body,
 			adoptStyle: applicationCSS,
 			childs: [

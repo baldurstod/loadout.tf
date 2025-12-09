@@ -67,7 +67,6 @@ export class Viewer {
 
 
 		this.#shadowRoot = createShadowRoot('div', {
-			class: 'Viewer',
 			adoptStyle: viewerCSS,
 			childs: [
 				this.#htmlCanvas,

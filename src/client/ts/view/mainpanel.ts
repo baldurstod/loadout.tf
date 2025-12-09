@@ -15,7 +15,6 @@ export class MainPanel {
 
 	#initHTML(): HTMLElement {
 		this.#shadowRoot = createShadowRoot('div', {
-			class: 'MainPanel',
 			adoptStyle: mainCSS,
 			childs: [
 				this.#loadoutView.getHTMLElement(),
