@@ -337,7 +337,9 @@ export class ScriptEditor extends HTMLElement {
 
 	async #addSession(name: string, content: string): Promise<void> {
 		await this.#aceEditorReady;
-		const session = new (globalThis as any).ace.EditSession(content, 'ace/mode/python') as EditSession;
+		const ace = (globalThis as any).ace;
+		const session = new ace.EditSession(content, 'ace/mode/python') as EditSession;
+		session.setUndoManager(new ace.UndoManager());
 		//session.setMode('ace/mode/python');
 
 		session.on('change', () => {
