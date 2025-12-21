@@ -2,7 +2,7 @@ import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { AudioMixer, Entity, Line, Repository, RepositoryEntry, SceneExplorer, ShaderEditor, Sphere } from 'harmony-3d';
 import { defineRepository, HTMLRepositoryElement } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
-import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
+import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n, show } from 'harmony-ui';
 import { fileToImage } from 'harmony-utils';
 import optionsCSS from '../../css/options.css';
 import repositoryEntryCSS from '../../css/repositoryentry.css';
@@ -13,6 +13,9 @@ import { CharacterManager, CustomDisposition } from '../loadout/characters/chara
 import { addTF2Model, loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 import { ScriptEditor } from './scripteditor';
+import { JSONObject } from 'harmony-types';
+import { SHADERTOY_DIRECTORY } from '../constants';
+import { getShaderToyList } from '../utils/shadertoy';
 
 export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;
@@ -228,7 +231,29 @@ export class OptionsPanel extends DynamicPanel {
 		const htmlBackgroundTypeLabel = createElement('label', { class: 'space-after', i18n: '#background_type' });
 
 		const htmlBackgroundSelect = createElement('select', {
-			$change: (event: Event) => Controller.dispatchEvent<SetBackgroundType>(ControllerEvent.SetBackgroundType, { detail: { type: (event.target as HTMLSelectElement).value as BackgroundType } }),
+			$change: (event: Event) => {
+				const type = (event.target as HTMLSelectElement).value as BackgroundType;
+				let param: string | FileList | null = null;
+
+				display(this.#htmlShaderToy, type == BackgroundType.ShaderToy);
+				display(this.#htmlSolidColor, type == BackgroundType.SolidColor);
+
+				if (type == BackgroundType.ShaderToy) {
+					param = this.#htmlShaderToyList!.value;
+
+					getShaderToyList().then(shaders => {
+						if (!shaders) {
+							return;
+						}
+						for (let name of shaders) {
+							let option = createElement('option', { innerHTML: name, value: name }) as HTMLOptionElement;
+							this.#htmlShaderToyList?.append(option);
+						}
+					});
+				}
+
+				Controller.dispatchEvent<SetBackgroundType>(ControllerEvent.SetBackgroundType, { detail: { type, param } })
+			},
 		});
 		//htmlBackgroundSelect.addEventListener('change', (event) => this.#setBackgroundType(event.target.value));
 		const backgroundOptions = new Map<BackgroundType, string>([[BackgroundType.None, '#none'], [BackgroundType.SolidColor, '#solidcolor'], [BackgroundType.ShaderToy, '#shadertoy'], [BackgroundType.Picture, '#picture']]);

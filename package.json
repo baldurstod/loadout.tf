@@ -34,6 +34,7 @@
 		"@rollup/plugin-terser": "^0.4.4",
 		"@rollup/plugin-typescript": "^12.1.4",
 		"@types/dom-speech-recognition": "^0.0.7",
+		"@webgpu/types": "^0.1.68",
 		"eslint": "^9.38.0",
 		"rollup": "^4.52.4",
 		"rollup-plugin-copy": "^3.5.0",

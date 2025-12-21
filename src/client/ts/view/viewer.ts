@@ -1,4 +1,4 @@
-import { CanvasAttributes, CanvasLayout, CanvasView, ColorBackground, Composer, CopyPass, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvent, GraphicsEvents, OldMoviePass, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, SketchPass, WebGLStats } from 'harmony-3d';
+import { CanvasAttributes, CanvasLayout, CanvasView, Composer, CopyPass, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvent, GraphicsEvents, MeshFlatMaterial, OldMoviePass, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, ShaderType, SketchPass, TextureManager, WebGLStats } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, createShadowRoot } from 'harmony-ui';
@@ -7,7 +7,8 @@ import { LOADOUT_LAYOUT, MAIN_CANVAS, RECORDER_DEFAULT_FILENAME, SHADERTOY_DIREC
 import { Controller, ControllerEvent, SetBackgroundType } from '../controller';
 import { BackgroundType } from '../enums';
 import { weaponLayout } from '../loadout/comparewarpaints';
-import { loadoutScene, orbitCamera, orbitCameraControl } from '../loadout/scene';
+import { loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl } from '../loadout/scene';
+import { getShaderToy } from '../utils/shadertoy';
 
 export class Viewer {
 	#shadowRoot?: ShadowRoot;
@@ -24,9 +25,8 @@ export class Viewer {
 	#palettePass = new PalettePass(orbitCamera);
 	#sketchPass = new SketchPass(orbitCamera);
 	#oldMoviePass = new OldMoviePass(orbitCamera);
-	#solidColorBackground = new ColorBackground();
 	#shaderToyBackground?: FullScreenQuad;
-	#shaderToyList?: JSONObject;
+	#pictureBackground?: FullScreenQuad;
 	#recording = false;
 	#showFps = false;
 
@@ -80,12 +80,22 @@ export class Viewer {
 		Controller.addEventListener(ControllerEvent.SetBackgroundType, (event: Event) => {
 			const type = (event as CustomEvent<SetBackgroundType>).detail.type;
 			const param = (event as CustomEvent<SetBackgroundType>).detail.param;
+
+			this.#shaderToyBackground?.setVisible(false);
+			this.#pictureBackground?.setVisible(false);
+
 			switch (type) {
 				case BackgroundType.None:
 					loadoutScene.background = null;
 					break;
-				case BackgroundType.None:
+				case BackgroundType.SolidColor:
+					loadoutScene.background = loadoutColorBackground;
+					break;
+				case BackgroundType.ShaderToy:
 					this.#setupShaderToyBackground(param as string);
+					break;
+				case BackgroundType.Picture:
+					this.#setupPictureBackground(param as FileList);
 					break;
 
 				default:
@@ -139,20 +149,6 @@ export class Viewer {
 	}
 
 	async #setupShaderToyBackground(shaderName: string): Promise<void> {
-		/*
-		show(this.#htmlShaderToy);
-		if (!this.#shaderToyList) {
-			let shaderToyList = await (await fetch(SHADERTOY_DIRECTORY + 'list.json')).json();
-			if (shaderToyList) {
-				for (let key in shaderToyList) {
-					let option = createElement('option', { innerHTML: key, value: key }) as HTMLOptionElement;
-					this.#htmlShaderToyList?.append(option);
-				}
-			}
-			this.#shaderToyList = shaderToyList;
-		}
-			*/
-
 		if (!this.#shaderToyBackground) {
 			this.#shaderToyBackground = new FullScreenQuad();
 			this.#shaderToyBackground.hideInExplorer = true;
@@ -164,39 +160,76 @@ export class Viewer {
 
 			const material = new ShaderToyMaterial();
 			this.#shaderToyBackground.setMaterial(material);
-
-			/*let sourceName = 'shadertoy_' + Date.now();
-			material.shaderSource = sourceName;
-			Shaders[sourceName + '.vs'] = Shaders['shadertoy.vs'];
-			Shaders[sourceName + '.fs'] = Shaders['shadertoy.fs'];*/
 		} else {
 			this.#shaderToyBackground.setVisible(undefined);
 		}
 
-		if (shaderName && this.#shaderToyList) {
-			const value = this.#shaderToyList[shaderName];
-			if (typeof value == 'object') {
-				const defines = (value as JSONObject).defines as JSONObject;
-				if (defines) {
-					for (const key in defines) {
-						this.#shaderToyBackground.setDefine(key, defines[key] as string);
-					}
-				}
-				shaderName = (value as JSONObject).name as string;
-				//hide(this.#htmlShaderToyLink);
-			} else {
-				/*
-				shaderName = value as string;
-				let href = SHADERTOY_VIEW_URL + value;
-				this.#htmlShaderToyLink.href = href;
-				this.#htmlShaderToyLink.innerHTML = href;
-				show(this.#htmlShaderToyLink);
-				*/
-			}
+		const shaderToy = await getShaderToy(shaderName);
+		if (!shaderToy) {
+			return;
+		}
 
-			setCustomIncludeSource('shadertoy_code', await (await fetch(SHADERTOY_DIRECTORY + shaderName)).text());
-			ShaderManager.resetShadersSource();
-			Graphics.invalidateShaders();
+		if (typeof shaderToy == 'object') {
+			const defines = (shaderToy as JSONObject).defines as JSONObject;
+			if (defines) {
+				for (const key in defines) {
+					this.#shaderToyBackground.setDefine(key, defines[key] as string);
+				}
+			}
+			shaderName = (shaderToy as JSONObject).name as string;
+			//hide(this.#htmlShaderToyLink);
+		} else {
+			shaderName = shaderToy;
+		}
+
+		setCustomIncludeSource('shadertoy_code', await (await fetch(SHADERTOY_DIRECTORY + shaderName)).text(), ShaderType.Fragment);
+		ShaderManager.resetShadersSource();
+		Graphics.invalidateShaders();
+	}
+
+	async #setupPictureBackground(files?: FileList | null) {
+
+		if (!this.#pictureBackground) {
+			this.#pictureBackground = new FullScreenQuad();
+			loadoutScene.addChild(this.#pictureBackground);
+
+			let material = new MeshFlatMaterial();
+			this.#pictureBackground.setMaterial(material);
+			material.setDefine('USE_COLOR_MAP');
+			material.setDefine('SKIP_LIGHTING');
+			material.setDefine('ALWAYS_BEHIND');
+			//texture.setParameters(Graphics.glContext, GL_TEXTURE_2D);
+		} else {
+			this.#pictureBackground.setVisible(undefined);
+		}
+
+		if (files) {
+			for (let file of files) {
+				// Only process image files.
+				if (!file.type.match('image.*')) {
+					continue;
+				}
+
+				let reader = new FileReader();
+				reader.onload = (event) => {
+					let image = new Image();
+					image.onload = () => {
+						this.#pictureBackground!.getMaterial().uniforms['colorMap'] = TextureManager.createTextureFromImage({
+							image,
+							webgpuDescriptor: {
+								size: {
+									width: image.naturalWidth,
+									height: image.naturalHeight,
+								},
+								format: 'rgba8unorm',
+								usage: GPUTextureUsage.TEXTURE_BINDING,
+							}
+						});
+					}
+					image.src = reader.result as string;
+				};
+				reader.readAsDataURL(file);
+			}
 		}
 	}
 
@@ -311,7 +344,7 @@ export class Viewer {
 	}
 
 	#showHighLights(show: boolean): void {
-		show = show && OptionsManager.getItem('app.characters.highlightselected') as boolean ;
+		show = show && OptionsManager.getItem('app.characters.highlightselected') as boolean;
 		if (show) {
 			Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
 		} else {

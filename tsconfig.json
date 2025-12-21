@@ -12,6 +12,7 @@
 		"types": [
 			"node",
 			"dom-speech-recognition",
+			"@webgpu/types",
 		],
 	},
 }
