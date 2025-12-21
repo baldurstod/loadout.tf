@@ -216,6 +216,7 @@ export class Viewer {
 					image.onload = () => {
 						this.#pictureBackground!.getMaterial().uniforms['colorMap'] = TextureManager.createTextureFromImage({
 							image,
+							flipY: true,
 							webgpuDescriptor: {
 								size: {
 									width: image.naturalWidth,

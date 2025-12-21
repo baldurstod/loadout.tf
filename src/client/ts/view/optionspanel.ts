@@ -2,7 +2,7 @@ import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { AudioMixer, Entity, Line, Repository, RepositoryEntry, SceneExplorer, ShaderEditor, Sphere } from 'harmony-3d';
 import { defineRepository, HTMLRepositoryElement } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
-import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n, show } from 'harmony-ui';
+import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
 import { fileToImage } from 'harmony-utils';
 import optionsCSS from '../../css/options.css';
 import repositoryEntryCSS from '../../css/repositoryentry.css';
@@ -11,11 +11,9 @@ import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../co
 import { BackgroundType, CameraType, Panel } from '../enums';
 import { CharacterManager, CustomDisposition } from '../loadout/characters/charactermanager';
 import { addTF2Model, loadoutScene } from '../loadout/scene';
+import { getShaderToyList } from '../utils/shadertoy';
 import { DynamicPanel } from './dynamicpanel';
 import { ScriptEditor } from './scripteditor';
-import { JSONObject } from 'harmony-types';
-import { SHADERTOY_DIRECTORY } from '../constants';
-import { getShaderToyList } from '../utils/shadertoy';
 
 export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;
@@ -237,6 +235,7 @@ export class OptionsPanel extends DynamicPanel {
 
 				display(this.#htmlShaderToy, type == BackgroundType.ShaderToy);
 				display(this.#htmlSolidColor, type == BackgroundType.SolidColor);
+				display(this.#htmlPictureBackground, type == BackgroundType.Picture);
 
 				if (type == BackgroundType.ShaderToy) {
 					param = this.#htmlShaderToyList!.value;
@@ -258,7 +257,10 @@ export class OptionsPanel extends DynamicPanel {
 		//htmlBackgroundSelect.addEventListener('change', (event) => this.#setBackgroundType(event.target.value));
 		const backgroundOptions = new Map<BackgroundType, string>([[BackgroundType.None, '#none'], [BackgroundType.SolidColor, '#solidcolor'], [BackgroundType.ShaderToy, '#shadertoy'], [BackgroundType.Picture, '#picture']]);
 		for (const [key, label] of backgroundOptions) {
-			const option = createElement('option', { i18n: label, value: key, selected: (key == BackgroundType.SolidColor) });
+			const option = createElement('option', { i18n: label, value: key });
+			if (key == BackgroundType.SolidColor) {
+				option.setAttribute('selected', "");
+			}
 			htmlBackgroundSelect.append(option);
 		}
 		htmlBackgroundType.append(htmlBackgroundTypeLabel, htmlBackgroundSelect);
