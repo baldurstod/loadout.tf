@@ -231,7 +231,7 @@ item-manager-item a {
 	color: var(--theme-text-color);
 }
 
-.item-detail-halloween {
+.detail-halloween {
 	font-size: 1em;
 	color: var(--theme-text-color-warning);
 }

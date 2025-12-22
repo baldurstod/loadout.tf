@@ -1,6 +1,7 @@
 import { Source1TextureManager, TextureManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
 import { createElement, defineHarmonySwitch, HarmonySwitchChange, hide, HTMLHarmonySwitchElement, isVisible, show } from 'harmony-ui';
+import { fileToImage } from 'harmony-utils';
 import filterAllMotdPNG from '../../img/class_icon/filter_all_motd.png';
 import filterDemoMotdPNG from '../../img/class_icon/filter_demo_motd.png';
 import filterEngineerMotdPNG from '../../img/class_icon/filter_engineer_motd.png';
@@ -22,7 +23,6 @@ import { inventoryPath, STEAM_PROFILE_URL } from '../constants';
 import { Controller, ControllerEvent, ItemPinned } from '../controller';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { ItemTemplate } from '../loadout/items/itemtemplate';
-import { fileToImage } from 'harmony-utils';
 
 const SELECTED_CLASS = 'item-manager-item-selected';
 const WORKSHOP_URL = 'http://steamcommunity.com/sharedfiles/filedetails/?id=';
@@ -154,39 +154,39 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			return;
 		}
 		this.#detail!.addEventListener('click', event => { event.stopPropagation(); });
-		const linkName = /*item.realname || */item.name;
+		const linkName = item.realName || item.name;
 		this.#detail!.innerText = '';
 
-		const detailTitle = createElement('div', { class: 'item-manager-item-detail-title' });
+		const detailTitle = createElement('div', { class: 'detail-title' });
 		detailTitle.innerHTML = linkName;
 		this.#detail!.append(detailTitle);
 
 		const itemCollection = item.getCollection();
 		if (itemCollection) {
-			const detailCollection = createElement('div', { class: 'item-detail-collection' });
+			const detailCollection = createElement('div', { class: 'detail-collection' });
 			detailCollection.innerText = itemCollection;
 			this.#detail!.append(detailCollection);
 		}
 
 		if (item.isHalloweenRestricted()) {
-			const detailHalloween = createElement('div', { class: 'item-detail-halloween capitalize', i18n: '#worn_halloween' });
+			const detailHalloween = createElement('div', { class: 'detail-halloween capitalize', i18n: '#worn_halloween' });
 			this.#detail!.append(detailHalloween);
 		}
 
-		const detailClasses = createElement('div', { class: 'item-detail-classes' });
+		const detailClasses = createElement('div', { class: 'detail-class' });
 
 		const usedByClasses = item.getUsedByClasses();
 		if (usedByClasses.size == 9) {
 			const detailAllClasses = createElement('img', {
 				src: filterAllMotdPNG,
-				class: 'item-manager-item-detail-class',
+				class: 'detail-class',
 			});
 			detailClasses.append(detailAllClasses);
 		} else {
 			for (const c of usedByClasses) {
 				const detailClass = createElement('img', {
 					src: CLASS_ICONS[c],
-					class: 'item-manager-item-detail-class',
+					class: 'detail-class',
 				});
 				detailClasses.append(detailClass);
 			}
@@ -212,25 +212,25 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		}
 
 		if (item.isWorkshop()) {
-			const detailWorkshopLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#workshop' }) as HTMLAnchorElement;
+			const detailWorkshopLink = createElement('a', { class: 'detail-wiki-link capitalize', i18n: '#workshop' }) as HTMLAnchorElement;
 			detailWorkshopLink.href = encodeURI(`${WORKSHOP_URL}${item.id}`);
 			detailWorkshopLink.target = '_blank';
 			this.#detail!.append(detailWorkshopLink);
 
 			if (item.creatorid64) {
-				const detailCreatorLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#creator' }) as HTMLAnchorElement;
+				const detailCreatorLink = createElement('a', { class: 'detail-wiki-link capitalize', i18n: '#creator' }) as HTMLAnchorElement;
 				detailCreatorLink.href = encodeURI(`${STEAM_PROFILE_URL}${item.creatorid64}`);
 				detailCreatorLink.target = '_blank';
 				this.#detail!.append(detailCreatorLink);
 			}
 
 		} else {
-			const detailWikiLink = createElement('a', { class: 'item-manager-item-detail-wiki-link capitalize', i18n: '#official_wiki' }) as HTMLAnchorElement;
+			const detailWikiLink = createElement('a', { class: 'detail-wiki-link capitalize', i18n: '#official_wiki' }) as HTMLAnchorElement;
 			detailWikiLink.href = encodeURI(`https://wiki.teamfortress.com/wiki/${linkName}`);
 			detailWikiLink.target = '_blank';
 			this.#detail!.append(detailWikiLink);
 
-			const detailSteamLink = createElement('a', { class: 'item-manager-item-detail-steammarket-link capitalize', i18n: '#steam_market' }) as HTMLAnchorElement;
+			const detailSteamLink = createElement('a', { class: 'detail-steammarket-link capitalize', i18n: '#steam_market' }) as HTMLAnchorElement;
 			detailSteamLink.href = `https://steamcommunity.com/market/search?appid=440&q=${linkName}`;
 			detailSteamLink.target = '_blank';
 			this.#detail!.append(detailSteamLink);

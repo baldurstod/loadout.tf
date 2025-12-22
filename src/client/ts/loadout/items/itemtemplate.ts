@@ -25,6 +25,10 @@ export class ItemTemplate {
 		return this.#definition.name as string ?? '';
 	}
 
+	get realName(): string {
+		return this.#definition.realname as string ?? '';
+	}
+
 	isUsedByClass(characterClass: Tf2Class): boolean {
 		const usedByClasses = this.#definition.used_by_classes as Record<string, string>/*TODO: improve type*/;
 		if (usedByClasses) {
@@ -45,6 +49,7 @@ export class ItemTemplate {
 					used.add(usedByClass);
 				}
 			}
+			return used;
 		}
 		return new Set();
 	}
@@ -147,7 +152,7 @@ export class ItemTemplate {
 	}
 
 	get usePerClassBodygroups(): boolean {
-		return this.#definition.use_per_class_bodygroups  == '1';;
+		return this.#definition.use_per_class_bodygroups == '1';;
 	}
 
 	getExtraWearable(): string {
