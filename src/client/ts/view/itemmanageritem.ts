@@ -360,7 +360,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 
 					if (image) {
 						const { name: textureName, texture: texture } = Source1TextureManager.addInternalTexture('tf2'/*TODO: get repository from item*/);
-						TextureManager.fillTextureWithImage(texture.getFrame(0)!, image);
+						await TextureManager.fillTextureWithImage(texture.getFrame(0)!, image);
 						CharacterManager.setCustomTexture(itemTemplate.id, textureName);
 					}
 				}

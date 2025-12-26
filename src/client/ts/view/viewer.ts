@@ -213,8 +213,8 @@ export class Viewer {
 				let reader = new FileReader();
 				reader.onload = (event) => {
 					let image = new Image();
-					image.onload = () => {
-						this.#pictureBackground!.getMaterial().uniforms['colorMap'] = TextureManager.createTextureFromImage({
+					image.onload = async () => {
+						this.#pictureBackground!.getMaterial().uniforms['colorMap'] = await TextureManager.createTextureFromImage({
 							image,
 							flipY: true,
 							webgpuDescriptor: {
