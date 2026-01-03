@@ -101,7 +101,7 @@ export async function importLoadout(json: loadoutJSON): Promise<boolean> {
 
 async function importCharacterLoadout(context: ImportContext, characterJSON: characterJSON): Promise<boolean> {
 	const tf2Class = npcToClass(characterJSON.npc);
-	if (!tf2Class) {
+	if (tf2Class === null) {
 		return false;
 	}
 
