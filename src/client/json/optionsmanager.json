@@ -723,12 +723,8 @@
 		},
 		{
 			"name": "engine.particles.usefixedrate",
-			"type": "list",
-			"default": "yes",
-			"datalist": [
-				"no",
-				"yes"
-			]
+			"type": "boolean",
+			"default": true
 		},
 		{
 			"name": "engine.particles.simulationrate",

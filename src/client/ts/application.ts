@@ -812,14 +812,10 @@ class Application {
 	}
 
 	#setParticlesRate(): void {
-		const fixedRate = OptionsManager.getItem('engine.particles.usefixedrate');
-		switch (fixedRate) {
-			case 'no':
-				Source1ParticleControler.fixedTime = undefined;
-				break;
-			case 'yes':
-				Source1ParticleControler.fixedTime = 1 / Number(OptionsManager.getItem('engine.particles.simulationrate'));
-				break;
+		if (OptionsManager.getItem('engine.particles.usefixedrate')) {
+			Source1ParticleControler.fixedTime = 1 / Number(OptionsManager.getItem('engine.particles.simulationrate'));
+		} else {
+			Source1ParticleControler.fixedTime = undefined;
 		}
 	}
 
