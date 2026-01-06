@@ -696,6 +696,7 @@ export class Character {
 		}
 
 		if (!template) {
+			this.#tauntEffect = null;
 			return null;
 		}
 
