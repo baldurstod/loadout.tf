@@ -71,6 +71,11 @@ func (pm *patreonMiddleware) middleware(r *gin.Engine) gin.HandlerFunc {
 			pm.whoAmIJSON(c)
 		case "/js/application.js":
 			session := getSession(c)
+			if ReleaseMode == "false" {
+				c.Request.URL.Path = "/js/application_poweruser.js"
+				c.Abort()
+				r.HandleContext(c)
+			}
 
 			if currentlyEntitledAmountCents := session.Get("currently_entitled_amount_cents"); currentlyEntitledAmountCents != nil {
 				if currentlyEntitledAmountCents.(int) >= 100 {

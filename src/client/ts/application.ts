@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, ContextType, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { TextureCombiner, TextureCombinerEventTarget, WarpaintDoneEvent, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -66,10 +66,14 @@ class Application {
 	}
 
 	constructor() {
+		this.#init();
+	}
+
+	async #init(): Promise<void> {
 		setNotificationsPlacement(NotificationsPlacement.Bottom);
 		this.#updatedocumentStyleSheet();
 		document.adoptedStyleSheets.push(this.#documentStyleSheet, this.#menuOrderStyleSheet);
-		this.#initGraphics();
+		await this.#initGraphics();
 		this.#initListeners();
 		//this.#initHTML();
 		this.#iniRepositories();
@@ -102,15 +106,25 @@ class Application {
 		})
 	}
 
-	#initGraphics(): void {
-		Graphics.initCanvas({
+	async #initGraphics(): Promise<void> {
+		let contextType = ContextType.WebGL;
+
+		if (OptionsManager.getItem('engine.renderer.experimentalwebgpu')) {
+			contextType = ContextType.WebGPU;
+		}
+
+		await Graphics.initCanvas({
 			//canvas: this.#htmlCanvas,
 			useOffscreenCanvas: true,
 			autoResize: true,
+			type: contextType,
 			webGL: {
 				alpha: true,
 				premultipliedAlpha: true,
 				depth: true,
+			},
+			webGPU: {
+				alphaMode: 'premultiplied',
 			}
 		});
 

@@ -781,6 +781,11 @@
 			"name": "app.warpaints.texture.save.vtf",
 			"type": "boolean",
 			"default": false
+		},
+		{
+			"name": "engine.renderer.experimentalwebgpu",
+			"type": "boolean",
+			"default": false
 		}
 	]
 }
