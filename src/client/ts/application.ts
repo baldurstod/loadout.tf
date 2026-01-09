@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, ContextType, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, ContextType, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { TextureCombiner, TextureCombinerEventTarget, WarpaintDoneEvent, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -600,14 +600,14 @@ class Application {
 	#startupRenderer(): void {
 		const animate = (event: Event): void => {
 			WebGLStats.tick();
-			const delta = (event as CustomEvent).detail.delta;
+			const delta = (event as CustomEvent<GraphicTickEvent>).detail.delta;
 			activeCameraControl.update(delta);
 
 			/*if (this.#composer?.enabled) {
 				this.#composer.render((event as CustomEvent).detail.delta, {});
 			} else */{
 				//Graphics.render(loadoutScene, loadoutScene.activeCamera ?? this.#activeCamera, (event as CustomEvent).detail.delta, {});
-				Graphics.renderMultiCanvas(delta);
+				Graphics.renderMultiCanvas(delta, (event as CustomEvent<GraphicTickEvent>).detail.context);
 			}
 			/*
 			if (this.#recording) {
