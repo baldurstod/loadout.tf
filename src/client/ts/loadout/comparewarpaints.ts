@@ -1,5 +1,5 @@
 import { quat, vec3 } from 'gl-matrix';
-import { AmbientLight, BoundingBox, CanvasLayout, CanvasView, Entity, GraphicMouseEventData, GraphicsEvent, GraphicsEvents, Group, PointLight, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
+import { AmbientLight, BoundingBox, CanvasLayout, CanvasView, Entity, GraphicPickEvent, GraphicsEvent, GraphicsEvents, Group, PointLight, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
 import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT, LOW_QUALITY_TEXTURE_SIZE, MID_QUALITY_TEXTURE_SIZE } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
@@ -30,7 +30,7 @@ const warpaintsLights = new Group({
 Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => characterChanged((event as CustomEvent<Character>).detail));
 Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
 Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
-GraphicsEvents.addEventListener(GraphicsEvent.MouseClick, (event: Event) => handleClick(event as CustomEvent<GraphicMouseEventData>));
+GraphicsEvents.addEventListener(GraphicsEvent.Pick, (event: Event) => handlePick(event as CustomEvent<GraphicPickEvent>));
 GraphicsEvents.addEventListener(GraphicsEvent.Tick, animate);
 
 function characterChanged(character: Character): void {
@@ -149,7 +149,7 @@ function centerModel(model: Source1ModelInstance): void {
 	model.setPosition(vec3.negate(pos, pos));
 }
 
-function handleClick(pickEvent: CustomEvent<GraphicMouseEventData>): void {
+function handlePick(pickEvent: CustomEvent<GraphicPickEvent>): void {
 	if (!compareWarpaints) {
 		return;
 	}
