@@ -8,6 +8,11 @@ type Warpaint = {
 	title: string,
 }
 
+export type AttachedParticlesystem = {
+	'attachment': string,
+	'system': string,
+}
+
 export class ItemTemplate {
 	#definition: JSONObject/*TODO: improve type*/;
 	#keywords = new Set<string>();
@@ -223,8 +228,8 @@ export class ItemTemplate {
 		return this.#definition.set_attached_particle_static as string;
 	}
 
-	get attachedParticlesystems(): Record<string, string> {
-		return this.#definition.attached_particlesystems as Record<string, string>;
+	get attachedParticlesystems(): AttachedParticlesystem[] {
+		return this.#definition.attached_particlesystems as AttachedParticlesystem[];
 	}
 
 	get customTauntScenePerClass(): Record<string, string> | undefined {

@@ -8,9 +8,11 @@ import { colorToVec4 } from '../../utils/colors';
 import { randomProperty } from '../../utils/randomproperty';
 import { Character, Ragdoll } from '../characters/character';
 import { weaponEffects } from '../effects/effect';
+import { EffectType } from '../effects/effecttemplate';
 import { Team } from '../enums';
 import { addTF2Model } from '../scene';
 import { hasConflict } from './hasconflict';
+import { ItemManager } from './itemmanager';
 import { ItemTemplate } from './itemtemplate';
 
 export class Item {
@@ -346,6 +348,23 @@ export class Item {
 		}
 
 		if (this.#model) {
+
+			let s = ItemManager.getEffectTemplate(EffectType.Cosmetic, Number(this.#itemTemplate.setAttachedParticleStatic));
+			if (s) {
+				let sys = await Source1ParticleControler.createSystem('tf2', s.getSystem());
+				sys.start();
+				this.#model.attachSystem(sys, s.getAttachment());
+			}
+
+			let attachedParticlesystems = this.#itemTemplate.attachedParticlesystems;
+			if (attachedParticlesystems) {
+				for (let attachedSystem of attachedParticlesystems) {
+					let sys = await Source1ParticleControler.createSystem('tf2', attachedSystem.system);
+					sys.start();
+					this.#model.attachSystem(sys, attachedSystem.attachment);
+				}
+			}
+
 			if (this.#itemTemplate.usePerClassBodygroups) {
 				this.#model.setBodyPartModel('class', this.#character.characterClass);
 			}
