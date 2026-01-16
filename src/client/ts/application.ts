@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, ContextType, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, ContextType, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, setRenderParticles, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { TextureCombiner, TextureCombinerEventTarget, WarpaintDoneEvent, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -430,7 +430,7 @@ class Application {
 		});
 
 
-		OptionsManagerEvents.addEventListener('app.effects.renderparticles', (event: Event) => Source1ParticleControler.renderSystems = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.effects.renderparticles', (event: Event) => setRenderParticles((event as CustomEvent<OptionsManagerEvent>).detail.value as boolean));
 
 		OptionsManagerEvents.addEventListener('engine.shadows.quality', (event: Event) => {
 			Light.defaultTextureSize = (event as CustomEvent<OptionsManagerEvent>).detail.value as number;
