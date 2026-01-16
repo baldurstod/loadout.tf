@@ -213,7 +213,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 
 		if (item.isWorkshop()) {
 			const detailWorkshopLink = createElement('a', { class: 'detail-wiki-link capitalize', i18n: '#workshop' }) as HTMLAnchorElement;
-			detailWorkshopLink.href = encodeURI(`${WORKSHOP_URL}${item.id}`);
+			detailWorkshopLink.href = encodeURI(`${WORKSHOP_URL}${item.id.substring(1)/*Remove leading w*/}`);
 			detailWorkshopLink.target = '_blank';
 			this.#detail!.append(detailWorkshopLink);
 
