@@ -313,7 +313,7 @@ export class Viewer {
 	#initPostProcessing(): void {
 		const renderPass = new RenderPass(loadoutScene, orbitCamera);
 
-		const copyPass = new CopyPass(orbitCamera);
+		//const copyPass = new CopyPass(orbitCamera);
 
 		this.#composer.addPass(renderPass);
 		this.#composer.addPass(this.#grainPass);
@@ -323,7 +323,7 @@ export class Viewer {
 		this.#composer.addPass(this.#sketchPass);
 		this.#composer.addPass(this.#pixelatePass);
 		this.#composer.addPass(this.#oldMoviePass);
-		this.#composer.addPass(copyPass);
+		//this.#composer.addPass(copyPass);
 
 		this.#composer.enabled = OptionsManager.getItem('app.postprocessing.enabled') as boolean;
 	}
