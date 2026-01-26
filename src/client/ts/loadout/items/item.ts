@@ -14,6 +14,7 @@ import { addTF2Model } from '../scene';
 import { hasConflict } from './hasconflict';
 import { ItemManager } from './itemmanager';
 import { ItemTemplate } from './itemtemplate';
+import { updatePreview } from './updatepreview';
 
 export class Item {
 	readonly id: string;
@@ -681,6 +682,7 @@ export class Item {
 				model: this.#model,
 				team: this.#team,
 				textureSize: this.#textureSize,
+				updatePreview,
 			});
 		}
 	}
