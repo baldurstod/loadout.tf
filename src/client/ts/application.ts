@@ -57,6 +57,8 @@ class Application {
 	#speech = new LoadoutSpeech();
 
 	static {
+		I18n.setOptions({ translations: [english as I18nTranslation] });
+		I18n.start();
 		defineHarmonySwitch();
 		defineHarmonyRadio();
 		defineHarmonyTab();
@@ -290,15 +292,12 @@ class Application {
 
 	#start(): void {
 		this.#translations.set('english', english);
-		I18n.setOptions({ translations: [english as I18nTranslation] });
 
 		window.addEventListener('beforeunload', () => this.#beforeUnload());
 
 
 		this.#startupRenderer();
 
-
-		I18n.start();
 		this.#loadUrlLoadout();
 	}
 
