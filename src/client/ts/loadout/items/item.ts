@@ -562,6 +562,15 @@ export class Item {
 		return customTauntPropOutroScenePerClass?.[npc] ?? null;
 	}
 
+	getWorkshopAnimationPerClass(npc: string): string | null {
+		const importSessionClasses = this.#itemTemplate.getImportSessionClasses();
+		if (!importSessionClasses) {
+			return null;
+		}
+		const c = importSessionClasses[npc];
+		return c?.['animation']?.['source_file'] ?? null;
+	}
+
 	getTauntAttackName(): string | null {
 		return this.#itemTemplate.tauntAttackName;
 	}
