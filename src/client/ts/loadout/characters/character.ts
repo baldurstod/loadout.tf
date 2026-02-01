@@ -258,6 +258,10 @@ export class Character {
 			if (this.#taunt) {
 				this.#taunt.remove();
 				this.items.delete(this.#taunt.id);
+				if (this.#model) {
+					this.#model.useNewAnimSystem = false;
+					this.#userAnim = '';
+				}
 			}
 
 			this.#taunt = item;
@@ -269,8 +273,10 @@ export class Character {
 				const result = await Repositories.getFileAsArrayBuffer(template.getWorkshopRepository(), animationPath);
 				if (!result.error) {
 					const dmx = unserializeDmxSync(result.buffer!);
-					if (dmx) {
-						this.#model?.importAnimationFromDmx(dmx);
+					if (dmx && this.#model) {
+						this.#model.importAnimationFromDmx(dmx);
+						this.#model.useNewAnimSystem = true;
+						this.#userAnim = 'animationPath';
 					}
 				}
 			}
