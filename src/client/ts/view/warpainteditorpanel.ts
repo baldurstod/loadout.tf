@@ -12,6 +12,9 @@ export class WarpaintEditorPanel extends StaticPanel {
 		ShortcutHandler.addEventListener('app.shortcuts.warpaints.openeditor', () => {
 			toggle(this.getShadowRoot());
 			setUpdatePreview(isVisible(this.getShadowRoot()));
+			if (isVisible(this.getShadowRoot())) {
+				WarpaintEditor.getGui().redrawAllNodes();
+			}
 		});
 	}
 
