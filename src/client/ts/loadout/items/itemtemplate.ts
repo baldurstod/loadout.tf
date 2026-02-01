@@ -1,4 +1,4 @@
-import { ChoreographiesManager, Repositories, VcdParser, WebRepository } from 'harmony-3d';
+import { ChoreographiesManager, Repositories, StorageRepository, VcdParser, WebRepository } from 'harmony-3d';
 import { JSONObject } from 'harmony-types';
 import { WORKSHOP_UGC_URL } from '../../constants';
 import { CharactersList, Tf2Class } from '../characters/characters';
@@ -343,8 +343,8 @@ export class ItemTemplate {
 					const itemRepository = WORKSHOP_UGC_URL + (this.#definition.creatorid64 as string) + '/' + itemId + '/';
 
 					const repositoryName = this.getWorkshopGameRepository();
-					Repositories.addRepository(new WebRepository(this.getWorkshopRepository(), itemRepository));
-					Repositories.addRepository(new WebRepository(repositoryName, itemRepository + 'game/'));
+					Repositories.addRepository(new StorageRepository(new WebRepository(this.getWorkshopRepository(), itemRepository)));
+					Repositories.addRepository(new StorageRepository(new WebRepository(repositoryName, itemRepository + 'game/')));
 
 					this.#definition.repository = repositoryName;
 
