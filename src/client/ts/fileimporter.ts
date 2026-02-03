@@ -1,4 +1,4 @@
-import { ManifestRepository, MergeRepository, PathPrefixRepository, Repositories, Repository, Source1ModelManager, Source1ParticleControler, VpkRepository, ZipRepository } from "harmony-3d";
+import { ManifestRepository, MergeRepository, PathPrefixRepository, Repositories, Repository, sanitizeRepositoryName, Source1ModelManager, Source1ParticleControler, VpkRepository, ZipRepository } from "harmony-3d";
 import { Controller, ControllerEvent } from "./controller";
 
 export async function importFile(file: File, overrideModels: boolean): Promise<void> {
@@ -30,14 +30,14 @@ async function* mountRepo(file: File): AsyncGenerator<Repository, null, undefine
 			yield repo;
 		}
 	} else if (file.name.endsWith('.vpk')) {
-		yield new VpkRepository(file.name, [file]);
+		yield new VpkRepository(sanitizeRepositoryName(file.name), [file]);
 	}
 	return null;
 }
 
 async function* mountZip(file: File): AsyncGenerator<Repository, null, undefined> {
 	//const repo = new MergeRepository(file.name);
-	const zipRepo = new ZipRepository(file.name, file);
+	const zipRepo = new ZipRepository(sanitizeRepositoryName(file.name), file);
 	const response = await zipRepo.getFileList();
 	const root = response.root;
 	if (root) {
