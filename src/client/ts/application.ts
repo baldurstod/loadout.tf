@@ -27,6 +27,7 @@ import { activeCameraControl, addTF2Model, customLightsContainer, lightsContaine
 import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
+import { Character } from './loadout/characters/character';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -519,6 +520,10 @@ class Application {
 
 		OptionsManagerEvents.addEventListener('app.engine.source1.newanimationsystem', (event: Event) => {
 			Source1ModelInstance.useNewAnimSystem = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean;
+		});
+
+		OptionsManagerEvents.addEventListener('app.character.autoselectanim', (event: Event) => {
+			Character.autoSelectAnim = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean;
 		});
 
 		OptionsManager.init({ json: optionsmanager }).then(() => this.#initOptions2());

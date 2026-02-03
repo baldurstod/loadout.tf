@@ -58,6 +58,7 @@ export class Character {
 	#taunt: Item | null = null;
 	#flexControllers = new Map<string, number>;
 	#decapitationLevel = 0;
+	static autoSelectAnim = true;
 
 	constructor(characterClass: Tf2Class, scene: Scene) {
 		this.characterClass = characterClass;
@@ -249,6 +250,7 @@ export class Character {
 		this.items.set(template.id, item);
 		const npc = CharactersList.get(this.characterClass)!.name
 		await item.loadModel(npc);
+		await this.#ready;
 		(await this.getModel())?.addChild(await item.getModel());
 		(await this.getModel())?.addChild(await item.getModelBlu());
 		(await this.getModel())?.addChild(await item.getModelExtraWearable());
@@ -418,7 +420,7 @@ export class Character {
 			return;
 		}
 		const pose = this.#voicePose ?? 'stand';
-		if (OptionsManager.getItem('app.character.autoselectanim')) {
+		if (Character.autoSelectAnim) {
 			this.#playAnim(pose + '_secondary');
 		}
 		for (const [, item] of this.items) {
@@ -588,7 +590,18 @@ export class Character {
 				break;
 		}
 
-		this.#model?.attachSystem(effect.system, attachment, 0);// TODO: offset
+		if (this.characterClass == Tf2Class.Empty) {
+			for (const [, item] of this.items) {
+				const model = await item.getModel();
+				if (model) {
+					model.attachSystem(effect.system, attachment, 0);// TODO: offset
+					break;
+				}
+			}
+		} else {
+			this.#model?.attachSystem(effect.system, attachment, 0);// TODO: offset
+		}
+
 		effect.system.start();
 	}
 

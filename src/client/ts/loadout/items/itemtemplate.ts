@@ -157,7 +157,7 @@ export class ItemTemplate {
 	}
 
 	get usePerClassBodygroups(): boolean {
-		return this.#definition.use_per_class_bodygroups == '1';;
+		return this.#definition.use_per_class_bodygroups == '1';
 	}
 
 	getExtraWearable(): string {
