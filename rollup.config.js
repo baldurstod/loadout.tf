@@ -12,9 +12,14 @@ const isProduction = process.env.BUILD === 'production';
 
 const BUILD_OPTIONS = [
 	{ mode: 2, output: "application_poweruser.js" },
-	{ mode: 0, output: "application.js" },
-	{ mode: 1, output: "application_supporter.js" },
 ];
+
+if (isProduction) {
+	BUILD_OPTIONS.push(
+		{ mode: 0, output: "application.js" },
+		{ mode: 1, output: "application_supporter.js" },
+	);
+}
 
 const BUILDS = [];
 
