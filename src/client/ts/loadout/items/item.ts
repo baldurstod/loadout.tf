@@ -349,23 +349,6 @@ export class Item {
 		}
 
 		if (this.#model) {
-
-			let s = ItemManager.getEffectTemplate(EffectType.Cosmetic, Number(this.#itemTemplate.setAttachedParticleStatic));
-			if (s) {
-				let sys = await Source1ParticleControler.createSystem('tf2', s.getSystem());
-				sys.start();
-				this.#model.attachSystem(sys, s.getAttachment());
-			}
-
-			let attachedParticlesystems = this.#itemTemplate.attachedParticlesystems;
-			if (attachedParticlesystems) {
-				for (let attachedSystem of attachedParticlesystems) {
-					let sys = await Source1ParticleControler.createSystem('tf2', attachedSystem.system);
-					sys.start();
-					this.#model.attachSystem(sys, attachedSystem.attachment);
-				}
-			}
-
 			if (this.#itemTemplate.usePerClassBodygroups) {
 				this.#model.setBodyPartModel('class', this.#character.characterClass);
 			}
@@ -391,6 +374,29 @@ export class Item {
 			loadoutScene.addChild(this.#model);
 		}
 		*/
+	}
+
+
+	async attachSystems(npc: string): Promise<void> {
+		if (!this.#model) {
+			return;
+		}
+
+		let s = ItemManager.getEffectTemplate(EffectType.Cosmetic, Number(this.#itemTemplate.setAttachedParticleStatic));
+		if (s) {
+			let sys = await Source1ParticleControler.createSystem('tf2', s.getSystem());
+			sys.start();
+			this.#model.attachSystem(sys, s.getAttachment());
+		}
+
+		let attachedParticlesystems = this.#itemTemplate.attachedParticlesystems;
+		if (attachedParticlesystems) {
+			for (let attachedSystem of attachedParticlesystems) {
+				let sys = await Source1ParticleControler.createSystem('tf2', attachedSystem.system);
+				sys.start();
+				this.#model.attachSystem(sys, attachedSystem.attachment);
+			}
+		}
 	}
 
 	async getModel(): Promise<Source1ModelInstance | null> {
