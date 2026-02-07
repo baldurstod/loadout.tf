@@ -255,6 +255,7 @@ export class Character {
 		(await this.getModel())?.addChild(await item.getModelBlu());
 		(await this.getModel())?.addChild(await item.getModelExtraWearable());
 		await item.setTeam(this.#team);
+		await item.attachSystems(npc);
 
 		if (item.isTaunt()) {
 			if (this.#taunt) {
