@@ -215,6 +215,11 @@ async function importItem2(context: ImportContext, item: Item, itemJSON: itemJSO
 		item.setSheen(sheenId);
 	}
 
+	const showFestivizer = itemJSON.show_festivizer;
+	if (showFestivizer !== undefined) {
+		item.showFestivizer(showFestivizer);
+	}
+
 	item.setKillCount(itemJSON.kill_count ?? itemJSON.killCount ?? null);
 
 	item.setWeaponEffectId(itemJSON.weapon_effect_id ?? itemJSON.weaponEffectId ?? null);
