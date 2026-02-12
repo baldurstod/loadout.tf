@@ -31,6 +31,7 @@ export class ItemsPanel extends DynamicPanel {
 	#htmlFilterInput?: HTMLInputElement;
 	#htmlConflictingItems?: HTMLElement;
 	#htmlExcludedItems?: HTMLElement;
+	#htmlWorkshopInfo?: HTMLElement;
 	#presetsPanel = new PresetsPanel();
 	#paintPanel = new PaintPanel();
 	#sheenPanel = new SheenPanel();
@@ -103,7 +104,7 @@ export class ItemsPanel extends DynamicPanel {
 								createElement('button', {
 									'i18n': '#workshop',
 									value: 'workshop',
-									$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Workshop, value: event.detail.state } }),
+									$change: (event: CustomEvent) => this.#setWorkshopFilter(event.detail.state),
 								}),
 							],
 						}),
@@ -318,6 +319,14 @@ export class ItemsPanel extends DynamicPanel {
 			class: 'excluded-items',
 			parent: shadowRoot,
 			i18n: '#items_excluded',
+			hidden: true,
+		});
+		this.#htmlWorkshopInfo = createElement('div', {
+			class: 'workshop-info',
+			parent: shadowRoot,
+			i18n: {
+				innerHTML: '#workshop_info'
+			},
 			hidden: true,
 		});
 		//this.#htmlItemSelectorPanelInterfere = createElement('div', { class: 'item-manager-interfere', i18n: '#interfere_warning', hidden: true }),
@@ -593,5 +602,14 @@ export class ItemsPanel extends DynamicPanel {
 	#setFilteredItems(excludedItems: number): void {
 		display(this.#htmlExcludedItems, excludedItems > 0 && OptionsManager.getItem('app.items.filter.displayexcludedcount') as boolean);
 		I18n.setValue(this.#htmlExcludedItems, 'count', excludedItems);
+	}
+
+	#setWorkshopFilter(workshop: boolean): void {
+		Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Workshop, value: workshop } })
+		if (workshop) {
+			show(this.#htmlWorkshopInfo);
+		} else {
+			hide(this.#htmlWorkshopInfo);
+		}
 	}
 }
