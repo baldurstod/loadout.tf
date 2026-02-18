@@ -66,6 +66,7 @@ export type characterJSON = {
 	effects?: effectJSON[];
 	position?: vec3;
 	orientation?: quat;
+	scale?: vec3;
 	decapitation_level?: number;
 
 	// For legacy loadouts. This is only in use for importing loadouts
@@ -249,20 +250,26 @@ function importEffect(context: ImportContext, character: Character, effectJSON: 
 	return null;
 }
 
-export function exportLoadout(): loadoutJSON {
+export async function exportLoadout(): Promise<loadoutJSON> {
 	const charactersJSON: characterJSON[] = [];
 
 	const characters = CharacterManager.getCharacters();
 	for (const character of characters) {
-		charactersJSON.push(exportCharacterLoadout(character));
+		charactersJSON.push(await exportCharacterLoadout(character));
 	}
 
 	return { characters: charactersJSON };
 }
 
 
-function exportCharacterLoadout(character: Character): characterJSON {
+async function exportCharacterLoadout(character: Character): Promise<characterJSON> {
 	const characterJSON: characterJSON = { npc: character.npc, items: [], effects: [] };
+
+	let model = await character.getModel();
+
+	const modelPosition = model?.getWorldPosition();
+	const modelQuaternion = model?.getWorldQuaternion();
+	const modelScale = model?.getWorldScale();
 
 	for (const [, item] of character.items) {
 		characterJSON.items!.push(exportItem(item));
@@ -295,6 +302,18 @@ function exportCharacterLoadout(character: Character): characterJSON {
 	}
 	if (!characterJSON.effects!.length) {
 		characterJSON.effects = undefined;
+	}
+
+	if (modelPosition) {
+		characterJSON.position = modelPosition;
+	}
+
+	if (modelQuaternion) {
+		characterJSON.quaternion = modelQuaternion;
+	}
+
+	if (modelScale) {
+		characterJSON.scale = modelScale;
 	}
 
 	return characterJSON;

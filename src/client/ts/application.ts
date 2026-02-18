@@ -970,7 +970,7 @@ class Application {
 	}
 
 	async #shareLoadout(): Promise<void> {
-		const loadoutJSON = exportLoadout();
+		const loadoutJSON = await exportLoadout();
 		//saveFile(new File([JSON.stringify(loadoutJSON)], 'loadout.json'));return;
 		/*
 		let loadout = CharacterManager.exportLoadout();
