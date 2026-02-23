@@ -1,6 +1,8 @@
 import { customFetch } from 'harmony-3d';
 import { TextureCombiner, WeaponManager } from 'harmony-3d-utils';
 import { OptionsManager, ShortcutHandler } from 'harmony-browser-utils';
+import { casinoSVG, redoSVG, undoSVG } from 'harmony-svg';
+import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, hide, HTMLHarmonyFileInputElement, show } from 'harmony-ui';
 import warpaintPanelCSS from '../../css/warpaintpanel.css';
@@ -9,7 +11,6 @@ import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
 import { Item } from '../loadout/items/item';
 import { DynamicPanel } from './dynamicpanel';
-import { WarpaintDefinitions } from 'harmony-tf2-utils';
 
 type Warpaint = {
 	warpaint: {
@@ -29,6 +30,8 @@ export class WarpaintPanel extends DynamicPanel {
 	#warpaints = new Map<string, Warpaint>();
 	#filter: { name: string, teamColoredOnly: boolean } = { name: '', teamColoredOnly: false };
 	#warpaintPicsPromise?: Promise<JSONObject>;
+	readonly #seedStack: bigint[] = [];
+	#seedPointer = 0;
 
 	constructor() {
 		super(Panel.Warpaints, [warpaintPanelCSS]);
@@ -76,11 +79,28 @@ export class WarpaintPanel extends DynamicPanel {
 				createElement('div', {
 					childs: [
 						createElement('label', {
+							class: 'seed',
 							childs: [
 								createElement('span', { i18n: '#seed', }),
 								this.#htmlPaintSeed = createElement('input', {
-									$change: (event: Event) => this.#setWarpaintSeed(BigInt((event.target as HTMLInputElement).value)),
+									$change: (event: Event) => {
+										const seed = BigInt((event.target as HTMLInputElement).value);
+										this.#pushSeed(seed);
+										this.#setWarpaintSeed(seed);
+									},
 								}) as HTMLInputElement,
+								createElement('div', {
+									innerHTML: undoSVG,
+									$click: () => this.#previousSeed(),
+								}),
+								createElement('div', {
+									innerHTML: casinoSVG,
+									$click: () => this.#randomSeed(),
+								}),
+								createElement('div', {
+									innerHTML: redoSVG,
+									$click: () => this.#nextSeed(),
+								}),
 							],
 						}),
 					],
@@ -315,5 +335,43 @@ export class WarpaintPanel extends DynamicPanel {
 		for (const item of this.#currentItems) {
 			item.setWarpaintSeed(seed);
 		}
+	}
+
+	#randomSeed(): void {
+		const seed = BigInt(Math.round(Math.random() * Number.MAX_SAFE_INTEGER));
+		this.#pushSeed(seed);
+		this.#setWarpaintSeed(seed);
+		this.#htmlPaintSeed!.value = String(seed);
+	}
+
+	#pushSeed(seed: bigint): void {
+		this.#seedStack.splice(this.#seedPointer);
+		this.#seedStack.push(seed);
+		++this.#seedPointer;
+	}
+
+	#previousSeed(): void {
+		const seed = this.getSeed(-1);
+		if (seed !== null) {
+			this.#setWarpaintSeed(seed);
+			this.#htmlPaintSeed!.value = String(seed);
+		}
+	}
+
+	#nextSeed(): void {
+		const seed = this.getSeed(1);
+		if (seed !== null) {
+			this.#setWarpaintSeed(seed);
+			this.#htmlPaintSeed!.value = String(seed);
+		}
+	}
+
+	getSeed(offset: number): bigint | null {
+		const pointer = this.#seedPointer + offset;
+		const seed = this.#seedStack[pointer] ?? null;
+		if (seed !== null) {
+			this.#seedPointer = pointer;
+		}
+		return seed;
 	}
 }

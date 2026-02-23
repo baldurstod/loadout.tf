@@ -52,3 +52,12 @@
 	position: absolute;
 	bottom: 0px;
 }
+
+.seed {
+	display: flex;
+	align-items: center;
+}
+
+.seed svg {
+	cursor: pointer;
+}
