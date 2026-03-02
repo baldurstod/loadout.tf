@@ -127,7 +127,9 @@ class Application {
 				depth: true,
 			},
 			webGPU: {
-				alphaMode: 'premultiplied',
+				configuration: {
+					alphaMode: 'premultiplied',
+				},
 			}
 		});
 
