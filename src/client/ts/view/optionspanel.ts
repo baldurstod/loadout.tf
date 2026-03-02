@@ -1,5 +1,5 @@
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
-import { AudioMixer, Entity, Line, Repository, RepositoryEntry, SceneExplorer, ShaderEditor, Sphere } from 'harmony-3d';
+import { AudioMixer, Entity, Graphics, Line, Repository, RepositoryEntry, SceneExplorer, setCustomIncludeSource, ShaderEditor, ShaderManager, ShaderType, Sphere } from 'harmony-3d';
 import { defineRepository, HTMLRepositoryElement } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
@@ -41,6 +41,7 @@ export class OptionsPanel extends DynamicPanel {
 		super(Panel.Options, [optionsCSS]);
 		hide(this.getShadowRoot());
 		this.#initListeners();
+		this.#initShaderOptions();
 	}
 
 	protected override initHTML(): void {
@@ -1016,5 +1017,47 @@ export class OptionsPanel extends DynamicPanel {
 		});
 
 		I18n.i18n();
+	}
+
+	#initShaderOptions() {
+		function getOptionName(detail: any/*TODO: improve type*/) {
+			switch (detail.type) {
+				case 'shader':
+				default:
+					return 'engine.shaders.customshaders';
+				case 'include':
+					return 'engine.shaders.customincludes';
+			}
+		}
+
+		let saveCustomShader = (event: Event) => {
+			OptionsManager.setSubItem(getOptionName((event as CustomEvent).detail), (event as CustomEvent).detail.name, (event as CustomEvent).detail.source)
+		};
+		let reloadCustomShader = (event: Event, source: string) => {
+			if ((event as CustomEvent).detail.type == 'shader') {
+				ShaderManager.setCustomSource((event as CustomEvent).detail.shaderType, (event as CustomEvent).detail.name, source);
+				this.#shaderEditor.setEditorShaderName(this.#shaderEditor.getEditorShaderName());
+			} else {
+				setCustomIncludeSource((event as CustomEvent).detail.name, source, ShaderType.Fragment);
+				ShaderManager.resetShadersSource();
+				this.#shaderEditor.setEditorIncludeName(this.#shaderEditor.getEditorIncludeName());
+			}
+			Graphics.invalidateShaders();
+		}
+
+		let loadCustomShader = async (event: Event) => {
+			let source = (await OptionsManager.getSubItem(getOptionName((event as CustomEvent).detail), (event as CustomEvent).detail.name)) as string;
+			if (source) {
+				reloadCustomShader(event, source);
+			}
+		};
+		let removeCustomShader = (event: Event) => {
+			OptionsManager.removeSubItem(getOptionName((event as CustomEvent).detail), (event as CustomEvent).detail.name);
+			reloadCustomShader(event, '');
+		};
+
+		this.#shaderEditor.addEventListener('save-custom-shader', saveCustomShader);
+		this.#shaderEditor.addEventListener('load-custom-shader', loadCustomShader);
+		this.#shaderEditor.addEventListener('remove-custom-shader', removeCustomShader);
 	}
 }
