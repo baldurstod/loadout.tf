@@ -398,12 +398,14 @@ class Application {
 				const defineType = await OptionsManager.getOptionType((event as CustomEvent<OptionsManagerEvent>).detail.name);
 				if (defineType == 'boolean') {
 					if ((event as CustomEvent<OptionsManagerEvent>).detail.value == true) {
-						Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase());
+						//Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase());
+						Graphics.setDefine(defineName.toUpperCase());
 					} else {
-						Graphics.removeIncludeCode('option_' + defineName);
+						Graphics.removeDefine(defineName.toUpperCase());
 					}
 				} else {
-					Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase() + ' ' + ((event as CustomEvent<OptionsManagerEvent>).detail.value as string));
+					//Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase() + ' ' + ((event as CustomEvent<OptionsManagerEvent>).detail.value as string));
+					Graphics.setDefine(defineName.toUpperCase(), ((event as CustomEvent<OptionsManagerEvent>).detail.value as string));
 				}
 			})()
 		});
@@ -419,9 +421,9 @@ class Application {
 
 		OptionsManagerEvents.addEventListener('app.lights.renderlights', (event: Event) => {
 			if ((event as CustomEvent<OptionsManagerEvent>).detail.value as boolean) {
-				Graphics.removeIncludeCode('renderlights');
+				Graphics.removeDefine('SKIP_LIGHTING');
 			} else {
-				Graphics.setIncludeCode('renderlights', '#define SKIP_LIGHTING');
+				Graphics.setDefine('SKIP_LIGHTING');
 			}
 		});
 
@@ -773,23 +775,28 @@ class Application {
 
 	#setSilhouetteMode(silhouetteMode: boolean): void {
 		if (silhouetteMode) {
-			Graphics.setIncludeCode('silhouetteMode', '#define SILHOUETTE_MODE');
+			//Graphics.setIncludeCode('silhouetteMode', '#define SILHOUETTE_MODE');
+			Graphics.setDefine('SILHOUETTE_MODE');
 		} else {
-			Graphics.setIncludeCode('silhouetteMode', '#undef SILHOUETTE_MODE');
+			//Graphics.setIncludeCode('silhouetteMode', '#undef SILHOUETTE_MODE');
+			Graphics.removeDefine('SILHOUETTE_MODE');
 		}
 	}
 
 	#setSilhouetteColor(silhouetteColor: string): void {
 		const rgb = hexToRgba(vec4.create(), silhouetteColor);
-		Graphics.setIncludeCode('silhouetteColor', `#define SILHOUETTE_COLOR vec4(${rgb[0]},${rgb[1]},${rgb[2]},${rgb[3]})`);
+		//Graphics.setIncludeCode('silhouetteColor', `#define SILHOUETTE_COLOR vec4(${rgb[0]},${rgb[1]},${rgb[2]},${rgb[3]})`);
+		Graphics.setDefine('SILHOUETTE_COLOR', `vec4(${rgb[0]},${rgb[1]},${rgb[2]},${rgb[3]})`);
 	}
 
 	#showHighLights(show: boolean): void {
 		show = show && OptionsManager.getItem('app.characters.highlightselected') as boolean;
 		if (show) {
-			Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
+			//Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
+			Graphics.setDefine('RENDER_HIGHLIGHT');
 		} else {
-			Graphics.setIncludeCode('showHighLights', '#undef RENDER_HIGHLIGHT');
+			//Graphics.setIncludeCode('showHighLights', '#undef RENDER_HIGHLIGHT');
+			Graphics.removeDefine('RENDER_HIGHLIGHT');
 		}
 	}
 
@@ -904,7 +911,7 @@ class Application {
 			subdivisions = OptionsManager.getItem('app.objexporter.subdivide.iterations') as number;
 		}
 		const files = await new ObjExporter().exportMeshes({
-			meshes: loadoutScene.getMeshList(),
+			meshes: loadoutScene.getRenderableList(),
 			exportTexture: OptionsManager.getItem('app.objexporter.exporttextures') as boolean,
 			singleMesh: OptionsManager.getItem('app.objexporter.singlemesh') as boolean,
 			digits: 4,

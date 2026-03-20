@@ -347,9 +347,11 @@ export class Viewer {
 	#showHighLights(show: boolean): void {
 		show = show && OptionsManager.getItem('app.characters.highlightselected') as boolean;
 		if (show) {
-			Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
+			//Graphics.setIncludeCode('showHighLights', '#define RENDER_HIGHLIGHT');
+			Graphics.setDefine('RENDER_HIGHLIGHT');
 		} else {
-			Graphics.setIncludeCode('showHighLights', '#undef RENDER_HIGHLIGHT');
+			//Graphics.setIncludeCode('showHighLights', '#undef RENDER_HIGHLIGHT');
+			Graphics.removeDefine('RENDER_HIGHLIGHT');
 		}
 	}
 
