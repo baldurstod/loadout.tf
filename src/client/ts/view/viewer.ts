@@ -1,4 +1,4 @@
-import { CanvasAttributes, CanvasLayout, CanvasView, Composer, CopyPass, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvent, GraphicsEvents, MeshFlatMaterial, OldMoviePass, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, ShaderType, SketchPass, TextureManager, WebGLStats } from 'harmony-3d';
+import { CanvasAttributes, CanvasLayout, CanvasView, Composer, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvent, GraphicsEvents, MeshFlatMaterial, OldMoviePass, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, ShaderType, SketchPass, TextureManager, WebGLStats } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, createShadowRoot } from 'harmony-ui';
@@ -214,7 +214,7 @@ export class Viewer {
 				reader.onload = (event) => {
 					let image = new Image();
 					image.onload = async () => {
-						this.#pictureBackground!.getMaterial().uniforms['colorMap'] = await TextureManager.createTextureFromImage({
+						this.#pictureBackground!.getMaterial().setUniformValue('colorMap', await TextureManager.createTextureFromImage({
 							image,
 							flipY: true,
 							webgpuDescriptor: {
@@ -225,7 +225,7 @@ export class Viewer {
 								format: 'rgba8unorm',
 								usage: GPUTextureUsage.TEXTURE_BINDING,
 							}
-						});
+						}));
 					}
 					image.src = reader.result as string;
 				};
