@@ -237,6 +237,7 @@
 		"#picture": "Image",
 		"#badge_level": "Niveau du badge",
 		"#badge_tier": "Rang du badge",
+		"#delete_application_cache": "Effacer le cache de l'application",
 		"#highlight_selected_character": "Surligner le personnage sélectionné",
 		"#picture_size": "Taille de l'image",
 		"#general": "Général",

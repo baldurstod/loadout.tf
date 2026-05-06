@@ -197,6 +197,8 @@ class Application {
 			this.#mapStartup('sfm_photostudio_lite.bsp');
 		});
 
+		Controller.addEventListener(ControllerEvent.DeleteCache, () => this.#tf2WebRepository.purge());
+
 		EntityObserver.addEventListener(EntityObserverEventType.PropertyChanged, (event: Event) => this.#handlePropertyChanged((event as CustomEvent).detail));
 	}
 

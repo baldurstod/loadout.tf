@@ -345,6 +345,20 @@ export class OptionsPanel extends DynamicPanel {
 			createElement('option', { innerHTML: String(i), value: String(i), parent: this.#htmlBadgeTier })
 		}
 		/**************** Casual badge ****************/
+
+		createElement('group', {
+			i18n: {
+				title: '#cache',
+			},
+			parent: htmlGeneralOptionsTab,
+			class: 'loadout-application-options-cache',
+			childs: [
+				createElement('button', {
+					i18n: '#delete_application_cache',
+					$click: () => Controller.dispatchEvent<void>(ControllerEvent.DeleteCache),
+				}),
+			]
+		});
 	}
 
 	#initHtmlCameraOptions(): void {

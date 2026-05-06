@@ -237,6 +237,7 @@
 		"#picture": "Picture",
 		"#badge_level": "Badge level",
 		"#badge_tier": "Badge tier",
+		"#delete_application_cache": "Delete application cache",
 		"#highlight_selected_character": "HighLight selected character",
 		"#picture_size": "Picture size",
 		"#general": "General",
