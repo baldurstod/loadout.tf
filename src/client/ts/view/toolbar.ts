@@ -17,7 +17,7 @@ export class Toolbar extends StaticPanel {
 	protected override initHTML(): void {
 
 		if (TESTING) {
-			this.getShadowRoot().append(createButton('test', '#test', undefined, () => this.#togglePanel(Panel.Printful)),);
+			this.getShadowRoot().append(createButton('test', '#printful', undefined, () => this.#togglePanel(Panel.Printful)),);
 		}
 
 		this.getShadowRoot().append(

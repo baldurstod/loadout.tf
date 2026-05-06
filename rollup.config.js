@@ -48,7 +48,7 @@ for (const buildOption of BUILD_OPTIONS) {
 				commonjs({
 				}),
 				nodeResolve({
-					dedupe: ['gl-matrix', 'harmony-ui', 'harmony-3d', 'harmony-browser-utils'],
+					dedupe: ['gl-matrix', 'harmony-ui', 'harmony-3d', 'harmony-3d-utils', 'harmony-sfm', 'harmony-tf2-utils', 'harmony-browser-utils'],
 				}),
 				isProduction ? terser() : null,
 				copy({

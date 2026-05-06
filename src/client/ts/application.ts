@@ -17,6 +17,7 @@ import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType, Panel } from './enums';
 import { importFile } from './fileimporter';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
+import { Character } from './loadout/characters/character';
 import { CharacterManager } from './loadout/characters/charactermanager';
 import { Tf2Class } from './loadout/characters/characters';
 import { compareWarpaints } from './loadout/comparewarpaints';
@@ -27,7 +28,6 @@ import { activeCameraControl, addTF2Model, customLightsContainer, lightsContaine
 import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer';
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
-import { Character } from './loadout/characters/character';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
@@ -56,6 +56,7 @@ class Application {
 	#zipEntries = new Map<string, Blob>();
 	#fetchRedirect = new Map<string, string>();
 	#speech = new LoadoutSpeech();
+	#tf2WebRepository = new WebRepository('tf2', TF2_REPOSITORY, true);
 
 	static {
 		I18n.setOptions({ translations: [english as I18nTranslation] });
@@ -278,7 +279,7 @@ class Application {
 	}
 
 	#iniRepositories(): void {
-		Repositories.addRepository(new MergeRepository('tf2', new WebRepository('tf2', TF2_REPOSITORY, true)));
+		Repositories.addRepository(new MergeRepository('tf2', this.#tf2WebRepository));
 		Repositories.addRepository(new WebRepository('dota2', DOTA2_REPOSITORY, true));
 		Repositories.addRepository(new WebRepository('hla', ALYX_REPOSITORY, true));
 		Repositories.addRepository(new WebRepository('cs2', CSGO_REPOSITORY, true));
@@ -835,7 +836,11 @@ class Application {
 	#setScoutBluePants(blue: boolean): void {
 		if (blue) {
 			this.#fetchRedirect.set(SCOUT_BLUE_PANTS_ORIGIN, SCOUT_BLUE_PANTS_DEST);
+		} else {
+			this.#fetchRedirect.delete(SCOUT_BLUE_PANTS_ORIGIN);
+
 		}
+		this.#tf2WebRepository.delete(new URL(TF2_REPOSITORY + SCOUT_BLUE_PANTS_ORIGIN));
 	}
 
 	#setParticlesRate(): void {

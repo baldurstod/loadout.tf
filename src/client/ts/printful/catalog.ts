@@ -33,13 +33,13 @@ export async function initProducts(/*region = 'US'*/): Promise<void> {
 		return;
 	}
 
-	productInizialized = true;
 	const { response: productsResponse } = await fetchShopAPI('get-printful-products', 1, {
 		currency: currency,
 	});
 	//const { response: availableProductsResponse } = await FetchAPI('available-products', 1, { region: region });
 
 	if (productsResponse.success/* && availableProductsResponse.success*/) {
+		productInizialized = true;
 		for (const product of productsResponse.result.products as JSONObject[]) {
 			const p = new Product();
 			p.fromJSON(product);
