@@ -23,6 +23,7 @@ export class ItemManager {
 	static #loadItemsPromise?: Promise<void>;
 	static #initMedalsPromise?: Promise<void>;
 	static #initWorkshopPromise?: Promise<void>;
+	static #initSfmWorkshopPromise?: Promise<void>;
 	static readonly #itemCollections = new Set<string>();
 	static readonly #equipRegions = new Set<string>();
 	static #sortingDirection = 1;
@@ -79,6 +80,10 @@ export class ItemManager {
 
 		if (filter.attribute == ItemFilterAttribute.Workshop) {
 			this.initWorkshopItems();
+		}
+
+		if (filter.attribute == ItemFilterAttribute.SfmWorkshop) {
+			this.initSfmWorkshopItems();
 		}
 
 		if (filter.attribute == ItemFilterAttribute.TournamentMedals) {
@@ -496,6 +501,98 @@ export class ItemManager {
 			item.id = String(item.id as number);
 			item.image_inventory = item.previewurl;
 			item.is_workshop = true;
+			item.name = item.title;
+			item.workshopMetadata = null;
+			item.paintable = true;// We don't have any clue about this
+
+			// Create used_by_classes list from tags
+			if (item.tags) {
+				item.used_by_classes = {};
+				const tagList = (item.tags as string).split(';');
+				for (const tag of tagList) {
+					//const tag = tagList[tagIndex];
+					switch (tag) {
+						case 'Demoman':
+						case 'Engineer':
+						case 'Heavy':
+						case 'Medic':
+						case 'Pyro':
+						case 'Scout':
+						case 'Sniper':
+						case 'Soldier':
+						case 'Spy':
+							item.used_by_classes[tag.toLowerCase()] = 1;
+							break;
+					}
+				}
+			}
+
+			const itemTemplate = new ItemTemplate('w' + item.id, item);
+			this.#itemTemplates.set(itemTemplate.id, itemTemplate);
+
+			//const keywords = '';
+			if (item.player_bodygroups) {
+				//keywords = item.player_bodygroups.join(' ');//TODO
+			}
+		}
+	}
+
+	static async initSfmWorkshopItems(): Promise<void> {
+		if (!this.#initSfmWorkshopPromise) {
+			this.#initSfmWorkshopPromise = new Promise<void>((resolve): void => {
+				(async (): Promise<void> => {
+					const response = await fetch('https://localhost:17610/api', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							action: 'get-item-list',
+							version: 1,
+							/*
+							params: {
+								product: {
+									//variant_id: this.#selection.variantId,
+									name: 'TODO variant name', //selectedVariant.name,
+									type: 'default',
+									//image: this.#testImage,
+								},
+							},
+							*/
+						}),
+					});
+					const json = await response.json();
+					console.info(json);
+					if (json) {
+						this.#addSfmWorkshopItems(json)
+					}
+
+					Controller.dispatchEvent<void>(ControllerEvent.ItemsLoaded);
+					resolve();
+				})()
+			});
+		}
+		await this.#initSfmWorkshopPromise;
+	}
+
+	static #addSfmWorkshopItems(responseJson: JSONObject): void {
+		if (!responseJson) {
+			return;
+		}
+
+		if (!responseJson.result || !responseJson.success) {
+			return;
+		}
+
+		const itemList = (responseJson.result as JSONObject)?.items as JSONObject[];
+		if (!itemList) {
+			return;
+		}
+
+		for (const item of itemList) {
+			item.id = String(item.publishedfileid as number);
+			item.image_inventory = item.preview_url;
+			item.is_sfm_workshop = true;
 			item.name = item.title;
 			item.workshopMetadata = null;
 			item.paintable = true;// We don't have any clue about this

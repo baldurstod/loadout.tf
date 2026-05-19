@@ -15,6 +15,7 @@ export class ItemFilter {
 	name?: string;
 	selected = false;
 	workshop = false;
+	sfmWorkshop = false;
 	hideConflict?: boolean;
 	tournamentMedals = false;
 	showMultiClass = true;
@@ -269,6 +270,10 @@ export class ItemFilter {
 			return ItemFilterResult.ExcludedClass;
 		}
 
+		if (this.sfmWorkshop != item.isSfmWorkshop()) {
+			return ItemFilterResult.ExcludedClass;
+		}
+
 		if (highlightConflict) {
 			return ItemFilterResult.Conflicting;
 		}
@@ -286,6 +291,9 @@ export class ItemFilter {
 				break;
 			case ItemFilterAttribute.Workshop:
 				this.workshop = value as boolean;
+				break;
+			case ItemFilterAttribute.SfmWorkshop:
+				this.sfmWorkshop = value as boolean;
 				break;
 			case ItemFilterAttribute.HideConflict:
 				this.hideConflict = value as boolean;
@@ -331,8 +339,6 @@ export class ItemFilter {
 				break;
 			default:
 				throw new Error('unknown attribute ' + String(attribute));
-				break;
 		}
-
 	}
 }

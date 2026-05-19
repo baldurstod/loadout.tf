@@ -18,6 +18,7 @@ import { PresetsPanel } from './presetspanel';
 import { SheenPanel } from './sheenpanel';
 import { WarpaintPanel } from './warpaintpanel';
 import { WeaponEffectPanel } from './weaponeffectpanel';
+import { TESTING } from '../bundleoptions';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class ItemsPanel extends DynamicPanel {
@@ -106,6 +107,11 @@ export class ItemsPanel extends DynamicPanel {
 									value: 'workshop',
 									$change: (event: CustomEvent) => this.#setWorkshopFilter(event.detail.state),
 								}),
+								TESTING ? createElement('button', {
+									'i18n': '#sfm_workshop',
+									value: 'sfm_workshop',
+									$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.SfmWorkshop, value: event.detail.state } }),
+								}) : null,
 							],
 						}),
 						htmlTypeRadio = createElement('harmony-radio', {

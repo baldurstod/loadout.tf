@@ -272,6 +272,10 @@ export class ItemTemplate {
 		return this.#definition.is_workshop as boolean ?? false;
 	}
 
+	isSfmWorkshop(): boolean {
+		return this.#definition.is_sfm_workshop as boolean ?? false;
+	}
+
 	isTournamentMedal(): boolean {
 		return this.#definition.is_tournament_medal as boolean/*TODO: improve type*/;
 	}

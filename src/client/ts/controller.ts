@@ -82,6 +82,7 @@ export enum ItemFilterAttribute {
 	Name,
 	Selected,
 	Workshop,
+	SfmWorkshop,
 	HideConflict,
 	TournamentMedals,
 	ShowMultiClass,
