@@ -79,7 +79,7 @@ async function* mountZip(file: File): AsyncGenerator<Repository, null, undefined
 
 
 
-async function addRepo(repo: Repository): Promise<void> {
+export async function addRepo(repo: Repository): Promise<void> {
 	const root = await repo.getFileList();
 	if (!root) {
 		return;

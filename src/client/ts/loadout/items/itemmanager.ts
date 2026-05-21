@@ -58,7 +58,6 @@ export class ItemManager {
 
 		Controller.addEventListener(ControllerEvent.ItemAdded, () => Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated));
 		Controller.addEventListener(ControllerEvent.ItemRemoved, () => Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated));
-		//Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail));
 
 		Controller.addEventListener(ControllerEvent.TogglePanel, (event: Event) => {
 			if ((event as CustomEvent<Panel>).detail == Panel.Items || (event as CustomEvent<Panel>).detail == Panel.Effects) {
@@ -619,7 +618,7 @@ export class ItemManager {
 				}
 			}
 
-			const itemTemplate = new ItemTemplate('w' + item.id, item);
+			const itemTemplate = new ItemTemplate(item.id, item);
 			this.#itemTemplates.set(itemTemplate.id, itemTemplate);
 
 			//const keywords = '';

@@ -85,8 +85,11 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		if (this.#item && this.#visible && !this.#initialized) {
 			this.#createHTML();
 
-			if (this.#item.isWorkshop() || this.#item.isSfmWorkshop()) {
+			if (this.#item.isWorkshop()) {
 				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + WORKSHOP_URL + this.#item.id.substring(1)/*Remove leading w*/ + '\' >' + this.#item.name + '</a>';
+				this.#itemNameDiv!.classList.add('workshop-item');
+			} else if (this.#item.isSfmWorkshop()) {
+				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + WORKSHOP_URL + this.#item.id + '\' >' + this.#item.name + '</a>';
 				this.#itemNameDiv!.classList.add('workshop-item');
 			} else {
 				this.#itemNameDiv!.innerHTML = this.#item.name;

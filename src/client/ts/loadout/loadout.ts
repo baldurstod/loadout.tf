@@ -1,7 +1,9 @@
-import { Source1ModelInstance } from 'harmony-3d';
-import { TF2_CASUAL_BADGE } from '../constants';
+import { MergeRepository, Repositories, sanitizeRepositoryName, Source1ModelInstance } from 'harmony-3d';
+import { SFM_WORKSHOP_UGC_URL, TF2_CASUAL_BADGE } from '../constants';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
+import { addRepo } from '../fileimporter';
 import { KillstreakColor } from '../paints/killstreaks';
+import { SfmItemRepository } from '../repositories/sfmitemrepository';
 import { CharacterManager } from './characters/charactermanager';
 import { Tf2Class } from './characters/characters';
 import { Effect } from './effects/effect';
@@ -100,12 +102,27 @@ export class Loadout {
 		*/
 
 	static async #handleItemClicked(template: ItemTemplate): Promise<void> {
-		const currentCharacter = CharacterManager.getCurrentCharacter();
+		if (template.isSfmWorkshop()) {
+			this.#createSfmRepo(template);
+		} else {
+			const currentCharacter = CharacterManager.getCurrentCharacter();
 
-		if (currentCharacter && currentCharacter.characterClass != Tf2Class.None) {
-			await currentCharacter.toggleItem(template);
+			if (currentCharacter && currentCharacter.characterClass != Tf2Class.None) {
+				await currentCharacter.toggleItem(template);
+			}
 		}
 	}
+
+	static async #createSfmRepo(template: ItemTemplate): Promise<void> {
+		console.info(template);
+		const repo = new SfmItemRepository(sanitizeRepositoryName(template.name), SFM_WORKSHOP_UGC_URL + template.id + '/', true);
+
+		const tf2Repository = Repositories.getRepository('tf2') as MergeRepository;
+
+		Repositories.addRepository(repo);
+		addRepo(repo);
+	}
+
 
 	static async #handleEffectClicked(template: EffectTemplate): Promise<void> {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
