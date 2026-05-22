@@ -119,7 +119,7 @@ export class Loadout {
 
 		const tf2Repository = Repositories.getRepository('tf2') as MergeRepository;
 
-		Repositories.addRepository(repo);
+		Repositories.addRepository(new MergeRepository(repo.name, repo, tf2Repository));
 		addRepo(repo);
 	}
 

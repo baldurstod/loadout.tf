@@ -1,5 +1,9 @@
 import { RepositoryEntry, RepositoryFileListResponse, WebRepository } from 'harmony-3d';
 import { JSONObject } from 'harmony-types';
+import { setTimeoutPromise } from 'harmony-utils';
+
+const RETRIES = 10;
+const RETRY_AFTER = 10000;
 
 export class SfmItemRepository extends WebRepository {
 	#initPromiseResolve?: (value: boolean) => void;
@@ -14,8 +18,6 @@ export class SfmItemRepository extends WebRepository {
 
 	async #initRepo(): Promise<void> {
 		const url = this.base + 'manifest.json';
-		const response = await fetch(url);
-
 
 		const populateFiles = (level: JSONObject, path: string) => {
 			for (const segment in level) {
@@ -28,13 +30,19 @@ export class SfmItemRepository extends WebRepository {
 			}
 		}
 
-		try {
-			const j = await response.json();
-			console.info(j);
-			populateFiles(j, '');
-			console.info(this.#files);
-		} catch (e) {
-			console.error(`error while fetching ${url}`, e);
+		for (let i = 0; i < RETRIES; i++) {
+			try {
+				const response = await fetch(url);
+				if (response.ok) {
+					const j = await response.json();
+					console.info(j);
+					populateFiles(j, '');
+					break;
+				}
+			} catch (e) {
+				console.error(`error while fetching ${url}`, e);
+			}
+			await setTimeoutPromise(RETRY_AFTER);
 		}
 
 		this.#initPromiseResolve?.(true);
