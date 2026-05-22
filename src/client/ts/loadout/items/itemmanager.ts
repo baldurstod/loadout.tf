@@ -3,7 +3,7 @@ import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { setLegacyWarpaint } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { Map2 } from 'harmony-utils';
-import { FIRST_LEGACY_WARPAINT, LAST_LEGACY_WARPAINT, TF2_REPOSITORY, WORKSHOP_URL } from '../../constants';
+import { FIRST_LEGACY_WARPAINT, LAST_LEGACY_WARPAINT, TF2_REPOSITORY, WORKSHOP_UGC_IMG_PREFIX, WORKSHOP_URL } from '../../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, ItemPinned, SetItemFilter } from '../../controller';
 import { Panel } from '../../enums';
 import { Character } from '../characters/character';
@@ -590,7 +590,11 @@ export class ItemManager {
 
 		for (const item of itemList) {
 			item.id = String(item.publishedfileid as number);
-			item.image_inventory = item.preview_url;
+			if ((item.preview_url as string)?.startsWith('/')) {
+				item.image_inventory = WORKSHOP_UGC_IMG_PREFIX + item.preview_url;
+			} else {
+				item.image_inventory = item.preview_url;
+			}
 			item.is_sfm_workshop = true;
 			item.name = item.title;
 			item.workshopMetadata = null;
