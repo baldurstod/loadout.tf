@@ -101,6 +101,7 @@
 		"#override_game_models": "Override game models",
 		"#add_to_scene": "Add to scene",
 		"#add_to_current_character": "Add to current character",
+		"#remove_model": "Remove model",
 		"#post_processing": "Post processing",
 		"#enable_post_processing": "Enable post processing",
 		"#post_processing_grain_strength": "Grain strength",

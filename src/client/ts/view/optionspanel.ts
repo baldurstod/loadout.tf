@@ -36,6 +36,8 @@ export class OptionsPanel extends DynamicPanel {
 	#shaderEditor = new ShaderEditor();
 	#scriptEditor = new ScriptEditor();
 	#customDisposition: CustomDisposition = { countX: 1, countY: 1, countZ: 1 };
+	#modelsByRepoEntry = new Map<RepositoryEntry, Entity[]>();
+	#buttonByRepoEntry = new Map<RepositoryEntry, HTMLElement>();
 
 	constructor() {
 		super(Panel.Options, [optionsCSS]);
@@ -731,12 +733,39 @@ export class OptionsPanel extends DynamicPanel {
 		OptionsManagerEvents.addEventListener('app.repositories.import.overridemodels', (event: Event) => this.#htmlOverrideGameModels!.state = (event as CustomEvent).detail.value);
 
 
-		async function addModel(entry: RepositoryEntry, parent?: Entity | null): Promise<void> {
+		const addModel = async (entry: RepositoryEntry, parent?: Entity | null): Promise<void> => {
 			const model = await addTF2Model(loadoutScene, entry.getFullName(), entry.getRepository().name);
 
-			if (parent && model) {
-				parent.addChild(model);
+			if (model) {
+				const m = this.#modelsByRepoEntry.get(entry);
+				if (!m) {
+					this.#modelsByRepoEntry.set(entry, [model]);
+				} else {
+					m.push(model);
+				}
+
+				setOpacity(this.#buttonByRepoEntry.get(entry)!, 100);
+
+				if (parent) {
+					parent.addChild(model);
+				}
 			}
+
+		}
+
+		const removeModel = async (entry: RepositoryEntry): Promise<void> => {
+			const m = this.#modelsByRepoEntry.get(entry);
+			if (m) {
+				m.pop()?.remove();
+				if (m.length === 0) {
+					//hide(this.#buttonByRepoEntry.get(entry));
+					setOpacity(this.#buttonByRepoEntry.get(entry)!, 0);
+				}
+			}
+		}
+
+		const setOpacity = (button: HTMLElement, opacity: number): void => {
+			button.style.opacity = `${opacity}%`;
 		}
 
 		Controller.addEventListener(ControllerEvent.RepositoryAdded, (event: Event) => {
@@ -749,6 +778,7 @@ export class OptionsPanel extends DynamicPanel {
 					fileclick: (event: CustomEvent) => console.info((event).detail.getFullName()),
 					directoryclick: (event: CustomEvent) => console.info((event).detail.getFullName(), event),
 					entrycreated: (event: CustomEvent) => {
+						let removeButton;
 						createElement('div', {
 							class: 'custom-buttons',
 							parent: (event).detail.view,
@@ -767,9 +797,19 @@ export class OptionsPanel extends DynamicPanel {
 										click: async () => addModel((event).detail.entry, await CharacterManager.getCurrentCharacter()?.getModel()),
 									}
 								}),
+								removeButton = createElement('button', {
+									i18n: '#remove_model',
+									style: 'opacity:0',
+									//hidden: true,
+									events: {
+										// eslint-disable-next-line @typescript-eslint/no-misused-promises
+										click: () => removeModel((event).detail.entry),
+									}
+								}),
 							]
 						});
 						I18n.observeElement((event).detail.view);
+						this.#buttonByRepoEntry.set((event).detail.entry, removeButton);
 					},
 				}
 			}) as HTMLRepositoryElement;
@@ -778,7 +818,6 @@ export class OptionsPanel extends DynamicPanel {
 
 		});
 	}
-
 
 	/*
 	async #importModels(files: FileList | null, overrideModels: boolean) {

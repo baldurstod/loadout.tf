@@ -38,6 +38,7 @@ async function* mountRepo(file: File): AsyncGenerator<Repository, null, undefine
 async function* mountZip(file: File): AsyncGenerator<Repository, null, undefined> {
 	//const repo = new MergeRepository(file.name);
 	const zipRepo = new ZipRepository(sanitizeRepositoryName(file.name), file);
+	zipRepo.description = file.name;
 	const response = await zipRepo.getFileList();
 	const root = response.root;
 	if (root) {
