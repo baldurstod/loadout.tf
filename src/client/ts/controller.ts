@@ -35,6 +35,7 @@ export enum ControllerEvent {
 	SetItemSortAscending = 'setitemsortascending',
 	SetItemSortType = 'setitemsorttype',
 	ItemsLoaded = 'itemsloaded',
+	SfmItemsLoaded = 'sfmItemsloaded',
 	SystemsLoaded = 'systemsloaded',
 	ItemPinned = 'itempinned',
 	ItemClicked = 'itemclicked',

@@ -27,6 +27,7 @@ export class ItemManager {
 	static readonly #itemCollections = new Set<string>();
 	static readonly #equipRegions = new Set<string>();
 	static #sortingDirection = 1;
+	static #sfmRequest = 0;
 
 	static {
 		this.#initListeners();
@@ -71,6 +72,15 @@ export class ItemManager {
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.pinned', (event: Event) => this.#setPinned((event as CustomEvent).detail.value));
+
+		OptionsManagerEvents.addEventListener('app.items.filter.sfm.*', event => {
+			this.#updateSfmFilter();
+		});
+
+		OptionsManagerEvents.addEventListener('app.items.filter.text', event => {
+			this.#updateSfmFilter();
+		});
+
 	}
 
 	static #setItemFilter(filter: SetItemFilter): void {
@@ -536,7 +546,17 @@ export class ItemManager {
 		}
 	}
 
+	static async #updateSfmFilter(): Promise<void> {
+		++this.#sfmRequest;
+		this.#initSfmWorkshopPromise = undefined;
+		this.initSfmWorkshopItems();
+	}
+
 	static async initSfmWorkshopItems(): Promise<void> {
+		if (!this.#filters.sfmWorkshop) {
+			return;
+		}
+
 		if (!this.#initSfmWorkshopPromise) {
 			this.#initSfmWorkshopPromise = new Promise<void>((resolve): void => {
 				(async (): Promise<void> => {
@@ -548,25 +568,18 @@ export class ItemManager {
 						body: JSON.stringify({
 							action: 'get-item-list',
 							version: 1,
-							/*
 							params: {
-								product: {
-									//variant_id: this.#selection.variantId,
-									name: 'TODO variant name', //selectedVariant.name,
-									type: 'default',
-									//image: this.#testImage,
-								},
+								filter: getSfmFilter(),
+								sort: getSfmSort(),
 							},
-							*/
 						}),
 					});
 					const json = await response.json();
-					console.info(json);
 					if (json) {
 						this.#addSfmWorkshopItems(json)
 					}
 
-					Controller.dispatchEvent<void>(ControllerEvent.ItemsLoaded);
+					Controller.dispatchEvent<void>(ControllerEvent.SfmItemsLoaded);
 					resolve();
 				})()
 			});
@@ -586,6 +599,13 @@ export class ItemManager {
 		const itemList = (responseJson.result as JSONObject)?.items as JSONObject[];
 		if (!itemList) {
 			return;
+		}
+
+		// Remove all SFM workshop items
+		for (const [id, itemTemplate] of this.#itemTemplates) {
+			if (itemTemplate.isSfmWorkshop()) {
+				this.#itemTemplates.delete(id);
+			}
 		}
 
 		for (const item of itemList) {
@@ -648,4 +668,56 @@ export class ItemManager {
 		}
 		await this.#initMedalsPromise;
 	}
+}
+
+type SfmFilter = {
+	name?: string;
+	tags?: string[];
+}
+
+function getSfmFilter(): SfmFilter {
+	const filter: SfmFilter = {};
+	const tags: string[] = [];
+
+	const name = OptionsManager.getItem('app.items.filter.text') as string
+	if (name) {
+		filter.name = name;
+	}
+
+	const t = ['app.items.filter.sfm.universe', 'app.items.filter.sfm.sound', 'app.items.filter.sfm.models',]
+
+	for (const option of t) {
+		const value = OptionsManager.getItem(option) as string
+		if (value) {
+			tags.push(value);
+		}
+	}
+
+	if (tags.length) {
+		filter.tags = tags;
+	}
+
+	return filter;
+}
+
+
+type SfmSort = {
+	field?: string;
+	ascending?: boolean;
+}
+
+function getSfmSort(): SfmSort {
+	const sort: SfmSort = {};
+
+	const ascending = OptionsManager.getItem('app.items.sfm.sort.ascending') as boolean
+	if (!ascending) {
+		sort.ascending = ascending;
+	}
+
+	const field = OptionsManager.getItem('app.items.sfm.sort.field') as string
+	if (!ascending) {
+		sort.field = field;
+	}
+
+	return sort;
 }

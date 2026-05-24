@@ -70,6 +70,10 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		}
 	}
 
+	get item() {
+		return this.#item;
+	}
+
 	set it(it: any/*TODO: improve type*/) {
 		this.#it = it;
 	}

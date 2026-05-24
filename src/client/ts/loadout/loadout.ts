@@ -114,7 +114,6 @@ export class Loadout {
 	}
 
 	static async #createSfmRepo(template: ItemTemplate): Promise<void> {
-		console.info(template);
 		const repo = new SfmItemRepository(template.id, SFM_WORKSHOP_UGC_URL + template.id + '/', true);
 		repo.description = template.name;
 

@@ -152,8 +152,14 @@
 			"type": "list",
 			"default": 0,
 			"datalist": [
-				["RED", 0],
-				["BLU", 1]
+				[
+					"RED",
+					0
+				],
+				[
+					"BLU",
+					1
+				]
 			]
 		},
 		{
@@ -271,6 +277,73 @@
 			"name": "app.items.filter.text",
 			"type": "string",
 			"default": ""
+		},
+		{
+			"name": "app.items.filter.sfm.universe",
+			"type": "list",
+			"default": "Team Fortress",
+			"datalist": [
+				null,
+				"Half-Life",
+				"Team Fortress",
+				"Portal",
+				"Left 4 Dead",
+				"Dota",
+				"Counter-Strike",
+				"Day Of Defeat",
+				"Ricochet",
+				"Alien Swarm",
+				"Blade Symphony",
+				"Dino D-Day",
+				"Original IP",
+				"The Stanley Parable"
+			]
+		},
+		{
+			"name": "app.items.filter.sfm.sound",
+			"type": "list",
+			"default": "",
+			"datalist": [
+				"",
+				"Dialog",
+				"Music",
+				"Effects"
+			]
+		},
+		{
+			"name": "app.items.filter.sfm.models",
+			"type": "list",
+			"default": "",
+			"datalist": [
+				"",
+				"Character",
+				"Weapon",
+				"Clothing",
+				"Creature",
+				"Vehicle",
+				"Outdoor",
+				"Architecture",
+				"Industrial",
+				"Hand-held",
+				"Indoor"
+			]
+		},
+		{
+			"name": "app.items.sfm.sort.ascending",
+			"type": "boolean",
+			"default": false
+		},
+		{
+			"name": "app.items.sfm.sort.field",
+			"type": "list",
+			"default": "updated",
+			"datalist": [
+				"index",
+				"name",
+				"subscriptions",
+				"updated",
+				"created"
+			]
 		},
 		{
 			"name": "app.items.filter.restoretext",

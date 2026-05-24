@@ -3,6 +3,7 @@ import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, display, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, I18n, show, toggle } from 'harmony-ui';
 import itemCSS from '../../css/item.css';
 import itemPanelCSS from '../../css/itempanel.css';
+import { TESTING } from '../bundleoptions';
 import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
@@ -18,7 +19,6 @@ import { PresetsPanel } from './presetspanel';
 import { SheenPanel } from './sheenpanel';
 import { WarpaintPanel } from './warpaintpanel';
 import { WeaponEffectPanel } from './weaponeffectpanel';
-import { TESTING } from '../bundleoptions';
 export { ItemManagerItem } from './itemmanageritem';
 
 export class ItemsPanel extends DynamicPanel {
@@ -49,6 +49,7 @@ export class ItemsPanel extends DynamicPanel {
 
 	#initListeners(): void {
 		Controller.addEventListener(ControllerEvent.ItemsLoaded, () => this.#refreshItems());
+		Controller.addEventListener(ControllerEvent.SfmItemsLoaded, () => this.#refreshSfmItems());
 		Controller.addEventListener(ControllerEvent.FiltersUpdated, () => this.#refreshItems());
 		Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, true));
 		Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, false));
@@ -108,7 +109,7 @@ export class ItemsPanel extends DynamicPanel {
 									$change: (event: CustomEvent) => this.#setWorkshopFilter(event.detail.state),
 								}),
 								TESTING ? createElement('button', {
-									'i18n': '#sfm_workshop',
+									'i18n': '#sfm',
 									value: 'sfm_workshop',
 									$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.SfmWorkshop, value: event.detail.state } }),
 								}) : null,
@@ -404,6 +405,16 @@ export class ItemsPanel extends DynamicPanel {
 			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Warpaintable, value: (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean } });
 		});
 		//OptionsManagerEvents.addEventListener('app.items.filter.*', () => this.#refreshItems());
+	}
+
+	#refreshSfmItems(): void {
+		for (const [id, htmlItem] of this.#htmlItems) {
+			if (htmlItem.item.isSfmWorkshop()) {
+				this.#htmlItems.delete(id);
+			}
+			htmlItem.remove();
+		}
+		this.#refreshItems();
 	}
 
 	#refreshItems(): void {
