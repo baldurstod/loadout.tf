@@ -13,6 +13,14 @@ import { Item } from './item';
 import { ItemFilter, ItemFilterResult } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
 
+export enum SfmSortField {
+	Index = "sfm-index",
+	Name = "sfm-name",
+	Subscriptions = "sfm-subscriptions",
+	Updated = "sfm-updated",
+	Created = "sfm-created"
+}
+
 export class ItemManager {
 	static readonly #filters = new ItemFilter();
 	static #currentCharacter: Character | null = null;
@@ -28,6 +36,7 @@ export class ItemManager {
 	static readonly #equipRegions = new Set<string>();
 	static #sortingDirection = 1;
 	static #sfmRequest = 0;
+	static #sortField = 'index';
 
 	static {
 		this.#initListeners();
@@ -52,8 +61,14 @@ export class ItemManager {
 
 	static #initListeners(): void {
 		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.#setItemFilter((event as CustomEvent<SetItemFilter>).detail));
-		Controller.addEventListener(ControllerEvent.SetItemSortAscending, (event: Event) => this.#sortingDirection = (event as CustomEvent<boolean>).detail ? 1 : -1);
-		Controller.addEventListener(ControllerEvent.SetItemSortType, (event: Event) => this.#setSortingType((event as CustomEvent<string>).detail));
+		Controller.addEventListener(ControllerEvent.SetItemSortAscending, (event: Event) => {
+			this.#sortingDirection = (event as CustomEvent<boolean>).detail ? 1 : -1;
+			this.#updateSfmFilter();
+		});
+		Controller.addEventListener(ControllerEvent.SetItemSortType, (event: Event) => {
+			this.#sortField = (event as CustomEvent<string>).detail;
+			this.#setSortingType(this.#sortField);
+		});
 
 		Controller.addEventListener(ControllerEvent.ItemPinned, (event: Event) => this.#pinItem((event as CustomEvent<ItemPinned>).detail.item, (event as CustomEvent<ItemPinned>).detail.pinned));
 
@@ -81,6 +96,10 @@ export class ItemManager {
 			this.#updateSfmFilter();
 		});
 
+		OptionsManagerEvents.addEventListener('app.items.sfm.sort.field', () => {
+			this.#updateSfmSortField();
+			this.#updateSfmFilter();
+		});
 	}
 
 	static #setItemFilter(filter: SetItemFilter): void {
@@ -92,7 +111,7 @@ export class ItemManager {
 		}
 
 		if (filter.attribute == ItemFilterAttribute.SfmWorkshop) {
-			this.initSfmWorkshopItems();
+			this.#updateSfmFilter();
 		}
 
 		if (filter.attribute == ItemFilterAttribute.TournamentMedals) {
@@ -546,13 +565,24 @@ export class ItemManager {
 		}
 	}
 
+	static async #updateSfmSortField(): Promise<void> {
+		if (!this.#filters.sfmWorkshop) {
+			this.#setSortingType(this.#sortField);
+		} else {
+			this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
+				yield* [...this.entries()];
+			}
+		}
+	}
+
 	static async #updateSfmFilter(): Promise<void> {
 		++this.#sfmRequest;
 		this.#initSfmWorkshopPromise = undefined;
-		this.initSfmWorkshopItems();
+		this.#updateSfmSortField();
+		this.#initSfmWorkshopItems();
 	}
 
-	static async initSfmWorkshopItems(): Promise<void> {
+	static async #initSfmWorkshopItems(): Promise<void> {
 		if (!this.#filters.sfmWorkshop) {
 			return;
 		}
@@ -709,15 +739,13 @@ type SfmSort = {
 function getSfmSort(): SfmSort {
 	const sort: SfmSort = {};
 
-	const ascending = OptionsManager.getItem('app.items.sfm.sort.ascending') as boolean
+	const ascending = OptionsManager.getItem('app.items.sort.ascending') as boolean
 	if (!ascending) {
 		sort.ascending = ascending;
 	}
 
 	const field = OptionsManager.getItem('app.items.sfm.sort.field') as string
-	if (!ascending) {
-		sort.field = field;
-	}
+	sort.field = field;
 
 	return sort;
 }

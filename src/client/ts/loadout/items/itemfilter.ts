@@ -167,7 +167,7 @@ export class ItemFilter {
 			}
 		}
 
-		if (filterWeapon && filterMedal && filterCosmetic && filterTaunt) {
+		if (!item.isSfmWorkshop() && (filterWeapon && filterMedal && filterCosmetic && filterTaunt)) {
 			++excludedItems.e;
 			return ItemFilterResult.ExcludedFilter;
 		}

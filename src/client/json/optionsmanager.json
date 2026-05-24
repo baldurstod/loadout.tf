@@ -283,7 +283,7 @@
 			"type": "list",
 			"default": "Team Fortress",
 			"datalist": [
-				null,
+				"",
 				"Half-Life",
 				"Team Fortress",
 				"Portal",
@@ -327,11 +327,6 @@
 				"Hand-held",
 				"Indoor"
 			]
-		},
-		{
-			"name": "app.items.sfm.sort.ascending",
-			"type": "boolean",
-			"default": false
 		},
 		{
 			"name": "app.items.sfm.sort.field",

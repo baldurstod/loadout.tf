@@ -40,6 +40,7 @@ export class ItemsPanel extends DynamicPanel {
 	#warpaintPanel = new WarpaintPanel();
 	#updatingPresets = false;
 	#htmlItems = new Map<string, ItemManagerItem>();
+	#htmlCollapsableFiltersContainer?: HTMLElement;
 
 	constructor() {
 		super(Panel.Items, [itemPanelCSS, itemCSS]);
@@ -51,6 +52,7 @@ export class ItemsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.ItemsLoaded, () => this.#refreshItems());
 		Controller.addEventListener(ControllerEvent.SfmItemsLoaded, () => this.#refreshSfmItems());
 		Controller.addEventListener(ControllerEvent.FiltersUpdated, () => this.#refreshItems());
+		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.#setItemFilter((event as CustomEvent<SetItemFilter>).detail));
 		Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, true));
 		Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, false));
 		Controller.addEventListener(ControllerEvent.PaintClick, (event: Event) => this.#handlePaintClick((event as CustomEvent<ItemTemplate>).detail));
@@ -85,10 +87,13 @@ export class ItemsPanel extends DynamicPanel {
 		let htmlShowHalloween: HTMLHarmonySwitchElement;
 		let htmlShowPaintable: HTMLHarmonySwitchElement;
 		let htmlSortType: HTMLSelectElement;
+		let htmlSfmSortType: HTMLSelectElement;
+		let htmlSfmUniverse: HTMLSelectElement;
 		let htmlSortDirection: HTMLHarmonyToggleButtonElement;
 		let htmlShowWarpaintable: HTMLHarmonySwitchElement;
 		let htmlCollapsableFiltersButton: HTMLHarmonySwitchElement;
-		const htmlCollapsableFiltersContainer = createElement('div', {
+
+		this.#htmlCollapsableFiltersContainer = createElement('div', {
 			class: 'line-filters',
 			parent: shadowRoot,
 			childs: [
@@ -176,7 +181,7 @@ export class ItemsPanel extends DynamicPanel {
 							],
 						}),
 						createElement('harmony-switch', {
-							class: 'large',
+							class: 'large no-sfm-filter',
 							'data-i18n': '#show_selected_items_only',
 							$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Selected, value: (event.target as HTMLHarmonySwitchElement).state } }),
 						}),
@@ -185,13 +190,13 @@ export class ItemsPanel extends DynamicPanel {
 								ternary: 'true',
 								state: 'undefined',
 							},
-							class: 'large',
+							class: 'large no-sfm-filter',
 							'data-i18n': '#hide_conflicting_items',
 							state: undefined,
 							$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.HideConflict, value: (event.target as HTMLHarmonySwitchElement).state } }),
 						}),
 						htmlSwitchFilterPerClass = createElement('harmony-switch', {
-							class: 'large',
+							class: 'large no-sfm-filter',
 							'data-i18n': '#dont_filter_per_class',
 							$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.DoNotFilterPerClass, value: (event.target as HTMLHarmonySwitchElement).state } }),
 						}) as HTMLHarmonySwitchElement,
@@ -199,7 +204,7 @@ export class ItemsPanel extends DynamicPanel {
 							attributes: {
 								ternary: 'true',
 							},
-							class: 'large',
+							class: 'large no-sfm-filter',
 							'data-i18n': '#show_halloween_restricted_items',
 							$change: (event: CustomEvent<HarmonySwitchChange>) => {
 								OptionsManager.setItem('app.items.filter.halloween', event.detail.state);
@@ -210,7 +215,7 @@ export class ItemsPanel extends DynamicPanel {
 							attributes: {
 								ternary: 'true',
 							},
-							class: 'large',
+							class: 'large no-sfm-filter',
 							'data-i18n': '#show_paintable_items',
 							$change: (event: CustomEvent<HarmonySwitchChange>) => {
 								OptionsManager.setItem('app.items.filter.paintable', (event.detail.state));
@@ -221,7 +226,7 @@ export class ItemsPanel extends DynamicPanel {
 							attributes: {
 								ternary: 'true',
 							},
-							class: 'large',
+							class: 'large no-sfm-filter',
 							'data-i18n': '#show_warpaintable_items',
 							$change: (event: CustomEvent) => {
 								OptionsManager.setItem('app.items.filter.warpaintable', event.detail.state);
@@ -237,7 +242,7 @@ export class ItemsPanel extends DynamicPanel {
 							class: 'filter3',
 							childs: [
 								htmlSortType = createElement('select', {
-									class: 'capitalize',
+									class: 'capitalize no-sfm-filter',
 									childs: [
 										createElement('option', { i18n: '#index', value: 'index' }),
 										createElement('option', { i18n: '#name', value: 'name' }),
@@ -247,8 +252,29 @@ export class ItemsPanel extends DynamicPanel {
 										OptionsManager.setItem('app.items.sort.type', (event.target as HTMLSelectElement).value);
 									},
 								}) as HTMLSelectElement,
+								htmlSfmSortType = createElement('select', {
+									class: 'capitalize sfm-filter',
+									hidden: true,
+									childs: [
+										createElement('option', { i18n: '#index', value: 'index' }),
+										createElement('option', { i18n: '#name', value: 'name' }),
+										createElement('option', { i18n: '#subscriptions', value: 'subscriptions' }),
+										createElement('option', { i18n: '#date_updated', value: 'updated' }),
+										createElement('option', { i18n: '#date_created', value: 'created' }),
+									],
+									$change: (event: Event) => {
+										OptionsManager.setItem('app.items.sfm.sort.field', (event.target as HTMLSelectElement).value);
+									},
+								}) as HTMLSelectElement,
+								htmlSfmUniverse = createElement('select', {
+									class: 'capitalize sfm-filter',
+									hidden: true,
+									$change: (event: Event) => {
+										OptionsManager.setItem('app.items.filter.sfm.universe', (event.target as HTMLSelectElement).value);
+									},
+								}) as HTMLSelectElement,
 								this.#htmlFilterCollection = createElement('select', {
-									class: 'capitalize',
+									class: 'capitalize no-sfm-filter',
 									$change: (event: Event) => OptionsManager.setItem('app.items.filter.collection', (event.target as HTMLSelectElement).value),
 								}) as HTMLSelectElement,
 								htmlSortDirection = createElement('harmony-toggle-button', {
@@ -271,6 +297,19 @@ export class ItemsPanel extends DynamicPanel {
 					],
 				}),
 			]
+		});
+
+		OptionsManager.getList('app.items.filter.sfm.universe').then(universeList => {
+			if (universeList) {
+				htmlSfmUniverse.innerText = '';
+				for (let currency of universeList) {
+					createElement('option', {
+						parent: htmlSfmUniverse,
+						innerText: String(currency),
+					})
+				}
+				htmlSfmUniverse.value = OptionsManager.getItem('app.items.filter.sfm.universe') as string;
+			}
 		});
 
 		const setNameFilter = (name: string): void => {
@@ -346,7 +385,7 @@ export class ItemsPanel extends DynamicPanel {
 			this.#warpaintPanel.getHTMLElement(),
 		);
 
-		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; htmlCollapsableFiltersContainer.style.maxHeight = value ? '400px' : '0px' });
+		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; this.#htmlCollapsableFiltersContainer!.style.maxHeight = value ? '400px' : '0px' });
 
 		//OptionsManagerEvents.addEventListener('app.items.filter.restoretext', (event: Event) => { if ((event as CustomEvent<OptionsManagerEvent>).detail.value) { this.#htmlFilterInput!.value = OptionsManager.getItem('app.items.filter.text'); } });
 		const populateName = (): void => {
@@ -371,6 +410,12 @@ export class ItemsPanel extends DynamicPanel {
 			const sortType = (event as CustomEvent<OptionsManagerEvent>).detail.value as string;
 			htmlSortType.value = sortType;
 			Controller.dispatchEvent<string>(ControllerEvent.SetItemSortType, { detail: sortType });
+			this.#refreshItems();
+		});
+
+		OptionsManagerEvents.addEventListener('app.items.sfm.sort.field', (event: Event) => {
+			const sortType = (event as CustomEvent<OptionsManagerEvent>).detail.value as string;
+			htmlSfmSortType.value = sortType;
 			this.#refreshItems();
 		});
 
@@ -462,6 +507,17 @@ export class ItemsPanel extends DynamicPanel {
 		this.#refreshActiveListAndConflicts();
 		this.#updateFilters();
 		this.#setFilteredItems(excludedItems.e);
+	}
+
+	#setItemFilter(filter: SetItemFilter): void {
+		if (filter.attribute == ItemFilterAttribute.SfmWorkshop && this.#htmlCollapsableFiltersContainer) {
+			for (const elem of this.#htmlCollapsableFiltersContainer?.getElementsByClassName('no-sfm-filter')) {
+				display(elem as HTMLElement, !(filter.value as boolean));
+			}
+			for (const elem of this.#htmlCollapsableFiltersContainer?.getElementsByClassName('sfm-filter')) {
+				display(elem as HTMLElement, (filter.value as boolean));
+			}
+		}
 	}
 
 	#refreshActiveListAndConflicts(): void {
