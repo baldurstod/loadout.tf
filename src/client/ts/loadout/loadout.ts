@@ -1,4 +1,4 @@
-import { MergeRepository, Repositories, sanitizeRepositoryName, Source1ModelInstance } from 'harmony-3d';
+import { MergeRepository, Repositories, Source1ModelInstance } from 'harmony-3d';
 import { SFM_WORKSHOP_UGC_URL, TF2_CASUAL_BADGE } from '../constants';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { addRepo } from '../fileimporter';
@@ -15,6 +15,8 @@ import { addTF2Model, loadoutScene } from './scene';
 export class Loadout {
 	static #badgeModel: Source1ModelInstance | null = null;
 	static #items = new Map<string, Item>();
+	static #sfmRepos = new Map<string, SfmItemRepository>();
+	static #sfmMergeRepo = new MergeRepository('all_sfm');
 
 	static {
 		this.#initListeners();
@@ -114,12 +116,19 @@ export class Loadout {
 	}
 
 	static async #createSfmRepo(template: ItemTemplate): Promise<void> {
-		const repo = new SfmItemRepository(template.id, SFM_WORKSHOP_UGC_URL + template.id + '/', true);
-		repo.description = template.name;
+		let repo = this.#sfmRepos.get(template.id);
+		if (!repo) {
+			repo = new SfmItemRepository(template.id, SFM_WORKSHOP_UGC_URL + template.id + '/', true);
+			repo.description = template.name;
 
-		const tf2Repository = Repositories.getRepository('tf2') as MergeRepository;
+			const tf2Repository = Repositories.getRepository('tf2') as MergeRepository;
 
-		Repositories.addRepository(new MergeRepository(repo.name, repo, tf2Repository));
+			Repositories.addRepository(new MergeRepository(repo.name, repo, this.#sfmMergeRepo, tf2Repository));
+
+			this.#sfmMergeRepo.pushRepository(repo);
+
+			this.#sfmRepos.set(template.id, repo);
+		}
 		addRepo(repo);
 	}
 
