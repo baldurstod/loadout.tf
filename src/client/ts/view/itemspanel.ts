@@ -89,6 +89,7 @@ export class ItemsPanel extends DynamicPanel {
 		let htmlSortType: HTMLSelectElement;
 		let htmlSfmSortType: HTMLSelectElement;
 		let htmlSfmUniverse: HTMLSelectElement;
+		let htmlSfmModel: HTMLSelectElement;
 		let htmlSortDirection: HTMLHarmonyToggleButtonElement;
 		let htmlShowWarpaintable: HTMLHarmonySwitchElement;
 		let htmlCollapsableFiltersButton: HTMLHarmonySwitchElement;
@@ -273,6 +274,13 @@ export class ItemsPanel extends DynamicPanel {
 										OptionsManager.setItem('app.items.filter.sfm.universe', (event.target as HTMLSelectElement).value);
 									},
 								}) as HTMLSelectElement,
+								htmlSfmModel = createElement('select', {
+									class: 'capitalize sfm-filter',
+									hidden: true,
+									$change: (event: Event) => {
+										OptionsManager.setItem('app.items.filter.sfm.models', (event.target as HTMLSelectElement).value);
+									},
+								}) as HTMLSelectElement,
 								this.#htmlFilterCollection = createElement('select', {
 									class: 'capitalize no-sfm-filter',
 									$change: (event: Event) => OptionsManager.setItem('app.items.filter.collection', (event.target as HTMLSelectElement).value),
@@ -299,18 +307,23 @@ export class ItemsPanel extends DynamicPanel {
 			]
 		});
 
-		OptionsManager.getList('app.items.filter.sfm.universe').then(universeList => {
-			if (universeList) {
-				htmlSfmUniverse.innerText = '';
-				for (let currency of universeList) {
-					createElement('option', {
-						parent: htmlSfmUniverse,
-						innerText: String(currency),
-					})
+		function fillSelect(optionName: string, select: HTMLSelectElement): void {
+			OptionsManager.getList(optionName).then(universeList => {
+				if (universeList) {
+					select.innerText = '';
+					for (let currency of universeList) {
+						createElement('option', {
+							parent: select,
+							innerText: String(currency),
+						})
+					}
+					select.value = OptionsManager.getItem(optionName) as string;
 				}
-				htmlSfmUniverse.value = OptionsManager.getItem('app.items.filter.sfm.universe') as string;
-			}
-		});
+			});
+		}
+
+		fillSelect('app.items.filter.sfm.universe', htmlSfmUniverse);
+		fillSelect('app.items.filter.sfm.models', htmlSfmModel);
 
 		const setNameFilter = (name: string): void => {
 			OptionsManager.setItem('app.items.filter.text', name);
