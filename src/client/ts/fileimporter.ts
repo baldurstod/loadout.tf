@@ -42,6 +42,7 @@ async function* mountZip(file: File): AsyncGenerator<Repository, null, undefined
 	const response = await zipRepo.getFileList();
 	const root = response.root;
 	if (root) {
+		let once = true;
 		for (const child of root.getChilds()) {
 			if (!child.isDirectory()) {
 				continue;
@@ -50,10 +51,10 @@ async function* mountZip(file: File): AsyncGenerator<Repository, null, undefined
 			switch (name) {
 				case 'materials':
 				case 'models':
-					//repo.pushRepository(new PathPrefixRepository())
-					//repo.pushRepository(zipRepo);
-					yield zipRepo;
-
+					if (once) {
+						yield zipRepo;
+						once = false;
+					}
 					break;
 				case 'custom':
 					for (const child2 of child.getChilds()) {
@@ -61,14 +62,12 @@ async function* mountZip(file: File): AsyncGenerator<Repository, null, undefined
 							continue;
 						}
 						const name2 = child2.getName();
-						//repo.pushRepository(new PathPrefixRepository(name2, zipRepo, `${name}/${name2}`))
 						yield new PathPrefixRepository(name2, zipRepo, `${name}/${name2}`);
 					}
 
 					break;
 
 				default:
-					//repo.pushRepository(new PathPrefixRepository(name, zipRepo, name))
 					yield new PathPrefixRepository(name, zipRepo, name)
 					break;
 			}
