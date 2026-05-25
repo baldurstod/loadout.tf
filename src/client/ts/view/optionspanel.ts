@@ -11,9 +11,12 @@ import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../co
 import { BackgroundType, CameraType, Panel } from '../enums';
 import { CharacterManager, CustomDisposition } from '../loadout/characters/charactermanager';
 import { addTF2Model, loadoutScene } from '../loadout/scene';
+import { SfmItemRepository } from '../repositories/sfmitemrepository';
 import { getShaderToyList } from '../utils/shadertoy';
 import { DynamicPanel } from './dynamicpanel';
 import { ScriptEditor } from './scripteditor';
+import { addRepo } from '../fileimporter';
+import { addRepository } from './utils/repos';
 
 export class OptionsPanel extends DynamicPanel {
 	#htmlTabGroup?: HTMLHarmonyTabGroupElement;
@@ -732,90 +735,15 @@ export class OptionsPanel extends DynamicPanel {
 
 		OptionsManagerEvents.addEventListener('app.repositories.import.overridemodels', (event: Event) => this.#htmlOverrideGameModels!.state = (event as CustomEvent).detail.value);
 
-
-		const addModel = async (entry: RepositoryEntry, parent?: Entity | null): Promise<void> => {
-			const model = await addTF2Model(loadoutScene, entry.getFullName(), entry.getRepository().name);
-
-			if (model) {
-				const m = this.#modelsByRepoEntry.get(entry);
-				if (!m) {
-					this.#modelsByRepoEntry.set(entry, [model]);
-				} else {
-					m.push(model);
-				}
-
-				setOpacity(this.#buttonByRepoEntry.get(entry)!, 100);
-
-				if (parent) {
-					parent.addChild(model);
-				}
-			}
-
-		}
-
-		const removeModel = async (entry: RepositoryEntry): Promise<void> => {
-			const m = this.#modelsByRepoEntry.get(entry);
-			if (m) {
-				m.pop()?.remove();
-				if (m.length === 0) {
-					//hide(this.#buttonByRepoEntry.get(entry));
-					setOpacity(this.#buttonByRepoEntry.get(entry)!, 0);
-				}
-			}
-		}
-
-		const setOpacity = (button: HTMLElement, opacity: number): void => {
-			button.style.opacity = `${opacity}%`;
-		}
-
 		Controller.addEventListener(ControllerEvent.RepositoryAdded, (event: Event) => {
 			const repository = (event as CustomEvent<Repository>).detail;
 
-			const repositoryView = createElement('harmony3d-repository', {
-				parent: htmlTabImport,
-				adoptStyle: repositoryEntryCSS,
-				events: {
-					fileclick: (event: CustomEvent) => console.info((event).detail.getFullName()),
-					directoryclick: (event: CustomEvent) => console.info((event).detail.getFullName(), event),
-					entrycreated: (event: CustomEvent) => {
-						let removeButton;
-						createElement('div', {
-							class: 'custom-buttons',
-							parent: (event).detail.view,
-							slot: 'custom',
-							childs: [
-								createElement('button', {
-									i18n: '#add_to_scene',
-									events: {
-										click: () => { addModel((event).detail.entry) },
-									}
-								}),
-								createElement('button', {
-									i18n: '#add_to_current_character',
-									events: {
-										// eslint-disable-next-line @typescript-eslint/no-misused-promises
-										click: async () => addModel((event).detail.entry, await CharacterManager.getCurrentCharacter()?.getModel()),
-									}
-								}),
-								removeButton = createElement('button', {
-									i18n: '#remove_model',
-									style: 'opacity:0',
-									//hidden: true,
-									events: {
-										// eslint-disable-next-line @typescript-eslint/no-misused-promises
-										click: () => removeModel((event).detail.entry),
-									}
-								}),
-							]
-						});
-						I18n.observeElement((event).detail.view);
-						this.#buttonByRepoEntry.set((event).detail.entry, removeButton);
-					},
-				}
-			}) as HTMLRepositoryElement;
-			repositoryView.setFilter({ extension: 'mdl', directories: false });
-			repositoryView.setRepository(repository);
+			if (repository instanceof SfmItemRepository) {
+				// We don't add sfm repositories in the options, this is handled elselwhere
+				return;
+			}
 
+			addRepository(repository, htmlTabImport, repositoryEntryCSS);
 		});
 	}
 

@@ -103,6 +103,7 @@
 		"#add_to_scene": "Ajouter à la scène",
 		"#add_to_current_character": "Ajouter au mercenaire sélectionné",
 		"#remove_model": "Supprimer le modèle",
+		"#loading_file_list": "Chargement de la liste de fichiers",
 		"#post_processing": "Post traitement",
 		"#enable_post_processing": "Activer le post traitement",
 		"#post_processing_grain_strength": "Force du grain",

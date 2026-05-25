@@ -17,6 +17,7 @@ export enum Panel {
 	WeaponEffects = 'weaponeffects',
 	Warpaints = 'warpaints',
 	Flexes = 'flexes',
+	SfmRepositories = 'sfmrepositories',
 }
 
 export enum CameraType {

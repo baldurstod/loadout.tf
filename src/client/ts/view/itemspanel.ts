@@ -1,3 +1,4 @@
+import { Repository } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, display, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, I18n, show, toggle } from 'harmony-ui';
@@ -12,11 +13,14 @@ import { Tf2Class } from '../loadout/characters/characters';
 import { Item } from '../loadout/items/item';
 import { ItemManager } from '../loadout/items/itemmanager';
 import { ItemTemplate } from '../loadout/items/itemtemplate';
+import { SfmItemRepository } from '../repositories/sfmitemrepository';
 import { DynamicPanel } from './dynamicpanel';
 import { ItemManagerItem } from './itemmanageritem';
 import { PaintPanel } from './paintpanel';
 import { PresetsPanel } from './presetspanel';
+import { RepositoriesPanel } from './repositoriespanel';
 import { SheenPanel } from './sheenpanel';
+import { addRepository } from './utils/repos';
 import { WarpaintPanel } from './warpaintpanel';
 import { WeaponEffectPanel } from './weaponeffectpanel';
 export { ItemManagerItem } from './itemmanageritem';
@@ -36,6 +40,7 @@ export class ItemsPanel extends DynamicPanel {
 	#presetsPanel = new PresetsPanel();
 	#paintPanel = new PaintPanel();
 	#sheenPanel = new SheenPanel();
+	#repositoriesPanel = new RepositoriesPanel();
 	#weaponEffectPanel = new WeaponEffectPanel();
 	#warpaintPanel = new WarpaintPanel();
 	#updatingPresets = false;
@@ -59,6 +64,7 @@ export class ItemsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.SheenClick, (event: Event) => this.#handleSheenClick((event as CustomEvent<ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.WeaponEffectClick, (event: Event) => this.#handleWeaponEffectClick((event as CustomEvent<ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.WarpaintClick, (event: Event) => this.#handleWarpaintClick((event as CustomEvent<ItemTemplate>).detail));
+		Controller.addEventListener(ControllerEvent.RepositoryAdded, (event: Event) => this.#handleRepositoryAdded((event as CustomEvent<Repository>).detail));
 	}
 
 	protected override initHTML(): void {
@@ -394,6 +400,7 @@ export class ItemsPanel extends DynamicPanel {
 			this.#presetsPanel.getHTMLElement(),
 			this.#paintPanel.getHTMLElement(),
 			this.#sheenPanel.getHTMLElement(),
+			this.#repositoriesPanel.getHTMLElement(),
 			this.#weaponEffectPanel.getHTMLElement(),
 			this.#warpaintPanel.getHTMLElement(),
 		);
@@ -656,6 +663,12 @@ export class ItemsPanel extends DynamicPanel {
 			if (item) {
 				this.#warpaintPanel.selectWarpaint([item]);
 			}
+		}
+	}
+
+	#handleRepositoryAdded(repository: Repository): void {
+		if (repository instanceof SfmItemRepository) {
+			this.#repositoriesPanel.addRepository(repository);
 		}
 	}
 

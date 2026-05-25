@@ -77,13 +77,6 @@ async function* mountZip(file: File): AsyncGenerator<Repository, null, undefined
 	return null;
 }
 
-
-
 export async function addRepo(repo: Repository): Promise<void> {
-	const root = await repo.getFileList();
-	if (!root) {
-		return;
-	}
-
 	Controller.dispatchEvent<Repository>(ControllerEvent.RepositoryAdded, { detail: repo });
 }

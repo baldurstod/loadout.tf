@@ -103,6 +103,7 @@
 		"#add_to_scene": "Add to scene",
 		"#add_to_current_character": "Add to current character",
 		"#remove_model": "Remove model",
+		"#loading_file_list": "Loading file list",
 		"#post_processing": "Post processing",
 		"#enable_post_processing": "Enable post processing",
 		"#post_processing_grain_strength": "Grain strength",
