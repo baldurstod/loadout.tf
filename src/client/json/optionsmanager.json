@@ -313,7 +313,7 @@
 		{
 			"name": "app.items.filter.sfm.models",
 			"type": "list",
-			"default": "",
+			"default": "Clothing",
 			"datalist": [
 				"",
 				"Character",
@@ -391,8 +391,8 @@
 		},
 		{
 			"name": "app.css.variables.item-manager-item-size",
-			"type": "string",
-			"default": "150px"
+			"type": "number",
+			"default": 150
 		},
 		{
 			"name": "app.css.variables.font-size",
@@ -616,7 +616,7 @@
 		{
 			"name": "app.options.version",
 			"type": "integer",
-			"default": "0",
+			"default": 1,
 			"editable": false
 		},
 		{

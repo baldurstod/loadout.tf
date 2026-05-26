@@ -538,15 +538,20 @@ class Application {
 
 	#initOptions2(): void {
 		//change the default value in optionsmanager.json accordingly
-		let currentVersion = 0;
 
-		const storedVersion = OptionsManager.getItem('app.options.version') as number;
-		if (storedVersion <= currentVersion || storedVersion == undefined) {
+		let storedVersion = OptionsManager.getItem('app.options.version') as number ?? 0;
+		if (storedVersion <= 0) {
 			this.#resetCamera();
 			OptionsManager.resetItem('app.lights.ambient.intensity');
 			OptionsManager.resetItem('app.lights.pointlights.0.intensity');
-			OptionsManager.resetItem('app.options.version');
-			OptionsManager.setItem('app.options.version', ++currentVersion);
+			OptionsManager.setItem('app.options.version', 1);
+		}
+
+		if (storedVersion <= 1) {
+			if (Number.isNaN(Number(OptionsManager.getItem('app.css.variables.item-manager-item-size')))) {
+				OptionsManager.resetItem('app.css.variables.item-manager-item-size');
+			}
+			OptionsManager.setItem('app.options.version', 2);
 		}
 	}
 

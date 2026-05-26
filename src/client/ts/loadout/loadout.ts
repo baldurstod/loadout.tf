@@ -1,5 +1,5 @@
 import { MergeRepository, Repositories, Source1ModelInstance } from 'harmony-3d';
-import { SFM_WORKSHOP_UGC_URL, TF2_CASUAL_BADGE } from '../constants';
+import { SFM_WORKSHOP_UGC_URL, STEAM_WORKSHOP_URL, TF2_CASUAL_BADGE } from '../constants';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { addRepo } from '../fileimporter';
 import { KillstreakColor } from '../paints/killstreaks';
@@ -119,7 +119,8 @@ export class Loadout {
 		let repo = this.#sfmRepos.get(template.id);
 		if (!repo) {
 			repo = new SfmItemRepository(template.id, SFM_WORKSHOP_UGC_URL + template.id + '/', true);
-			repo.description = template.name;
+			repo.properties.set('url', STEAM_WORKSHOP_URL + template.id);
+			repo.properties.set('description', template.name);
 
 			const tf2Repository = Repositories.getRepository('tf2') as MergeRepository;
 

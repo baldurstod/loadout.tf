@@ -20,7 +20,6 @@ import { PaintPanel } from './paintpanel';
 import { PresetsPanel } from './presetspanel';
 import { RepositoriesPanel } from './repositoriespanel';
 import { SheenPanel } from './sheenpanel';
-import { addRepository } from './utils/repos';
 import { WarpaintPanel } from './warpaintpanel';
 import { WeaponEffectPanel } from './weaponeffectpanel';
 export { ItemManagerItem } from './itemmanageritem';
@@ -30,6 +29,7 @@ export class ItemsPanel extends DynamicPanel {
 	//#htmlFiltersContainer?: HTMLElement;
 	#htmlNameFilterContainer?: HTMLElement;
 	#htmlItemsContainer?: HTMLElement;
+	#htmlItemsContainerSpacer?: HTMLElement;
 	//#htmlSortType?: HTMLSelectElement;
 	#filterInputDataList?: HTMLDataListElement;
 	#htmlFilterCollection?: HTMLSelectElement;
@@ -370,9 +370,12 @@ export class ItemsPanel extends DynamicPanel {
 			attributes: {
 				tabindex: '1',
 			},
+			child: this.#htmlItemsContainerSpacer = createElement('div', { style: "width:10000rem", }),// This element force items to use as much width as they can
 		});
+		this.#htmlItemsContainer.addEventListener('scroll', () => this.#handleItemsScroll(), { passive: true });
 
 		ShortcutHandler.addContext('loadout', this.#htmlItemsContainer);
+		new ResizeObserver(() => this.#refreshItems()).observe(this.#htmlItemsContainer);
 
 		this.#htmlConflictingItems = createElement('div', {
 			class: 'conflicting-items',
@@ -493,17 +496,25 @@ export class ItemsPanel extends DynamicPanel {
 		const selectedItems = ItemManager.getSelectedItems();
 		const excludedItems = { e: 0 };
 		const [items, conflictingItems] = ItemManager.getFilteredItems(excludedItems);
+
+		const w = this.#htmlItemsContainer!.clientWidth;
+		let elementSize = OptionsManager.getItem('app.css.variables.item-manager-item-size') as number ?? 150;
+		const columns = w / elementSize;
+		const offset = (columns % 1) * elementSize / 2;
+
+		let row = 0;
+		let column = 0;
 		for (const [id, item] of items) {
 			let htmlItem = this.#htmlItems.get(id);
 			if (htmlItem) {
-				this.#htmlItemsContainer?.append(htmlItem);
+				//this.#htmlItemsContainer?.append(htmlItem);
 				show(htmlItem);
 			} else {
 				htmlItem = createElement('item-manager-item', {
 					properties: {
 						item: item,
 					},
-					parent: this.#htmlItemsContainer,
+					//parent: this.#htmlItemsContainer,
 					$click: (event: Event) => {
 						if (event.currentTarget == event.target) {
 							Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ItemClicked, { detail: item });
@@ -515,6 +526,12 @@ export class ItemsPanel extends DynamicPanel {
 			}
 			htmlItem?.classList.remove('conflicting');
 
+			htmlItem.style.position = 'absolute';
+			htmlItem.top = row * elementSize;
+			htmlItem.left = column * elementSize + offset;
+			htmlItem.style.top = `${htmlItem.top}px`;
+			htmlItem.style.left = `${htmlItem.left}px`;
+
 			if (selectedItems.has(id)) {
 				htmlItem?.classList.add('item-selected');
 			} else {
@@ -523,7 +540,17 @@ export class ItemsPanel extends DynamicPanel {
 					htmlItem?.classList.add('conflicting');
 				}
 			}
+
+			++column;
+			if (column + 1 > columns) {
+				column = 0;
+				++row;
+			}
 		}
+
+		this.#htmlItemsContainerSpacer!.style.height = `${row * elementSize + 500}px`;
+
+
 		this.#refreshActiveListAndConflicts();
 		this.#updateFilters();
 		this.#setFilteredItems(excludedItems.e);
@@ -696,6 +723,7 @@ export class ItemsPanel extends DynamicPanel {
 			createElement('option', { value: collection, innerText: collection, parent: this.#htmlFilterCollection });
 		}
 		this.#htmlFilterCollection!.value = OptionsManager.getItem('app.items.filter.collection') as string;
+		this.#handleItemsScroll();
 	}
 
 	#setFilteredItems(excludedItems: number): void {
@@ -709,6 +737,18 @@ export class ItemsPanel extends DynamicPanel {
 			show(this.#htmlWorkshopInfo);
 		} else {
 			hide(this.#htmlWorkshopInfo);
+		}
+	}
+
+	#handleItemsScroll(): void {
+		const scrollTop = this.#htmlItemsContainer!.scrollTop;
+
+		for (const [, item] of this.#htmlItems) {
+			if (item.top + 200 > scrollTop && item.top < scrollTop + this.#htmlItemsContainer!.clientHeight) {
+				this.#htmlItemsContainer!.append(item);
+			} else {
+				item.remove();
+			}
 		}
 	}
 }

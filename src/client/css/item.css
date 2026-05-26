@@ -39,8 +39,8 @@
 
 item-manager-item {
 	cursor: pointer;
-	height: var(--item-manager-item-size);
-	width: var(--item-manager-item-size);
+	height: calc(var(--item-manager-item-size) * 1px );
+	width: calc(var(--item-manager-item-size) * 1px );
 	display: inline-block;
 	position: relative;
 }

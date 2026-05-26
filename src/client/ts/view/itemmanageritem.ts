@@ -19,13 +19,12 @@ import paintcanPNG from '../../img/items/paintcan.png';
 import paintkitBundle03PNG from '../../img/items/paintkit_bundle_03.png';
 import viewmodeSpookyPNG from '../../img/items/viewmode_spooky.png';
 import viewmodeUnusualVtfPNG from '../../img/items/viewmode_unusual.vtf.png';
-import { inventoryPath, STEAM_PROFILE_URL } from '../constants';
+import { inventoryPath, STEAM_PROFILE_URL, STEAM_WORKSHOP_URL, WORKSHOP_URL } from '../constants';
 import { Controller, ControllerEvent, ItemPinned } from '../controller';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { ItemTemplate } from '../loadout/items/itemtemplate';
 
 const SELECTED_CLASS = 'item-manager-item-selected';
-const WORKSHOP_URL = 'http://steamcommunity.com/sharedfiles/filedetails/?id=';
 const CLASS_ICONS: Record<string, string> = {
 	demoman: filterDemoMotdPNG,
 	engineer: filterEngineerMotdPNG,
@@ -50,6 +49,8 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 	#itemIconDiv?: HTMLImageElement;
 	#detailTimeout?: ReturnType<typeof setTimeout>;
 	#htmlPinned?: HTMLHarmonySwitchElement;
+	top = 0;
+	left = 0;
 
 	connectedCallback(): void {
 		const callback: IntersectionObserverCallback = (entries, observer) => {
@@ -93,7 +94,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + WORKSHOP_URL + this.#item.id.substring(1)/*Remove leading w*/ + '\' >' + this.#item.name + '</a>';
 				this.#itemNameDiv!.classList.add('workshop-item');
 			} else if (this.#item.isSfmWorkshop()) {
-				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + WORKSHOP_URL + this.#item.id + '\' >' + this.#item.name + '</a>';
+				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + STEAM_WORKSHOP_URL + this.#item.id + '\' >' + this.#item.name + '</a>';
 				this.#itemNameDiv!.classList.add('workshop-item');
 			} else {
 				this.#itemNameDiv!.innerHTML = this.#item.name;

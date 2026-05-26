@@ -7,8 +7,8 @@
 unusual-effect {
 	cursor: pointer;
 	text-align: center;
-	height: var(--item-manager-item-size);
-	width: var(--item-manager-item-size);
+	height: calc(var(--item-manager-item-size) * 1px );
+	width: calc(var(--item-manager-item-size) * 1px );
 	display: inline-block;
 	position: relative;
 	background-size: 100%;
