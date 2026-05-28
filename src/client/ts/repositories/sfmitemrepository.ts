@@ -35,7 +35,6 @@ export class SfmItemRepository extends WebRepository {
 				const response = await fetch(url);
 				if (response.ok) {
 					const j = await response.json();
-					console.info(j);
 					populateFiles(j, '');
 					break;
 				}

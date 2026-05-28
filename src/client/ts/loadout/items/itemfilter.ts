@@ -49,6 +49,10 @@ export class ItemFilter {
 			return ItemFilterResult.ExcludedFilter;
 		}
 
+		if (this.sfmWorkshop && !item.isSfmWorkshop()) {
+			return ItemFilterResult.ExcludedFilter;
+		}
+
 		switch (item.getItemSlotPerClass(name ?? 'scout'/*TODO: fix that*/)) {
 			case 'primary':
 			case 'secondary':
@@ -125,25 +129,27 @@ export class ItemFilter {
 			let foundUniverse = false;
 			let foundModels = false;
 
-				for (const tag of tags) {
-					const lowerTag = tag.toLowerCase();
+			for (const tag of tags) {
+				const lowerTag = tag.toLowerCase();
 
-					if (this.sfmUniverse.toLowerCase() === lowerTag) {
-						foundUniverse = true;
-					}
-
-					if (this.sfmModels.toLowerCase() === lowerTag) {
-						foundModels = true;
-					}
+				if (this.sfmUniverse.toLowerCase() === lowerTag) {
+					foundUniverse = true;
 				}
 
-				if (this.sfmUniverse && !foundUniverse) {
-					return ItemFilterResult.ExcludedTag;
+				if (this.sfmModels.toLowerCase() === lowerTag) {
+					foundModels = true;
 				}
+			}
 
-				if (this.sfmModels && !foundModels) {
-					return ItemFilterResult.ExcludedTag;
-				}
+			if (this.sfmUniverse && !foundUniverse) {
+				++excludedItems.e;
+				return ItemFilterResult.ExcludedTag;
+			}
+
+			if (this.sfmModels && !foundModels) {
+				++excludedItems.e;
+				return ItemFilterResult.ExcludedTag;
+			}
 
 			return ItemFilterResult.Ok;
 		}

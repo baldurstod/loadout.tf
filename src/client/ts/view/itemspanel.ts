@@ -575,7 +575,7 @@ export class ItemsPanel extends DynamicPanel {
 			}
 		}
 
-		this.#htmlItemsContainerSpacer!.style.height = `${row * elementSize + 500}px`;
+		this.#htmlItemsContainerSpacer!.style.height = `${row * elementSize + 200}px`;
 
 
 		this.#refreshActiveListAndConflicts();
