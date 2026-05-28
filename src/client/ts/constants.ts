@@ -45,7 +45,7 @@ export const SHARE_LOADOUT_URL = 'https://share.loadout.tf/';
 
 export const WORKSHOP_UGC_URL = 'https://ugc.workshop.tf/';
 export const WORKSHOP_UGC_IMG_PREFIX = 'https://images.steamusercontent.com/ugc/';
-export const SFM_WORKSHOP_UGC_URL = 'https://localhost:17610/ugc/';
+export const SFM_WORKSHOP_UGC_URL = '__sfmEndpoint__/ugc/';
 export const WORKSHOP_URL = 'https://workshop.tf/php/workshop/getAllItems.php';
 export const STEAM_WORKSHOP_URL = 'http://steamcommunity.com/sharedfiles/filedetails/?id=';
 

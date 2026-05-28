@@ -268,6 +268,22 @@ export class ItemTemplate {
 		return this.#definition.material_override as string/*TODO: improve type*/;
 	}
 
+	getTags(): string[] {
+		return this.#definition.tags as string[] ?? [];
+	}
+
+	getSubscriptions(): number {
+		return this.#definition.subscriptions as number;
+	}
+
+	getUpdated(): number {
+		return this.#definition.time_updated as number;
+	}
+
+	getCreated(): number {
+		return this.#definition.time_created as number;
+	}
+
 	isWorkshop(): boolean {
 		return this.#definition.is_workshop as boolean ?? false;
 	}

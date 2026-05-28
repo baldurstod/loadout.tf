@@ -35,8 +35,10 @@ export class ItemManager {
 	static readonly #itemCollections = new Set<string>();
 	static readonly #equipRegions = new Set<string>();
 	static #sortingDirection = 1;
+	static #sortingDirectionSfm = 1;
 	static #sfmRequest = 0;
 	static #sortField = 'index';
+	static #sortFieldSfm = 'updated';
 
 	static {
 		this.#initListeners();
@@ -65,9 +67,17 @@ export class ItemManager {
 			this.#sortingDirection = (event as CustomEvent<boolean>).detail ? 1 : -1;
 			this.#updateSfmFilter();
 		});
+		Controller.addEventListener(ControllerEvent.SetSfmItemSortAscending, (event: Event) => {
+			this.#sortingDirectionSfm = (event as CustomEvent<boolean>).detail ? 1 : -1;
+			this.#updateSfmFilter();
+		});
 		Controller.addEventListener(ControllerEvent.SetItemSortType, (event: Event) => {
 			this.#sortField = (event as CustomEvent<string>).detail;
 			this.#setSortingType(this.#sortField);
+		});
+		Controller.addEventListener(ControllerEvent.SetSfmSortField, (event: Event) => {
+			this.#sortFieldSfm = (event as CustomEvent<string>).detail;
+			this.#setSortingType(this.#sortFieldSfm);
 		});
 
 		Controller.addEventListener(ControllerEvent.ItemPinned, (event: Event) => this.#pinItem((event as CustomEvent<ItemPinned>).detail.item, (event as CustomEvent<ItemPinned>).detail.pinned));
@@ -90,6 +100,7 @@ export class ItemManager {
 
 		OptionsManagerEvents.addEventListener('app.items.filter.sfm.*', event => {
 			this.#updateSfmFilter();
+			Controller.dispatchEvent<void>(ControllerEvent.FiltersUpdated);
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.filter.text', event => {
@@ -379,38 +390,49 @@ export class ItemManager {
 	*/
 
 	static #setSortingType(type: string/*TODO: create enum*/): void {
-		/*
-		if (this.#htmlSortType) {
-			this.#htmlSortType.value = type;
+		let sortingDirection: number = this.#sortingDirection;
+		if (this.#filters.sfmWorkshop) {
+			sortingDirection = this.#sortingDirectionSfm;
 		}
-		*/
+
 		switch (type) {
 			case 'name':
-				this.#sortByName();
+				this.#sortByName(sortingDirection);
 				break;
 			case 'index':
-				this.#sortByIndex();
+				this.#sortByIndex(sortingDirection);
 				break;
 			case 'slot':
-				this.#sortBySlot();
+				this.#sortBySlot(sortingDirection);
+				break;
+			case 'subscriptions':
+				this.#sortBySubscriptions(sortingDirection);
+				break;
+			case 'updated':
+				this.#sortByLastUpdate(sortingDirection);
+				break;
+			case 'created':
+				this.#sortByCreationTime(sortingDirection);
+				break;
+			default: console.error(`unsupported field: ${type}`);
 				break;
 		}
 	}
 
-	static #sortByName(): void {
+	static #sortByName(sortingDirection: number): void {
 		const self = this;
 		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
 			yield* [...this.entries()].sort(
 				(a, b) => {
-					const aname = a[1].name;
-					const bname = b[1].name;
-					return aname < bname ? -self.#sortingDirection : self.#sortingDirection;
+					const aname = a[1].name.toLowerCase();
+					const bname = b[1].name.toLowerCase();
+					return aname < bname ? -sortingDirection : sortingDirection;
 				}
 			);
 		}
 	}
 
-	static #sortBySlot(): void {
+	static #sortBySlot(sortingDirection: number): void {
 		const self = this;
 		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
 			yield* [...this.entries()].sort(
@@ -419,20 +441,86 @@ export class ItemManager {
 					const bSlot = b[1].getItemSlot() ?? '';
 
 					if (aSlot < bSlot) {
-						return -self.#sortingDirection;
+						return -sortingDirection;
 					}
 					if (aSlot > bSlot) {
-						return self.#sortingDirection;
+						return sortingDirection;
 					}
 					const aname = a[1].name;
 					const bname = b[1].name;
-					return aname < bname ? -self.#sortingDirection : self.#sortingDirection;
+					return aname < bname ? -sortingDirection : sortingDirection;
 				}
 			);
 		}
 	}
 
-	static #sortByIndex(): void {
+	static #sortBySubscriptions(sortingDirection: number): void {
+		const self = this;
+		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
+			yield* [...this.entries()].sort(
+				(a, b) => {
+					const aSubscription = a[1].getSubscriptions() ?? 0;
+					const bSubscription = b[1].getSubscriptions() ?? 0;
+
+					if (aSubscription < bSubscription) {
+						return -sortingDirection;
+					}
+					if (aSubscription > bSubscription) {
+						return sortingDirection;
+					}
+					const aname = a[1].name;
+					const bname = b[1].name;
+					return aname < bname ? -sortingDirection : sortingDirection;
+				}
+			);
+		}
+	}
+
+	static #sortByCreationTime(sortingDirection: number): void {
+		const self = this;
+		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
+			yield* [...this.entries()].sort(
+				(a, b) => {
+					const aSubscription = a[1].getCreated() ?? 0;
+					const bSubscription = b[1].getCreated() ?? 0;
+
+					if (aSubscription < bSubscription) {
+						return -sortingDirection;
+					}
+					if (aSubscription > bSubscription) {
+						return sortingDirection;
+					}
+					const aname = a[1].name;
+					const bname = b[1].name;
+					return aname < bname ? -sortingDirection : sortingDirection;
+				}
+			);
+		}
+	}
+
+	static #sortByLastUpdate(sortingDirection: number): void {
+		const self = this;
+		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
+			yield* [...this.entries()].sort(
+				(a, b) => {
+					const aSubscription = a[1].getUpdated() ?? 0;
+					const bSubscription = b[1].getUpdated() ?? 0;
+
+					if (aSubscription < bSubscription) {
+						return -sortingDirection;
+					}
+					if (aSubscription > bSubscription) {
+						return sortingDirection;
+					}
+					const aname = a[1].name;
+					const bname = b[1].name;
+					return aname < bname ? -sortingDirection : sortingDirection;
+				}
+			);
+		}
+	}
+
+	static #sortByIndex(sortingDirection: number): void {
 		const self = this;
 		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
 			yield* [...this.entries()].sort(
@@ -453,7 +541,7 @@ export class ItemManager {
 						return 0;
 					}
 
-					return aId < bId ? -self.#sortingDirection : self.#sortingDirection;
+					return aId < bId ? -sortingDirection : sortingDirection;
 				}
 			);
 		}
@@ -569,15 +657,11 @@ export class ItemManager {
 		if (!this.#filters.sfmWorkshop) {
 			this.#setSortingType(this.#sortField);
 		} else {
-			this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
-				yield* [...this.entries()];
-			}
+			this.#setSortingType(this.#sortFieldSfm);
 		}
 	}
 
 	static async #updateSfmFilter(): Promise<void> {
-		++this.#sfmRequest;
-		this.#initSfmWorkshopPromise = undefined;
 		this.#updateSfmSortField();
 		this.#initSfmWorkshopItems();
 	}
@@ -590,7 +674,7 @@ export class ItemManager {
 		if (!this.#initSfmWorkshopPromise) {
 			this.#initSfmWorkshopPromise = new Promise<void>((resolve): void => {
 				(async (): Promise<void> => {
-					const response = await fetch('https://localhost:17610/api', {
+					const response = await fetch('__sfmEndpoint__/api', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
@@ -598,10 +682,12 @@ export class ItemManager {
 						body: JSON.stringify({
 							action: 'get-item-list',
 							version: 1,
+							/*
 							params: {
 								filter: getSfmFilter(),
 								sort: getSfmSort(),
 							},
+							*/
 						}),
 					});
 					const json = await response.json();
@@ -631,13 +717,6 @@ export class ItemManager {
 			return;
 		}
 
-		// Remove all SFM workshop items
-		for (const [id, itemTemplate] of this.#itemTemplates) {
-			if (itemTemplate.isSfmWorkshop()) {
-				this.#itemTemplates.delete(id);
-			}
-		}
-
 		for (const item of itemList) {
 			item.id = String(item.publishedfileid as number);
 			if ((item.preview_url as string)?.startsWith('/')) {
@@ -648,29 +727,7 @@ export class ItemManager {
 			item.is_sfm_workshop = true;
 			item.name = item.title;
 			item.workshopMetadata = null;
-			item.paintable = true;// We don't have any clue about this
-
-			// Create used_by_classes list from tags
-			if (item.tags) {
-				item.used_by_classes = {};
-				const tagList = (item.tags as string).split(';');
-				for (const tag of tagList) {
-					//const tag = tagList[tagIndex];
-					switch (tag) {
-						case 'Demoman':
-						case 'Engineer':
-						case 'Heavy':
-						case 'Medic':
-						case 'Pyro':
-						case 'Scout':
-						case 'Sniper':
-						case 'Soldier':
-						case 'Spy':
-							item.used_by_classes[tag.toLowerCase()] = 1;
-							break;
-					}
-				}
-			}
+			item.paintable = false;
 
 			const itemTemplate = new ItemTemplate(item.id, item);
 			this.#itemTemplates.set(itemTemplate.id, itemTemplate);
@@ -698,54 +755,4 @@ export class ItemManager {
 		}
 		await this.#initMedalsPromise;
 	}
-}
-
-type SfmFilter = {
-	name?: string;
-	tags?: string[];
-}
-
-function getSfmFilter(): SfmFilter {
-	const filter: SfmFilter = {};
-	const tags: string[] = [];
-
-	const name = OptionsManager.getItem('app.items.filter.text') as string
-	if (name) {
-		filter.name = name;
-	}
-
-	const t = ['app.items.filter.sfm.universe', 'app.items.filter.sfm.sound', 'app.items.filter.sfm.models',]
-
-	for (const option of t) {
-		const value = OptionsManager.getItem(option) as string
-		if (value) {
-			tags.push(value);
-		}
-	}
-
-	if (tags.length) {
-		filter.tags = tags;
-	}
-
-	return filter;
-}
-
-
-type SfmSort = {
-	field?: string;
-	ascending?: boolean;
-}
-
-function getSfmSort(): SfmSort {
-	const sort: SfmSort = {};
-
-	const ascending = OptionsManager.getItem('app.items.sort.ascending') as boolean
-	if (!ascending) {
-		sort.ascending = ascending;
-	}
-
-	const field = OptionsManager.getItem('app.items.sfm.sort.field') as string
-	sort.field = field;
-
-	return sort;
 }

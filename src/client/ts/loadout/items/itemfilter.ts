@@ -7,6 +7,7 @@ import { ItemTemplate } from './itemtemplate';
 export enum ItemFilterResult {
 	Ok,
 	ExcludedClass,
+	ExcludedTag,
 	ExcludedFilter,
 	Conflicting,
 }
@@ -16,6 +17,8 @@ export class ItemFilter {
 	selected = false;
 	workshop = false;
 	sfmWorkshop = false;
+	sfmUniverse = '';
+	sfmModels = '';
 	hideConflict?: boolean;
 	tournamentMedals = false;
 	showMultiClass = true;
@@ -113,6 +116,36 @@ export class ItemFilter {
 
 		if (!ret || !positive) {
 			return ItemFilterResult.ExcludedClass;
+		}
+
+		if (item.isSfmWorkshop()) {
+			const tags = item.getTags();
+
+
+			let foundUniverse = false;
+			let foundModels = false;
+
+				for (const tag of tags) {
+					const lowerTag = tag.toLowerCase();
+
+					if (this.sfmUniverse.toLowerCase() === lowerTag) {
+						foundUniverse = true;
+					}
+
+					if (this.sfmModels.toLowerCase() === lowerTag) {
+						foundModels = true;
+					}
+				}
+
+				if (this.sfmUniverse && !foundUniverse) {
+					return ItemFilterResult.ExcludedTag;
+				}
+
+				if (this.sfmModels && !foundModels) {
+					return ItemFilterResult.ExcludedTag;
+				}
+
+			return ItemFilterResult.Ok;
 		}
 
 		if (!isWeapon && this.paintable !== undefined && this.paintable != item.isPaintable()) {
@@ -294,6 +327,12 @@ export class ItemFilter {
 				break;
 			case ItemFilterAttribute.SfmWorkshop:
 				this.sfmWorkshop = value as boolean;
+				break;
+			case ItemFilterAttribute.SfmUniverse:
+				this.sfmUniverse = value as string;
+				break;
+			case ItemFilterAttribute.SfmModel:
+				this.sfmModels = value as string;
 				break;
 			case ItemFilterAttribute.HideConflict:
 				this.hideConflict = value as boolean;

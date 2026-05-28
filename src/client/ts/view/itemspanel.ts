@@ -55,7 +55,7 @@ export class ItemsPanel extends DynamicPanel {
 
 	#initListeners(): void {
 		Controller.addEventListener(ControllerEvent.ItemsLoaded, () => this.#refreshItems());
-		Controller.addEventListener(ControllerEvent.SfmItemsLoaded, () => this.#refreshSfmItems());
+		Controller.addEventListener(ControllerEvent.SfmItemsLoaded, () => this.#refreshItems());
 		Controller.addEventListener(ControllerEvent.FiltersUpdated, () => this.#refreshItems());
 		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.#setItemFilter((event as CustomEvent<SetItemFilter>).detail));
 		Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, true));
@@ -97,6 +97,7 @@ export class ItemsPanel extends DynamicPanel {
 		let htmlSfmUniverse: HTMLSelectElement;
 		let htmlSfmModel: HTMLSelectElement;
 		let htmlSortDirection: HTMLHarmonyToggleButtonElement;
+		let htmlSfmSortDirection: HTMLHarmonyToggleButtonElement;
 		let htmlShowWarpaintable: HTMLHarmonySwitchElement;
 		let htmlCollapsableFiltersButton: HTMLHarmonySwitchElement;
 
@@ -128,6 +129,7 @@ export class ItemsPanel extends DynamicPanel {
 							],
 						}),
 						htmlTypeRadio = createElement('harmony-radio', {
+							class: 'no-sfm-filter',
 							attributes: { multiple: '1' },
 							childs: [
 								createElement('button', {
@@ -165,6 +167,7 @@ export class ItemsPanel extends DynamicPanel {
 							],
 						}) as HTMLHarmonyRadioElement,
 						createElement('harmony-radio', {
+							class: 'no-sfm-filter',
 							attributes: { multiple: '1' },
 							childs: [
 								createElement('button', {
@@ -292,6 +295,7 @@ export class ItemsPanel extends DynamicPanel {
 									$change: (event: Event) => OptionsManager.setItem('app.items.filter.collection', (event.target as HTMLSelectElement).value),
 								}) as HTMLSelectElement,
 								htmlSortDirection = createElement('harmony-toggle-button', {
+									class: 'no-sfm-filter',
 									childs: [
 										createElement('div', {
 											slot: 'on',
@@ -305,6 +309,20 @@ export class ItemsPanel extends DynamicPanel {
 									$change: (event: Event) => {
 										OptionsManager.setItem('app.items.sort.ascending', (event.target as HTMLHarmonyToggleButtonElement).state);
 									},
+								}) as HTMLHarmonyToggleButtonElement,
+								htmlSfmSortDirection = createElement('harmony-toggle-button', {
+									class: 'sfm-filter',
+									childs: [
+										createElement('div', {
+											slot: 'on',
+											innerHTML: sortAlphabeticalSVG,
+										}),
+										createElement('div', {
+											slot: 'off',
+											innerHTML: sortAlphabeticalReverseSVG,
+										}),
+									],
+									$change: (event: Event) => OptionsManager.setItem('app.items.sfm.sort.ascending', (event.target as HTMLHarmonyToggleButtonElement).state),
 								}) as HTMLHarmonyToggleButtonElement,
 							]
 						}),
@@ -436,9 +454,22 @@ export class ItemsPanel extends DynamicPanel {
 			this.#refreshItems();
 		});
 
+		OptionsManagerEvents.addEventListener('app.items.filter.sfm.universe', (event: Event) => {
+			const universe = (event as CustomEvent<OptionsManagerEvent>).detail.value as string;
+			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.SfmUniverse, value: universe } }),
+				this.#refreshItems();
+		});
+
+		OptionsManagerEvents.addEventListener('app.items.filter.sfm.models', (event: Event) => {
+			const models = (event as CustomEvent<OptionsManagerEvent>).detail.value as string;
+			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.SfmModel, value: models } }),
+				this.#refreshItems();
+		});
+
 		OptionsManagerEvents.addEventListener('app.items.sfm.sort.field', (event: Event) => {
 			const sortType = (event as CustomEvent<OptionsManagerEvent>).detail.value as string;
 			htmlSfmSortType.value = sortType;
+			Controller.dispatchEvent<string>(ControllerEvent.SetSfmSortField, { detail: sortType });
 			this.#refreshItems();
 		});
 
@@ -452,8 +483,14 @@ export class ItemsPanel extends DynamicPanel {
 		OptionsManagerEvents.addEventListener('app.items.sort.ascending', (event: Event) => {
 			const ascending = (event as CustomEvent).detail.value;
 			htmlSortDirection.state = ascending;
-			//this.#sortingDirection = ascending ? 1 : -1;
 			Controller.dispatchEvent<boolean>(ControllerEvent.SetItemSortAscending, { detail: ascending });
+			this.#refreshItems();
+		});
+
+		OptionsManagerEvents.addEventListener('app.items.sfm.sort.ascending', (event: Event) => {
+			const ascending = (event as CustomEvent).detail.value;
+			htmlSfmSortDirection.state = ascending;
+			Controller.dispatchEvent<boolean>(ControllerEvent.SetSfmItemSortAscending, { detail: ascending });
 			this.#refreshItems();
 		});
 
@@ -473,16 +510,6 @@ export class ItemsPanel extends DynamicPanel {
 			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Warpaintable, value: (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean } });
 		});
 		//OptionsManagerEvents.addEventListener('app.items.filter.*', () => this.#refreshItems());
-	}
-
-	#refreshSfmItems(): void {
-		for (const [id, htmlItem] of this.#htmlItems) {
-			if (htmlItem.item.isSfmWorkshop()) {
-				this.#htmlItems.delete(id);
-			}
-			htmlItem.remove();
-		}
-		this.#refreshItems();
 	}
 
 	#refreshItems(): void {
