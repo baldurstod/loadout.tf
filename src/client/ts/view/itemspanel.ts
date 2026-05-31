@@ -4,7 +4,6 @@ import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, display, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, I18n, show, toggle } from 'harmony-ui';
 import itemCSS from '../../css/item.css';
 import itemPanelCSS from '../../css/itempanel.css';
-import { TESTING } from '../bundleoptions';
 import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
@@ -121,11 +120,11 @@ export class ItemsPanel extends DynamicPanel {
 									value: 'workshop',
 									$change: (event: CustomEvent) => this.#setWorkshopFilter(event.detail.state),
 								}),
-								TESTING ? createElement('button', {
+								createElement('button', {
 									'i18n': '#sfm',
 									value: 'sfm_workshop',
 									$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.SfmWorkshop, value: event.detail.state } }),
-								}) : null,
+								}),
 							],
 						}),
 						htmlTypeRadio = createElement('harmony-radio', {

@@ -38,7 +38,7 @@ for (const buildOption of BUILD_OPTIONS) {
 					__isProduction__: isProduction,
 					__printfulEndpoint__: (isProduction) ? 'https://printful.loadout.tf' : 'https://printful.loadout.localhost:17822',
 					__shopEndpoint__: (isProduction) ? 'https://shop.loadout.tf' : 'https://shop.loadout.localhost:17830',
-					__sfmEndpoint__: (isProduction) ? 'https://sfm.ovh' : 'https://sfm.localhost:17610',
+					__sfmEndpoint__: (true || isProduction) ? 'https://sfm.ovh' : 'https://sfm.localhost:17510',
 				}),
 				css(),
 				json({

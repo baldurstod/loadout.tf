@@ -49,7 +49,7 @@ export class ItemFilter {
 			return ItemFilterResult.ExcludedFilter;
 		}
 
-		if (this.sfmWorkshop && !item.isSfmWorkshop()) {
+		if (this.sfmWorkshop != item.isSfmWorkshop()) {
 			return ItemFilterResult.ExcludedFilter;
 		}
 

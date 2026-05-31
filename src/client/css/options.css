@@ -66,18 +66,6 @@ input {
 	padding: 0.2rem;
 }
 
-.option-button {
-	background-color: var(--main-bg-color-bright);
-	color: var(--main-text-color-dark2);
-	border-radius: 1px;
-	display: inline-block;
-	cursor: pointer;
-	padding: 4px;
-	color: white;
-	pointer-events: all;
-	margin: 4px;
-}
-
 .option-input-mtt-url {
 	width: calc(100% - 10px);
 }

@@ -1,6 +1,7 @@
 import { Entity, Repository, RepositoryEntry } from 'harmony-3d';
 import { HTMLRepositoryElement } from 'harmony-3d-utils';
 import { createElement, I18n } from 'harmony-ui';
+import optionsCSS from '../../../css/options.css';
 import { CharacterManager } from '../../loadout/characters/charactermanager';
 import { addTF2Model, loadoutScene } from '../../loadout/scene';
 
@@ -19,10 +20,12 @@ export function addRepository(repository: Repository, parent: HTMLElement, style
 				let removeButton;
 				createElement('div', {
 					class: 'custom-buttons',
+					adoptStyle: optionsCSS,
 					parent: (event).detail.view,
 					slot: 'custom',
 					childs: [
 						createElement('button', {
+							class: 'option-button',
 							i18n: '#add_to_scene',
 							events: {
 								click: () => { addModel((event).detail.entry) },
