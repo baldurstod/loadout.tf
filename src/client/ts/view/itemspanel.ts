@@ -772,6 +772,7 @@ export class ItemsPanel extends DynamicPanel {
 		for (const [, item] of this.#htmlItems) {
 			if (item.top + 200 > scrollTop && item.top < scrollTop + this.#htmlItemsContainer!.clientHeight) {
 				this.#htmlItemsContainer!.append(item);
+				item.hideDetail();
 			} else {
 				item.remove();
 			}

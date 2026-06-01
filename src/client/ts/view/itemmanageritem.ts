@@ -154,7 +154,6 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		}
 	}
 
-
 	#createDetail(): void {
 		defineHarmonySwitch();
 		const item = this.#item;
@@ -171,9 +170,11 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 
 		const itemCollection = item.getCollection();
 		if (itemCollection) {
-			const detailCollection = createElement('div', { class: 'detail-collection' });
-			detailCollection.innerText = itemCollection;
-			this.#detail!.append(detailCollection);
+			createElement('div', {
+				class: 'detail-collection',
+				parent: this.#detail,
+				innerText: itemCollection,
+			});
 		}
 
 		if (item.isHalloweenRestricted()) {
@@ -277,7 +278,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		this.#detail!.append(this.#htmlPinned);
 	}
 
-	#hideDetail(): void {
+	hideDetail(): void {
 		clearTimeout(this.#detailTimeout);
 		if (this.#detail) {
 			hide(this.#detail);
@@ -310,7 +311,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 	#createHTML(): void {
 		this.setAttribute('title', this.#item!.name);
 		this.addEventListener('mouseover', () => { this.#showDetail(); });
-		this.addEventListener('mouseleave', () => { this.#hideDetail(); });
+		this.addEventListener('mouseleave', () => { this.hideDetail(); });
 		this.#itemIconDiv = createElement('img', { class: 'item-image', parent: this, }) as HTMLImageElement;
 		this.#itemNameDiv = createElement('div', { class: 'item-name', parent: this, });
 
