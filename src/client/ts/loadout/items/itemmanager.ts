@@ -14,11 +14,12 @@ import { ItemFilter, ItemFilterResult } from './itemfilter';
 import { ItemTemplate } from './itemtemplate';
 
 export enum SfmSortField {
-	Index = "sfm-index",
-	Name = "sfm-name",
-	Subscriptions = "sfm-subscriptions",
-	Updated = "sfm-updated",
-	Created = "sfm-created"
+	Index = 'sfm-index',
+	Name = 'sfm-name',
+	Subscriptions = 'sfm-subscriptions',
+	Updated = 'sfm-updated',
+	Created = 'sfm-created',
+	Random = 'sfm-random'
 }
 
 export class ItemManager {
@@ -39,6 +40,7 @@ export class ItemManager {
 	static #sfmRequest = 0;
 	static #sortField = 'index';
 	static #sortFieldSfm = 'updated';
+	static #randomOrder = new Map2<string, string, number>();
 
 	static {
 		this.#initListeners();
@@ -414,6 +416,9 @@ export class ItemManager {
 			case 'created':
 				this.#sortByCreationTime(sortingDirection);
 				break;
+			case 'random':
+				this.#sortRandom();
+				break;
 			default: console.error(`unsupported field: ${type}`);
 				break;
 		}
@@ -515,6 +520,22 @@ export class ItemManager {
 					const aname = a[1].name;
 					const bname = b[1].name;
 					return aname < bname ? -sortingDirection : sortingDirection;
+				}
+			);
+		}
+	}
+
+	static #sortRandom(): void {
+		const self = this;
+		this.#itemTemplates[Symbol.iterator] = function* (): MapIterator<[string, ItemTemplate]> {
+			yield* [...this.entries()].sort(
+				(a, b) => {
+					let order = self.#randomOrder.get(a[0], b[0]);
+					if (order === undefined) {
+						order = Math.random() - 0.5;
+						self.#randomOrder.set(a[0], b[0], order);
+					}
+					return order;
 				}
 			);
 		}

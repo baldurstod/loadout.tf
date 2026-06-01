@@ -270,6 +270,7 @@ export class ItemsPanel extends DynamicPanel {
 										createElement('option', { i18n: '#subscriptions', value: 'subscriptions' }),
 										createElement('option', { i18n: '#date_updated', value: 'updated' }),
 										createElement('option', { i18n: '#date_created', value: 'created' }),
+										createElement('option', { i18n: '#random', value: 'random' }),
 									],
 									$change: (event: Event) => {
 										OptionsManager.setItem('app.items.sfm.sort.field', (event.target as HTMLSelectElement).value);
