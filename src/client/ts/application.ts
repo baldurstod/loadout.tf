@@ -294,6 +294,18 @@ class Application {
 		Source2ModelManager.loadManifest('hla');
 		Source2ModelManager.loadManifest('cs2');
 		Source2ModelManager.loadManifest('deadlock');
+
+		this.#tf2WebRepository.supportedExtensions.add('vmt');
+		this.#tf2WebRepository.supportedExtensions.add('vtf');
+
+		fetch(TF2_REPOSITORY + "materials_manifest.json").then(async (response) => {
+			const j = await response.json();
+			if (!j) {
+				return;
+			}
+
+			this.#tf2WebRepository.setFiles(j);
+		});
 	}
 
 	#start(): void {
