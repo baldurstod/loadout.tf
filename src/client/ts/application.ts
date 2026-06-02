@@ -15,7 +15,7 @@ import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PATREON_IS_LOGGED, PRODU
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, SHARE_LOADOUT_URL, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType, Panel } from './enums';
-import { importFile } from './fileimporter';
+import { importFile, restoreFiles } from './fileimporter';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { Character } from './loadout/characters/character';
 import { CharacterManager } from './loadout/characters/charactermanager';
@@ -88,6 +88,10 @@ class Application {
 		this.#initSounds();
 		this.#setupAnalytics();
 		this.#initDefaultCharacter();
+
+		if (OptionsManager.getItem('app.repositories.import.restorefiles') as boolean) {
+			restoreFiles(OptionsManager.getItem('app.repositories.import.overridemodels') as boolean);
+		}
 
 		setFetchFunction(async (resource, options) => {
 			let res2 = resource;

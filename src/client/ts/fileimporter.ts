@@ -1,7 +1,29 @@
 import { ManifestRepository, MergeRepository, PathPrefixRepository, Repositories, Repository, sanitizeRepositoryName, Source1ModelManager, Source1ParticleControler, VpkRepository, ZipRepository } from "harmony-3d";
+import { PersistentStorage } from "harmony-browser-utils";
 import { Controller, ControllerEvent } from "./controller";
 
+const IMPORTED_FILES_PATH = '/imported_files/';
+
 export async function importFile(file: File, overrideModels: boolean): Promise<void> {
+	if (!await PersistentStorage.writeFile(IMPORTED_FILES_PATH + file.name, file)) {
+		const estimate = await PersistentStorage.estimate();
+		console.error(`failed to save file ${file.name} to persistent storage, estimate: `, estimate);
+	}
+	await importFile2(file, overrideModels);
+}
+
+export async function restoreFiles(overrideModels: boolean): Promise<void> {
+	for await (const entry of PersistentStorage.listEntries(IMPORTED_FILES_PATH)) {
+		console.info(entry);
+		if (entry.kind === 'directory') {
+			break;
+		}
+		const file = await (entry as FileSystemFileHandle).getFile();
+		await importFile2(file, overrideModels);
+	}
+}
+
+async function importFile2(file: File, overrideModels: boolean): Promise<void> {
 	//TODO: check zip
 	const tf2Repository = Repositories.getRepository('tf2') as MergeRepository;
 

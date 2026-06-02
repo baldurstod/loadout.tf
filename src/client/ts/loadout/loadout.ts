@@ -133,7 +133,6 @@ export class Loadout {
 		addRepo(repo);
 	}
 
-
 	static async #handleEffectClicked(template: EffectTemplate): Promise<void> {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 

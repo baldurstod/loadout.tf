@@ -826,6 +826,11 @@
 			"default": false
 		},
 		{
+			"name": "app.repositories.import.restorefiles",
+			"type": "boolean",
+			"default": true
+		},
+		{
 			"name": "app.warpainteditor.filter.node",
 			"type": "string",
 			"default": ""
