@@ -22,7 +22,7 @@ export class SfmItemRepository extends WebRepository {
 		const populateFiles = (level: JSONObject, path: string) => {
 			for (const segment in level) {
 				const f = level[segment];
-				if (f == 1) {
+				if ((f as number) > 0) {
 					this.#files.push(path + segment)
 				} else {
 					populateFiles((f as JSONObject), path + segment + '/')
