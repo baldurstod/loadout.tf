@@ -48,6 +48,7 @@ export const WORKSHOP_UGC_IMG_PREFIX = 'https://images.steamusercontent.com/ugc/
 export const SFM_WORKSHOP_UGC_URL = '__sfmEndpoint__/ugc/';
 export const WORKSHOP_URL = 'https://workshop.tf/php/workshop/getAllItems.php';
 export const STEAM_WORKSHOP_URL = 'http://steamcommunity.com/sharedfiles/filedetails/?id=';
+export const WORKSHOP_REPO = 'workshop_';
 
 //export const TESTING_LOADOUT_ID = 'yVNFJPRh2XXEoDV8';
 //export const TESTING_LOADOUT_ID = '1ESqvbGiFt49Gi1G';
