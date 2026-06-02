@@ -13,6 +13,9 @@ export class SfmItemRepository extends WebRepository {
 	constructor(name: string, base: string, useCacheApi = false) {
 		super(name, base, useCacheApi);
 
+		this.supportedExtensions.add('vmt');
+		this.supportedExtensions.add('vtf');
+
 		this.#initRepo();
 	}
 
@@ -36,6 +39,7 @@ export class SfmItemRepository extends WebRepository {
 				if (response.ok) {
 					const j = await response.json();
 					populateFiles(j, '');
+					this.setFiles(j);
 					break;
 				}
 			} catch (e) {
@@ -60,6 +64,6 @@ export class SfmItemRepository extends WebRepository {
 
 	async hasFile(path: string): Promise<RepositoryHasFileResponse> {
 		await this.#initPromise;
-		return { exist: this.#files.has(path) };
+		return super.hasFile(path);
 	}
 }
