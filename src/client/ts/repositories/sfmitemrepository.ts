@@ -1,4 +1,4 @@
-import { RepositoryEntry, RepositoryFileListResponse, WebRepository } from 'harmony-3d';
+import { RepositoryEntry, RepositoryFileListResponse, RepositoryHasFileResponse, WebRepository } from 'harmony-3d';
 import { JSONObject } from 'harmony-types';
 import { setTimeoutPromise } from 'harmony-utils';
 
@@ -8,7 +8,7 @@ const RETRY_AFTER = 10000;
 export class SfmItemRepository extends WebRepository {
 	#initPromiseResolve?: (value: boolean) => void;
 	#initPromise = new Promise(resolve => this.#initPromiseResolve = resolve);
-	#files: string[] = [];//Record<string, string> = {};
+	#files = new Set<string>();
 
 	constructor(name: string, base: string, useCacheApi = false) {
 		super(name, base, useCacheApi);
@@ -23,7 +23,7 @@ export class SfmItemRepository extends WebRepository {
 			for (const segment in level) {
 				const f = level[segment];
 				if ((f as number) > 0) {
-					this.#files.push(path + segment)
+					this.#files.add(path + segment)
 				} else {
 					populateFiles((f as JSONObject), path + segment + '/')
 				}
@@ -56,5 +56,10 @@ export class SfmItemRepository extends WebRepository {
 		}
 
 		return { root: root };
+	}
+
+	async hasFile(path: string): Promise<RepositoryHasFileResponse> {
+		await this.#initPromise;
+		return { exist: this.#files.has(path) };
 	}
 }
