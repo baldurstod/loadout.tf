@@ -23,11 +23,20 @@ export async function restoreFiles(overrideModels: boolean): Promise<void> {
 	}
 }
 
+export async function removeRepository(repository: Repository): Promise<void> {
+	const filename = repository.properties.get('filename') as undefined | string;
+	if (!filename) {
+		return;
+	}
+	await PersistentStorage.deleteFile(IMPORTED_FILES_PATH + filename);
+}
+
 async function importFile2(file: File, overrideModels: boolean): Promise<void> {
 	//TODO: check zip
 	const tf2Repository = Repositories.getRepository('tf2') as MergeRepository;
 
 	for await (const localRepo of mountRepo(file)) {
+		localRepo.properties.set('filename', file.name);
 		if (overrideModels) {
 			//TODO:add message
 			tf2Repository.unshiftRepository(localRepo);

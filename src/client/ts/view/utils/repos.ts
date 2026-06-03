@@ -2,6 +2,7 @@ import { Entity, Repository, RepositoryEntry } from 'harmony-3d';
 import { HTMLRepositoryElement } from 'harmony-3d-utils';
 import { createElement, I18n } from 'harmony-ui';
 import optionsCSS from '../../../css/options.css';
+import { removeRepository } from '../../fileimporter';
 import { CharacterManager } from '../../loadout/characters/charactermanager';
 import { addTF2Model, loadoutScene } from '../../loadout/scene';
 
@@ -52,7 +53,8 @@ export function addRepository(repository: Repository, parent: HTMLElement, style
 				I18n.observeElement((event).detail.view);
 				buttonByRepoEntry.set((event).detail.entry, removeButton);
 			},
-		}
+		},
+		$close: () => removeRepository(repository),
 	}) as HTMLRepositoryElement;
 	repositoryView.setFilter({ extension: 'mdl', directories: false });
 	repositoryView.setRepository(repository);
