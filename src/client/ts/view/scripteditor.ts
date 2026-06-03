@@ -4,6 +4,7 @@ import { loadScripts, PersistentStorage } from 'harmony-browser-utils';
 import { createElement, defineHarmonyInfoBox, defineHarmonyTab, defineHarmonyTabGroup, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n, shadowRootStyle, updateElement } from 'harmony-ui';
 import scriptEditorCSS from '../../css/scripteditor.css';
 import { ACE_EDITOR_URI, SNIPPET_URL } from '../constants';
+import { Controller, ControllerEvent } from '../controller';
 import { getPyodide } from '../scripting/pyodide';
 import { InterruptError, Utils } from '../scripting/utils';
 
@@ -210,6 +211,19 @@ export class ScriptEditor extends HTMLElement {
 			this.#htmlSaveButton?.setAttribute('disabled', '1');
 			script.tab?.setAttribute('data-text', script.filename);
 		}
+		this.#refreshTitle();
+	}
+
+	#refreshTitle() {
+		let detail = false;
+		for (const [, knownScript] of this.#knownScripts) {
+			if (knownScript.modified) {
+				detail = true;
+				break;
+			}
+		}
+
+		Controller.dispatchEvent<boolean>(ControllerEvent.SetTitleModified, { detail });
 	}
 
 	#newScript(): void {

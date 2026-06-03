@@ -69,6 +69,7 @@ export enum ControllerEvent {
 	SetProductFilter = 'setproductfilter',
 	ActivateMeetTheTeamMap = 'activatemeettheteammap',
 	DeleteCache = 'deletecache',
+	SetTitleModified = 'settitlemodified',
 }
 
 export type SetBackgroundType = {

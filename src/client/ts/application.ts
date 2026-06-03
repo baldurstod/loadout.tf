@@ -203,6 +203,8 @@ class Application {
 
 		Controller.addEventListener(ControllerEvent.DeleteCache, () => this.#tf2WebRepository.purge());
 
+		Controller.addEventListener(ControllerEvent.SetTitleModified, (event: Event) => this.#setTitleModified((event as CustomEvent<boolean>).detail));
+
 		EntityObserver.addEventListener(EntityObserverEventType.PropertyChanged, (event: Event) => this.#handlePropertyChanged((event as CustomEvent).detail));
 	}
 
@@ -1101,6 +1103,10 @@ class Application {
 				map.setVisible(OptionsManager.getItem('app.map.rendermap') as boolean);
 			}
 		}
+	}
+
+	#setTitleModified(modified: boolean) {
+		document.title = (modified ? '● ' : '') + 'Loadout.tf - Test TF2 loadouts';
 	}
 }
 new Application();
