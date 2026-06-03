@@ -1,7 +1,7 @@
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { AudioMixer, Entity, Graphics, Line, Repository, RepositoryEntry, SceneExplorer, setCustomIncludeSource, ShaderEditor, ShaderManager, ShaderType, Sphere } from 'harmony-3d';
-import { defineRepository, HTMLRepositoryElement } from 'harmony-3d-utils';
-import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
+import { defineRepository } from 'harmony-3d-utils';
+import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, PersistentStorage } from 'harmony-browser-utils';
 import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
 import { fileToImage } from 'harmony-utils';
 import optionsCSS from '../../css/options.css';
@@ -10,12 +10,11 @@ import { ENABLE_PATREON_POWERUSER, TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, CameraType, Panel } from '../enums';
 import { CharacterManager, CustomDisposition } from '../loadout/characters/charactermanager';
-import { addTF2Model, loadoutScene } from '../loadout/scene';
+import { loadoutScene } from '../loadout/scene';
 import { SfmItemRepository } from '../repositories/sfmitemrepository';
 import { getShaderToyList } from '../utils/shadertoy';
 import { DynamicPanel } from './dynamicpanel';
 import { ScriptEditor } from './scripteditor';
-import { addRepo } from '../fileimporter';
 import { addRepository } from './utils/repos';
 
 export class OptionsPanel extends DynamicPanel {
@@ -364,6 +363,10 @@ export class OptionsPanel extends DynamicPanel {
 				}),
 			]
 		});
+
+		const panel = PersistentStorage.getPanel();
+		htmlGeneralOptionsTab.append(panel);
+		panel.collapse();
 	}
 
 	#initHtmlCameraOptions(): void {
