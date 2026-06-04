@@ -1,7 +1,7 @@
-import { CanvasAttributes, CanvasLayout, CanvasView, Composer, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvent, GraphicsEvents, MeshFlatMaterial, OldMoviePass, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, ShaderType, SketchPass, TextureManager, WebGLStats } from 'harmony-3d';
+import { CanvasAttributes, CanvasLayout, CanvasView, Composer, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvent, GraphicsEvents, MeshFlatMaterial, OldMoviePass, OrbitGizmo, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, ShaderType, SketchPass, TextureManager, WebGLStats } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
-import { createElement, createShadowRoot } from 'harmony-ui';
+import { createElement, createShadowRoot, display } from 'harmony-ui';
 import viewerCSS from '../../css/viewer.css';
 import { LOADOUT_LAYOUT, MAIN_CANVAS, RECORDER_DEFAULT_FILENAME, SHADERTOY_DIRECTORY } from '../constants';
 import { Controller, ControllerEvent, SetBackgroundType } from '../controller';
@@ -29,6 +29,7 @@ export class Viewer {
 	#pictureBackground?: FullScreenQuad;
 	#recording = false;
 	#showFps = false;
+	#orbitGizmo = new OrbitGizmo();
 
 	constructor() {
 		this.#initPostProcessing();
@@ -37,6 +38,8 @@ export class Viewer {
 		orbitCamera.setPosition([100, 0, 40]);
 		orbitCameraControl.setTargetPosition([0, 0, 40]);
 		this.#initRenderer();
+
+		this.#orbitGizmo.orbitControl = orbitCameraControl;
 	}
 
 	#initHTML(): HTMLElement {
@@ -71,6 +74,7 @@ export class Viewer {
 			childs: [
 				this.#htmlCanvas,
 				this.#htmlCanvasFps = createElement('div', { class: 'fps' }),
+				this.#orbitGizmo.getHtmlElement(),
 			],
 		});
 		return this.#shadowRoot?.host as HTMLElement;
@@ -110,6 +114,10 @@ export class Viewer {
 		Controller.addEventListener(ControllerEvent.SavePicture, () => this.#savePicture());
 
 		Controller.addEventListener(ControllerEvent.UseLayout, (event: Event) => this.#useLayout((event as CustomEvent<string>).detail));
+
+		Controller.addEventListener(ControllerEvent.SceneExplorerVisible, (event: Event) => {
+			display(this.#orbitGizmo.getHtmlElement(), (event as CustomEvent<boolean>).detail);
+		});
 
 		ShortcutHandler.addEventListener('app.shortcuts.video.togglerecording', () => this.#toggleVideo(!this.#recording));
 

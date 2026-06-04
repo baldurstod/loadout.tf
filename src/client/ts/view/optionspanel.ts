@@ -680,11 +680,23 @@ export class OptionsPanel extends DynamicPanel {
 	}
 
 	#initHtmlSceneExplorer(): void {
+		const sceneExplorerElement = new SceneExplorer().htmlElement;
 		this.#htmlSceneExplorerTab = createElement('harmony-tab', {
 			'data-i18n': '#scene_explorer',
 			parent: this.#htmlTabGroup,
-			child: new SceneExplorer().htmlElement,
+			child: sceneExplorerElement,
 		}) as HTMLHarmonyTabElement;
+
+
+		const callback: IntersectionObserverCallback = (entries, observer) => {
+			entries.forEach(entry => {
+				if (entry.target === sceneExplorerElement) {
+					Controller.dispatchEvent<boolean>(ControllerEvent.SceneExplorerVisible, { detail: entry.isIntersecting });
+				}
+			});
+		};
+		new IntersectionObserver(callback, { threshold: 0.5 }).observe(sceneExplorerElement);
+
 	}
 
 	#initHtmlShaderEditor(): void {

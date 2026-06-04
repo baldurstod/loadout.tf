@@ -70,6 +70,7 @@ export enum ControllerEvent {
 	ActivateMeetTheTeamMap = 'activatemeettheteammap',
 	DeleteCache = 'deletecache',
 	SetTitleModified = 'settitlemodified',
+	SceneExplorerVisible = 'sceneexplorervisible',
 }
 
 export type SetBackgroundType = {
