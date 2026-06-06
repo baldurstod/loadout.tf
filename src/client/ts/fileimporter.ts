@@ -14,7 +14,6 @@ export async function importFile(file: File, overrideModels: boolean): Promise<v
 
 export async function restoreFiles(overrideModels: boolean): Promise<void> {
 	for await (const entry of PersistentStorage.listEntries(IMPORTED_FILES_PATH)) {
-		console.info(entry);
 		if (entry.kind === 'directory') {
 			break;
 		}

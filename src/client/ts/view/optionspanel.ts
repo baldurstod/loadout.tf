@@ -2,7 +2,7 @@ import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { AudioMixer, Entity, Graphics, Line, Repository, RepositoryEntry, SceneExplorer, setCustomIncludeSource, ShaderEditor, ShaderManager, ShaderType, Sphere } from 'harmony-3d';
 import { defineRepository } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, PersistentStorage } from 'harmony-browser-utils';
-import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
+import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyPanel, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyPanelElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
 import { fileToImage } from 'harmony-utils';
 import optionsCSS from '../../css/options.css';
 import repositoryEntryCSS from '../../css/repositoryentry.css';
@@ -75,9 +75,15 @@ export class OptionsPanel extends DynamicPanel {
 	}
 
 	#initHTMLGeneralOptions(): void {
-		const htmlGeneralOptionsTab = createElement('harmony-tab', {
+		defineHarmonyPanel();
+		let htmlGeneralOptionsPanel: HTMLHarmonyPanelElement;
+		createElement('harmony-tab', {
 			parent: this.#htmlTabGroup,
-			'data-i18n': '#general_options'
+			'data-i18n': '#general_options',
+			child: htmlGeneralOptionsPanel = createElement('harmony-panel', {
+				'has-header': 0,
+				adoptStyles: [optionsCSS],
+			}) as HTMLHarmonyPanelElement,
 		});
 
 		/**************** misc options ****************/
@@ -86,7 +92,7 @@ export class OptionsPanel extends DynamicPanel {
 			i18n: {
 				title: '#general',
 			},
-			parent: htmlGeneralOptionsTab,
+			parent: htmlGeneralOptionsPanel,
 
 		});
 
@@ -196,8 +202,11 @@ export class OptionsPanel extends DynamicPanel {
 		/**************** misc options ****************/
 
 		/**************** Videos options ****************/
-		const htmlVideoOptions = createElement('group', { i18n: { title: '#video' }, 'class': 'loadout-application-options-video' });
-		htmlGeneralOptionsTab.append(htmlVideoOptions);
+		const htmlVideoOptions = createElement('group', {
+			i18n: { title: '#video' },
+			class: 'loadout-application-options-video',
+			parent: htmlGeneralOptionsPanel,
+		});
 
 		createElement('harmony-switch', {
 			parent: htmlVideoOptions,
@@ -228,8 +237,11 @@ export class OptionsPanel extends DynamicPanel {
 
 
 		/**************** Background options ****************/
-		const htmlBackgroundOptions = createElement('group', { i18n: { title: '#background' }, class: 'loadout-application-options-background' });
-		htmlGeneralOptionsTab.append(htmlBackgroundOptions);
+		const htmlBackgroundOptions = createElement('group', {
+			i18n: { title: '#background' },
+			class: 'loadout-application-options-background',
+			parent: htmlGeneralOptionsPanel,
+		});
 		const htmlBackgroundType = createElement('div');
 		const htmlBackgroundTypeLabel = createElement('label', { class: 'space-after', i18n: '#background_type' });
 
@@ -303,10 +315,12 @@ export class OptionsPanel extends DynamicPanel {
 
 		/**************** Export ****************/
 		if (TESTING) {
-			const htmlExportScene = createElement('div', { class: 'option-button', i18n: '#export_scene' });
+			const htmlExportScene = createElement('div', {
+				class: 'option-button',
+				i18n: '#export_scene',
+				parent: htmlGeneralOptionsPanel,
+			});
 			htmlExportScene.addEventListener('click', () => console.error(JSON.stringify(loadoutScene.toJSON())));
-
-			htmlGeneralOptionsTab.append(htmlExportScene);
 		}
 		/**************** Export ****************/
 
@@ -315,7 +329,7 @@ export class OptionsPanel extends DynamicPanel {
 			i18n: {
 				title: '#background',
 			},
-			parent: htmlGeneralOptionsTab,
+			parent: htmlGeneralOptionsPanel,
 			class: 'loadout-application-options-background',
 			childs: [
 				createElement('label', {
@@ -354,7 +368,7 @@ export class OptionsPanel extends DynamicPanel {
 			i18n: {
 				title: '#cache',
 			},
-			parent: htmlGeneralOptionsTab,
+			parent: htmlGeneralOptionsPanel,
 			class: 'loadout-application-options-cache',
 			childs: [
 				createElement('button', {
@@ -365,7 +379,7 @@ export class OptionsPanel extends DynamicPanel {
 		});
 
 		const panel = PersistentStorage.getPanel();
-		htmlGeneralOptionsTab.append(panel);
+		htmlGeneralOptionsPanel.append(panel);
 		panel.collapse();
 	}
 
@@ -678,13 +692,34 @@ export class OptionsPanel extends DynamicPanel {
 
 		this.#initDispositions();
 	}
+	/*
+		#initHTMLGeneralOptions(): void {
+			defineHarmonyPanel();
+			let htmlGeneralOptionsPanel: HTMLHarmonyPanelElement;
+			createElement('harmony-tab', {
+				parent: this.#htmlTabGroup,
+				'data-i18n': '#general_options',
+				child: htmlGeneralOptionsPanel = createElement('harmony-panel', {
+					'has-header': 0,
+					adoptStyles: [optionsCSS],
+				}) as HTMLHarmonyPanelElement,
+			});
+			*/
+
 
 	#initHtmlSceneExplorer(): void {
 		const sceneExplorerElement = new SceneExplorer().htmlElement;
 		this.#htmlSceneExplorerTab = createElement('harmony-tab', {
 			'data-i18n': '#scene_explorer',
 			parent: this.#htmlTabGroup,
-			child: sceneExplorerElement,
+			child: createElement('harmony-panel', {
+				'has-header': 0,
+				adoptStyles: [optionsCSS],
+				child: createElement('harmony-panel', {
+					'title-i18n': '#scene_explorer',
+					child: sceneExplorerElement,
+				}) as HTMLHarmonyPanelElement,
+			}) as HTMLHarmonyPanelElement,
 		}) as HTMLHarmonyTabElement;
 
 
