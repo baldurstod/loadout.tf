@@ -76,13 +76,14 @@ export class OptionsPanel extends DynamicPanel {
 
 	#initHTMLGeneralOptions(): void {
 		defineHarmonyPanel();
-		let htmlGeneralOptionsPanel: HTMLHarmonyPanelElement;
+		let htmlGeneralOptionsPanel: HTMLElement;
 		createElement('harmony-tab', {
 			parent: this.#htmlTabGroup,
 			'data-i18n': '#general_options',
-			child: htmlGeneralOptionsPanel = createElement('harmony-panel', {
+			child: createElement('harmony-panel', {
 				'has-header': 0,
 				adoptStyles: [optionsCSS],
+				child: htmlGeneralOptionsPanel = createElement('div'),
 			}) as HTMLHarmonyPanelElement,
 		});
 
@@ -716,7 +717,8 @@ export class OptionsPanel extends DynamicPanel {
 				'has-header': 0,
 				adoptStyles: [optionsCSS],
 				child: createElement('harmony-panel', {
-					'title-i18n': '#scene_explorer',
+					i18n: '#scene_explorer',
+					id: '#scene_explorer',
 					child: sceneExplorerElement,
 				}) as HTMLHarmonyPanelElement,
 			}) as HTMLHarmonyPanelElement,

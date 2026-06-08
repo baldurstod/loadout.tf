@@ -6,6 +6,7 @@ import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, hide, HTMLHarmonyFileInputElement, show } from 'harmony-ui';
 import warpaintPanelCSS from '../../css/warpaintpanel.css';
+import warpaintPanelInnerCSS from '../../css/warpaintpanelinner.css';
 import { STEAM_ECONOMY_IMAGE_PREFIX, TF2_WARPAINT_PICTURES_URL } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
@@ -50,112 +51,118 @@ export class WarpaintPanel extends DynamicPanel {
 	}
 
 	#createWarpaintsView(): void {
-		createElement('div', {
+		createElement('harmony-panel', {
 			class: 'warpaints-inner',
 			parent: this.getShadowRoot(),
-			childs: [
-				createElement('div', {
+			child: createElement('harmony-panel', {
+				i18n:'#warpaints',
+				adoptStyle: warpaintPanelInnerCSS,
+				child: createElement('div', {
+					class: 'warpaints-inner',
 					childs: [
-						createElement('label', { i18n: '#wear' }),
-						this.#paintsDivHeaderWearSelect = createElement('select', {
-							value: '0',
-							$input: (event: Event) => this.#handleWearChangeClick(Number((event.target as HTMLSelectElement).value)),
-						}) as HTMLSelectElement,
-					],
-				}),
-				createElement('div', {
-					childs: [
-						createElement('label', { i18n: '#filter', }),
-						this.#paintsDivHeaderFilterInput = createElement('input', {
-							$input: (event: Event) => {
-								OptionsManager.setItem('app.items.warpaints.filter.text', (event.target as HTMLInputElement).value);
-								this.#filter.name = (event.target as HTMLInputElement).value.toLowerCase();
-								this.#refreshWarpaintFilter();
-							},
-							//$keydown: (event: Event) => event.stopPropagation(),
-						}) as HTMLInputElement,
-					],
-				}),
-				createElement('div', {
-					childs: [
-						createElement('label', {
-							class: 'seed',
+						createElement('div', {
 							childs: [
-								createElement('span', { i18n: '#seed', }),
-								this.#htmlPaintSeed = createElement('input', {
-									$change: (event: Event) => {
-										const seed = BigInt((event.target as HTMLInputElement).value);
-										this.#pushSeed(seed);
-										this.#setWarpaintSeed(seed);
-									},
-								}) as HTMLInputElement,
-								createElement('div', {
-									innerHTML: undoSVG,
-									$click: () => this.#previousSeed(),
-								}),
-								createElement('div', {
-									innerHTML: casinoSVG,
-									$click: () => this.#randomSeed(),
-								}),
-								createElement('div', {
-									innerHTML: redoSVG,
-									$click: () => this.#nextSeed(),
-								}),
+								createElement('label', { i18n: '#wear' }),
+								this.#paintsDivHeaderWearSelect = createElement('select', {
+									value: '0',
+									$input: (event: Event) => this.#handleWearChangeClick(Number((event.target as HTMLSelectElement).value)),
+								}) as HTMLSelectElement,
 							],
 						}),
-					],
-				}),
-				createElement('div', {
-					childs: [
-						createElement('label', {
+						createElement('div', {
 							childs: [
-								createElement('span', { i18n: '#team_colored_only', }),
-								this.#paintsDivHeaderFilterTeamOnly = createElement('input', {
-									type: 'checkbox',
-									$change: (event: Event) => {
-										this.#filter.teamColoredOnly = (event.target as HTMLInputElement).checked;
+								createElement('label', { i18n: '#filter', }),
+								this.#paintsDivHeaderFilterInput = createElement('input', {
+									$input: (event: Event) => {
+										OptionsManager.setItem('app.items.warpaints.filter.text', (event.target as HTMLInputElement).value);
+										this.#filter.name = (event.target as HTMLInputElement).value.toLowerCase();
 										this.#refreshWarpaintFilter();
 									},
+									//$keydown: (event: Event) => event.stopPropagation(),
 								}) as HTMLInputElement,
 							],
 						}),
-					],
-				}),
-				createElement('harmony-file-input', {
-					'data-i18n': '#import_warpaint_definition',
-					'data-accept': '.json',
-					$change: (event: Event) => {
-						//Controller.dispatchEvent<File[]>(ControllerEvent.ImportFiles, { detail: [...((event.target as HTMLHarmonyFileInputElement).files ?? [])] })
-						const file = (event.target as HTMLHarmonyFileInputElement).files?.[0];
-						if (!file || !file.type.match('application/json')) {
-							return;
-						}
-						const reader = new FileReader();
+						createElement('div', {
+							childs: [
+								createElement('label', {
+									class: 'seed',
+									childs: [
+										createElement('span', { i18n: '#seed', }),
+										this.#htmlPaintSeed = createElement('input', {
+											$change: (event: Event) => {
+												const seed = BigInt((event.target as HTMLInputElement).value);
+												this.#pushSeed(seed);
+												this.#setWarpaintSeed(seed);
+											},
+										}) as HTMLInputElement,
+										createElement('div', {
+											innerHTML: undoSVG,
+											$click: () => this.#previousSeed(),
+										}),
+										createElement('div', {
+											innerHTML: casinoSVG,
+											$click: () => this.#randomSeed(),
+										}),
+										createElement('div', {
+											innerHTML: redoSVG,
+											$click: () => this.#nextSeed(),
+										}),
+									],
+								}),
+							],
+						}),
+						createElement('div', {
+							childs: [
+								createElement('label', {
+									childs: [
+										createElement('span', { i18n: '#team_colored_only', }),
+										this.#paintsDivHeaderFilterTeamOnly = createElement('input', {
+											type: 'checkbox',
+											$change: (event: Event) => {
+												this.#filter.teamColoredOnly = (event.target as HTMLInputElement).checked;
+												this.#refreshWarpaintFilter();
+											},
+										}) as HTMLInputElement,
+									],
+								}),
+							],
+						}),
+						createElement('harmony-file-input', {
+							'data-i18n': '#import_warpaint_definition',
+							'data-accept': '.json',
+							$change: (event: Event) => {
+								//Controller.dispatchEvent<File[]>(ControllerEvent.ImportFiles, { detail: [...((event.target as HTMLHarmonyFileInputElement).files ?? [])] })
+								const file = (event.target as HTMLHarmonyFileInputElement).files?.[0];
+								if (!file || !file.type.match('application/json')) {
+									return;
+								}
+								const reader = new FileReader();
 
-						reader.addEventListener('load', () => {
-							(async (): Promise<void> => {
-								WarpaintDefinitions.setWarpaintDefinitions(JSON.parse(reader.result as string));
-								await WeaponManager.refreshWarpaintDefinitions();
-								this.#fillWarpaints();
-							})();
-						});
+								reader.addEventListener('load', () => {
+									(async (): Promise<void> => {
+										WarpaintDefinitions.setWarpaintDefinitions(JSON.parse(reader.result as string));
+										await WeaponManager.refreshWarpaintDefinitions();
+										this.#fillWarpaints();
+									})();
+								});
 
-						reader.readAsText(file);
-					},
-				}),
+								reader.readAsText(file);
+							},
+						}),
 
-				createElement('div', {
-					childs: [],
+						createElement('div', {
+							childs: [],
+						}),
+						this.#htmlWarpaints = createElement('div', {
+							class: 'warpaints',
+							attributes: {
+								tabindex: '1',
+							},
+						}),
+					]
 				}),
-
-				this.#htmlWarpaints = createElement('div', {
-					class: 'warpaints',
-					attributes: {
-						tabindex: '1',
-					},
-				}),
-			],
-			$click: (event: Event) => event.stopPropagation(),
+				$click: (event: Event) => event.stopPropagation(),
+			}),
 		});
 
 

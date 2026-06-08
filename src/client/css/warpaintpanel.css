@@ -18,46 +18,5 @@
 	flex-direction: column;
 	pointer-events: all;
 	margin: auto;
-}
-
-.warpaints {
-	overflow: auto;
-	display: flex;
-	flex-wrap: wrap;
-}
-
-.warpaint {
-	color: var(--main-text-color-dark2);
-	pointer-events: all;
-	cursor: pointer;
-	position: relative;
-	display: flex;
-	flex-direction: column;
-}
-
-.warpaint:hover {
-	background-color: rgb(200, 200, 200);
-	background-color: var(--main-bg-color-bright);
-}
-
-.warpaint-img {
-	width: 15rem;
-	height: 15rem;
-}
-
-.warpaint-name {
-	width: 100%;
-	text-align: center;
-	font-size: 1.5rem;
-	position: absolute;
-	bottom: 0px;
-}
-
-.seed {
-	display: flex;
-	align-items: center;
-}
-
-.seed svg {
-	cursor: pointer;
+	flex: none;
 }
