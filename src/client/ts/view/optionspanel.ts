@@ -6,6 +6,7 @@ import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, define
 import { fileToImage } from 'harmony-utils';
 import optionsCSS from '../../css/options.css';
 import repositoryEntryCSS from '../../css/repositoryentry.css';
+import sceneExplorerCSS from '../../css/sceneexplorer.css';
 import { ENABLE_PATREON_POWERUSER, TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, CameraType, Panel } from '../enums';
@@ -715,7 +716,7 @@ export class OptionsPanel extends DynamicPanel {
 			parent: this.#htmlTabGroup,
 			child: createElement('harmony-panel', {
 				'has-header': 0,
-				adoptStyles: [optionsCSS],
+				adoptStyles: [optionsCSS, sceneExplorerCSS],
 				child: createElement('harmony-panel', {
 					i18n: '#scene_explorer',
 					id: '#scene_explorer',
