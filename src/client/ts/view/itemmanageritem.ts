@@ -91,7 +91,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			this.#createHTML();
 
 			if (this.#item.isWorkshop()) {
-				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + WORKSHOP_URL + this.#item.id.substring(1)/*Remove leading w*/ + '\' >' + this.#item.name + '</a>';
+				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + STEAM_WORKSHOP_URL + this.#item.id.substring(1)/*Remove leading w*/ + '\' >' + this.#item.name + '</a>';
 				this.#itemNameDiv!.classList.add('workshop-item');
 			} else if (this.#item.isSfmWorkshop()) {
 				this.#itemNameDiv!.innerHTML = '<a target=\'_blank\' href=\'' + STEAM_WORKSHOP_URL + this.#item.id + '\' >' + this.#item.name + '</a>';
