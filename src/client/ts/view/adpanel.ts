@@ -31,13 +31,17 @@ export class AdPanel {
 		});
 		this.#updateStrings();
 		I18n.observeElement(this.#shadowRoot);
-		this.#setupAdd();
+		this.#setupAd();
+
+		try {
+			this.#initObserver();
+		} catch (e) { }
 
 		I18n.addEventListener(I18nEvents.Any, () => this.#updateStrings());
 		return this.#shadowRoot.host as HTMLElement;
 	}
 
-	async #setupAdd(): Promise<void> {
+	async #setupAd(): Promise<void> {
 		const sc = createElement('script', { src: ADSBYGOOGLE_SRC, async: 1 });
 
 		const ad = createElement('div', {
@@ -52,6 +56,20 @@ export class AdPanel {
 		await setTimeoutPromise(AD_DELAY);
 		this.#htmlAdContent!.replaceChildren(...ad.children);
 		ad.remove();
+	}
+
+	#initObserver(): void {
+		const config: MutationObserverInit = { attributes: true };
+		const mutationCallback = (mutationsList: MutationRecord[]): void => {
+			for (const mutation of mutationsList) {
+				if (mutation.type === 'attributes') {
+					console.info(mutation);
+				}
+			}
+		};
+
+		const observer = new MutationObserver(mutationCallback);
+		observer.observe(this.#shadowRoot!.host, config);
 	}
 
 	#updateStrings(): void {
