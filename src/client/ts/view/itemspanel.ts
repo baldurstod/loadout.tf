@@ -64,6 +64,8 @@ export class ItemsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.WeaponEffectClick, (event: Event) => this.#handleWeaponEffectClick((event as CustomEvent<ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.WarpaintClick, (event: Event) => this.#handleWarpaintClick((event as CustomEvent<ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.RepositoryAdded, (event: Event) => this.#handleRepositoryAdded((event as CustomEvent<Repository>).detail));
+
+		OptionsManagerEvents.addEventListener('app.css.variables.item-manager-item-size', () => this.#refreshItems());
 	}
 
 	protected override initHTML(): void {
