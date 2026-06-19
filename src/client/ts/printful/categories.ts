@@ -38,7 +38,7 @@ export async function initCategories(): Promise<void> {
 	}
 
 	categoriestInizialized = true;
-	const { response: categoriesResponse } = await fetchShopAPI('get-printful-categories', 1);
+	const { response: categoriesResponse } = await fetchShopAPI('get-printful-categories', 1, { language: 'fr_FR' });
 
 	if (categoriesResponse.success && categoriesResponse.result?.categories) {
 		for (const category of categoriesResponse.result.categories as JSONObject[]) {
