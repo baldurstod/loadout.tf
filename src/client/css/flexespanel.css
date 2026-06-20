@@ -12,6 +12,13 @@
 	display: flex;
 }
 
+@media screen and (max-height: 800px) {
+	:host {
+		right: unset;
+		left: 0px;
+	}
+}
+
 .reset {
 	cursor: pointer;
 	width: 100%;
