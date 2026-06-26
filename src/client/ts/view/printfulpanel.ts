@@ -1996,11 +1996,11 @@ export class PrintfulPanel extends DynamicPanel {
 		const products = await getAvailableProducts();
 		const categories = await getCategories();
 
-		const item = { name: 'All items', opened: true, submenu: [] };
+		const item = { name: 'All items', opened: true, submenu: [], f: () => this.#selectCategory(0) };
 		this.#htmlCategoryMenuItems.set(0, item);
 
 		for (const category of categories) {
-			if (categoryHasProducts(category, products)) {
+			if (await categoryHasProducts(category, products)) {
 				await this.#addCategoryItem(category);
 			}
 		}
@@ -2045,9 +2045,9 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	#selectCategory(categoryId: number): void {
+	async #selectCategory(categoryId: number): Promise<void> {
 		this.#productFilter.categoryId = categoryId;
-		this.#applyProductFilter();
+		await this.#applyProductFilter();
 	}
 
 	async #selectProduct(productId: number): Promise<void> {
@@ -2455,10 +2455,10 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 	}
 
-	#applyProductFilter(): void {
+	async #applyProductFilter(): Promise<void> {
 		let firstProduct = -1;
 		for (const [htmlOption, product] of this.#productOption) {
-			const match = this.#matchFilter(product);
+			const match = await this.#matchFilter(product);
 			display(htmlOption, match);
 			if (firstProduct == -1 && match) {
 				firstProduct = product.id;
@@ -2466,7 +2466,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 
 		for (const [htmlProduct, product] of this.#productList) {
-			const match = this.#matchFilter(product);
+			const match = await this.#matchFilter(product);
 			display(htmlProduct, match);
 		}
 
@@ -2477,9 +2477,9 @@ export class PrintfulPanel extends DynamicPanel {
 		*/
 	}
 
-	#matchFilter(product: Product): boolean {
+	async #matchFilter(product: Product): Promise<boolean> {
 
-		if (this.#productFilter.categoryId != 0 && !isParent(product, this.#productFilter.categoryId)) {
+		if (this.#productFilter.categoryId != 0 && !await isParent(product, this.#productFilter.categoryId)) {
 			return false;
 		}
 

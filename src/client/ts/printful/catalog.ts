@@ -75,7 +75,7 @@ export async function getAvailableProducts(categoryId = 0): Promise<Set<Product>
 	const availableProducts = new Set<Product>;
 
 	for (const [, product] of products) {
-		if (productFilter.matchFilter(product) == ProductFilterResult.Ok) {
+		if (await productFilter.matchFilter(product) == ProductFilterResult.Ok) {
 			availableProducts.add(product);
 		}
 	}

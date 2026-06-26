@@ -3,10 +3,9 @@ import { Category } from './model/category';
 import { Product } from './model/product';
 import { fetchShopAPI } from './shop';
 
-const categories = new Map<number, Category>();
-let categoriestInizialized = false;
 
-export function isParent(product: Product, parentCategoryId: number): boolean {
+export async function isParent(product: Product, parentCategoryId: number): Promise<boolean> {
+	const categories = await initCategories();
 	let categoryId = product.mainCategoryId;
 	if (categoryId == parentCategoryId) {
 		return true;
@@ -31,26 +30,32 @@ export function isParent(product: Product, parentCategoryId: number): boolean {
 	}
 }
 
+let initCategoriesPromise: Promise<Map<number, Category>> | undefined;
+export async function initCategories(): Promise<Map<number, Category>> {
+	if (!initCategoriesPromise) {
+		const categories = new Map<number, Category>();
 
-export async function initCategories(): Promise<void> {
-	if (categoriestInizialized) {
-		return;
-	}
+		let initCategoriesPromiseResolve: (value: Map<number, Category>) => void;
 
-	categoriestInizialized = true;
-	const { response: categoriesResponse } = await fetchShopAPI('get-printful-categories', 1, { language: 'fr_FR' });
+		initCategoriesPromise = new Promise<Map<number, Category>>((resolve) => { initCategoriesPromiseResolve = resolve });
 
-	if (categoriesResponse.success && categoriesResponse.result?.categories) {
-		for (const category of categoriesResponse.result.categories as JSONObject[]) {
-			const c = new Category();
-			c.fromJSON(category);
-			categories.set(c.id, c);
+		const { response: categoriesResponse } = await fetchShopAPI('get-printful-categories', 1, { language: 'fr_FR' });
+
+		if (categoriesResponse.success && categoriesResponse.result?.categories) {
+			for (const category of categoriesResponse.result.categories as JSONObject[]) {
+				const c = new Category();
+				c.fromJSON(category);
+				categories.set(c.id, c);
+			}
 		}
+		initCategoriesPromiseResolve!(categories);
 	}
+
+	return initCategoriesPromise;
 }
 
 export async function getCategories(parentId?: number): Promise<Category[]> {
-	await initCategories();
+	const categories = await initCategories();
 
 	const ret: Category[] = [];
 
@@ -63,9 +68,9 @@ export async function getCategories(parentId?: number): Promise<Category[]> {
 	return ret;
 }
 
-export function categoryHasProducts(category: Category, products: Set<Product>): boolean {
+export async function categoryHasProducts(category: Category, products: Set<Product>): Promise<boolean> {
 	for (const product of products) {
-		if (isParent(product, category.id)) {
+		if (await isParent(product, category.id)) {
 			return true;
 		}
 	}
@@ -73,7 +78,7 @@ export function categoryHasProducts(category: Category, products: Set<Product>):
 }
 
 export async function categoryHasSubCategories(parentId: number): Promise<boolean> {
-	await initCategories();
+	const categories = await initCategories();
 
 	for (const [, category] of categories) {
 		if (category.parentId == parentId) {

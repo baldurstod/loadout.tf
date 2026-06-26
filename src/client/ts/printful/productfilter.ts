@@ -10,7 +10,7 @@ export enum ProductFilterResult {
 export class ProductFilter {
 	name = '';
 
-	matchFilter(product: Product, categoryId = 0): ProductFilterResult {
+	async matchFilter(product: Product, categoryId = 0): Promise<ProductFilterResult> {
 		if (product.id == 0 ||
 			product.isDiscontinued ||
 			product.catalogVariantIds.length == 0
@@ -22,7 +22,7 @@ export class ProductFilter {
 			return ProductFilterResult.ExcludedFilter;
 		}
 
-		if (categoryId != 0 && !isParent(product, categoryId)) {
+		if (categoryId != 0 && !await isParent(product, categoryId)) {
 			return ProductFilterResult.ExcludedFilter;
 		}
 
