@@ -12,7 +12,7 @@ export class CharacterSelector extends StaticPanel {
 
 	constructor() {
 		super([characterSelectorCSS]);
-		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => this.#styleSheet.replaceSync(`*{--show-hidden: ${(event as CustomEvent<OptionsManagerEvent>).detail.value ? 1 : 0};}`));
+		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => this.#styleSheet.replaceSync(`*{--show-hidden: ${(event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value ? 1 : 0};}`));
 
 		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => {
 			// TODO: remove this when bug https://bugzilla.mozilla.org/show_bug.cgi?id=1795622 is solved

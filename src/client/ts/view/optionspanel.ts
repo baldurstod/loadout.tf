@@ -106,7 +106,7 @@ export class OptionsPanel extends DynamicPanel {
 			class: 'language-selector',
 			$input: () => OptionsManager.setItem('app.lang', this.#htmlLanguageSelector!.value),
 		}) as HTMLSelectElement;
-		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#htmlLanguageSelector!.value = (event as CustomEvent<OptionsManagerEvent>).detail.value as string);
+		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#htmlLanguageSelector!.value = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string);
 
 		const languageAuthors = createElement('div', { class: 'option-language-authors' });
 		/*I18n.addEventListener('translationsloaded', () => {
@@ -151,13 +151,13 @@ export class OptionsPanel extends DynamicPanel {
 			'data-i18n': '#mute_sounds',
 			$change: () => OptionsManager.setItem('app.audio.mute.master', this.#htmlMuteSounds.state),
 		}) as HTMLHarmonySwitchElement;
-		OptionsManagerEvents.addEventListener('app.audio.mute.master', (event: Event) => this.#htmlMuteSounds.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.audio.mute.master', (event: Event) => this.#htmlMuteSounds.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 
 		const htmlSpeech: HTMLHarmonySwitchElement = createElement('harmony-switch', {
 			'data-i18n': '#speech_recognition',
 			$change: () => OptionsManager.setItem('app.usespeechrecognition', htmlSpeech.state),
 		}) as HTMLHarmonySwitchElement;
-		OptionsManagerEvents.addEventListener('app.usespeechrecognition', (event: Event) => htmlSpeech.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.usespeechrecognition', (event: Event) => htmlSpeech.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 
 		createElement('div', {
 			childs: [
@@ -690,7 +690,7 @@ export class OptionsPanel extends DynamicPanel {
 				}),
 			],
 		});
-		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => showHiddenCharacters.state = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => showHiddenCharacters.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 
 		this.#initDispositions();
 	}
@@ -953,8 +953,8 @@ export class OptionsPanel extends DynamicPanel {
 	}
 
 	#initListeners(): void {
-		OptionsManagerEvents.addEventListener('engine.shadereditor.recompiledelay', (event: Event) => this.#shaderEditor.recompileDelay = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
-		OptionsManagerEvents.addEventListener('app.audio.mute.*', (event: Event) => this.#muteSound((event as CustomEvent<OptionsManagerEvent>).detail.name.replace('app.audio.mute.', ''), (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean));
+		OptionsManagerEvents.addEventListener('engine.shadereditor.recompiledelay', (event: Event) => this.#shaderEditor.recompileDelay = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.audio.mute.*', (event: Event) => this.#muteSound((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.name.replace('app.audio.mute.', ''), (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean));
 	}
 
 	#muteSound(group: string, mute: boolean): void {

@@ -130,30 +130,30 @@ export class Viewer {
 		});
 
 		OptionsManagerEvents.addEventListener('engine.debug.showfps', (event: Event) => {
-			this.#showFps = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean;
+			this.#showFps = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean;
 			if (this.#htmlCanvasFps) {
 				this.#htmlCanvasFps.innerText = '';
 			}
 		});
 
-		OptionsManagerEvents.addEventListener('app.postprocessing.enabled', (event: Event) => this.#composer && (this.#composer.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean));
-		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.enabled', (event: Event) => this.#pixelatePass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
-		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.horizontaltiles', (event: Event) => this.#pixelatePass.horizontalTiles = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
-		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.pixelstyle', (event: Event) => this.#pixelatePass.pixelStyle = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.postprocessing.enabled', (event: Event) => this.#composer && (this.#composer.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean));
+		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.enabled', (event: Event) => this.#pixelatePass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.horizontaltiles', (event: Event) => this.#pixelatePass.horizontalTiles = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.pixelstyle', (event: Event) => this.#pixelatePass.pixelStyle = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
 
-		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.enabled', (event: Event) => this.#saturatePass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
-		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.saturation', (event: Event) => this.#saturatePass.saturation = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.enabled', (event: Event) => this.#saturatePass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.saturation', (event: Event) => this.#saturatePass.saturation = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
 
-		OptionsManagerEvents.addEventListener('app.postprocessing.crosshatch.enabled', (event: Event) => this.#crosshatchPass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.crosshatch.enabled', (event: Event) => this.#crosshatchPass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 
-		OptionsManagerEvents.addEventListener('app.postprocessing.palette.enabled', (event: Event) => this.#palettePass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.palette.enabled', (event: Event) => this.#palettePass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 
-		OptionsManagerEvents.addEventListener('app.postprocessing.grain.enabled', (event: Event) => this.#grainPass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
-		OptionsManagerEvents.addEventListener('app.postprocessing.grain.intensity', (event: Event) => this.#grainPass.intensity = (event as CustomEvent<OptionsManagerEvent>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.postprocessing.grain.enabled', (event: Event) => this.#grainPass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.grain.intensity', (event: Event) => this.#grainPass.intensity = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
 
-		OptionsManagerEvents.addEventListener('app.postprocessing.sketch.enabled', (event: Event) => this.#sketchPass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.sketch.enabled', (event: Event) => this.#sketchPass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 
-		OptionsManagerEvents.addEventListener('app.postprocessing.oldmovie.enabled', (event: Event) => this.#oldMoviePass.enabled = (event as CustomEvent<OptionsManagerEvent>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.postprocessing.oldmovie.enabled', (event: Event) => this.#oldMoviePass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 	}
 
 	async #setupShaderToyBackground(shaderName: string): Promise<void> {
