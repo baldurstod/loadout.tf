@@ -1,5 +1,5 @@
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
-import { AudioMixer, Entity, Graphics, Line, Repository, RepositoryEntry, SceneExplorer, setCustomIncludeSource, ShaderEditor, ShaderManager, ShaderType, Sphere } from 'harmony-3d';
+import { AudioMixer, createPassParameterUi, Entity, Graphics, Line, Pass, PassParameterEvent, PassParameterEvents, PixelatePass, Repository, RepositoryEntry, SceneExplorer, setCustomIncludeSource, ShaderEditor, ShaderManager, ShaderType, Sphere } from 'harmony-3d';
 import { defineRepository } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, PersistentStorage } from 'harmony-browser-utils';
 import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyPanel, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyPanelElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
@@ -489,7 +489,6 @@ export class OptionsPanel extends DynamicPanel {
 			'data-i18n': '#graphic_options',
 		});
 
-
 		const htmlGraphicOptions = createElement('group', { i18n: { title: '#general', }, class: 'graphic-options' });
 		const htmlPostProcessingOptions = createElement('group', { i18n: { title: '#post_processing', }, class: 'graphic-options' });
 		htmlGraphicOptionsTab.append(htmlGraphicOptions, htmlPostProcessingOptions);
@@ -545,12 +544,32 @@ export class OptionsPanel extends DynamicPanel {
 		}
 		OptionsManagerEvents.addEventListener('engine.shadows.quality', (event: Event) => htmlShadowQuality.value = (event as CustomEvent).detail.value);
 
+		PassParameterEvents.addEventListener('input', (event: Event) => {
+			const detail = (event as CustomEvent<PassParameterEvent>).detail;
+			const pass = detail.pass;
+			const name = detail.name;
+			const value = detail.value;
+			OptionsManager.setItem(`app.postprocessing.${pass}.params.${name}`, value);
+		});
+
+		const addPassParameters = (pass: typeof Pass, optionsPrefix: string): void => {
+			const optionName = 'app.postprocessing.';
+			const params = pass.getParameters();
+			for (const param of params) {
+				const element = createPassParameterUi(optionsPrefix, param);
+				if (element) {
+					htmlPostProcessingOptions.append(element);
+				}
+			}
+		}
+
 		addToggleSwitch('#enable_post_processing', 'app.postprocessing.enabled', htmlPostProcessingOptions);
 		addToggleSwitch('#post_processing_grain', 'app.postprocessing.grain.enabled', htmlPostProcessingOptions);
 		addToggleSwitch('#post_processing_saturation', 'app.postprocessing.saturate.enabled', htmlPostProcessingOptions);
 		addToggleSwitch('#post_processing_crosshatch', 'app.postprocessing.crosshatch.enabled', htmlPostProcessingOptions);
 		addToggleSwitch('#post_processing_palette', 'app.postprocessing.palette.enabled', htmlPostProcessingOptions);
 		addToggleSwitch('#post_processing_pixelate', 'app.postprocessing.pixelate.enabled', htmlPostProcessingOptions);
+		addPassParameters(PixelatePass, 'pixelate');
 		addToggleSwitch('#post_processing_sketch', 'app.postprocessing.sketch.enabled', htmlPostProcessingOptions);
 		addToggleSwitch('#post_processing_old_movie', 'app.postprocessing.oldmovie.enabled', htmlPostProcessingOptions);
 	}

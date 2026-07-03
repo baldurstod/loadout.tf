@@ -18,7 +18,7 @@ export class Viewer {
 	#htmlCanvasFps?: HTMLElement;
 	//#orbitControl;
 	#composer = new Composer();
-	#pixelatePass = new PixelatePass(orbitCamera);
+	#pixelatePass = new PixelatePass({ camera: orbitCamera });
 	#grainPass = new GrainPass(orbitCamera);
 	#saturatePass = new SaturatePass(orbitCamera);
 	#crosshatchPass = new CrosshatchPass(orbitCamera);
@@ -138,8 +138,8 @@ export class Viewer {
 
 		OptionsManagerEvents.addEventListener('app.postprocessing.enabled', (event: Event) => this.#composer && (this.#composer.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean));
 		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.enabled', (event: Event) => this.#pixelatePass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
-		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.horizontaltiles', (event: Event) => this.#pixelatePass.horizontalTiles = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
-		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.pixelstyle', (event: Event) => this.#pixelatePass.pixelStyle = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.params.tiles', (event: Event) => this.#pixelatePass.horizontalTiles = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.params.style', (event: Event) => this.#pixelatePass.pixelStyle = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
 
 		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.enabled', (event: Event) => this.#saturatePass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.saturation', (event: Event) => this.#saturatePass.saturation = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);

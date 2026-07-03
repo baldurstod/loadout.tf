@@ -6,7 +6,7 @@ import { SfmExporter } from 'harmony-sfm';
 import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
-import { setTimeoutPromise } from 'harmony-utils';
+import { BugReport, BugReporter, setTimeoutPromise } from 'harmony-utils';
 import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
@@ -31,6 +31,10 @@ import { ApplicationPanel } from './view/applicationpanel';
 
 documentStyle(htmlCSS);
 documentStyle(varsCSS);
+
+BugReporter.addEventListener('report', (event: Event) => {
+	console.info('bug report', (event as CustomEvent<BugReport>).detail);
+})
 
 class Application {
 	#appView = new ApplicationPanel();

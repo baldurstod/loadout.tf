@@ -686,12 +686,12 @@
 			"default": false
 		},
 		{
-			"name": "app.postprocessing.pixelate.horizontaltiles",
+			"name": "app.postprocessing.pixelate.params.tiles",
 			"type": "number",
 			"default": 50
 		},
 		{
-			"name": "app.postprocessing.pixelate.pixelstyle",
+			"name": "app.postprocessing.pixelate.params.style",
 			"type": "list",
 			"default": 0,
 			"datalist": [
