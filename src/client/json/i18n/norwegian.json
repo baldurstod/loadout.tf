@@ -146,7 +146,7 @@
 		"#reset": "tilbakestill ",
 		"#post_processing_pixel_size": "Pixel størrelse ",
 		"#preview": "Forhåndsvisning",
-		"#post_processing_saturation": "Metning",
+		"#post_processing_saturate": "Metning",
 		"#setup_meet_the_team": "Setup meet the team",
 		"#specular_light_strength": "Specular light strength",
 		"#skin": "Skin",

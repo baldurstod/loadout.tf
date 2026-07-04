@@ -164,7 +164,7 @@
 		"#reset": "Reset",
 		"#post_processing_pixel_size": "Pixel size",
 		"#preview": "Preview",
-		"#post_processing_saturation": "Saturation",
+		"#post_processing_saturate": "Saturation",
 		"#preset": "Preset",
 		"#import_preset": "Import preset",
 		"#count_x": "Count along X axis",

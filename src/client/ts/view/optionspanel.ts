@@ -1,5 +1,5 @@
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
-import { AudioMixer, createPassParameterUi, Entity, Graphics, Line, Pass, PassParameterEvent, PassParameterEvents, PixelatePass, Repository, RepositoryEntry, SceneExplorer, setCustomIncludeSource, ShaderEditor, ShaderManager, ShaderType, Sphere } from 'harmony-3d';
+import { AudioMixer, createPassParameterUi, CrosshatchPass, Entity, GrainPass, Graphics, Line, OldMoviePass, PalettePass, Pass, PassParameterEvent, PassParameterEvents, PixelatePass, Repository, RepositoryEntry, SaturatePass, SceneExplorer, setCustomIncludeSource, ShaderEditor, ShaderManager, ShaderType, SketchPass, Sphere } from 'harmony-3d';
 import { defineRepository } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, PersistentStorage } from 'harmony-browser-utils';
 import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyPanel, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyPanelElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
@@ -483,15 +483,20 @@ export class OptionsPanel extends DynamicPanel {
 	}
 
 	#initHtmlGraphicOptions(): void {
+		let htmlGraphicOptionsPanel: HTMLElement;
 		const htmlGraphicOptionsTab = createElement('harmony-tab', {
 			class: 'loadout-application-options-graphics',
 			parent: this.#htmlTabGroup,
 			'data-i18n': '#graphic_options',
+			child: createElement('harmony-panel', {
+				'has-header': 0,
+				adoptStyles: [optionsCSS],
+				child: htmlGraphicOptionsPanel = createElement('div'),
+			}) as HTMLHarmonyPanelElement,
 		});
 
-		const htmlGraphicOptions = createElement('group', { i18n: { title: '#general', }, class: 'graphic-options' });
-		const htmlPostProcessingOptions = createElement('group', { i18n: { title: '#post_processing', }, class: 'graphic-options' });
-		htmlGraphicOptionsTab.append(htmlGraphicOptions, htmlPostProcessingOptions);
+		const htmlGraphicOptions = createElement('group', { i18n: { title: '#general', }, class: 'graphic-options', parent:htmlGraphicOptionsPanel, });
+		const htmlPostProcessingOptions = createElement('group', { i18n: { title: '#post_processing', }, class: 'graphic-options', parent:htmlGraphicOptionsPanel, });
 
 		const addToggleSwitch = (label: string, optionName: string, parent: HTMLElement): void => {
 			const sw = createElement('harmony-switch', {
@@ -552,26 +557,36 @@ export class OptionsPanel extends DynamicPanel {
 			OptionsManager.setItem(`app.postprocessing.${pass}.params.${name}`, value);
 		});
 
-		const addPassParameters = (pass: typeof Pass, optionsPrefix: string): void => {
+		const addPassParameters = (pass: typeof Pass, name: string, parent: HTMLElement): void => {
 			const optionName = 'app.postprocessing.';
 			const params = pass.getParameters();
 			for (const param of params) {
-				const element = createPassParameterUi(optionsPrefix, param);
+				const element = createPassParameterUi(name, param);
 				if (element) {
-					htmlPostProcessingOptions.append(element);
+					parent.append(element);
 				}
 			}
 		}
 
+		const addPass = (name: string, pass: typeof Pass): void => {
+			const elem = createElement('div', {
+				 class: 'pass',
+				parent: htmlPostProcessingOptions,
+			});
+			const params = createElement('div', { class: 'params' });
+			addToggleSwitch(`#post_processing_${name}`, `app.postprocessing.${name}.enabled`, elem);
+			addPassParameters(pass, name, params);
+			elem.append(params);
+		}
+
 		addToggleSwitch('#enable_post_processing', 'app.postprocessing.enabled', htmlPostProcessingOptions);
-		addToggleSwitch('#post_processing_grain', 'app.postprocessing.grain.enabled', htmlPostProcessingOptions);
-		addToggleSwitch('#post_processing_saturation', 'app.postprocessing.saturate.enabled', htmlPostProcessingOptions);
-		addToggleSwitch('#post_processing_crosshatch', 'app.postprocessing.crosshatch.enabled', htmlPostProcessingOptions);
-		addToggleSwitch('#post_processing_palette', 'app.postprocessing.palette.enabled', htmlPostProcessingOptions);
-		addToggleSwitch('#post_processing_pixelate', 'app.postprocessing.pixelate.enabled', htmlPostProcessingOptions);
-		addPassParameters(PixelatePass, 'pixelate');
-		addToggleSwitch('#post_processing_sketch', 'app.postprocessing.sketch.enabled', htmlPostProcessingOptions);
-		addToggleSwitch('#post_processing_old_movie', 'app.postprocessing.oldmovie.enabled', htmlPostProcessingOptions);
+		addPass('grain', GrainPass);
+		addPass('saturate', SaturatePass);
+		addPass('crosshatch', CrosshatchPass);
+		addPass('palette', PalettePass);
+		addPass('pixelate', PixelatePass);
+		addPass('sketch', SketchPass);
+		addPass('oldmovie', OldMoviePass);
 	}
 
 	#initHtmlMeetTheTeamOptions(): void {

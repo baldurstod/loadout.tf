@@ -164,7 +164,7 @@
 		"#reset": "réinitialiser",
 		"#post_processing_pixel_size": "taille du pixel",
 		"#preview": "Prévisualiser",
-		"#post_processing_saturation": "Saturation",
+		"#post_processing_saturate": "Saturation",
 		"#preset": "Préréglage",
 		"#import_preset": "Importer préréglage",
 		"#count_x": "Quantité en largeur",

@@ -115,6 +115,18 @@ input {
 
 }
 
-.loadout-application-options-cache{
+.loadout-application-options-cache {
 	display: block;
+}
+
+.pass .params {
+	height: 0;
+	transition: height 0.15s ease-in 0s;
+	interpolate-size: allow-keywords;
+	overflow: hidden;
+}
+
+.pass:hover .params {
+	height: unset;
+	transition: height 0.15s ease-in 0s;
 }
