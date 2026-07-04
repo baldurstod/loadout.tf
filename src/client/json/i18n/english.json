@@ -115,6 +115,8 @@
 		"#post_processing_palette": "Palette",
 		"#post_processing_param_style": "Style",
 		"#post_processing_param_tiles": "Tiles",
+		"#post_processing_param_saturation": "Saturation",
+		"#post_processing_param_intensity": "Intensity",
 		"#color_curves": "Color curves",
 		"#drop_background_picture": "Drop a background picture",
 		"#show_tournament_medals": "Show tournament medals",

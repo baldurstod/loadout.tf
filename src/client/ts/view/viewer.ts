@@ -142,14 +142,14 @@ export class Viewer {
 		OptionsManagerEvents.addEventListener('app.postprocessing.pixelate.params.style', (event: Event) => this.#pixelatePass.pixelStyle = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
 
 		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.enabled', (event: Event) => this.#saturatePass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
-		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.saturation', (event: Event) => this.#saturatePass.saturation = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.postprocessing.saturate.params.saturation', (event: Event) => this.#saturatePass.saturation = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
 
 		OptionsManagerEvents.addEventListener('app.postprocessing.crosshatch.enabled', (event: Event) => this.#crosshatchPass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 
 		OptionsManagerEvents.addEventListener('app.postprocessing.palette.enabled', (event: Event) => this.#palettePass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 
 		OptionsManagerEvents.addEventListener('app.postprocessing.grain.enabled', (event: Event) => this.#grainPass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
-		OptionsManagerEvents.addEventListener('app.postprocessing.grain.intensity', (event: Event) => this.#grainPass.intensity = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.postprocessing.grain.params.intensity', (event: Event) => this.#grainPass.intensity = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
 
 		OptionsManagerEvents.addEventListener('app.postprocessing.sketch.enabled', (event: Event) => this.#sketchPass.enabled = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
 
