@@ -53,6 +53,12 @@ export class ItemFilter {
 			return ItemFilterResult.ExcludedFilter;
 		}
 
+		if (item.isSfmWorkshop()) {
+			if (this.pinned.indexOf(item.id) > -1) {
+				return ItemFilterResult.Ok;
+			}
+		}
+
 		switch (item.getItemSlotPerClass(name ?? 'scout'/*TODO: fix that*/)) {
 			case 'primary':
 			case 'secondary':
