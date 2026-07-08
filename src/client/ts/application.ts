@@ -308,7 +308,7 @@ class Application {
 		this.#tf2WebRepository.supportedExtensions.add('vmt');
 		this.#tf2WebRepository.supportedExtensions.add('vtf');
 
-		fetch(TF2_REPOSITORY + "materials_manifest.json").then(async (response) => {
+		fetch(TF2_REPOSITORY + `materials_manifest.json?t=${new Date().getTime()}`).then(async (response) => {
 			const j = await response.json();
 			if (!j) {
 				return;
