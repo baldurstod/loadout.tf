@@ -174,7 +174,15 @@ export class EffectsPanel extends DynamicPanel {
 			hide(htmlItem);
 		}
 
+		const existing = new Set<string>();
 		for (const [id, template] of ItemManager.getEffects(EffectType.Cosmetic)) {
+			// Discard BLU versions, as the effects automatically switches team
+			const name = template.getName();
+			if(existing.has(name)) {
+				continue;
+			}
+			existing.add(name);
+
 			let htmlEffect = this.#htmlEffects.get(id);
 			if (htmlEffect) {
 				this.#htmlEffectsList?.append(htmlEffect);
