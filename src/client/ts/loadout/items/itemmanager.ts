@@ -349,9 +349,6 @@ export class ItemManager {
 			const group = systemList[effectType] as JSONObject;
 			for (const effectIndex in group) {
 				const effectIndexN = Number(effectIndex);
-				if (effectIndexN === 406) {
-					continue;
-				}
 				this.#effectTemplates.set(effectType as EffectType, effectIndexN, new EffectTemplate(effectType as EffectType, effectIndexN, group[effectIndex] as JSONObject));
 			}
 		}

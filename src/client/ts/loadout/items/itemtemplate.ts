@@ -221,7 +221,7 @@ export class ItemTemplate {
 	}
 
 	get setAttachedParticleStatic(): string | null {
-		if (this.#definition.use_smoke_particle_effect == "0") {
+		if (this.#definition.use_smoke_particle_effect == "0" || this.#definition.use_coin_particle_effect == "0") {
 			return null;
 		}
 

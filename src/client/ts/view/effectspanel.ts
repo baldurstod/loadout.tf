@@ -176,9 +176,14 @@ export class EffectsPanel extends DynamicPanel {
 
 		const existing = new Set<string>();
 		for (const [id, template] of ItemManager.getEffects(EffectType.Cosmetic)) {
+			// Discard coin spin effect
+			if (id === 406) {
+				continue;
+			}
+
 			// Discard BLU versions, as the effects automatically switches team
 			const name = template.getName();
-			if(existing.has(name)) {
+			if (existing.has(name)) {
 				continue;
 			}
 			existing.add(name);
