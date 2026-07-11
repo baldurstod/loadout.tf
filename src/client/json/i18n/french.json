@@ -426,6 +426,8 @@
 		"#regenerate_placement": "Regénérer l'emplacement",
 		"#use_placement": "Utiliser l'emplacement",
 		"#use_scene": "Utiliser la scene",
-		"#use_image": "Utiliser une image"
+		"#use_image": "Utiliser une image",
+		"#conflicting_with_other_placement": "En conflit avec un autre emplacement: ${placement}",
+		"": ""
 	}
 }

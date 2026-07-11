@@ -70,13 +70,13 @@ export class ProductPreset {
 		return placements;
 	}
 
-	async isConflictingPlacement(placement: string): Promise<boolean> {
+	async getConflictingPlacement(placement: string): Promise<string | null> {
 		for (const [, placement2] of this.#placements) {
 			if (placement2.isIncluded() && await isConflicting(this.productId, placement, placement2.getPlacement())) {
-				return true;
+				return placement2.getPlacement();
 			}
 		}
-		return false;
+		return null;
 	}
 }
 

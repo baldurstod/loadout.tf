@@ -2386,7 +2386,14 @@ export class PrintfulPanel extends DynamicPanel {
 
 	async #refreshPlacementsButton(): Promise<void> {
 		for (const [placement, button] of this.#placementsButtons) {
-			button.disabled = await this.#productPreset.isConflictingPlacement(placement);;
+			const conflicting = await this.#productPreset.getConflictingPlacement(placement);
+			button.disabled = conflicting !== null;
+			if (conflicting) {
+				button.title = I18n.formatString('#conflicting_with_other_placement', { placement: conflicting });
+
+			} else {
+				button.removeAttribute('title');
+			}
 		}
 	}
 
