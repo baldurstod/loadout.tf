@@ -996,12 +996,20 @@ export class PrintfulPanel extends DynamicPanel {
 
 
 	#enableCreateProductButton(): void {
-		this.#htmlCreateProductButton!.disabled = this.#productPreset.getIncludedPlacements().length == 0;
+		const disabled = this.#productPreset.getIncludedPlacements().length == 0;
+		this.#htmlCreateProductButton!.disabled = disabled;
+
+		if (disabled) {
+			this.#htmlCreateProductButton!.title = I18n.getString('#select_at_least_one_placement');
+		} else {
+			this.#htmlCreateProductButton!.removeAttribute('title');
+		}
 	}
 
 	#disableCreateProductButton(): void {
 		this.#htmlCreateProductButton!.disabled = true;
 	}
+
 
 	async #createProduct(): Promise<void> {
 		this.#disableCreateProductButton();
@@ -2390,7 +2398,6 @@ export class PrintfulPanel extends DynamicPanel {
 			button.disabled = conflicting !== null;
 			if (conflicting) {
 				button.title = I18n.formatString('#conflicting_with_other_placement', { placement: conflicting });
-
 			} else {
 				button.removeAttribute('title');
 			}

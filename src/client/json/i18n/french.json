@@ -428,6 +428,7 @@
 		"#use_scene": "Utiliser la scene",
 		"#use_image": "Utiliser une image",
 		"#conflicting_with_other_placement": "En conflit avec un autre emplacement: ${placement}",
+		"#select_at_least_one_placement": "Selectionnez au moins un emplacement",
 		"": ""
 	}
 }

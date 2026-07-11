@@ -428,6 +428,7 @@
 		"#use_scene": "Use 3D scene",
 		"#use_image": "Use image",
 		"#conflicting_with_other_placement": "Conflict with other placement: ${placement}",
+		"#select_at_least_one_placement": "Select at least one placement",
 		"": ""
 	}
 }
