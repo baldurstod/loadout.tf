@@ -124,12 +124,8 @@ export class PrintfulPanel extends DynamicPanel {
 	#htmlVariantOptions = new Map<number, HTMLOptionElement>();
 	//#htmlTypeOptions = new Set<string>();
 	//#template = { pattern: Pattern.None, transparent: true, symmetry: false, scale: 1, verticalGap: 0, horizontalGap: 0, verticalOffset: 0, horizontalOffset: 0, width: 1, height: 1 };
-	#htmlProductDesciptionImage?: HTMLElement;
-	#htmlSelectProductButton?: HTMLButtonElement;
-	#htmlProductSizes?: HTMLElement;
+		#htmlProductSizes?: HTMLElement;
 	#htmlProductColors?: HTMLElement;
-	#htmlProductDesciption?: HTMLElement;
-	#htmlVariantImage?: HTMLImageElement;
 	#htmlTemplateCanvasBackgroundCtx: CanvasRenderingContext2D | null = null;
 	#htmlTemplateCanvasCtx: CanvasRenderingContext2D | null = null;
 	#htmlTemplateCanvasForegroundCtx: CanvasRenderingContext2D | null = null;
@@ -334,49 +330,6 @@ export class PrintfulPanel extends DynamicPanel {
 					],
 				}),
 				*/
-
-				this.#htmlProductDesciptionImage = createElement('div', {
-					class: 'printful-product',
-					hidden: true,
-				}),
-
-				this.#htmlSelectProductButton = createElement('button', {
-					class: 'printful-create-template',
-					hidden: true,
-					disabled: true,
-					i18n: '#select_product',
-					parent: htmlProductSelectionTab,
-					$click: () => this.#displayTemplateTab(),
-				}) as HTMLButtonElement,
-			]
-		});
-
-		this.#htmlVariantImage = createElement('img', { class: 'printful-product-image', parent: this.#htmlProductDesciptionImage }) as HTMLImageElement;
-
-		createElement('div', {
-			class: 'printful-product-description-price',
-			parent: this.#htmlProductDesciptionImage,
-			childs: [
-				/*
-				this.#htmlProductTitle = createElement('div', {
-					class: 'title',
-				}),
-				*/
-				//this.#htmlProductSizes = createElement('div', { class: 'sizes', hidden: true }),
-				//this.#htmlProductColors = createElement('div', { class: 'colors', hidden: true }),
-				createElement('div', {
-					class: 'printful-product-price',
-					hidden: true,
-					i18n: {
-						innerText: '#product_price',
-						values: {
-							price: 0,
-						}
-					},
-				}),
-				this.#htmlProductDesciption = createElement('div', {
-					class: 'printful-product-description',
-				}),
 			]
 		});
 
@@ -2063,8 +2016,6 @@ export class PrintfulPanel extends DynamicPanel {
 			return;
 		}
 
-		this.#htmlSelectProductButton!.disabled = false;
-
 		this.#productPreset = new ProductPreset();
 		this.#productPreset.productId = productId;
 
@@ -2088,10 +2039,8 @@ export class PrintfulPanel extends DynamicPanel {
 
 			this.#htmlProductTitle!.innerText = product.name;
 			this.#htmlProductPrice!.innerText = await getProductPrice(this.#productPreset.productId);
-			this.#htmlProductDesciption!.innerText = product.description;
 
 			//hide(this.#htmlProductPrice);
-			this.#htmlVariantImage!.src = product.image;
 
 			hide(this.#htmlProductSizes);
 			hide(this.#htmlProductColors);
@@ -2159,8 +2108,6 @@ export class PrintfulPanel extends DynamicPanel {
 		if (!variant) {
 			return false;
 		}
-
-		this.#htmlVariantImage!.src = variant.image;
 
 		//this.#htmlProductTitle!.innerText = variant.name as string;
 
