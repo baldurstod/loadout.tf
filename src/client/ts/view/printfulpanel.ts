@@ -124,7 +124,7 @@ export class PrintfulPanel extends DynamicPanel {
 	#htmlVariantOptions = new Map<number, HTMLOptionElement>();
 	//#htmlTypeOptions = new Set<string>();
 	//#template = { pattern: Pattern.None, transparent: true, symmetry: false, scale: 1, verticalGap: 0, horizontalGap: 0, verticalOffset: 0, horizontalOffset: 0, width: 1, height: 1 };
-		#htmlProductSizes?: HTMLElement;
+	#htmlProductSizes?: HTMLElement;
 	#htmlProductColors?: HTMLElement;
 	#htmlTemplateCanvasBackgroundCtx: CanvasRenderingContext2D | null = null;
 	#htmlTemplateCanvasCtx: CanvasRenderingContext2D | null = null;
@@ -137,7 +137,7 @@ export class PrintfulPanel extends DynamicPanel {
 	//#templateForegroundImage?: HTMLImageElement;
 	#productInizialized = false;
 	//#products = new Map<number, any/*TODO: create a proper product object*/>();
-	#productFilter: { categoryId: number } = { categoryId: 0 };
+	#productFilter: { name: string, categoryId: number } = { name: '', categoryId: 0 };
 	//#selection: { productId: number, variantId: number, technique: Techniques, placement: string, orientation?: Orientation } = { productId: -1, variantId: -1, technique: Techniques.Unknwown, placement: '' };
 	#initOnce = true;
 	#initCategoriesOnce = true;
@@ -276,16 +276,39 @@ export class PrintfulPanel extends DynamicPanel {
 	}
 
 	#initSelectProductTab(): HTMLHarmonyTabElement {
-		const htmlProductSelectionTab = createElement('harmony-tab', { 'data-i18n': '#select_product', class: 'printful-template-tab product-tab' }) as HTMLHarmonyTabElement;
+		const htmlProductSelectionTab = createElement('harmony-tab', { 'data-i18n': '#select_product', class: 'printful-product-tab' }) as HTMLHarmonyTabElement;
 
 		this.#htmlCategories = createElement('harmony-menu', {
 			parent: htmlProductSelectionTab,
 			class: 'categories',
 		}) as HTMLHarmonyMenuElement;
 
-		this.#htmlProductsList = createElement('div', {
+		const products = createElement('div', {
 			class: 'products',
 			parent: htmlProductSelectionTab,
+			childs: [
+				createElement('div', {
+					class: 'filters',
+					childs: [
+						createElement('label', {
+							childs: [
+								createElement('span', {
+									i18n: '#filter',
+								}),
+								createElement('input', {
+									$input: (event: InputEvent) => this.#setNameFilter((event.target as HTMLInputElement).value),
+								}),
+							],
+						}),
+					],
+
+				}),
+			],
+		});
+
+		this.#htmlProductsList = createElement('div', {
+			class: 'products-list',
+			parent: products,
 			childs: [
 				createElement('label', {
 					hidden: true,
@@ -2439,8 +2462,11 @@ export class PrintfulPanel extends DynamicPanel {
 	}
 
 	async #matchFilter(product: Product): Promise<boolean> {
-
 		if (this.#productFilter.categoryId != 0 && !await isParent(product, this.#productFilter.categoryId)) {
+			return false;
+		}
+
+		if (this.#productFilter.name !== '' && !product.name.toLowerCase().includes(this.#productFilter.name)) {
 			return false;
 		}
 
@@ -2454,6 +2480,11 @@ export class PrintfulPanel extends DynamicPanel {
 
 	show(): void {
 		show(this.getShadowRoot());
+	}
+
+	async #setNameFilter(name: string): Promise<void> {
+		this.#productFilter.name = name.toLowerCase();
+		await this.#applyProductFilter();
 	}
 
 	/*

@@ -92,7 +92,7 @@ button {
 	padding: 0.5rem;
 }
 
-.product-tab {
+.printful-product-tab {
 	display: flex;
 	flex-direction: row;
 }
@@ -102,25 +102,33 @@ button {
 }
 
 .products {
+	display: flex;
+	gap: 1rem;
+	flex-direction: column;
+}
+
+.products-list {
 	overflow: auto;
 	display: flex;
 	gap: 1rem;
 	flex-wrap: wrap;
 	justify-content: center;
+	align-content: start;
 }
 
-.printful-template-tab label {
+.printful-product-tab label {
 	display: block;
 	margin: 0.2rem;
 	display: flex;
 	font-size: 1.2rem;
+	gap: 1rem;
 }
 
-.printful-template-tab label>span {
-	margin-right: 1rem;
+.printful-product-tab label>span {
+	flex: 0 0 auto;
 }
 
-.printful-template-tab label>* {
+.printful-product-tab label>* {
 	flex: 1;
 }
 
@@ -371,4 +379,8 @@ harmony-tab.templates {
 	gap: 1rem;
 	padding: 1rem;
 	box-sizing: border-box;
+}
+
+.filters {
+	padding: 1rem;
 }
