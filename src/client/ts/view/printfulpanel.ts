@@ -4,7 +4,7 @@ import { addNotification, NotificationType, ShortcutHandler } from 'harmony-brow
 import { arrowDownwardAltSVG, arrowLeftAltSVG, arrowRightAltSVG, arrowUpwardAltSVG, borderClearSVG, brickLayoutSVG, cropPortraitSVG, gridOffsetSVG, gridRegularSVG, lockOpenRightSVG, lockSVG, rotateLeftSVG, rotateRightSVG, tableRowsSVG, viewColumnSVG, zoomInSVG, zoomOutSVG } from 'harmony-svg';
 import { JSONArray, JSONObject, Radian } from 'harmony-types';
 import { createElement, defineHarmony2dManipulator, defineHarmonyMenu, defineHarmonySlider, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonyMenuItem, hide, HTMLHarmony2dManipulatorElement, HTMLHarmonyMenuElement, HTMLHarmonyRadioElement, HTMLHarmonySliderElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyToggleButtonElement, I18n, ManipulatorUpdatedEventData, ManipulatorUpdatedEventType, RadioChangedEventData, show, updateElement } from 'harmony-ui';
-import { Color } from 'harmony-utils';
+import { Color, Map2 } from 'harmony-utils';
 import printfulCSS from '../../css/printful.css';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
@@ -20,6 +20,7 @@ import { Product } from '../printful/model/product';
 import { ProductPlacement } from '../printful/model/productplacement';
 import { createProductRequest, createProductRequestPlacement } from '../printful/model/requests/shop/createproduct';
 import { Technique } from '../printful/model/technique';
+import { Variant } from '../printful/model/variant';
 import { PlacementPreset, PlacementSource, ProductPreset } from '../printful/preset';
 import { PrintfulProductElement } from '../printful/printfulproduct';
 import { fetchShopAPI } from '../printful/shop';
@@ -2083,6 +2084,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 				const variants = await getProductVariants(this.#productPreset.productId);
 				if (variants) {
+					const done = new Map2<string, string, Variant>();
 					for (const variant of variants.toSorted((variantA, variantB) => {
 
 						if (variantA.colorCode != variantB.colorCode) {
@@ -2099,6 +2101,12 @@ export class PrintfulPanel extends DynamicPanel {
 					})) {
 						const colorCode = variant.colorCode;
 						const colorCode2 = variant.colorCode2;
+
+						if (done.has(colorCode, colorCode2)) {
+							continue;
+						}
+						done.set(colorCode, colorCode2, variant);
+
 						createElement('div', {
 							parent: this.#htmlProductColors,
 							class: 'color',
