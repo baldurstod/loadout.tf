@@ -4,6 +4,7 @@ import { addNotification, NotificationType, ShortcutHandler } from 'harmony-brow
 import { arrowDownwardAltSVG, arrowLeftAltSVG, arrowRightAltSVG, arrowUpwardAltSVG, borderClearSVG, brickLayoutSVG, cropPortraitSVG, gridOffsetSVG, gridRegularSVG, lockOpenRightSVG, lockSVG, rotateLeftSVG, rotateRightSVG, tableRowsSVG, viewColumnSVG, zoomInSVG, zoomOutSVG } from 'harmony-svg';
 import { JSONArray, JSONObject, Radian } from 'harmony-types';
 import { createElement, defineHarmony2dManipulator, defineHarmonyMenu, defineHarmonySlider, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonyMenuItem, hide, HTMLHarmony2dManipulatorElement, HTMLHarmonyMenuElement, HTMLHarmonyRadioElement, HTMLHarmonySliderElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyToggleButtonElement, I18n, ManipulatorUpdatedEventData, ManipulatorUpdatedEventType, RadioChangedEventData, show, updateElement } from 'harmony-ui';
+import { Color } from 'harmony-utils';
 import printfulCSS from '../../css/printful.css';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
@@ -2081,43 +2082,41 @@ export class PrintfulPanel extends DynamicPanel {
 				this.#htmlProductColors?.replaceChildren();
 
 				const variants = await getProductVariants(this.#productPreset.productId);
-				const color2 = new Map<string, string>;
 				if (variants) {
-					for (const variant of variants) {
-						color2.set(variant.colorCode, variant.colorCode2);
+					for (const variant of variants.toSorted((variantA, variantB) => {
+
+						if (variantA.colorCode != variantB.colorCode) {
+							// if color code are different, use it for comparison
+							const colorA = new Color({ hex: variantA.colorCode });
+							const colorB = new Color({ hex: variantB.colorCode });
+							return colorA.getLuminance() - colorB.getLuminance();
+						} else {
+							// Otherwise compare color code 2, defaulting to color 1: some variants may have a color code 2 while others don't
+							const colorA = new Color({ hex: variantA.colorCode2 || variantA.colorCode });
+							const colorB = new Color({ hex: variantB.colorCode2 || variantB.colorCode });
+							return colorA.getLuminance() - colorB.getLuminance();
+						}
+					})) {
+						const colorCode = variant.colorCode;
+						const colorCode2 = variant.colorCode2;
+						createElement('div', {
+							parent: this.#htmlProductColors,
+							class: 'color',
+							...(colorCode2) && { style: `background:linear-gradient(to right, ${colorCode} 0%, ${colorCode} 50%, ${colorCode2} 50%, ${colorCode2} 100%)` },
+							...(!colorCode2) && { style: `background-color:${colorCode}` },
+							$click: async () => {
+								await this.#selectVariant(variant.id);
+
+								this.#dirtyBackground = true;
+								this.#dirtyForeground = true;
+								this.#regenerateSelectedPlacement();
+								this.#generateTemplates();
+							},
+						});
 					}
 				}
-
-				for (const color of product.colors.toSorted((a, b) => a.getLuminance() - b.getLuminance())) {
-					const c2 = color2.get(color.value);
-					createElement('div', {
-						parent: this.#htmlProductColors,
-						class: 'color',
-						...(c2) && { style: `background:linear-gradient(to right, ${color.value} 0%, ${color.value} 50%, ${c2} 50%, ${c2} 100%)` },
-						...(!c2) && { style: `background-color:${color.value}` },
-						$click: () => { this.#selectVariantByColor(color.value) },
-					});
-				}
 			}
 		}
-	}
-
-	async #selectVariantByColor(hex: string): Promise<void> {
-		const variants = await getProductVariants(this.#productPreset.productId);
-		if (!variants) {
-			return;
-		}
-
-		for (const variant of variants) {
-			if (variant.colorCode == hex) {
-				if (await this.#selectVariant(variant.id)) {
-					this.#regenerateSelectedPlacement();
-					this.#generateTemplates();
-				}
-				return;
-			}
-		}
-
 	}
 
 	async #selectVariant(variantId: number): Promise<boolean> {
