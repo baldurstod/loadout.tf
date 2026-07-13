@@ -13,6 +13,7 @@ export class Entities {
 	FirstPersonControl = FirstPersonControl;
 
 	// Primitives
+	/*
 	Box = Box;
 	Cone = Cone;
 	Cylinder = Cylinder;
@@ -21,6 +22,7 @@ export class Entities {
 	LineSegments = LineSegments;
 	Plane = Plane;
 	Sphere = Sphere;
+	*/
 
 	// Backgrounds
 	ColorBackground = ColorBackground
