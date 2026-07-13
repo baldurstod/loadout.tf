@@ -1,5 +1,5 @@
 import { bugReportSVG, fireSVG, manufacturingSVG, moreHorizSVG, overscanSVG, patreonLogoSVG, pauseSVG, photoCameraSVG, playlistAddSVG, playSVG, print3dSVG, sentimentExcitedSVG, settingsSVG, sfmLogoSVG, shareSVG, viewInArSVG } from 'harmony-svg';
-import { createElement } from 'harmony-ui';
+import { createElement, hide, show } from 'harmony-ui';
 import toolbarCSS from '../../css/toolbar.css';
 import extensionIcon from '../../img/extension_icon.png';
 import { TESTING } from '../bundleoptions';
@@ -17,7 +17,13 @@ export class Toolbar extends StaticPanel {
 	protected override initHTML(): void {
 
 		if (TESTING) {
-			this.getShadowRoot().append(createButton('test', '#printful', undefined, () => this.#togglePanel(Panel.Printful)),);
+			const printfulButton = createButton('test', '#printful', undefined, () => this.#togglePanel(Panel.Printful));
+			hide(printfulButton);
+			this.getShadowRoot().append(printfulButton);
+
+			Controller.addEventListener(ControllerEvent.SelectCharacter, () => {
+				show(printfulButton);
+			});
 		}
 
 		this.getShadowRoot().append(
