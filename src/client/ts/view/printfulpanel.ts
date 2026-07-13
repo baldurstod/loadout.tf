@@ -242,6 +242,7 @@ export class PrintfulPanel extends DynamicPanel {
 		defineHarmonySlider();
 		defineHarmonyMenu();
 		defineHarmony2dManipulator();
+		defineHarmonyToggleButton();
 
 		this.#typeOptions[Symbol.iterator] = function* (): SetIterator<string> {
 			yield* [...this.keys()].sort(
@@ -349,7 +350,6 @@ export class PrintfulPanel extends DynamicPanel {
 	}
 
 	#initSelectProductTab(): HTMLHarmonyTabElement {
-		defineHarmonyToggleButton();
 		const htmlProductSelectionTab = createElement('harmony-tab', { 'data-i18n': '#select_product', class: 'printful-product-tab' }) as HTMLHarmonyTabElement;
 
 		this.#htmlCategories = createElement('harmony-menu', {
@@ -617,6 +617,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 						this.#htmlTemplateControlScale = createElement('harmony-slider', {
 							label: '#scale',
+							help: '#help_printful_template_scale',
 							min: 0.5,
 							max: 2,
 							'has-input': 1,
@@ -627,6 +628,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 						this.#htmlTemplateControlWidth = createElement('harmony-slider', {
 							label: '#image_width',
+							help: '#help_printful_template_width',
 							min: 0.05,
 							max: 1,
 							'has-input': 1,
@@ -641,6 +643,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 						this.#htmlTemplateControlHeight = createElement('harmony-slider', {
 							label: '#image_height',
+							help: '#help_printful_template_height',
 							min: 0.05,
 							max: 1,
 							'has-input': 1,
@@ -655,6 +658,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 						this.#htmlTemplateControlRotation = createElement('harmony-slider', {
 							label: '#image_rotation',
+							help: '#help_printful_template_rotation',
 							min: -180,
 							max: 180,
 							'has-input': 1,
@@ -668,6 +672,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 						this.#htmlTemplateControlHorizontalGap = createElement('harmony-slider', {
 							label: '#horizontal_gap',
+							help: '#help_printful_template_horizontal_gap',
 							min: -90,
 							max: 90,
 							'has-input': 1,
@@ -679,6 +684,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 						this.#htmlTemplateControlVerticalGap = createElement('harmony-slider', {
 							label: '#vertical_gap',
+							help: '#help_printful_template_vertical_gap',
 							min: -90,
 							max: 90,
 							'has-input': 1,
@@ -736,6 +742,7 @@ export class PrintfulPanel extends DynamicPanel {
 							childs: [
 								createElement('span', {
 									class: 'rotate-left camera-control',
+									help: '#help_printful_camera_rotate_ccw',
 									innerHTML: rotateLeftSVG,
 									events: {
 										click: () => this.#rotateTemplate(0, 0, ROTATE_SCALE * DEG_TO_RAD)
@@ -743,6 +750,7 @@ export class PrintfulPanel extends DynamicPanel {
 								}),
 								createElement('span', {
 									class: 'rotate-right camera-control',
+									help: '#help_printful_camera_rotate_cw',
 									innerHTML: rotateRightSVG,
 									events: {
 										click: () => this.#rotateTemplate(0, 0, -ROTATE_SCALE * DEG_TO_RAD)
@@ -750,6 +758,7 @@ export class PrintfulPanel extends DynamicPanel {
 								}),
 								createElement('span', {
 									class: 'camera-control',
+									help: '#help_printful_camera_zoom_in',
 									innerHTML: zoomInSVG,
 									events: {
 										click: () => this.#moveTemplate(0, -MOVE_SCALE, 0)
@@ -757,6 +766,7 @@ export class PrintfulPanel extends DynamicPanel {
 								}),
 								createElement('span', {
 									class: 'camera-control',
+									help: '#help_printful_camera_zoom_out',
 									innerHTML: zoomOutSVG,
 									events: {
 										click: () => this.#moveTemplate(0, MOVE_SCALE, 0)
@@ -790,6 +800,7 @@ export class PrintfulPanel extends DynamicPanel {
 							childs: [
 								createElement('span', {
 									class: 'camera-control',
+									help: '#help_printful_scene_pan_left',
 									innerHTML: arrowLeftAltSVG,
 									events: {
 										click: () => this.#moveTemplate(-MOVE_SCALE, 0, 0)
@@ -797,6 +808,7 @@ export class PrintfulPanel extends DynamicPanel {
 								}),
 								createElement('span', {
 									class: 'camera-control',
+									help: '#help_printful_scene_pan_right',
 									innerHTML: arrowRightAltSVG,
 									events: {
 										click: () => this.#moveTemplate(MOVE_SCALE, 0, 0)
@@ -804,6 +816,7 @@ export class PrintfulPanel extends DynamicPanel {
 								}),
 								createElement('span', {
 									class: 'camera-control',
+									help: '#help_printful_scene_pan_up',
 									innerHTML: arrowUpwardAltSVG,
 									events: {
 										click: () => this.#moveTemplate(0, 0, MOVE_SCALE)
@@ -811,6 +824,7 @@ export class PrintfulPanel extends DynamicPanel {
 								}),
 								createElement('span', {
 									class: 'camera-control',
+									help: '#help_printful_scene_pan_down',
 									innerHTML: arrowDownwardAltSVG,
 									events: {
 										click: () => this.#moveTemplate(0, 0, -MOVE_SCALE)
@@ -2403,6 +2417,7 @@ export class PrintfulPanel extends DynamicPanel {
 					}),
 
 					createElement('harmony-toggle-button', {
+						help: '#help_lock_emplacement',
 						state: '0',
 						childs: [
 							createElement('span', {
@@ -2456,7 +2471,10 @@ export class PrintfulPanel extends DynamicPanel {
 				{
 					value = I18n.getString('#placement_price_included');
 					updateElement(button, {
-						i18n: '#placement_price_included',
+						i18n: {
+							innerText: '#placement_price_included',
+							title: '#tooltip_placement_price_included',
+						}
 					});
 					continue;
 				}
@@ -2485,8 +2503,10 @@ export class PrintfulPanel extends DynamicPanel {
 		for (const [placement, button] of this.#placementsButtons) {
 			const conflicting = await this.#productPreset.getConflictingPlacement(placement);
 			button.disabled = conflicting !== null;
+
 			if (conflicting) {
-				button.title = I18n.formatString('#conflicting_with_other_placement', { placement: conflicting });
+				const placementStyle = await GetMockupStyles(this.#productPreset.productId, this.#productPreset.getTechnique(), conflicting);
+				button.title = I18n.formatString('#conflicting_with_other_placement', { placement: placementStyle?.displayName ?? conflicting });
 			} else {
 				button.removeAttribute('title');
 			}
