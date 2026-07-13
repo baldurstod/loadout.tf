@@ -1,9 +1,9 @@
 import { quat, vec2, vec3, vec4 } from 'gl-matrix';
 import { Camera, Composer, DEG_TO_RAD, Graphics, Group, RAD_TO_DEG, Scene } from 'harmony-3d';
 import { addNotification, NotificationType, ShortcutHandler } from 'harmony-browser-utils';
-import { arrowDownwardAltSVG, arrowLeftAltSVG, arrowRightAltSVG, arrowUpwardAltSVG, borderClearSVG, brickLayoutSVG, cropPortraitSVG, gridOffsetSVG, gridRegularSVG, lockOpenRightSVG, lockSVG, rotateLeftSVG, rotateRightSVG, tableRowsSVG, viewColumnSVG, zoomInSVG, zoomOutSVG } from 'harmony-svg';
+import { arrowDownwardAltSVG, arrowLeftAltSVG, arrowRightAltSVG, arrowUpwardAltSVG, borderClearSVG, brickLayoutSVG, checkOutlineSVG, cropPortraitSVG, gridOffsetSVG, gridRegularSVG, lockOpenRightSVG, lockSVG, rotateLeftSVG, rotateRightSVG, tableRowsSVG, viewColumnSVG, zoomInSVG, zoomOutSVG } from 'harmony-svg';
 import { JSONArray, JSONObject, Radian } from 'harmony-types';
-import { createElement, defineHarmony2dManipulator, defineHarmonyMenu, defineHarmonySlider, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonyMenuItem, hide, HTMLHarmony2dManipulatorElement, HTMLHarmonyMenuElement, HTMLHarmonyRadioElement, HTMLHarmonySliderElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyToggleButtonElement, I18n, ManipulatorUpdatedEventData, ManipulatorUpdatedEventType, RadioChangedEventData, show, updateElement } from 'harmony-ui';
+import { createElement, defineHarmony2dManipulator, defineHarmonyMenu, defineHarmonySlider, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, defineHarmonyToggleButton, display, HarmonyMenuItem, hide, HTMLHarmony2dManipulatorElement, HTMLHarmonyMenuElement, HTMLHarmonyRadioElement, HTMLHarmonySliderElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyToggleButtonElement, I18n, ManipulatorUpdatedEventData, ManipulatorUpdatedEventType, RadioChangedEventData, show, updateElement } from 'harmony-ui';
 import { Color, Map2 } from 'harmony-utils';
 import printfulCSS from '../../css/printful.css';
 import { Controller, ControllerEvent } from '../controller';
@@ -14,6 +14,7 @@ import { categoryHasProducts, categoryHasSubCategories, getCategories, isParent 
 import { GetMockupStyle, GetMockupStyles } from '../printful/mockupstyles';
 import { GetMockupTemplate } from '../printful/mockuptemplates';
 import { Category } from '../printful/model/category';
+import { ProductColor } from '../printful/model/color';
 import { Pattern, Positioning, Techniques } from '../printful/model/enums';
 import { MockupTemplate } from '../printful/model/mockuptemplate';
 import { Product } from '../printful/model/product';
@@ -50,6 +51,74 @@ const PatternShowControls = new Map<Pattern, [boolean, boolean]>([
 	[Pattern.HalfDrop, [true, true]],
 	[Pattern.Brick, [true, true]],
 ]);
+
+const ColorFilters = [
+	{
+		label: '#beige',
+		value: 'beige',
+		color: '#d9be87',
+	},
+	{
+		label: '#black',
+		value: 'black',
+		color: '#222222',
+	},
+	{
+		label: '#blue',
+		value: 'blue',
+		color: '#a3cef1',
+	},
+	{
+		label: '#brown',
+		value: 'brown',
+		color: '#6f4526',
+	},
+	{
+		label: '#green',
+		value: 'green',
+		color: '#077949',
+	},
+	{
+		label: '#grey',
+		value: 'grey',
+		color: '#7f7f7f',
+	},
+	{
+		label: '#khaki',
+		value: 'khaki',
+		color: '#a6925d',
+	},
+	{
+		label: '#navy',
+		value: 'navy',
+		color: '#00305d',
+	},
+	{
+		label: '#pink',
+		value: 'pink',
+		color: '#ffccd5',
+	},
+	{
+		label: '#purple',
+		value: 'purple',
+		color: '#6a4c93',
+	},
+	{
+		label: '#red',
+		value: 'red',
+		color: '#ed4542',
+	},
+	{
+		label: '#white',
+		value: 'white',
+		color: '#ffffff',
+	},
+	{
+		label: '#yellow',
+		value: 'yellow',
+		color: '#ffd41d',
+	},
+];
 
 type getSourceImageResult = [HTMLImageElement, ImageBitmap];
 
@@ -106,6 +175,7 @@ export class PrintfulPanel extends DynamicPanel {
 	#htmlDrawGrid?: HTMLHarmonyToggleButtonElement;
 	#htmlPlacementSource?: HTMLHarmonyRadioElement;
 	#htmlCategories?: HTMLHarmonyMenuElement;
+	#htmlProductFilter?: HTMLInputElement;
 	#sceneContainer = new Group({ name: 'Printful scene container' });
 	#shopEndpoint = '__shopEndpoint__';
 	#htmlTemplateCanvasContainer?: HTMLElement;
@@ -139,7 +209,9 @@ export class PrintfulPanel extends DynamicPanel {
 	//#templateForegroundImage?: HTMLImageElement;
 	#productInizialized = false;
 	//#products = new Map<number, any/*TODO: create a proper product object*/>();
-	#productFilter: { name: string, categoryId: number } = { name: '', categoryId: 0 };
+	#productFilter: { name: string, categoryId: number, colors: Map<string, boolean> } = { name: '', categoryId: 0, colors: new Map() };
+	#htmlColorFilters = new Map<string, HTMLHarmonyToggleButtonElement>();
+	#htmlColorFiltersContainer?: HTMLElement;
 	//#selection: { productId: number, variantId: number, technique: Techniques, placement: string, orientation?: Orientation } = { productId: -1, variantId: -1, technique: Techniques.Unknwown, placement: '' };
 	#initOnce = true;
 	#initCategoriesOnce = true;
@@ -242,7 +314,6 @@ export class PrintfulPanel extends DynamicPanel {
 			},
 		});
 
-
 		/*let htmlCloseButton = createElement('div', {
 			class: 'printful-client-close',
 			innerHTML: CLOSE_SVG,
@@ -278,6 +349,7 @@ export class PrintfulPanel extends DynamicPanel {
 	}
 
 	#initSelectProductTab(): HTMLHarmonyTabElement {
+		defineHarmonyToggleButton();
 		const htmlProductSelectionTab = createElement('harmony-tab', { 'data-i18n': '#select_product', class: 'printful-product-tab' }) as HTMLHarmonyTabElement;
 
 		this.#htmlCategories = createElement('harmony-menu', {
@@ -297,11 +369,12 @@ export class PrintfulPanel extends DynamicPanel {
 								createElement('span', {
 									i18n: '#filter',
 								}),
-								createElement('input', {
+								this.#htmlProductFilter = createElement('input', {
 									$input: (event: InputEvent) => this.#setNameFilter((event.target as HTMLInputElement).value),
-								}),
+								}) as HTMLInputElement,
 							],
 						}),
+						this.#htmlColorFiltersContainer = createElement('div', { class: 'colors', }),
 					],
 
 				}),
@@ -357,6 +430,35 @@ export class PrintfulPanel extends DynamicPanel {
 				*/
 			]
 		});
+
+		for (const filter of ColorFilters.toSorted((a, b) => {
+			const colorA = new Color({ hex: a.color });
+			const colorB = new Color({ hex: b.color });
+			return colorA.getLuminance() - colorB.getLuminance();
+		})) {
+			this.#productFilter.colors.set(filter.color, false);
+
+			const htmlColor = createElement('harmony-toggle-button', {
+				class: 'color filter-color',
+				parent: this.#htmlColorFiltersContainer,
+				style: `background-color:${filter.color}`,
+				childs: [
+					createElement('div', {
+						slot: 'on',
+						innerHTML: checkOutlineSVG,
+					}),
+					createElement('div', {
+						slot: 'off',
+					}),
+				],
+				$change: () => {
+					this.#productFilter.colors.set(filter.color, !this.#productFilter.colors.get(filter.color));
+					void this.#applyProductFilter();
+				},
+			}) as HTMLHarmonyToggleButtonElement;
+
+			this.#htmlColorFilters.set(filter.color, htmlColor);
+		}
 
 		return htmlProductSelectionTab;
 	}
@@ -1038,6 +1140,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#initCategories();
 		this.#refreshProducts();
 		this.#refreshTemplate();
+		this.#htmlProductFilter!.focus();
 	}
 
 	close(): void {
@@ -2107,8 +2210,17 @@ export class PrintfulPanel extends DynamicPanel {
 						}
 						done.set(colorCode, colorCode2, variant);
 
+						let title: string;
+
+						if (colorCode2) {
+							title = `${variant.color} ${colorCode}/${colorCode2}`;
+						} else {
+							title = `${variant.color} ${colorCode}`;
+						}
+
 						createElement('div', {
 							parent: this.#htmlProductColors,
+							title,
 							class: 'color',
 							...(colorCode2) && { style: `background:linear-gradient(to right, ${colorCode} 0%, ${colorCode} 50%, ${colorCode2} 50%, ${colorCode2} 100%)` },
 							...(!colorCode2) && { style: `background-color:${colorCode}` },
@@ -2448,8 +2560,23 @@ export class PrintfulPanel extends DynamicPanel {
 
 	async #applyProductFilter(): Promise<void> {
 		let firstProduct = -1;
+		let matchColor = false;
+
+		for (const color of this.#productFilter.colors) {
+			if (color[1]) {
+				matchColor = true;
+			}
+
+
+			const element = this.#htmlColorFilters.get(color[0]);
+			if (element) {
+				element.state = color[1];
+				//element.classList[color[1] ? 'add' : 'remove']('selected');
+			}
+		}
+
 		for (const [htmlOption, product] of this.#productOption) {
-			const match = await this.#matchFilter(product);
+			const match = await this.#matchFilter(product, matchColor);
 			display(htmlOption, match);
 			if (firstProduct == -1 && match) {
 				firstProduct = product.id;
@@ -2457,24 +2584,47 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 
 		for (const [htmlProduct, product] of this.#productList) {
-			const match = await this.#matchFilter(product);
+			const match = await this.#matchFilter(product, matchColor);
 			display(htmlProduct, match);
 		}
-
-		/*
-		if (firstProduct != -1) {
-			this.#selectProduct(firstProduct);
-		}
-		*/
 	}
 
-	async #matchFilter(product: Product): Promise<boolean> {
+	async #matchFilter(product: Product, matchColor: boolean): Promise<boolean> {
+
+
 		if (this.#productFilter.categoryId != 0 && !await isParent(product, this.#productFilter.categoryId)) {
 			return false;
 		}
 
 		if (this.#productFilter.name !== '' && !product.name.toLowerCase().includes(this.#productFilter.name)) {
 			return false;
+		}
+
+		const colorA = new Color();
+		const colorB = new Color();
+
+		if (matchColor) {
+			let found = false;
+			outer:
+			for (const color of product.colors as ProductColor[]) {
+				const value = color.value;
+				colorA.setHex(value);
+				for (const c of this.#productFilter.colors) {
+					if (!c[1]) {
+						continue;
+					}
+
+					colorB.setHex(c[0]);
+					if (vec3.squaredDistance(colorA.getRgba(), colorB.getRgba()) < 0.05) {
+						found = true;
+						break outer;
+					}
+				}
+			}
+
+			if (!found) {
+				return false;
+			}
 		}
 
 		return true

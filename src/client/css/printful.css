@@ -358,6 +358,17 @@ button {
 	border: 2px solid;
 }
 
+.filter-color {
+	width: 2.5rem;
+	height: 2.5rem;
+}
+
+.color>div>svg {
+	width: 100%;
+	height: 100%;
+	color: black;
+}
+
 harmony-switch {
 	width: 100%;
 }
