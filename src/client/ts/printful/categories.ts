@@ -1,4 +1,6 @@
+import { OptionsManager } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
+import { langs } from './lang';
 import { Category } from './model/category';
 import { Product } from './model/product';
 import { fetchShopAPI } from './shop';
@@ -39,7 +41,10 @@ export async function initCategories(): Promise<Map<number, Category>> {
 
 		initCategoriesPromise = new Promise<Map<number, Category>>((resolve) => { initCategoriesPromiseResolve = resolve });
 
-		const { response: categoriesResponse } = await fetchShopAPI('get-printful-categories', 1, { language: 'fr_FR' });
+		const currentlang = OptionsManager.getItem('app.lang') as string;
+		const language = langs.get(currentlang) ?? 'en_US';
+
+		const { response: categoriesResponse } = await fetchShopAPI('get-printful-categories', 1, { language });
 
 		if (categoriesResponse.success && categoriesResponse.result?.categories) {
 			for (const category of categoriesResponse.result.categories as JSONObject[]) {
