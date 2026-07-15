@@ -445,6 +445,11 @@
 		"#help_printful_template_rotation": "Picture rotation",
 		"#help_printful_template_horizontal_gap": "Horizontal gap between tiles",
 		"#help_printful_template_vertical_gap": "Vertical gap between tiles",
+		"#help_printful_product_colors": "Product colors. All colors will be available for purchase",
+		"#help_printful_product_sizes": "Product sizes. All sizes will be available for purchase",
+		"#help_printful_product_techniques": "<h2>DTG printing</h2>Direct-to-garment (DTG) printing is a fulfillment technique where ink is sprayed onto garments, much like printing on paper.<br>DTG-printed designs soak into the clothing fibers. That way, the prints:<ul><li>Don’t sit on top of the fabric</li><li>Remain uncracked over time</li><li>Aren’t stiff and feel comfortable to wear</li></ul><h2>DTF printing</h2>DTF (direct-to-film) printing is a printing method that uses a specialized film transfer process. It lets you apply full-color designs – including gradients and fine detail – on several types of fabrics, like cotton, polyester, and blends.<br>",
+		"#help_printful_transparent_background": "Use a transparent background. If disabled, will use background option color",
+		"#help_printful_create_product": "Use a transparent background. If disabled, will use background option color",
 		"": ""
 	}
 }

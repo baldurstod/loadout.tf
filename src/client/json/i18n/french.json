@@ -445,6 +445,10 @@
 		"#help_printful_template_rotation": "Rotation de l'image",
 		"#help_printful_template_horizontal_gap": "Écart horizontal entre les éléments du damier",
 		"#help_printful_template_vertical_gap": "Écart vertical entre les éléments du damier",
+		"#help_printful_product_colors": "Couleurs du produit. Toutes le couleurs seront disponible à l'achat",
+		"#help_printful_product_sizes": "Tailles du produit. Toutes le tailles seront disponible à l'achat",
+		"#help_printful_product_techniques": "<h2>DTG</h2>L’impression numérique textile, ou impression DTG, est une méthode qui vaporise de l’encre sur les vêtements, de la même façon que l’impression sur papier.<br>Les designs imprimés en DTG pénètrent dans les fibres du vêtement, de cette façon les impressions :<ul><li>ne restent pas sur la surface du tissu</li><li>ne se fissurent pas au fil du temps</li><li>ne sont pas raides, procurent ainsi un meilleur confort à celle.celui qui le porte.</li></ul><h2>DTF</h2>L’impression DTF permet de gérer des designs ultra-détaillés, des visuels réalistes, des lignes fines et des textes minuscules. Résultat ? Des créations audacieuses qui se démarquent sur presque tous les tissus.<br>Là où l’impression DTG atteint ses limites, l’impression DTF excelle : elle est idéale pour les vêtements de sport résistants, les tenues de performance ou les matières plus difficiles à imprimer.",
+		"#help_printful_transparent_background": "Utiliser un arrière plan transparent. Si désactivé, utilise l'option de couleur d'arrière plan",
 		"": ""
 	}
 }

@@ -534,12 +534,15 @@ export class PrintfulPanel extends DynamicPanel {
 						createElement('label', {
 							childs: [
 								createElement('span', { i18n: '#sizes' }),
-								this.#htmlProductSizes = createElement('span', { class: 'sizes', hidden: true }),
+								this.#htmlProductSizes = createElement('span', { class: 'sizes', hidden: true, help: '#help_printful_product_sizes', }),
 							]
 						}),
-						this.#htmlProductColors = createElement('div', { class: 'colors', hidden: true }),
+						this.#htmlProductColors = createElement('div', { class: 'colors', hidden: true, help: '#help_printful_product_colors', }),
 
 						createElement('label', {
+							help: {
+								innerHTML: '#help_printful_product_techniques',
+							},
 							childs: [
 								createElement('span', { i18n: '#techniques' }),
 
@@ -572,6 +575,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 						this.#htmlTemplateControlTransparent = createElement('harmony-switch', {
 							'data-i18n': '#transparent_background',
+							help: '#help_printful_transparent_background',
 							state: true,
 							events: {
 								change: (event: Event) => this.#setTemplateTransparent((event.target as HTMLHarmonySwitchElement).state as boolean),
@@ -856,6 +860,7 @@ export class PrintfulPanel extends DynamicPanel {
 				this.#htmlCreateProductButton = createElement('button', {
 					class: 'create-product',
 					i18n: '#create_product',
+					help: '#help_printful_create_product',
 					parent: htmlTemplate,
 					events: {
 						click: () => { this.#createProduct() }
