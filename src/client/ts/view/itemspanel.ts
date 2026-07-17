@@ -314,6 +314,7 @@ export class ItemsPanel extends DynamicPanel {
 								}) as HTMLHarmonyToggleButtonElement,
 								htmlSfmSortDirection = createElement('harmony-toggle-button', {
 									class: 'sfm-filter',
+									hidden: true,
 									childs: [
 										createElement('div', {
 											slot: 'on',
