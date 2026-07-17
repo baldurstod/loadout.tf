@@ -2388,7 +2388,7 @@ export class PrintfulPanel extends DynamicPanel {
 			//const placementPrice = await GetPlacementPrice(this.#selection.productId, this.#selection.technique, placement.getPlacement());
 			const placementStyle = await GetMockupStyles(this.#productPreset.productId, this.#productPreset.getTechnique(), placement.getPlacement());
 			if (!placementStyle) {
-				return;
+				continue;
 			}
 
 			/*
