@@ -1,4 +1,5 @@
 import { JSONObject } from 'harmony-types';
+import { Map2 } from 'harmony-utils';
 import { initCategories } from './categories';
 import { AdditionalPlacements } from './model/additionalplacements';
 import { Product } from './model/product';
@@ -7,7 +8,7 @@ import { ProductPrices } from './model/productprices';
 import { Technique } from './model/technique';
 import { Variant } from './model/variant';
 import { ProductFilter, ProductFilterResult } from './productfilter';
-import { fetchShopAPI } from './shop';
+import { ApiResponse, fetchShopAPI } from './shop';
 import { formatPrice } from './utils';
 
 /*#productId: number = -1;
@@ -138,7 +139,7 @@ async function initVariant(id: number): Promise<void> {
 		return;
 	}
 
-	const { response: productResponse } = await fetchShopAPI('get-printful-product', 1, { 'product_id': productId });
+	const { response: productResponse } = await getPrintfulProduct(productId);
 
 	if (!productResponse.success) {
 		console.error(`fetch get-product failed for product ${productId}`);
@@ -152,6 +153,16 @@ async function initVariant(id: number): Promise<void> {
 		va.fromJSON(variant);
 		variants.set(va.id, va);
 	}
+}
+
+const productResponses = new Map<number, Promise<ApiResponse>>();
+async function getPrintfulProduct(productId: number): Promise<ApiResponse> {
+
+	if (!productResponses.get(productId)) {
+		productResponses.set(productId, new Promise<ApiResponse>(async resolve => resolve(fetchShopAPI('get-printful-product', 1, { 'product_id': productId }))));
+	}
+
+	return productResponses.get(productId)!;
 }
 
 export async function getTechniques(productId: number): Promise<Set<Technique>> {
@@ -226,7 +237,7 @@ export async function getPlacementsPrices(productId: number, technique: string, 
 }
 
 async function initProductPrices(productId: number): Promise<void> {
-	const { response: productResponse } = await fetchShopAPI('get-printful-product-prices', 1, { 'product_id': productId, currency: currency });
+	const { response: productResponse } = await getPrintfulProductPrices(productId);
 
 	if (!productResponse.success) {
 		console.error(`fetch get-product failed for product ${productId}`);
@@ -241,6 +252,16 @@ async function initProductPrices(productId: number): Promise<void> {
 	}
 
 	prices.get(productId)!.set(currency, p);
+}
+
+const productPricesResponses = new Map2<number, string, Promise<ApiResponse>>();
+async function getPrintfulProductPrices(productId: number): Promise<ApiResponse> {
+
+	if (!productPricesResponses.get(productId, currency)) {
+		productPricesResponses.set(productId, currency, new Promise<ApiResponse>(async resolve => resolve(fetchShopAPI('get-printful-product-prices', 1, { 'product_id': productId, currency: currency }))));
+	}
+
+	return productPricesResponses.get(productId, currency)!;
 }
 
 
