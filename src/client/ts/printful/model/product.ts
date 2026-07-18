@@ -7,6 +7,7 @@ import { Technique } from './technique';
 export class Product {
 	id = 0;
 	mainCategoryId = 0;
+	categories: number[] = [];
 	type = '';
 	name = '';
 	brand = '';
@@ -50,6 +51,7 @@ export class Product {
 	fromJSON(j: JSONObject): void {
 		this.id = j.id as number;
 		this.mainCategoryId = j.main_category_id as number;
+		this.categories = j.categories as number[];
 		this.type = j.type as string;
 		this.name = j.name as string;
 		this.brand = j.brand as string;

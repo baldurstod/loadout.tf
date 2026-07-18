@@ -17,11 +17,11 @@ export async function isParent(product: Product, parentCategoryId: number): Prom
 		const category = categories.get(categoryId);
 
 		if (!category) {
-			return false;
+			break;
 		}
 
 		if (category.parentId == 0) {
-			return false;
+			break;
 		}
 
 		if (category.parentId == parentCategoryId) {
@@ -30,6 +30,14 @@ export async function isParent(product: Product, parentCategoryId: number): Prom
 
 		categoryId = category.parentId;
 	}
+
+	for (const category of product.categories) {
+		if (parentCategoryId == category) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 let initCategoriesPromise: Promise<Map<number, Category>> | undefined;
