@@ -2478,13 +2478,14 @@ export class PrintfulPanel extends DynamicPanel {
 					updateElement(button, {
 						i18n: {
 							innerText: '#placement_price_included',
-							title: '#tooltip_placement_price_included',
-						}
+							title: '#help_placement_price_included',
+						},
+						help: '#help_placement_price_included',
 					});
 					continue;
 				}
 			} else if (price !== undefined) {
-				value = '+' + formatPrice(price/*TODO: add currency*/);
+				value = formatPrice(price/*TODO: add currency*/);
 				totalPrice += price;
 			}
 
@@ -2492,7 +2493,13 @@ export class PrintfulPanel extends DynamicPanel {
 
 			updateElement(button, {
 				i18n: null,
-				innerText: value,
+				help: {
+					innerText: '#help_placement_price_extra',
+					values: {
+						price: value,
+					}
+				},
+				innerText: '+' + value,
 			});
 		}
 
