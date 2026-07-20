@@ -105,6 +105,7 @@ button {
 	display: flex;
 	gap: 1rem;
 	flex-direction: column;
+	flex: 1;
 }
 
 .products-list {

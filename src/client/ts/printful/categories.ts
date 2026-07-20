@@ -40,6 +40,33 @@ export async function isParent(product: Product, parentCategoryId: number): Prom
 	return false;
 }
 
+export async function isParentCategory(categoryId: number, parentCategoryId: number): Promise<boolean> {
+	const categories = await initCategories();
+	if (categoryId == parentCategoryId) {
+		return true;
+	}
+
+	while (true) {
+		const category = categories.get(categoryId);
+
+		if (!category) {
+			break;
+		}
+
+		if (category.parentId == 0) {
+			break;
+		}
+
+		if (category.parentId == parentCategoryId) {
+			return true;
+		}
+
+		categoryId = category.parentId;
+	}
+
+	return false;
+}
+
 let initCategoriesPromise: Promise<Map<number, Category>> | undefined;
 export async function initCategories(): Promise<Map<number, Category>> {
 	if (!initCategoriesPromise) {

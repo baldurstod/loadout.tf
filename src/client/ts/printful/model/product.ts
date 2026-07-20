@@ -13,6 +13,7 @@ export class Product {
 	brand = '';
 	model = '';
 	image = '';
+	imageWomen = '';
 	variantCount = 0;
 	catalogVariantIds: number[] = [];
 	isDiscontinued = false;
@@ -57,6 +58,7 @@ export class Product {
 		this.brand = j.brand as string;
 		this.model = j.model as string;
 		this.image = j.image as string;
+		this.imageWomen = j.image_women as string;
 		this.variantCount = j.variant_count as number;
 		this.catalogVariantIds = j.catalog_variant_ids as number[];
 		this.isDiscontinued = j.is_discontinued as boolean ?? false;

@@ -10,7 +10,7 @@ import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
 import { activeCamera, loadoutScene } from '../loadout/scene';
 import { getAvailableProducts, getPlacements, getPlacementsPrices, getProduct, getProductPrice, getProductVariants, getTechniques, getVariant, initProducts } from '../printful/catalog';
-import { categoryHasProducts, categoryHasSubCategories, getCategories, isParent } from '../printful/categories';
+import { categoryHasProducts, categoryHasSubCategories, getCategories, isParent, isParentCategory } from '../printful/categories';
 import { GetMockupStyle, GetMockupStyles } from '../printful/mockupstyles';
 import { GetMockupTemplate } from '../printful/mockuptemplates';
 import { Category } from '../printful/model/category';
@@ -135,7 +135,7 @@ export class PrintfulPanel extends DynamicPanel {
 	#htmlCreateProductButton?: HTMLButtonElement;
 	//#typeNameOptionPool = new Set<HTMLOptionElement>();
 	#productOption = new Map<HTMLOptionElement, Product>();
-	#productList = new Map<HTMLElement, Product>();
+	#productList = new Map<PrintfulProductElement, Product>();
 	#techniqueOptions = new Map<HTMLOptionElement, Technique>();
 	//#placementOptions = new Map<HTMLOptionElement, Placement>();
 	//#renderTarget?: RenderTarget;
@@ -2576,7 +2576,7 @@ export class PrintfulPanel extends DynamicPanel {
 					this.#selectProduct(product.id);
 					this.#displayTemplateTab();
 				}
-			}) as HTMLOptionElement;
+			}) as PrintfulProductElement;
 			this.#htmlProducts!.disabled = this.#htmlProducts!.options.length < 2;
 			this.#productOption.set(htmlProductOption, product);
 			this.#productList.set(htmlProduct, product);
@@ -2611,6 +2611,7 @@ export class PrintfulPanel extends DynamicPanel {
 		for (const [htmlProduct, product] of this.#productList) {
 			const match = await this.#matchFilter(product, matchColor);
 			display(htmlProduct, match);
+			htmlProduct.setWomenCategory(await isParentCategory(this.#productFilter.categoryId, 2));
 		}
 	}
 

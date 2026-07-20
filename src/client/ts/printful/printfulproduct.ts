@@ -13,6 +13,7 @@ export class PrintfulProductElement extends HTMLElement {
 	#htmlProductImage?: HTMLImageElement;
 	#htmlPrice?: HTMLElement;
 	#doOnce = true;
+	#women = false;
 
 	connectedCallback(): void {
 		if (!this.#doOnce) {
@@ -53,7 +54,7 @@ export class PrintfulProductElement extends HTMLElement {
 			this.#htmlProductName!.innerHTML = product.name;
 			this.#htmlProductName!.title = product.name;
 
-			this.#htmlProductImage!.src = product.image;
+			this.#refreshImage();
 			this.#htmlProductImage!.title = product.name;
 
 			I18n.setValue(this.#htmlPrice, 'price', await getProductPrice(product.id));
@@ -86,6 +87,21 @@ export class PrintfulProductElement extends HTMLElement {
 			}
 
 		}
+	}
+
+	#refreshImage(): void {
+		if (this.#initialized && this.#product) {
+			if (this.#women) {
+				this.#htmlProductImage!.src = this.#product.imageWomen || this.#product.image;
+			} else {
+				this.#htmlProductImage!.src = this.#product.image;
+			}
+		}
+	}
+
+	setWomenCategory(women: boolean): void {
+		this.#women = women;
+		this.#refreshImage();
 	}
 
 	#initHTML(): void {
