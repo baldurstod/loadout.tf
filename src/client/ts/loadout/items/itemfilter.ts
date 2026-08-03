@@ -171,7 +171,7 @@ export class ItemFilter {
 		}
 
 		//if (this.halloween !== undefined && (this.halloween && item.holiday_restriction == 'halloween_or_fullmoon')) {
-		if (this.halloween !== undefined && this.halloween != item.isHalloweenRestricted()) {
+		if (!(isWeapon || isTaunt) && this.halloween !== undefined && this.halloween != item.isHalloweenRestricted()) {
 			++excludedItems.e;
 			return ItemFilterResult.ExcludedFilter;
 		}
