@@ -1,6 +1,6 @@
-import { ManifestRepository, MergeRepository, PathPrefixRepository, Repositories, Repository, sanitizeRepositoryName, Source1ModelManager, Source1ParticleControler, VpkRepository, ZipRepository } from "harmony-3d";
-import { PersistentStorage } from "harmony-browser-utils";
-import { Controller, ControllerEvent } from "./controller";
+import { ManifestRepository, MergeRepository, PathPrefixRepository, Repositories, Repository, sanitizeRepositoryName, Source1ModelManager, Source1ParticleControler, VpkRepository, ZipRepository } from 'harmony-3d';
+import { PersistentStorage } from 'harmony-browser-utils';
+import { Controller, ControllerEvent } from './controller';
 
 const IMPORTED_FILES_PATH = '/imported_files/';
 

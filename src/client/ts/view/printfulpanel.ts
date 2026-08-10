@@ -1166,67 +1166,8 @@ export class PrintfulPanel extends DynamicPanel {
 		this.hide();
 		this.#sceneContainer.removeChildren();
 	}
-	/*
-	async #createSyncProduct() {
-		//this.#processSyncProductSuccess();
-		//return;
-
-		let selectedVariant = this.#htmlVariants.selectedOptions[0]?.dataVariant;
-		if (selectedVariant) {
-			console.log(selectedVariant);
-
-			let fetchOptions: any = {};
-			fetchOptions.method = 'POST';
-			fetchOptions.headers = {
-				'Content-Type': 'application/json',
-			};
-			fetchOptions.body = JSON.stringify(
-				{
-					variantId: selectedVariant.id,
-					name: selectedVariant.name,
-					type: 'default',
-					image: this.#testImage//Graphics.canvas.toDataURL()
-				}
-			);
-
-			let response = await fetch(this.#printfulEndpoint + '/createsyncproduct/', fetchOptions);
-			let json = await response.json();
-			console.log(json);
-			this.#processSyncProductJson(json);
-		}
-	}
-		*/
 
 	async #createShopProduct(): Promise<void> {
-		/*
-		if (!this.#htmlVariants) {
-			return;
-		}
-		*/
-
-		/*
-		for (const placement of this.#productPreset.getIncludedPlacements()) {
-			const image = placement.getImage();
-			if (image) {
-				placements.push(placement);
-				images.push(image);
-			}
-		}
-			*/
-		/*
-				const { response: json } = await FetchAPI('add-images', 1, { images: images });
-				if (!json || !json.success) {
-					addNotification(I18n.getString('#failed_to_create_the_product'), 'error');
-					await setTimeoutPromise(2000);
-					this.#enableCreateProductButton();
-					return;
-				}
-
-				console.info(json, placements);
-
-				return;
-				*/
-
 		const createProductRequest: createProductRequest = {
 			product: {
 				product_id: this.#productPreset.productId,
@@ -1286,98 +1227,6 @@ export class PrintfulPanel extends DynamicPanel {
 			innerText: shopUrl,
 			target: '_blank',
 		});
-
-
-
-
-		//const placement = new Placement('front', 'dtg');
-		//const layer = new Layer('​https://www.printful.com/static/images/layout/printful-logo.png', new LayerPosition(10, 10, 0, 0));
-		//placement.addLayer(layer);
-
-		//console.info(placement.toJSON(), JSON.stringify(placement.toJSON()));
-
-
-
-		return;
-
-		//const selectedVariantid: number = Number(this.#htmlVariants.selectedOptions[0]?.getAttribute('data-variant-id'));
-		//const selectedVariant = this.#variants.get(selectedVariantid);
-		const selectedVariant = 1;
-		if (selectedVariant) {
-			console.log(selectedVariant);
-
-			const response = await fetch(this.#shopEndpoint + '/api', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					action: 'create-product',
-					version: 1,
-					params: {
-						product: {
-							//variant_id: this.#selection.variantId,
-							name: 'TODO variant name', //selectedVariant.name,
-							type: 'default',
-							//image: this.#testImage,
-						},
-					},
-				}),
-			});
-			const json = await response.json();
-			console.log(json);
-			this.#processSyncProductJson(json);
-		}
-	}
-
-	#processSyncProductJson(json: JSONObject/*TODO: improve type*/): void {
-		if (json && json.success) {
-			this.#processSyncProductSuccess(json.result as JSONObject);
-		} else {
-			this.#processSyncProductFailure();
-		}
-	}
-
-	#processSyncProductSuccess(result: JSONObject/*TODO: improve type*/): void {
-		console.log(result);
-		const products = result.products as JSONArray;
-		if (!products) {
-			return;
-		}
-
-		const product = products[0];
-		if (!product) {
-			return;
-		}
-
-		if (this.#htmlProductTab) {
-			this.#htmlProductTab.activate();
-			this.#htmlProductTab.disabled = false;
-		}
-		show(this.#htmlCreateProductSuccess);
-
-		const shopUrl = `${this.#shopEndpoint}/@product/${(product as JSONObject).id as string}`;
-
-		open(shopUrl, '_blank');
-		createElement('a', {
-			parent: this.#htmlCreateProducts,
-			href: shopUrl,
-			innerText: shopUrl,
-			target: '_blank',
-		});
-
-		//await this.#createProductNotification(result);
-
-		/*
-	result:
-	external_id: "625176372e09b9"
-	id: 271458143
-	is_ignored: false
-	name: "test"
-	synced: 6
-	thumbnail_url: "https://printful.loadout.tf/images/1ckdjth1ksgwvchy7l6b16ffvmo148590bahl7jv9f2d3x8lkml4o6jkhq1cu7pn8_thumb"
-	variants: 6
-	*/
 	}
 
 	#onProductNotificationClicked(json: JSONObject/*TODO: improve type*/): void {
@@ -1404,10 +1253,6 @@ export class PrintfulPanel extends DynamicPanel {
 		} else {
 			return false;
 		}
-	}
-
-	#processSyncProductFailure(): void {
-		addNotification(I18n.getString('#failed_to_create_the_product'), NotificationType.Error, 0);
 	}
 
 	#setTemplateTransparent(transparent: boolean): void {
