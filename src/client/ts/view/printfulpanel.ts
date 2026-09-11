@@ -1196,10 +1196,9 @@ export class PrintfulPanel extends DynamicPanel {
 
 		if (!createProductResponse.success) {
 			addNotification(I18n.getString('#failed_to_create_the_product'), NotificationType.Error, 0);
+			this.#enableCreateProductButton();
 			return;
 		}
-
-
 
 		console.log(createProductResponse);
 		const products = createProductResponse.result?.products as JSONArray;
@@ -1227,6 +1226,8 @@ export class PrintfulPanel extends DynamicPanel {
 			innerText: shopUrl,
 			target: '_blank',
 		});
+
+		await this.#createProductNotification(createProductResponse);
 	}
 
 	#onProductNotificationClicked(json: JSONObject/*TODO: improve type*/): void {
@@ -1928,7 +1929,7 @@ export class PrintfulPanel extends DynamicPanel {
 		if (this.#composer?.enabled) {
 			this.#composer.render(0, { DisableToolRendering: true });
 		} else {
-			Graphics.render(this.#scene, this.#camera, 0, { DisableToolRendering: true, transferBitmap: false, width: width, height: height });
+			Graphics.render(this.#scene, this.#camera, 0, { DisableToolRendering: true, transferBitmap: false, width, height });
 		}
 
 		const bitmap = Graphics.transferOffscreenToImageBitmap();
@@ -2448,7 +2449,6 @@ export class PrintfulPanel extends DynamicPanel {
 			const element = this.#htmlColorFilters.get(color[0]);
 			if (element) {
 				element.state = color[1];
-				//element.classList[color[1] ? 'add' : 'remove']('selected');
 			}
 		}
 

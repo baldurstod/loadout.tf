@@ -1,5 +1,5 @@
 import { Entity, Repository, RepositoryEntry } from 'harmony-3d';
-import { HTMLRepositoryElement } from 'harmony-3d-utils';
+import { EntryCreated, HTMLRepositoryElement } from 'harmony-3d-utils';
 import { createElement, I18n } from 'harmony-ui';
 import optionsCSS from '../../../css/options.css';
 import { removeRepository } from '../../fileimporter';
@@ -17,7 +17,7 @@ export function addRepository(repository: Repository, parent: HTMLElement, style
 		events: {
 			fileclick: (event: CustomEvent) => console.info((event).detail.getFullName()),
 			directoryclick: (event: CustomEvent) => console.info((event).detail.getFullName(), event),
-			entrycreated: (event: CustomEvent) => {
+			entrycreated: (event: CustomEvent<EntryCreated>) => {
 				let removeButton;
 				createElement('div', {
 					class: 'custom-buttons',

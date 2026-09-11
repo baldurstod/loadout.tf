@@ -669,8 +669,8 @@ class Application {
 			*/
 		}
 		Graphics.play();
-		GraphicsEvents.addEventListener(GraphicsEvent.Tick, animate);
-		//GraphicsEvents.addEventListener(GraphicsEvent.Tick, (event: Event) => this.#activeCameraControl.update((event as CustomEvent).detail.delta));
+		GraphicsEvents.addEventListener('tick', animate);
+		//GraphicsEvents.addEventListener('tick', (event: Event) => this.#activeCameraControl.update((event as CustomEvent).detail.delta));
 
 		//ContextObserver.observe(GraphicsEvents, this.#orbitCamera);
 		//ContextObserver.observe(GraphicsEvents, this.#firstPersonCamera);

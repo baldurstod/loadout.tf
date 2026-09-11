@@ -381,7 +381,7 @@ export class OptionsPanel extends DynamicPanel {
 		});
 
 		const panel = PersistentStorage.getPanel();
-		htmlGeneralOptionsPanel.append(panel);
+		htmlGeneralOptionsPanel.append(panel.htmlElement);
 		panel.collapse();
 	}
 
@@ -834,108 +834,6 @@ export class OptionsPanel extends DynamicPanel {
 		});
 	}
 
-	/*
-	async #importModels(files: FileList | null, overrideModels: boolean) {
-		if (!files) {
-			return;
-		}
-		for (const file of files) {
-			await this.#importModels2(file, overrideModels);
-		}
-	}
-
-	async #importModels2(file: File, overrideModels: boolean) {
-		//TODO: check zip
-		const dota2Repository = Repositories.getRepository('dota2') as MergeRepository;
-		let localRepo: Repository;
-
-		if (file.name.endsWith('.zip')) {
-			localRepo = new ZipRepository(file.name, file);
-		} else if (file.name.endsWith('.vpk')) {
-			localRepo = new VpkRepository(file.name, [file]);
-		} else {
-			return;
-		}
-
-		if (overrideModels) {
-			//TODO:add message
-			dota2Repository.unshiftRepository(localRepo);
-		} else {
-			const repo = new ManifestRepository(new MergeRepository(file.name, localRepo, dota2Repository));
-			Repositories.addRepository(repo);
-			await repo.generateModelManifest();
-			this.#addRepo(repo);
-			Source2ModelManager.loadManifest(file.name);
-		}
-	}
-
-	async #addRepo(repo: Repository) {
-		const root = await repo.getFileList();
-		if (!root) {
-			return;
-		}
-
-		defineRepository();
-
-		const repositoryView = createElement('harmony3d-repository', {
-			parent: this.#htmlTabImport,
-			adoptStyle: repositoryEntryCSS,
-			events: {
-				fileclick: (event: CustomEvent) => console.info((event as CustomEvent).detail.getFullName()),
-				directoryclick: (event: CustomEvent) => console.info((event as CustomEvent).detail.getFullName(), event),
-				entrycreated: (event: CustomEvent) => {
-					createElement('div', {
-						class: 'custom-buttons',
-						parent: (event as CustomEvent).detail.view,
-						slot: 'custom',
-						childs: [
-							createElement('button', {
-								i18n: '#add_to_scene',
-								events: {
-									click: () => this.#addModel((event as CustomEvent).detail.entry),
-								}
-							}),
-							/*
-							createElement('button', {
-								i18n: '#add_to_current_character',
-								events: {
-									click: () => this.#addModel((event as CustomEvent).detail.entry, CharacterManager.getCurrentCharacter()?.characterModel),
-								}
-							}),
-							* /
-						]
-					});
-					I18n.observeElement((event as CustomEvent).detail.view);
-				},
-			}
-		}) as HTMLRepositoryElement;
-		repositoryView.setFilter({ extension: 'vmdl_c', directories: false });
-		repositoryView.setRepository(repo);
-		//repositoryView.addStyle(repositoryEntryCSS);
-	}
-
-	async #addModel(entry: RepositoryEntry, parent?: Entity | null) {
-		const model = await Source2ModelManager.createInstance(entry.getRepository().name, entry.getFullName(), true);//await ModelManager.addTF2Model(entry.getFullName(), entry.getRepository().name);
-
-		if (model) {
-			(parent ?? loadoutScene).addChild(model);
-		}
-	}
-	*/
-
-	/*
-	#toggle() {
-		toggle(this.#htmlElement);
-
-		let event;
-		if (isVisible(this.#htmlElement!)) {
-			event = EVENT_PANEL_OPTIONS_OPENED;
-		} else {
-			event = EVENT_PANEL_OPTIONS_CLOSED;
-		}
-		Controller.dispatchEvent(new CustomEvent(event));
-	}
-	*/
 	#initLanguages(): void {
 		const currentlang = OptionsManager.getItem('app.lang');
 		const langs: Record<string, string> = {

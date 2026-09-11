@@ -573,6 +573,7 @@ export class ItemsPanel extends DynamicPanel {
 
 			++column;
 			if (column + 1 > columns) {
+				// Wrap to the next row
 				column = 0;
 				++row;
 			}

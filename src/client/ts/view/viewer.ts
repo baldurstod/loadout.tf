@@ -121,7 +121,7 @@ export class Viewer {
 
 		ShortcutHandler.addEventListener('app.shortcuts.video.togglerecording', () => this.#toggleVideo(!this.#recording));
 
-		GraphicsEvents.addEventListener(GraphicsEvent.Tick, () => {
+		GraphicsEvents.addEventListener('tick', () => {
 
 			if (this.#showFps && this.#htmlCanvasFps) {
 				this.#htmlCanvasFps.innerText = String(WebGLStats.getFps());
@@ -295,7 +295,7 @@ export class Viewer {
 		});
 		*/
 		/*
-				GraphicsEvents.addEventListener(GraphicsEvent.Tick, (event: Event) => {
+				GraphicsEvents.addEventListener('tick', (event: Event) => {
 					WebGLStats.tick();
 						Graphics.renderMultiCanvas((event as CustomEvent<GraphicTickEvent>).detail.delta);
 						/**

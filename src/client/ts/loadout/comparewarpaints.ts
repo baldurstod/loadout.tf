@@ -30,8 +30,8 @@ const warpaintsLights = new Group({
 Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => characterChanged((event as CustomEvent<Character>).detail));
 Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
 Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => loadoutChanged((event as CustomEvent<Item>).detail));
-GraphicsEvents.addEventListener(GraphicsEvent.Pick, (event: Event) => handlePick(event as CustomEvent<GraphicPickEvent>));
-GraphicsEvents.addEventListener(GraphicsEvent.Tick, animate);
+GraphicsEvents.addEventListener('pick', (event: Event) => handlePick(event as CustomEvent<GraphicPickEvent>));
+GraphicsEvents.addEventListener('tick', animate);
 
 function characterChanged(character: Character): void {
 	if (character.characterClass == Tf2Class.CompareWarpaints) {
