@@ -798,7 +798,7 @@
 		{
 			"name": "engine.particles.usefixedrate",
 			"type": "boolean",
-			"default": true
+			"default": false
 		},
 		{
 			"name": "engine.particles.simulationrate",
