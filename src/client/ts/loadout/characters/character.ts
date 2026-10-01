@@ -1,6 +1,5 @@
 import { vec3 } from 'gl-matrix';
 import { ChoreographiesManager, ChoreographyEventType, Material, RandomFloat, Repositories, Scene, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
-import { OptionsManager } from 'harmony-browser-utils';
 import { unserializeDmxSync } from 'harmony-dmx';
 import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
 import { Controller, ControllerEvent } from '../../controller';
@@ -140,7 +139,7 @@ export class Character {
 				await this.#setMaterialOverride(null);
 				const zombieSkinOffset = (this.characterClass == Tf2Class.Spy ? 22 : 4);
 				if (this.#model) {
-					await this.#model.setSkin(String(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0)));
+					await this.#model.setSkinId(this.#team + (this.#zombieSkin ? zombieSkinOffset : 0) + (this.#isInvulnerable ? 2 : 0));
 				}
 				for (const extraModel of this.#extraModels) {
 					if (this.#isInvulnerable) {
@@ -149,7 +148,7 @@ export class Character {
 						await extraModel.setMaterialOverride(material);
 					} else {
 
-						extraModel.setSkin(String(this.#team));
+						extraModel.setSkinId(this.#team);
 					}
 
 

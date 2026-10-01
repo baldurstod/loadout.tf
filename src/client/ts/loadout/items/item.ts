@@ -152,7 +152,7 @@ export class Item {
 			if (materialOverride) {
 				this.#setMaterialOverride(materialOverride);
 			} else {
-				await this.#model?.setSkin(String(skin));
+				await this.#model?.setSkinId(skin);
 			}
 
 			if (this.#warpaintId !== null) {
@@ -250,13 +250,13 @@ export class Item {
 		}
 		*/
 
-		await this.#modelExtraWearable?.setSkin(String(skin));
+		await this.#modelExtraWearable?.setSkinId(skin);
 		for (const extraModel of this.#attachedModels) {
-			await extraModel.setSkin(String(skin));
+			await extraModel.setSkinId(skin);
 		}
 
-		await this.#festivizerModel?.setSkin(String(this.#team));
-		await (await this.#stattrakModule)?.setSkin(String(skin % 2));
+		await this.#festivizerModel?.setSkinId(this.#team);
+		await (await this.#stattrakModule)?.setSkinId(skin % 2);
 
 		this.#refreshingSkin = false;
 	}
