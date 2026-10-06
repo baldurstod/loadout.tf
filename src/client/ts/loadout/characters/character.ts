@@ -284,20 +284,24 @@ export class Character {
 			}
 
 			// Play choreo
-			const choreoName = item.getCustomTauntScenePerClass(npc);
-			if (this.#model && choreoName) {
+			const characterChoreo = item.getCustomTauntScenePerClass(npc);
+			const propChoreo = item.getCustomTauntPropScenePerClass(npc);
+			if (this.#model && characterChoreo) {
 				ChoreographiesManager.stopAll();
 				await ChoreographiesManager.init('tf2', './scenes/scenes.image');
-				this.#model.setProperty('weapon', new Property('model', await item.getModel()));
-				ChoreographiesManager.playChoreography('tf2', choreoName, [this.#model]);
+
+				// If the prop is part of the character choreography, set it as weapon so the hide / unhide weapon events work on the prop
+				if (!propChoreo) {
+					this.#model.setProperty('weapon', new Property('model', await item.getModel()));
+				}
+				ChoreographiesManager.playChoreography('tf2', characterChoreo, [this.#model]);
 			}
 
-			const choreoName2 = item.getCustomTauntPropScenePerClass(npc);
 			const itemModel = await item.getModel();
-			if (choreoName2 && itemModel) {
+			if (propChoreo && itemModel) {
 				void itemModel.skeleton?.setParentSkeleton(null);
 				await ChoreographiesManager.init('tf2', './scenes/scenes.image');
-				ChoreographiesManager.playChoreography('tf2', choreoName2, [itemModel]);
+				ChoreographiesManager.playChoreography('tf2', propChoreo, [itemModel]);
 			}
 		}
 
