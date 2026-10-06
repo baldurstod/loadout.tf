@@ -1,5 +1,5 @@
 import { vec3 } from 'gl-matrix';
-import { ChoreographiesManager, ChoreographyEventType, Material, RandomFloat, Repositories, Scene, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
+import { ChoreographiesManager, ChoreographyEventType, Material, Property, RandomFloat, Repositories, Scene, Source1MaterialManager, Source1ModelInstance, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager } from 'harmony-3d';
 import { unserializeDmxSync } from 'harmony-dmx';
 import { EFFECTS_BLU, EFFECTS_RED, ENTITY_FLYING_BIRD_SPEED_MAX, ENTITY_FLYING_BIRD_SPEED_MIN, MATERIAL_GOLD_RAGDOLL, MATERIAL_ICE_RAGDOLL, MATERIAL_INVULN_BLU, MATERIAL_INVULN_RED, MEDIC_RELEASE_DOVE_COUNT } from '../../constants';
 import { Controller, ControllerEvent } from '../../controller';
@@ -288,6 +288,7 @@ export class Character {
 			if (this.#model && choreoName) {
 				ChoreographiesManager.stopAll();
 				await ChoreographiesManager.init('tf2', './scenes/scenes.image');
+				this.#model.setProperty('weapon', new Property('model', await item.getModel()));
 				ChoreographiesManager.playChoreography('tf2', choreoName, [this.#model]);
 			}
 
