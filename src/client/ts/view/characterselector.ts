@@ -1,13 +1,14 @@
-import { createElement, display } from 'harmony-ui';
+import { OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
+import { createElement } from 'harmony-ui';
 import characterSelectorCSS from '../../css/characterselector.css';
 import { Controller, ControllerEvent } from '../controller';
 import { CharactersList, CharactersType, Tf2Class } from '../loadout/characters/characters';
 import { StaticPanel } from './staticpanel';
-import { OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 
 export class CharacterSelector extends StaticPanel {
 	#htmlCharacterSelectorPanel?: HTMLElement;
 	#htmlBotsSelectorPanel?: HTMLElement;
+	#htmlInfectedsSelectorPanel?: HTMLElement;
 	#styleSheet = new CSSStyleSheet();
 
 	constructor() {
@@ -21,13 +22,20 @@ export class CharacterSelector extends StaticPanel {
 
 
 		this.#htmlCharacterSelectorPanel = createElement('div', { class: 'humans', parent: this.getShadowRoot(), });
-		this.#htmlBotsSelectorPanel = createElement('div', { class: 'bots', parent: this.getShadowRoot(),  });
+		this.#htmlBotsSelectorPanel = createElement('div', { class: 'bots', parent: this.getShadowRoot(), });
+		this.#htmlInfectedsSelectorPanel = createElement('div', { class: 'infecteds', parent: this.getShadowRoot(), });
 
 		for (const [tf2Class, character] of CharactersList) {
-			if (character.bot) {
-				this.#htmlBotsSelectorPanel.append(this.#createMiniIcon(tf2Class, character));
-			} else {
-				this.#htmlCharacterSelectorPanel.append(this.#createMiniIcon(tf2Class, character));
+			switch (character.type) {
+				case 'human':
+					this.#htmlCharacterSelectorPanel.append(this.#createMiniIcon(tf2Class, character));
+					break;
+				case 'bot':
+					this.#htmlBotsSelectorPanel.append(this.#createMiniIcon(tf2Class, character));
+					break;
+				case 'infected':
+					this.#htmlInfectedsSelectorPanel.append(this.#createMiniIcon(tf2Class, character));
+					break;
 			}
 		}
 	}

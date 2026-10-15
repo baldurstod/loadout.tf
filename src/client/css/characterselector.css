@@ -14,19 +14,26 @@
 }
 
 .humans,
-.bots {
-	display: flex;
+.bots,
+.infecteds {
+	display: none;
 }
 
-@container style(--use-bots: 1) {
+@container style(--use-players-models: human) {
 	.humans {
-		display: none;
+		display: flex;
 	}
 }
 
-@container style(--use-bots: 0) {
+@container style(--use-players-models: bot) {
 	.bots {
-		display: none;
+		display: flex;
+	}
+}
+
+@container style(--use-players-models: infected) {
+	.infecteds {
+		display: flex;
 	}
 }
 

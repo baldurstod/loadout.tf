@@ -135,10 +135,15 @@ export class OptionsPanel extends DynamicPanel {
 			},
 		}) as HTMLHarmonyRadioElement;
 
-		createElement('harmony-switch', {
+		createElement('harmony-radio', {
 			parent: htmlMiscOptions,
-			'data-i18n': '#use_bots',
-			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvent.UseBots, { detail: event.detail.state }),
+			childs: [
+				createElement('button', { 'i18n': '#humans', value: 'human' }),
+				createElement('button', { 'i18n': '#bots', value: 'bot' }),
+				createElement('button', { 'i18n': '#infecteds', value: 'infected' }),
+			],
+			value: 'human',
+			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvent.UseBots, { detail: event.detail.value }),
 		});
 
 		createElement('harmony-switch', {
@@ -495,8 +500,8 @@ export class OptionsPanel extends DynamicPanel {
 			}) as HTMLHarmonyPanelElement,
 		});
 
-		const htmlGraphicOptions = createElement('group', { i18n: { title: '#general', }, class: 'graphic-options', parent:htmlGraphicOptionsPanel, });
-		const htmlPostProcessingOptions = createElement('group', { i18n: { title: '#post_processing', }, class: 'graphic-options', parent:htmlGraphicOptionsPanel, });
+		const htmlGraphicOptions = createElement('group', { i18n: { title: '#general', }, class: 'graphic-options', parent: htmlGraphicOptionsPanel, });
+		const htmlPostProcessingOptions = createElement('group', { i18n: { title: '#post_processing', }, class: 'graphic-options', parent: htmlGraphicOptionsPanel, });
 
 		const addToggleSwitch = (label: string, optionName: string, parent: HTMLElement): void => {
 			const sw = createElement('harmony-switch', {
@@ -570,7 +575,7 @@ export class OptionsPanel extends DynamicPanel {
 
 		const addPass = (name: string, pass: typeof Pass): void => {
 			const elem = createElement('div', {
-				 class: 'pass',
+				class: 'pass',
 				parent: htmlPostProcessingOptions,
 			});
 			const params = createElement('div', { class: 'params' });

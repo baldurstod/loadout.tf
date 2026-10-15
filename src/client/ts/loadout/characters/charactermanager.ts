@@ -1,10 +1,11 @@
 import { quat, vec3 } from 'gl-matrix';
-import { Entity, getSceneExplorer, GraphicPickEvent, GraphicsEvent, GraphicsEvents, Scene } from 'harmony-3d';
+import { Entity, getSceneExplorer, GraphicPickEvent, GraphicsEvents, Scene } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { JSONObject, uint } from 'harmony-types';
 import positionJSON from '../../../json/slotsposition.json';
 import { TF2_TOOLBOX_MODEL } from '../../constants';
 import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../../controller';
+import { UsePlayerModels } from '../../enums';
 import { Team } from '../enums';
 import { ItemManager } from '../items/itemmanager';
 import { firstPersonCamera, loadoutScene } from '../scene';
@@ -52,7 +53,7 @@ export class CharacterManager {
 	static #team: Team = Team.Red;
 	static #slotsPositions = new Map<string, CharacterPosition[]>();
 	static #applyToAll = true;
-	static #useBots = false;
+	static #useBots: UsePlayerModels = 'human';
 	static #presets = new Map<string, Presets>();
 
 	static {
@@ -62,7 +63,7 @@ export class CharacterManager {
 		Controller.addEventListener(ControllerEvent.SetRagdoll, (event: Event) => { this.#setRagdoll((event as CustomEvent<SetRagdoll>).detail.ragdoll, (event as CustomEvent<SetRagdoll>).detail.scene); return; },);
 		Controller.addEventListener(ControllerEvent.SetAnim, (event: Event) => this.#setAnim((event as CustomEvent<string>).detail));
 		Controller.addEventListener(ControllerEvent.SetApplyToAll, (event: Event) => this.#applyToAll = (event as CustomEvent<boolean>).detail);
-		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => this.#useBots = (event as CustomEvent<boolean>).detail);
+		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => this.#useBots = (event as CustomEvent<UsePlayerModels>).detail);
 		Controller.addEventListener(ControllerEvent.ImportPresets, (event: Event) => { this.#importPresets((event as CustomEvent<File[]>).detail) });
 		Controller.addEventListener(ControllerEvent.ChangeAnimFrame, (event: Event) => { this.#changeAnimFrame((event as CustomEvent<number>).detail) });
 
@@ -329,8 +330,10 @@ export class CharacterManager {
 		this.useDisposition('mtt', scene);
 
 		let botDelta = 0;
-		if (this.#useBots) {
+		if (this.#useBots === 'bot') {
 			botDelta = Tf2Class.ScoutBot;
+		} else if (this.#useBots === 'infected') {
+			botDelta = Tf2Class.ScoutInfected;
 		}
 
 		await this.selectCharacter(Tf2Class.Pyro + botDelta, 0, scene);

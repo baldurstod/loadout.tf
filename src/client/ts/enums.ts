@@ -25,3 +25,5 @@ export enum CameraType {
 	Orbit = 'orbit',
 	FreeFly = 'freefly',
 }
+
+export type UsePlayerModels = 'human' | 'bot' | 'infected';

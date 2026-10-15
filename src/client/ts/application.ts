@@ -1,5 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
-import { AmbientLight, CameraProjection, ContextType, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvent, GraphicsEvents, GraphicTickEvent, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, setRenderParticles, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
+import { AmbientLight, CameraProjection, ContextType, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvents, GraphicTickEvent, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, setRenderParticles, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { TextureCombiner, TextureCombinerEventTarget, WarpaintDoneEvent, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
 import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
@@ -14,7 +14,7 @@ import optionsmanager from '../json/optionsmanager.json';
 import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PATREON_IS_LOGGED, PRODUCTION, TESTING } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, SHARE_LOADOUT_URL, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
-import { CameraType, Panel } from './enums';
+import { CameraType, Panel, UsePlayerModels } from './enums';
 import { importFile, restoreFiles } from './fileimporter';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
 import { Character } from './loadout/characters/character';
@@ -51,7 +51,7 @@ class Application {
 	#documentStyleSheet = new CSSStyleSheet();
 	#menuOrderStyleSheet = new CSSStyleSheet();
 	#playing = true;
-	#useBots = false;
+	#useBots: UsePlayerModels = 'human';
 	#backgroundColor = vec4.create();
 	#backgroundColorRed?: vec4;
 	#backgroundColorBlu?: vec4;
@@ -169,7 +169,7 @@ class Application {
 		});
 
 		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => {
-			this.#useBots = (event as CustomEvent<boolean>).detail;
+			this.#useBots = (event as CustomEvent<UsePlayerModels>).detail;
 			this.#updatedocumentStyleSheet();
 		});
 
@@ -679,7 +679,7 @@ class Application {
 	#updatedocumentStyleSheet(): void {
 		this.#documentStyleSheet.replaceSync(`html{
 --playing: ${this.#playing ? 1 : 0};
---use-bots: ${this.#useBots ? 1 : 0};
+--use-players-models: ${this.#useBots};
 --poweruser: ${ENABLE_PATREON_POWERUSER ? 1 : 0}
 }`);
 	}
