@@ -92,13 +92,13 @@ async function* mountZip(file: File): AsyncGenerator<Repository, null, undefined
 							continue;
 						}
 						const name2 = child2.getName();
-						yield new PathPrefixRepository(name2, zipRepo, `${name}/${name2}`);
+						yield new PathPrefixRepository(sanitizeRepositoryName(name2), zipRepo, `${name}/${name2}`);
 					}
 
 					break;
 
 				default:
-					yield new PathPrefixRepository(name, zipRepo, name)
+					yield new PathPrefixRepository(sanitizeRepositoryName(name), zipRepo, name)
 					break;
 			}
 		}
