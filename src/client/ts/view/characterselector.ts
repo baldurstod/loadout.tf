@@ -13,13 +13,6 @@ export class CharacterSelector extends StaticPanel {
 	constructor() {
 		super([characterSelectorCSS]);
 		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => this.#styleSheet.replaceSync(`*{--show-hidden: ${(event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value ? 1 : 0};}`));
-
-		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => {
-			// TODO: remove this when bug https://bugzilla.mozilla.org/show_bug.cgi?id=1795622 is solved
-			display(this.#htmlCharacterSelectorPanel, !(event as CustomEvent<boolean>).detail)
-			// TODO: remove this when bug https://bugzilla.mozilla.org/show_bug.cgi?id=1795622 is solved
-			display(this.#htmlBotsSelectorPanel, (event as CustomEvent<boolean>).detail)
-		});
 	}
 
 	protected override initHTML(): void {
@@ -28,7 +21,7 @@ export class CharacterSelector extends StaticPanel {
 
 
 		this.#htmlCharacterSelectorPanel = createElement('div', { class: 'humans', parent: this.getShadowRoot(), });
-		this.#htmlBotsSelectorPanel = createElement('div', { class: 'bots', parent: this.getShadowRoot(), hidden: true });
+		this.#htmlBotsSelectorPanel = createElement('div', { class: 'bots', parent: this.getShadowRoot(),  });
 
 		for (const [tf2Class, character] of CharactersList) {
 			if (character.bot) {
