@@ -1,4 +1,4 @@
-import { bugReportSVG, fireSVG, manufacturingSVG, moreHorizSVG, overscanSVG, patreonLogoSVG, pauseSVG, photoCameraSVG, playlistAddSVG, playSVG, print3dSVG, sentimentExcitedSVG, settingsSVG, sfmLogoSVG, shareSVG, viewInArSVG } from 'harmony-svg';
+import { apparelSVG, bugReportSVG, fireSVG, manufacturingSVG, moreHorizSVG, overscanSVG, patreonLogoSVG, pauseSVG, photoCameraSVG, playlistAddSVG, playSVG, print3dSVG, sentimentExcitedSVG, settingsSVG, sfmLogoSVG, shareSVG, viewInArSVG } from 'harmony-svg';
 import { createElement, hide, show } from 'harmony-ui';
 import toolbarCSS from '../../css/toolbar.css';
 import extensionIcon from '../../img/extension_icon.png';
@@ -17,7 +17,7 @@ export class Toolbar extends StaticPanel {
 	protected override initHTML(): void {
 
 		if (TESTING) {
-			const printfulButton = createButton('test', '#printful', undefined, () => this.#togglePanel(Panel.Printful));
+			const printfulButton = createButton('test', '#buy_custom_apparel', apparelSVG, () => this.#togglePanel(Panel.Printful));
 			hide(printfulButton);
 			this.getShadowRoot().append(printfulButton);
 
