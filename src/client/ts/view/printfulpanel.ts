@@ -1226,34 +1226,6 @@ export class PrintfulPanel extends DynamicPanel {
 			innerText: shopUrl,
 			target: '_blank',
 		});
-
-		await this.#createProductNotification(createProductResponse);
-	}
-
-	#onProductNotificationClicked(json: JSONObject/*TODO: improve type*/): void {
-		console.log('onProductNotificationClicked', json);
-	}
-
-	async #createProductNotification(json: JSONObject/*TODO: improve type*/): Promise<void> {
-		if (await this.#requestNotifications()) {
-			const options = { requireInteraction: true };
-			const notification = new Notification('Hi there!', options);
-			notification.addEventListener('click', () => { this.#onProductNotificationClicked(json) });
-			notification.addEventListener('close', () => { this.#onProductNotificationClicked(json) });
-		}
-	}
-
-	async #requestNotifications(): Promise<boolean> {
-		if (Notification.permission == 'default') {
-			show(this.#htmlEnableNotificationsButton);
-			await this.#notificationPromise;
-		}
-
-		if (Notification.permission == 'granted') {
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	#setTemplateTransparent(transparent: boolean): void {
@@ -2345,7 +2317,7 @@ export class PrintfulPanel extends DynamicPanel {
 						price: value,
 					}
 				},
-				innerText: '+' + value,
+				innerText: value === '' ? '' : '+' + value,
 			});
 		}
 
