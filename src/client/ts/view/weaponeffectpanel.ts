@@ -1,10 +1,11 @@
+import { OptionsManager } from 'harmony-browser-utils';
 import { createElement, hide, show } from 'harmony-ui';
 import weaponEffectPanelCSS from '../../css/weaponeffectpanel.css';
 import { inventoryPath } from '../constants';
 import { Panel } from '../enums';
+import { COMMUNITY_SPARKLE_EFFECT, weaponEffects } from '../loadout/effects/effect';
 import { Item } from '../loadout/items/item';
 import { DynamicPanel } from './dynamicpanel';
-import { weaponEffects } from '../loadout/effects/effect';
 
 export class WeaponEffectPanel extends DynamicPanel {
 	#htmlEffects?: HTMLElement;
@@ -19,8 +20,11 @@ export class WeaponEffectPanel extends DynamicPanel {
 	protected override initHTML(): void {
 		this.#createEffectsView();
 
-		for (const [id, [name, title ]] of weaponEffects) {
-			this.#createEffectView(id, name, title );
+		for (const [id, [name, title]] of weaponEffects) {
+			if (id === COMMUNITY_SPARKLE_EFFECT && !OptionsManager.getItem('app.effects.displayother')) {
+				continue;
+			}
+			this.#createEffectView(id, name, title);
 		}
 	}
 
@@ -50,7 +54,7 @@ export class WeaponEffectPanel extends DynamicPanel {
 		closeButton.addEventListener('click', event => { this.hide(); event.stopPropagation(); });
 	}
 
-	#createEffectView(id: number, name: string, title:string): void {
+	#createEffectView(id: number, name: string, title: string): void {
 		const effectOption = createElement('img', {
 			class: 'effect',
 			src: `../../img/unusuals/weapon_unusual_${name}.png`,

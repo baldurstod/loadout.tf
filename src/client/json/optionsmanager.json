@@ -865,6 +865,11 @@
 			"name": "engine.renderer.experimentalwebgpu",
 			"type": "boolean",
 			"default": false
+		},
+		{
+			"name": "app.effects.displayother",
+			"type": "boolean",
+			"default": false
 		}
 	]
 }

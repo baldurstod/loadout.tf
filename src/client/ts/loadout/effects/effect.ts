@@ -3,12 +3,15 @@ import { Source1ParticleSystem } from 'harmony-3d';
 import { KillstreakColor } from '../../paints/killstreaks';
 import { EffectTemplate, EffectType } from './effecttemplate';
 
+export const COMMUNITY_SPARKLE_EFFECT = 4;
+export const COIN_SPIN_EFFECT = 406;
 
 export const weaponEffects = new Map<number, [string, string]>([
 	[701, ['hot', 'Hot']],
 	[702, ['isotope', 'Isotope']],
 	[703, ['cool', 'Cool']],
 	[704, ['energyorb', 'Energy orb']],
+	[COMMUNITY_SPARKLE_EFFECT, ['community_sparkle', 'Community Sparkle']],
 ]);
 
 export class Effect {

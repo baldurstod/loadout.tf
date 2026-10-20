@@ -1,11 +1,11 @@
-import { OptionsManagerEvents } from 'harmony-browser-utils';
+import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyRadio, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show } from 'harmony-ui';
 import effectsCSS from '../../css/effects.css';
 import effectsPanelCSS from '../../css/effectspanel.css';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { Effect } from '../loadout/effects/effect';
+import { COIN_SPIN_EFFECT, COMMUNITY_SPARKLE_EFFECT, Effect } from '../loadout/effects/effect';
 import { EffectTemplate, EffectType } from '../loadout/effects/effecttemplate';
 import { Team } from '../loadout/enums';
 import { ItemManager } from '../loadout/items/itemmanager';
@@ -175,9 +175,21 @@ export class EffectsPanel extends DynamicPanel {
 		}
 
 		const existing = new Set<string>();
-		for (const [id, template] of ItemManager.getEffects(EffectType.Cosmetic)) {
+
+		const otherEffects = ItemManager.getEffects(EffectType.Other)
+		otherEffects.forEach((template, key, map) => {
+			if (key !== COMMUNITY_SPARKLE_EFFECT) {
+				map.delete(key);
+			}
+		});
+
+		if (!OptionsManager.getItem('app.effects.displayother')) {
+			otherEffects.clear();
+		}
+
+		for (const [id, template] of new Map([...ItemManager.getEffects(EffectType.Cosmetic), ...otherEffects])) {
 			// Discard coin spin effect
-			if (id === 406) {
+			if (id === COIN_SPIN_EFFECT) {
 				continue;
 			}
 

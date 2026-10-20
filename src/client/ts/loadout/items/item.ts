@@ -7,7 +7,7 @@ import { getPaint, Paint, Paints } from '../../paints/paints';
 import { colorToVec4 } from '../../utils/colors';
 import { randomProperty } from '../../utils/randomproperty';
 import { Character, Ragdoll } from '../characters/character';
-import { weaponEffects } from '../effects/effect';
+import { COMMUNITY_SPARKLE_EFFECT, weaponEffects } from '../effects/effect';
 import { EffectType } from '../effects/effecttemplate';
 import { Team } from '../enums';
 import { addTF2Model } from '../scene';
@@ -600,7 +600,8 @@ export class Item {
 			//item.weaponEffects = item.weaponEffects || {};
 
 			(async (): Promise<void> => {
-				const particleSystem1 = await Source1ParticleControler.createSystem('tf2', 'weapon_unusual_' + weaponEffect[0] + '_' + particleSuffix);
+				let systemName = COMMUNITY_SPARKLE_EFFECT === weaponEffectId ? weaponEffect[0] : `weapon_unusual_${weaponEffect[0]}_${particleSuffix}`;
+				const particleSystem1 = await Source1ParticleControler.createSystem('tf2', systemName);
 				//particleSystem1.visible = true;
 
 				const model = this.#model;

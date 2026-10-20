@@ -43,11 +43,6 @@ export class WarpaintPanel extends DynamicPanel {
 
 	protected override initHTML(): void {
 		this.#createWarpaintsView();
-		/*
-		for (const [id, [name, title]] of weaponEffects) {
-			this.#createWarpaint(id, name, title);
-		}
-		*/
 	}
 
 	#createWarpaintsView(): void {
