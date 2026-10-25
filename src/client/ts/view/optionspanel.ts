@@ -782,7 +782,7 @@ export class OptionsPanel extends DynamicPanel {
 
 		htmlShaderEditorTab.addEventListener('activated', () => {
 			this.#shaderEditor.initEditor({ aceUrl: './assets/js/ace-builds/src-min/ace.js', displayCustomShaderButtons: true });
-			htmlShaderEditorTab.append(this.#shaderEditor);
+			htmlShaderEditorTab.append(this.#shaderEditor.htmlElement);
 		});
 	}
 

@@ -391,7 +391,7 @@ export class ItemsPanel extends DynamicPanel {
 			attributes: {
 				tabindex: '1',
 			},
-			child: this.#htmlItemsContainerSpacer = createElement('div', { style: "width:10000rem", }),// This element force items to use as much width as they can
+			child: this.#htmlItemsContainerSpacer = createElement('div', { style: 'width:10000rem', }),// This element force items to use as much width as they can
 		});
 		this.#htmlItemsContainer.addEventListener('scroll', () => this.#handleItemsScroll(), { passive: true });
 

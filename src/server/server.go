@@ -102,6 +102,7 @@ func rewriteURL(r *gin.Engine) gin.HandlerFunc {
 	}
 }
 
+// Activate cross origin isolation
 func setHeaders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
