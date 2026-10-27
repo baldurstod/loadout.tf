@@ -3,7 +3,6 @@ import { HTMLHarmonySwitchElement, I18n, createElement, createShadowRoot, define
 import applicationCSS from '../../css/application.css';
 import htmlCSS from '../../css/html.css';
 import varsCSS from '../../css/vars.css';
-import { ENABLE_PATREON_POWERUSER } from '../bundleoptions';
 import { Controller, ControllerEvent } from '../controller';
 import { MainPanel } from './mainpanel';
 import { WarpaintEditorPanel } from './warpainteditorpanel';

@@ -7,7 +7,7 @@ import { fileToImage } from 'harmony-utils';
 import optionsCSS from '../../css/options.css';
 import repositoryEntryCSS from '../../css/repositoryentry.css';
 import sceneExplorerCSS from '../../css/sceneexplorer.css';
-import { ENABLE_PATREON_POWERUSER, TESTING } from '../bundleoptions';
+import { PATREON_IS_LOGGED, TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, CameraType, Panel } from '../enums';
 import { CharacterManager, CustomDisposition } from '../loadout/characters/charactermanager';
@@ -68,7 +68,7 @@ export class OptionsPanel extends DynamicPanel {
 		this.#initHtmlMeetTheTeamOptions();
 		this.#initHtmlSceneExplorer();
 		this.#initHtmlShaderEditor();
-		if (ENABLE_PATREON_POWERUSER) {
+		if (PATREON_IS_LOGGED) {
 			this.#initHtmlScripEditor();
 		}
 		this.#initHtmlImportFiles();

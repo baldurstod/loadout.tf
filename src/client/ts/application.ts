@@ -11,7 +11,7 @@ import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
-import { ENABLE_PATREON_POWERUSER, HAS_ADVERTISEMENT, PATREON_IS_LOGGED, PRODUCTION, TESTING } from './bundleoptions';
+import { PATREON_POWERUSER, HAS_ADVERTISEMENT, PATREON_IS_LOGGED, PRODUCTION, TESTING } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, SHARE_LOADOUT_URL, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType, Panel, UsePlayerModels } from './enums';
@@ -617,7 +617,7 @@ class Application {
 		this.#documentStyleSheet.replaceSync(`html{
 --playing: ${this.#playing ? 1 : 0};
 --use-players-models: ${this.#useBots};
---poweruser: ${ENABLE_PATREON_POWERUSER ? 1 : 0}
+--poweruser: ${PATREON_POWERUSER ? 1 : 0}
 }`);
 	}
 
@@ -856,7 +856,7 @@ class Application {
 	}
 
 	async #exportToFBX(): Promise<void> {
-		if (ENABLE_PATREON_POWERUSER) {
+		if (PATREON_POWERUSER) {
 			const binaryFBX = await exportToBinaryFBX(loadoutScene);
 			saveFile(new File([binaryFBX as ArrayBuffer], 'loadout.tf.fbx'));
 		} else {
@@ -865,7 +865,7 @@ class Application {
 	}
 
 	async #export3D(showPopover: boolean): Promise<void> {
-		if (ENABLE_PATREON_POWERUSER) {
+		if (PATREON_POWERUSER) {
 			if (showPopover && OptionsManager.getItem('app.objexporter.askoptions')) {
 				this.#appView.open3DPopover();
 			} else {
@@ -897,7 +897,7 @@ class Application {
 	}
 
 	async #exportSfm(): Promise<void> {
-		if (ENABLE_PATREON_POWERUSER) {
+		if (PATREON_POWERUSER) {
 			const file = await SfmExporter.exportSFM(loadoutScene, 'itemtest.bsp', 0);
 			saveFile(file);
 		} else {
