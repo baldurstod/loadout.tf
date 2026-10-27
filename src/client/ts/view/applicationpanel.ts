@@ -45,37 +45,6 @@ export class ApplicationPanel {
 		});
 		I18n.observeElement(this.#shadowRoot);
 		this.#initCSS();
-		/*
-		this.#shadowRoot.append(
-			//this.#appToolbar.htmlElement,
-			createElement('div', {
-				class: 'maincontent',
-				childs: [
-					//this.#appOptions.htmlElement,
-					//this.#appItemSlots.htmlElement,
-					createElement('div', {
-						class: 'viewer-container',
-						childs: [
-							this.#appViewer.htmlElement,
-							this.#appCharacterSelector.htmlElement,
-							//this.#appMarketPrices.htmlElement,
-							//this.#appStyleSelector.htmlElement,
-							//this.#appUnitSelector.htmlElement,
-						],
-					}),
-					//this.#appItemList.htmlElement,
-					ENABLE_PATREON_BASE ? this.#appAdPanel.getHTMLElement() : null,
-				]
-			}),
-			//this.#appStatusbar.htmlElement,
-		);*/
-
-		if (ENABLE_PATREON_POWERUSER) {
-			//TODO
-			//this.#shadowRoot.append(this.#appExport3DPopover?.htmlElement);
-		}
-
-		//this.#appToolbar.setMode();
 	}
 
 	#initCSS(): void {

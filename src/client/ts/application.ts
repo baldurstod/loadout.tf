@@ -212,69 +212,6 @@ class Application {
 		EntityObserver.addEventListener(EntityObserverEventType.PropertyChanged, (event: Event) => this.#handlePropertyChanged((event as CustomEvent).detail));
 	}
 
-	/*
-	#initHTML() {
-		this.#shadowRoot = createShadowRoot('div', {
-			parent: document.body,
-		});
-		//this.#shadowRoot = this.#htmlElement.attachShadow({ mode: 'closed' });
-		I18n.observeElement(this.#shadowRoot);
-		this.#initCSS();
-
-		this.#shadowRoot.append(
-			//this.#appToolbar.htmlElement,
-			createElement('div', {
-				class: 'maincontent',
-				childs: [
-					//this.#appOptions.htmlElement,
-					//this.#appItemSlots.htmlElement,
-					createElement('div', {
-						class: 'viewer-container',
-						childs: [
-							this.#appViewer.htmlElement,
-							this.#appCharacterSelector.htmlElement,
-							//this.#appMarketPrices.htmlElement,
-							//this.#appStyleSelector.htmlElement,
-							//this.#appUnitSelector.htmlElement,
-						],
-					}),
-					//this.#appItemList.htmlElement,
-					ENABLE_PATREON_BASE ? this.#appAdPanel.getHTMLElement() : null,
-				]
-			}),
-			//this.#appStatusbar.htmlElement,
-		);
-
-		if (ENABLE_PATREON_POWERUSER) {
-			//TODO
-			//this.#shadowRoot.append(this.#appExport3DPopover?.htmlElement);
-		}
-
-		//this.#appToolbar.setMode();
-	}
-	*/
-
-	/*
-	#initCSS() {
-		/*
-		TODO
-		shadowRootStyle(this.#shadowRoot!, applicationCSS);
-		shadowRootStyle(this.#shadowRoot!, loadoutCSS);
-		shadowRootStyle(this.#shadowRoot!, characterSelectorCSS);
-		shadowRootStyle(this.#shadowRoot!, export3dPopoverCSS);
-		shadowRootStyle(this.#shadowRoot!, viewerCSS);
-		shadowRootStyle(this.#shadowRoot!, toolbarCSS);
-		shadowRootStyle(this.#shadowRoot!, styleSelectorCSS);
-		shadowRootStyle(this.#shadowRoot!, statusbarCSS);
-		shadowRootStyle(this.#shadowRoot!, marketPricesCSS);
-		shadowRootStyle(this.#shadowRoot!, itemSlotsCSS);
-		shadowRootStyle(this.#shadowRoot!, itemListItemCSS);
-		shadowRootStyle(this.#shadowRoot!, itemListCSS);
-		* /
-	}
-	*/
-
-
 	#processMessage(event: MessageEvent): void {
 		if (!this.#replicateCamera) {
 			return;
