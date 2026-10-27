@@ -4,8 +4,11 @@ const __patreon_mode__: number = -1;
 const __isProduction__: boolean = false;
 
 export const ENABLE_PATREON_BASE = __patreon_mode__ == 0;
-export const ENABLE_PATREON_SUPPORTER = __patreon_mode__ == 1;
-export const ENABLE_PATREON_POWERUSER = __patreon_mode__ == 2;
+export const ENABLE_PATREON_FREE_TIER = __patreon_mode__ == 1;
+export const ENABLE_PATREON_SUPPORTER = __patreon_mode__ == 2;
+export const ENABLE_PATREON_POWERUSER = __patreon_mode__ == 3;
+
+export const HAS_ADVERTISEMENT = ENABLE_PATREON_BASE || ENABLE_PATREON_FREE_TIER;
 
 export const PATREON_IS_LOGGED = __patreon_mode__ != 0;
 

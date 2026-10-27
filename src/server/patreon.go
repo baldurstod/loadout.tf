@@ -72,17 +72,23 @@ func (pm *patreonMiddleware) middleware(r *gin.Engine) gin.HandlerFunc {
 		case "/js/application.js":
 			session := getSession(c)
 			if ReleaseMode == "false" {
+				// Debug mode: we force the mode to poweruser
+
 				c.Request.URL.Path = "/js/application_poweruser.js"
 				c.Abort()
 				r.HandleContext(c)
-			}
+			} else {
+				// Release mode: we check patreon
+				patreonLogged, loggedOk := session.Get("patreon_logged").(bool)
+				currentlyEntitledAmountCents, amountOk := session.Get("currently_entitled_amount_cents").(int)
 
-			if currentlyEntitledAmountCents := session.Get("currently_entitled_amount_cents"); currentlyEntitledAmountCents != nil {
-				if currentlyEntitledAmountCents.(int) >= 100 {
-					if currentlyEntitledAmountCents.(int) >= 300 {
-						c.Request.URL.Path = "/js/application_poweruser.js"
-					} else {
+				if loggedOk && amountOk && patreonLogged {
+					c.Request.URL.Path = "/js/application_free_tier.js"
+					if currentlyEntitledAmountCents >= 100 {
 						c.Request.URL.Path = "/js/application_supporter.js"
+					}
+					if currentlyEntitledAmountCents >= 300 {
+						c.Request.URL.Path = "/js/application_poweruser.js"
 					}
 					c.Abort()
 					r.HandleContext(c)

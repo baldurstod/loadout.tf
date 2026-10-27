@@ -11,13 +11,14 @@ import commonjs from '@rollup/plugin-commonjs';
 const isProduction = process.env.BUILD === 'production';
 
 const BUILD_OPTIONS = [
-	{ mode: 2, output: "application_poweruser.js" },
+	{ mode: 3, output: "application_poweruser.js" },
 ];
 
 if (isProduction) {
 	BUILD_OPTIONS.push(
 		{ mode: 0, output: "application.js" },
-		{ mode: 1, output: "application_supporter.js" },
+		{ mode: 1, output: "application_free_tier.js" },
+		{ mode: 2, output: "application_supporter.js" },
 	);
 }
 

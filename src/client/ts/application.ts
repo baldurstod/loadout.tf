@@ -11,7 +11,7 @@ import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
-import { ENABLE_PATREON_BASE, ENABLE_PATREON_POWERUSER, PATREON_IS_LOGGED, PRODUCTION, TESTING } from './bundleoptions';
+import { ENABLE_PATREON_POWERUSER, HAS_ADVERTISEMENT, PATREON_IS_LOGGED, PRODUCTION, TESTING } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, SHARE_LOADOUT_URL, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType, Panel, UsePlayerModels } from './enums';
@@ -544,7 +544,7 @@ class Application {
 	}
 
 	#setupAnalytics(): void {
-		if (PRODUCTION && ENABLE_PATREON_BASE) {
+		if (PRODUCTION && HAS_ADVERTISEMENT) {
 			createElement('script', {
 				src: `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`,
 				parent: document.body,

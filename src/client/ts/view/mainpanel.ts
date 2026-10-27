@@ -1,6 +1,6 @@
 import { createShadowRoot, I18n } from 'harmony-ui';
 import mainCSS from '../../css/main.css';
-import { ENABLE_PATREON_BASE } from '../bundleoptions';
+import { HAS_ADVERTISEMENT } from '../bundleoptions';
 import { AdPanel } from './adpanel';
 import { LoadoutPanel } from './loadoutpanel';
 import { PrintfulPanel } from './printfulpanel';
@@ -18,7 +18,7 @@ export class MainPanel {
 			adoptStyle: mainCSS,
 			childs: [
 				this.#loadoutView.getHTMLElement(),
-				ENABLE_PATREON_BASE ? this.#adPanel.getHTMLElement() : null,
+				HAS_ADVERTISEMENT ? this.#adPanel.getHTMLElement() : null,
 				this.#printfulPanel.getHTMLElement(),
 			],
 		});
