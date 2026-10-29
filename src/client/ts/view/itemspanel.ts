@@ -2,7 +2,7 @@ import { Repository } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, display, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, I18n, show, toggle } from 'harmony-ui';
-import { Tf2Class, Tf2Item, Tf2ItemManager, Tf2ItemTemplate } from 'loadout';
+import { Tf2Class, Tf2Item, Tf2ItemManager, Tf2ItemTemplate, Tf2LoadoutController } from 'loadout';
 import itemCSS from '../../css/item.css';
 import itemPanelCSS from '../../css/itempanel.css';
 import { inventoryPath } from '../constants';
@@ -50,12 +50,12 @@ export class ItemsPanel extends DynamicPanel {
 	}
 
 	#initListeners(): void {
-		Controller.addEventListener(ControllerEvent.ItemsLoaded, () => this.#refreshItems());
-		Controller.addEventListener(ControllerEvent.SfmItemsLoaded, () => this.#refreshItems());
-		Controller.addEventListener(ControllerEvent.FiltersUpdated, () => this.#refreshItems());
-		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.#setItemFilter((event as CustomEvent<SetItemFilter>).detail));
-		Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Tf2Item>).detail, true));
-		Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Tf2Item>).detail, false));
+		Tf2LoadoutController.addEventListener('itemsloaded', () => this.#refreshItems());
+		Tf2LoadoutController.addEventListener('sfmitemsloaded', () => this.#refreshItems());
+		Tf2LoadoutController.addEventListener('filtersupdated', () => this.#refreshItems());
+		Tf2LoadoutController.addEventListener('setitemfilter', (event: Event) => this.#setItemFilter((event as CustomEvent<SetItemFilter>).detail));
+		Tf2LoadoutController.addEventListener('itemadded', (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Tf2Item>).detail, true));
+		Tf2LoadoutController.addEventListener('itemremoved', (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Tf2Item>).detail, false));
 		Controller.addEventListener(ControllerEvent.PaintClick, (event: Event) => this.#handlePaintClick((event as CustomEvent<Tf2ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.SheenClick, (event: Event) => this.#handleSheenClick((event as CustomEvent<Tf2ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.WeaponEffectClick, (event: Event) => this.#handleWeaponEffectClick((event as CustomEvent<Tf2ItemTemplate>).detail));
@@ -112,7 +112,7 @@ export class ItemsPanel extends DynamicPanel {
 								createElement('button', {
 									'i18n': '#tournament_medals',
 									value: 'tournament',
-									$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.TournamentMedals, value: event.detail.state } }),
+									$change: (event: CustomEvent) => Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.TournamentMedals, value: event.detail.state } }),
 								}),
 								createElement('button', {
 									'i18n': '#workshop',
@@ -122,7 +122,7 @@ export class ItemsPanel extends DynamicPanel {
 								createElement('button', {
 									'i18n': '#sfm',
 									value: 'sfm_workshop',
-									$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.SfmWorkshop, value: event.detail.state } }),
+									$change: (event: CustomEvent) => Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.SfmWorkshop, value: event.detail.state } }),
 								}),
 							],
 						}),
@@ -135,7 +135,7 @@ export class ItemsPanel extends DynamicPanel {
 									value: 'medals',
 									$change: (event: CustomEvent) => {
 										OptionsManager.setItem('app.items.filter.displaymedals', event.detail.state);
-										Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.DisplayMedals, value: event.detail.state } });
+										Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.DisplayMedals, value: event.detail.state } });
 									},
 								}),
 								createElement('button', {
@@ -143,7 +143,7 @@ export class ItemsPanel extends DynamicPanel {
 									value: 'weapons',
 									$change: (event: CustomEvent) => {
 										OptionsManager.setItem('app.items.filter.displayweapons', event.detail.state);
-										Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.DisplayWeapons, value: event.detail.state } });
+										Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.DisplayWeapons, value: event.detail.state } });
 									},
 								}),
 								createElement('button', {
@@ -151,7 +151,7 @@ export class ItemsPanel extends DynamicPanel {
 									value: 'cosmetics',
 									$change: (event: CustomEvent) => {
 										OptionsManager.setItem('app.items.filter.displaycosmetics', event.detail.state);
-										Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.DisplayCosmetics, value: event.detail.state } });
+										Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.DisplayCosmetics, value: event.detail.state } });
 									},
 								}),
 								createElement('button', {
@@ -159,7 +159,7 @@ export class ItemsPanel extends DynamicPanel {
 									value: 'taunts',
 									$change: (event: CustomEvent) => {
 										OptionsManager.setItem('app.items.filter.displaytaunts', event.detail.state);
-										Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.DisplayTaunts, value: event.detail.state } });
+										Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.DisplayTaunts, value: event.detail.state } });
 									},
 								}),
 							],
@@ -172,26 +172,26 @@ export class ItemsPanel extends DynamicPanel {
 									i18n: '#one_class',
 									value: 'one',
 									attributes: { selected: '' },
-									$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.ShowOneClass, value: event.detail.state } }),
+									$change: (event: CustomEvent) => Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.ShowOneClass, value: event.detail.state } }),
 								}),
 								createElement('button', {
 									i18n: '#multi_classes',
 									value: 'multi',
 									attributes: { selected: '' },
-									$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.ShowMultiClass, value: event.detail.state } }),
+									$change: (event: CustomEvent) => Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.ShowMultiClass, value: event.detail.state } }),
 								}),
 								createElement('button', {
 									i18n: '#all_classes',
 									value: 'all',
 									attributes: { selected: '' },
-									$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.ShowAllClass, value: event.detail.state } }),
+									$change: (event: CustomEvent) => Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.ShowAllClass, value: event.detail.state } }),
 								})
 							],
 						}),
 						createElement('harmony-switch', {
 							class: 'large no-sfm-filter',
 							'data-i18n': '#show_selected_items_only',
-							$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Selected, value: (event.target as HTMLHarmonySwitchElement).state } }),
+							$change: (event: CustomEvent) => Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Selected, value: (event.target as HTMLHarmonySwitchElement).state } }),
 						}),
 						createElement('harmony-switch', {
 							attributes: {
@@ -201,12 +201,12 @@ export class ItemsPanel extends DynamicPanel {
 							class: 'large no-sfm-filter',
 							'data-i18n': '#hide_conflicting_items',
 							state: undefined,
-							$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.HideConflict, value: (event.target as HTMLHarmonySwitchElement).state } }),
+							$change: (event: CustomEvent) => Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.HideConflict, value: (event.target as HTMLHarmonySwitchElement).state } }),
 						}),
 						htmlSwitchFilterPerClass = createElement('harmony-switch', {
 							class: 'large no-sfm-filter',
 							'data-i18n': '#dont_filter_per_class',
-							$change: (event: CustomEvent) => Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.DoNotFilterPerClass, value: (event.target as HTMLHarmonySwitchElement).state } }),
+							$change: (event: CustomEvent) => Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.DoNotFilterPerClass, value: (event.target as HTMLHarmonySwitchElement).state } }),
 						}) as HTMLHarmonySwitchElement,
 						htmlShowHalloween = createElement('harmony-switch', {
 							attributes: {
@@ -216,7 +216,7 @@ export class ItemsPanel extends DynamicPanel {
 							'data-i18n': '#show_halloween_restricted_items',
 							$change: (event: CustomEvent<HarmonySwitchChange>) => {
 								OptionsManager.setItem('app.items.filter.halloween', event.detail.state);
-								Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Halloween, value: event.detail.state } });
+								Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Halloween, value: event.detail.state } });
 							},
 						}) as HTMLHarmonySwitchElement,
 						htmlShowPaintable = createElement('harmony-switch', {
@@ -227,7 +227,7 @@ export class ItemsPanel extends DynamicPanel {
 							'data-i18n': '#show_paintable_items',
 							$change: (event: CustomEvent<HarmonySwitchChange>) => {
 								OptionsManager.setItem('app.items.filter.paintable', (event.detail.state));
-								Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Paintable, value: (event.target as HTMLHarmonySwitchElement).state } });
+								Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Paintable, value: (event.target as HTMLHarmonySwitchElement).state } });
 							},
 						}) as HTMLHarmonySwitchElement,
 						htmlShowWarpaintable = createElement('harmony-switch', {
@@ -238,7 +238,7 @@ export class ItemsPanel extends DynamicPanel {
 							'data-i18n': '#show_warpaintable_items',
 							$change: (event: CustomEvent) => {
 								OptionsManager.setItem('app.items.filter.warpaintable', event.detail.state);
-								Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Warpaintable, value: event.detail.state } });
+								Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Warpaintable, value: event.detail.state } });
 							},
 						}) as HTMLHarmonySwitchElement,
 					],
@@ -351,12 +351,12 @@ export class ItemsPanel extends DynamicPanel {
 
 		const setNameFilter = (name: string): void => {
 			OptionsManager.setItem('app.items.filter.text', name);
-			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Name, value: name.toLowerCase().trim() } });
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Name, value: name.toLowerCase().trim() } });
 		}
 
 		const setCollectionFilter = (collection: string): void => {
 			OptionsManager.setItem('app.items.filter.collection', collection);
-			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Collection, value: collection } });
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Collection, value: collection } });
 		}
 
 		this.#htmlNameFilterContainer = createElement('div', {
@@ -450,26 +450,26 @@ export class ItemsPanel extends DynamicPanel {
 		OptionsManagerEvents.addEventListener('app.items.sort.type', (event: Event) => {
 			const sortType = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string;
 			htmlSortType.value = sortType;
-			Controller.dispatchEvent<string>(ControllerEvent.SetItemSortType, { detail: sortType });
+			Tf2LoadoutController.dispatchEvent('setitemsorttype', { detail: sortType });
 			this.#refreshItems();
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.filter.sfm.universe', (event: Event) => {
 			const universe = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string;
-			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.SfmUniverse, value: universe } }),
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.SfmUniverse, value: universe } }),
 				this.#refreshItems();
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.filter.sfm.models', (event: Event) => {
 			const models = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string;
-			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.SfmModel, value: models } }),
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.SfmModel, value: models } }),
 				this.#refreshItems();
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.sfm.sort.field', (event: Event) => {
 			const sortType = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string;
 			htmlSfmSortType.value = sortType;
-			Controller.dispatchEvent<string>(ControllerEvent.SetSfmSortField, { detail: sortType });
+			Tf2LoadoutController.dispatchEvent('setsfmsortfield', { detail: sortType });
 			this.#refreshItems();
 		});
 
@@ -483,14 +483,14 @@ export class ItemsPanel extends DynamicPanel {
 		OptionsManagerEvents.addEventListener('app.items.sort.ascending', (event: Event) => {
 			const ascending = (event as CustomEvent).detail.value;
 			htmlSortDirection.state = ascending;
-			Controller.dispatchEvent<boolean>(ControllerEvent.SetItemSortAscending, { detail: ascending });
+			Tf2LoadoutController.dispatchEvent('setitemsortascending', { detail: ascending });
 			this.#refreshItems();
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.sfm.sort.ascending', (event: Event) => {
 			const ascending = (event as CustomEvent).detail.value;
 			htmlSfmSortDirection.state = ascending;
-			Controller.dispatchEvent<boolean>(ControllerEvent.SetSfmItemSortAscending, { detail: ascending });
+			Tf2LoadoutController.dispatchEvent('setsfmitemsortascending', { detail: ascending });
 			this.#refreshItems();
 		});
 
@@ -499,15 +499,15 @@ export class ItemsPanel extends DynamicPanel {
 
 		OptionsManagerEvents.addEventListener('app.items.filter.halloween', (event: Event) => {
 			htmlShowHalloween.state = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value as boolean | undefined;
-			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Halloween, value: htmlShowHalloween.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean } });
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Halloween, value: htmlShowHalloween.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean } });
 		});
 		OptionsManagerEvents.addEventListener('app.items.filter.paintable', (event: Event) => {
 			htmlShowPaintable.state = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value as boolean | undefined;
-			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Paintable, value: (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean } });
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Paintable, value: (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean } });
 		});
 		OptionsManagerEvents.addEventListener('app.items.filter.warpaintable', (event: Event) => {
 			htmlShowWarpaintable.state = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value as boolean | undefined;
-			Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Warpaintable, value: (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean } });
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Warpaintable, value: (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean } });
 		});
 		//OptionsManagerEvents.addEventListener('app.items.filter.*', () => this.#refreshItems());
 	}
@@ -760,7 +760,7 @@ export class ItemsPanel extends DynamicPanel {
 	}
 
 	#setWorkshopFilter(workshop: boolean): void {
-		Controller.dispatchEvent<SetItemFilter>(ControllerEvent.SetItemFilter, { detail: { attribute: ItemFilterAttribute.Workshop, value: workshop } })
+		Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Workshop, value: workshop } })
 		if (workshop) {
 			show(this.#htmlWorkshopInfo);
 		} else {

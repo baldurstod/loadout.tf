@@ -1,7 +1,7 @@
 import { quat, vec3 } from 'gl-matrix';
 import { AmbientLight, BoundingBox, CanvasLayout, CanvasView, Entity, GraphicPickEvent, GraphicsEvents, Group, PointLight, Scene, SceneNode, Source1ModelInstance, Viewport } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
-import { Tf2Character, Tf2Class, Tf2Item } from 'loadout';
+import { Tf2Character, Tf2Class, Tf2Item, Tf2LoadoutController } from 'loadout';
 import { COMPARE_WARPAINTS_LAYOUT, LOADOUT_LAYOUT, LOW_QUALITY_TEXTURE_SIZE, MID_QUALITY_TEXTURE_SIZE } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { loadoutColorBackground, loadoutScene, orbitCamera, orbitCameraControl } from './scene';
@@ -26,8 +26,8 @@ const warpaintsLights = new Group({
 });
 
 Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => characterChanged((event as CustomEvent<Tf2Character>).detail));
-Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => loadoutChanged((event as CustomEvent<Tf2Item>).detail));
-Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => loadoutChanged((event as CustomEvent<Tf2Item>).detail));
+Tf2LoadoutController.addEventListener('itemadded', (event) => loadoutChanged((event as CustomEvent<Tf2Item>).detail));
+Tf2LoadoutController.addEventListener('itemremoved', (event) => loadoutChanged((event as CustomEvent<Tf2Item>).detail));
 GraphicsEvents.addEventListener('pick', (event: Event) => handlePick(event as CustomEvent<GraphicPickEvent>));
 GraphicsEvents.addEventListener('tick', animate);
 

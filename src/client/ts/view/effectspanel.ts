@@ -1,6 +1,6 @@
 import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyRadio, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show } from 'harmony-ui';
-import { COIN_SPIN_EFFECT, COMMUNITY_SPARKLE_EFFECT, KillstreakColor, KillstreakDefinition, killstreakList, Team, Tf2Effect, Tf2EffectTemplate, Tf2EffectType, Tf2ItemManager } from 'loadout';
+import { COIN_SPIN_EFFECT, COMMUNITY_SPARKLE_EFFECT, KillstreakColor, KillstreakDefinition, killstreakList, Team, Tf2Effect, Tf2EffectTemplate, Tf2EffectType, Tf2ItemManager, Tf2LoadoutController } from 'loadout';
 import effectsCSS from '../../css/effects.css';
 import effectsPanelCSS from '../../css/effectspanel.css';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
@@ -38,7 +38,7 @@ export class EffectsPanel extends DynamicPanel {
 	}
 
 	#initListeners(): void {
-		Controller.addEventListener(ControllerEvent.SystemsLoaded, () => {
+		Tf2LoadoutController.addEventListener('systemsloaded', () => {
 			this.#refreshUnusualEffects();
 			this.#refreshKillstreakEffects();
 			this.#refreshTauntEffects();

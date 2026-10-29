@@ -7,7 +7,7 @@ import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
 import { BugReport, BugReporter, setTimeoutPromise } from 'harmony-utils';
-import { Team, Tf2Character, Tf2Class, Tf2ItemManager } from 'loadout';
+import { Team, Tf2Character, Tf2Class, Tf2ItemManager, Tf2LoadoutController } from 'loadout';
 import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
@@ -205,6 +205,12 @@ class Application {
 		Controller.addEventListener(ControllerEvent.DeleteCache, () => this.#tf2WebRepository.purge());
 
 		Controller.addEventListener(ControllerEvent.SetTitleModified, (event: Event) => this.#setTitleModified((event as CustomEvent<boolean>).detail));
+
+		Controller.addEventListener(ControllerEvent.TogglePanel, event => {
+			if ((event as CustomEvent<Panel>).detail == Panel.Items || (event as CustomEvent<Panel>).detail == Panel.Effects) {
+				Tf2LoadoutController.dispatchEvent('inititems');
+			}
+		});
 
 		EntityObserver.addEventListener(EntityObserverEventType.PropertyChanged, (event: Event) => this.#handlePropertyChanged((event as CustomEvent).detail));
 	}

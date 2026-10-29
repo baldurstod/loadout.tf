@@ -2,7 +2,7 @@ import { Source1TextureManager, TextureManager } from 'harmony-3d';
 import { OptionsManager } from 'harmony-browser-utils';
 import { createElement, defineHarmonySwitch, HarmonySwitchChange, hide, HTMLHarmonySwitchElement, isVisible, show } from 'harmony-ui';
 import { fileToImage } from 'harmony-utils';
-import { Tf2ItemTemplate } from 'loadout';
+import { Tf2ItemTemplate, Tf2LoadoutController } from 'loadout';
 import filterAllMotdPNG from '../../img/class_icon/filter_all_motd.png';
 import filterDemoMotdPNG from '../../img/class_icon/filter_demo_motd.png';
 import filterEngineerMotdPNG from '../../img/class_icon/filter_engineer_motd.png';
@@ -21,7 +21,7 @@ import paintkitBundle03PNG from '../../img/items/paintkit_bundle_03.png';
 import viewmodeSpookyPNG from '../../img/items/viewmode_spooky.png';
 import viewmodeUnusualVtfPNG from '../../img/items/viewmode_unusual.vtf.png';
 import { inventoryPath, STEAM_PROFILE_URL, STEAM_WORKSHOP_URL } from '../constants';
-import { Controller, ControllerEvent, ItemPinned } from '../controller';
+import { Controller, ControllerEvent } from '../controller';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 
 const SELECTED_CLASS = 'item-manager-item-selected';
@@ -271,7 +271,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			//$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent(new CustomEvent('itempinned', { detail: { id: this.#item.id, pinned: event.detail.state } })),
 			$change: (event: CustomEvent<HarmonySwitchChange>) => {
 				if (this.#item) {
-					Controller.dispatchEvent<ItemPinned>(ControllerEvent.ItemPinned, { detail: { item: this.#item, pinned: event.detail.state! } })
+					Tf2LoadoutController.dispatchEvent('itempinned', { detail: { item: this.#item, pinned: event.detail.state! } })
 				}
 			},
 		}) as HTMLHarmonySwitchElement;
