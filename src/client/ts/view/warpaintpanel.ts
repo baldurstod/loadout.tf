@@ -5,12 +5,12 @@ import { casinoSVG, redoSVG, undoSVG } from 'harmony-svg';
 import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, hide, HTMLHarmonyFileInputElement, show } from 'harmony-ui';
+import { Tf2Item } from 'loadout';
 import warpaintPanelCSS from '../../css/warpaintpanel.css';
 import warpaintPanelInnerCSS from '../../css/warpaintpanelinner.css';
 import { STEAM_ECONOMY_IMAGE_PREFIX, TF2_WARPAINT_PICTURES_URL } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
-import { Item } from '../loadout/items/item';
 import { DynamicPanel } from './dynamicpanel';
 
 type Warpaint = {
@@ -22,7 +22,7 @@ type Warpaint = {
 
 export class WarpaintPanel extends DynamicPanel {
 	#htmlWarpaints?: HTMLElement;
-	readonly #currentItems = new Set<Item>();
+	readonly #currentItems = new Set<Tf2Item>();
 	#htmlItemIcon?: HTMLElement;
 	#paintsDivHeaderWearSelect?: HTMLSelectElement;
 	#paintsDivHeaderFilterInput?: HTMLInputElement;
@@ -37,7 +37,7 @@ export class WarpaintPanel extends DynamicPanel {
 	constructor() {
 		super(Panel.Warpaints, [warpaintPanelCSS]);
 		hide(this.getShadowRoot());
-		Controller.addEventListener(ControllerEvent.SelectWarpaints, (event: Event): void => { this.selectWarpaint((event as CustomEvent<Item[]>).detail); });
+		Controller.addEventListener(ControllerEvent.SelectWarpaints, (event: Event): void => { this.selectWarpaint((event as CustomEvent<Tf2Item[]>).detail); });
 		Controller.addEventListener(ControllerEvent.WarpaintsLoaded, (): void => { this.#fillWarpaints(); });
 	}
 
@@ -50,7 +50,7 @@ export class WarpaintPanel extends DynamicPanel {
 			class: 'warpaints-inner',
 			parent: this.getShadowRoot(),
 			child: createElement('harmony-panel', {
-				i18n:'#warpaints',
+				i18n: '#warpaints',
 				adoptStyle: warpaintPanelInnerCSS,
 				child: createElement('div', {
 					class: 'warpaints-inner',
@@ -189,7 +189,7 @@ export class WarpaintPanel extends DynamicPanel {
 	}
 	*/
 
-	selectWarpaint(items: Item[]): void {
+	selectWarpaint(items: Tf2Item[]): void {
 		this.getHTMLElement();
 		this.#currentItems.clear()
 		for (const item of items) {

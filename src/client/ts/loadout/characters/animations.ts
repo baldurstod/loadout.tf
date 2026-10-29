@@ -1,3 +1,4 @@
+import { Tf2Class } from 'loadout';
 import bot_demoman from '../../../json/animations/bot_demoman.json';
 import bot_engineer from '../../../json/animations/bot_engineer.json';
 import bot_heavy from '../../../json/animations/bot_heavy.json';
@@ -16,7 +17,6 @@ import scout from '../../../json/animations/scout.json';
 import sniper from '../../../json/animations/sniper.json';
 import soldier from '../../../json/animations/soldier.json';
 import spy from '../../../json/animations/spy.json';
-import { Tf2Class } from './characters';
 
 export type ClassAnimations = {
 	character: string,

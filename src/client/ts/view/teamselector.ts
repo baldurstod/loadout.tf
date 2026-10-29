@@ -1,9 +1,9 @@
 import { OptionsManager } from 'harmony-browser-utils';
 import { createElement } from 'harmony-ui';
+import { Team } from 'loadout';
 import teamSelectorCSS from '../../css/teamselector.css';
 import logoBlueWhite from '../../img/logo_blue_white.png';
 import logoRedWhite from '../../img/logo_red_white.png';
-import { Team } from '../loadout/enums';
 import { StaticPanel } from './staticpanel';
 
 export class TeamSelector extends StaticPanel {

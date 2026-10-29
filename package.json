@@ -24,6 +24,7 @@
 		"harmony-ui": "github:baldurstod/harmony-ui",
 		"harmony-utils": "github:baldurstod/harmony-utils",
 		"harmony-vpk": "github:baldurstod/harmony-vpk",
+		"loadout": "github:baldurstod/loadout",
 		"pyodide": "^0.29.0"
 	},
 	"devDependencies": {

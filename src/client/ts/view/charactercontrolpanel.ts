@@ -1,7 +1,7 @@
 import { createElement, defineHarmonyRadio, HTMLHarmonySwitchElement } from 'harmony-ui';
+import { Ragdoll } from 'loadout';
 import characterControlCSS from '../../css/charactercontrol.css';
 import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../controller';
-import { Ragdoll } from '../loadout/characters/character';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { loadoutScene } from '../loadout/scene';
 import { StaticPanel } from './staticpanel';

@@ -1,8 +1,8 @@
 import { loadScript } from 'harmony-browser-utils';
 import { PyodideAPI } from 'pyodide';
 //import { Characters } from '../loadout/datas/characterlist';
+import { Tf2ItemManager } from 'loadout';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { ItemManager } from '../loadout/items/itemmanager';
 import { Engine } from './engine';
 import { Entities } from './entities';
 import { GlMatrix } from './glmatrix';
@@ -44,7 +44,7 @@ export async function initPyodide(): Promise<boolean> {
 	pyodide.registerJsModule('loadout', new Loadout());
 	pyodide.registerJsModule('engine', new Engine);
 	pyodide.registerJsModule('characters', CharacterManager);
-	pyodide.registerJsModule('items', ItemManager);
+	pyodide.registerJsModule('items', Tf2ItemManager);
 	pyodide.registerJsModule('tf2', new Tf2);
 	pyodide.registerJsModule('entities', new Entities);
 	pyodide.registerJsModule('source1', new Source1);

@@ -2,20 +2,16 @@ import { quat, vec3 } from 'gl-matrix';
 import { Entity, getSceneExplorer, GraphicPickEvent, GraphicsEvents, Scene } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { JSONObject, uint } from 'harmony-types';
+import { CharactersList, Ragdoll, Team, Tf2Character, Tf2Class, Tf2ItemManager, Tf2Preset, Tf2Presets } from 'loadout';
 import positionJSON from '../../../json/slotsposition.json';
 import { TF2_TOOLBOX_MODEL } from '../../constants';
 import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../../controller';
 import { UsePlayerModels } from '../../enums';
-import { Team } from '../enums';
-import { ItemManager } from '../items/itemmanager';
 import { firstPersonCamera, loadoutScene } from '../scene';
 import { ClassAnimations, getClassAnimations } from './animations';
-import { Character, Ragdoll } from './character';
-import { CharactersList, Tf2Class } from './characters';
-import { Preset, Presets } from './preset';
 
 class CharacterSlot {
-	character: Character | null = null;
+	character: Tf2Character | null = null;
 	readonly position = vec3.create();
 	readonly orientation = quat.clone(DEFAULT_ORIENTATION);
 
@@ -48,13 +44,13 @@ const TOOLBOX_ORIENTATION = quat.fromValues(0, 0, -0.5927425026893616, 0.8053920
 export class CharacterManager {
 	static #characterSlots = new Map<Scene, CharacterSlot[]>([[loadoutScene, [new CharacterSlot()]]])// = [new CharacterSlot()];
 	static #currentSlot: CharacterSlot | null = null;
-	static #unusedCharacters: Character[] = [];
-	static #currentCharacter = new Map<Scene, Character | null>();
+	static #unusedCharacters: Tf2Character[] = [];
+	static #currentCharacter = new Map<Scene, Tf2Character | null>();
 	static #team: Team = Team.Red;
 	static #slotsPositions = new Map<string, CharacterPosition[]>();
 	static #applyToAll = true;
 	static #useBots: UsePlayerModels = 'human';
-	static #presets = new Map<string, Presets>();
+	static #presets = new Map<string, Tf2Presets>();
 
 	static {
 		GraphicsEvents.addEventListener('tick', () => this.#updatePaintColor());
@@ -71,7 +67,7 @@ export class CharacterManager {
 		this.#initDispositions();
 	}
 
-	static async selectCharacter(characterClass: Tf2Class, slotId?: uint, scene: Scene = loadoutScene): Promise<Character> {
+	static async selectCharacter(characterClass: Tf2Class, slotId?: uint, scene: Scene = loadoutScene): Promise<Tf2Character> {
 		const slot = this.getSlot(slotId, scene);
 
 		if (slot.character?.characterClass == characterClass) {
@@ -81,7 +77,7 @@ export class CharacterManager {
 		}
 
 		this.#removeCharacter(slot);
-		const character = this.#getUnusedCharacter(characterClass) ?? new Character(characterClass, scene);
+		const character = this.#getUnusedCharacter(characterClass) ?? new Tf2Character(characterClass, scene);
 		slot.character = character;
 		// set the character visible
 		character.setVisible(true);
@@ -115,7 +111,7 @@ export class CharacterManager {
 		this.#removeCharacter(slot);
 	}
 
-	static #getUnusedCharacter(characterClass: Tf2Class): Character | null {
+	static #getUnusedCharacter(characterClass: Tf2Class): Tf2Character | null {
 		for (let i = 0; i < this.#unusedCharacters.length; i++) {
 			const character = this.#unusedCharacters[i]!;
 			if (character.characterClass == characterClass) {
@@ -126,12 +122,12 @@ export class CharacterManager {
 		return null;
 	}
 
-	static #setCurrentCharacter(character: Character, scene: Scene = loadoutScene): void {
+	static #setCurrentCharacter(character: Tf2Character, scene: Scene = loadoutScene): void {
 		this.#currentCharacter.set(scene, character);
 		//ItemManager.setCharacterClass(character.characterClass);
-		ItemManager.setCurrentCharacter(character);
+		Tf2ItemManager.setCurrentCharacter(character);
 		//EffectManager.setCurrentCharacter(character);
-		Controller.dispatchEvent<Character>(ControllerEvent.CharacterChanged, { detail: character });
+		Controller.dispatchEvent<Tf2Character>(ControllerEvent.CharacterChanged, { detail: character });
 
 		(async (): Promise<void> => {
 			const model = await character.getModel();
@@ -221,7 +217,7 @@ export class CharacterManager {
 		return this.#team;
 	}
 
-	static getCurrentCharacter(scene: Scene = loadoutScene): Character | null {
+	static getCurrentCharacter(scene: Scene = loadoutScene): Tf2Character | null {
 		return this.#currentCharacter.get(scene) ?? null;
 	}
 
@@ -392,7 +388,7 @@ export class CharacterManager {
 
 		for (const name in j) {
 			//const preset = presets[name];
-			const p = new Presets();
+			const p = new Tf2Presets();
 			p.fromJSON(j[name]);
 			this.#presets.set(name, p);
 		}
@@ -441,7 +437,7 @@ export class CharacterManager {
 		const npc = currentCharacter.npc;
 		let presets = this.#presets.get(npc)!;
 		if (!presets) {
-			presets = new Presets();
+			presets = new Tf2Presets();
 			this.#presets.set(npc, presets);
 		}
 
@@ -487,11 +483,11 @@ export class CharacterManager {
 		const npc = currentCharacter.npc;
 		let presets = this.#presets.get(npc)!;
 		if (!presets) {
-			presets = new Presets();
+			presets = new Tf2Presets();
 			this.#presets.set(npc, presets);
 		}
 
-		const preset = new Preset();
+		const preset = new Tf2Preset();
 		preset.fromJSON(json);
 
 		if (!preset.name || presets.getPreset(preset.name)) {
@@ -564,7 +560,7 @@ export class CharacterManager {
 	}
 	*/
 
-	static getPresets(scene: Scene = loadoutScene): Presets | null {
+	static getPresets(scene: Scene = loadoutScene): Tf2Presets | null {
 		const currentCharacter = this.getCurrentCharacter(scene);
 		if (!currentCharacter) {
 			return null;
@@ -576,9 +572,9 @@ export class CharacterManager {
 		return this.#presets.get(npc) ?? null;
 	}
 
-	static getCharacters(scene: Scene = loadoutScene): Set<Character> {
+	static getCharacters(scene: Scene = loadoutScene): Set<Tf2Character> {
 		const slots = this.#characterSlots.get(scene);
-		const characters = new Set<Character>();
+		const characters = new Set<Tf2Character>();
 
 		if (slots) {
 			for (const slot of slots) {

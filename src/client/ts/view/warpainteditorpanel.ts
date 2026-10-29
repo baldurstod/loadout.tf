@@ -1,8 +1,8 @@
 import { WarpaintEditor } from 'harmony-3d-utils';
 import { ShortcutHandler } from 'harmony-browser-utils';
 import { createElement, hide, HTMLHarmonyPanelElement, isVisible, toggle } from 'harmony-ui';
+import { setUpdatePreview } from 'loadout';
 import warpaintEditorPanelCSS from '../../css/warpainteditorpanel.css';
-import { setUpdatePreview } from '../loadout/items/updatepreview';
 import { StaticPanel } from './staticpanel';
 
 export class WarpaintEditorPanel extends StaticPanel {

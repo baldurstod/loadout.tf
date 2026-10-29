@@ -1,8 +1,8 @@
 import { createElement, hide } from 'harmony-ui';
+import { Tf2Character } from 'loadout';
 import flexesPanelCSS from '../../css/flexespanel.css';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
-import { Character } from '../loadout/characters/character';
 import { CharacterManager } from '../loadout/characters/charactermanager';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -14,7 +14,7 @@ export class FlexesPanel extends DynamicPanel {
 		hide(this.getShadowRoot());
 
 		Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => {
-			this.#onCharacterChanged((event as CustomEvent<Character>).detail)
+			this.#onCharacterChanged((event as CustomEvent<Tf2Character>).detail)
 		});
 	}
 
@@ -37,7 +37,7 @@ export class FlexesPanel extends DynamicPanel {
 		await CharacterManager.getCurrentCharacter()?.resetFlexes();
 	}
 
-	async #onCharacterChanged(character: Character): Promise<void> {
+	async #onCharacterChanged(character: Tf2Character): Promise<void> {
 		this.#htmlControllers?.replaceChildren();
 		const characterModel = await character.getModel();
 		const flexController = characterModel?.sourceModel?.mdl?.flexController;

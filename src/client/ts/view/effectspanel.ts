@@ -1,15 +1,11 @@
 import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyRadio, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show } from 'harmony-ui';
+import { COIN_SPIN_EFFECT, COMMUNITY_SPARKLE_EFFECT, KillstreakColor, KillstreakDefinition, killstreakList, Team, Tf2Effect, Tf2EffectTemplate, Tf2EffectType, Tf2ItemManager } from 'loadout';
 import effectsCSS from '../../css/effects.css';
 import effectsPanelCSS from '../../css/effectspanel.css';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { COIN_SPIN_EFFECT, COMMUNITY_SPARKLE_EFFECT, Effect } from '../loadout/effects/effect';
-import { EffectTemplate, EffectType } from '../loadout/effects/effecttemplate';
-import { Team } from '../loadout/enums';
-import { ItemManager } from '../loadout/items/itemmanager';
-import { KillstreakColor, KillstreakDefinition, killstreakList } from '../paints/killstreaks';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 import { UnusualEffectElement } from './elements/unusualeffect';
@@ -30,7 +26,7 @@ export class EffectsPanel extends DynamicPanel {
 	#htmlKillstreakEffects = new Map<number, UnusualEffectElement>();
 	#htmlTauntEffects = new Map<number, UnusualEffectElement>();
 	#killstreakColor = KillstreakColor.TeamShine;
-	#killstreakEffect: EffectTemplate | null = null;
+	#killstreakEffect: Tf2EffectTemplate | null = null;
 	#killstreakHighGlow = true;
 	#unusualFilter = '';
 	#tauntFilter = '';
@@ -176,7 +172,7 @@ export class EffectsPanel extends DynamicPanel {
 
 		const existing = new Set<string>();
 
-		const otherEffects = ItemManager.getEffects(EffectType.Other)
+		const otherEffects = Tf2ItemManager.getEffects(Tf2EffectType.Other)
 		otherEffects.forEach((template, key, map) => {
 			if (key !== COMMUNITY_SPARKLE_EFFECT) {
 				map.delete(key);
@@ -187,7 +183,7 @@ export class EffectsPanel extends DynamicPanel {
 			otherEffects.clear();
 		}
 
-		for (const [id, template] of new Map([...ItemManager.getEffects(EffectType.Cosmetic), ...otherEffects])) {
+		for (const [id, template] of new Map([...Tf2ItemManager.getEffects(Tf2EffectType.Cosmetic), ...otherEffects])) {
 			// Discard coin spin effect
 			if (id === COIN_SPIN_EFFECT) {
 				continue;
@@ -208,7 +204,7 @@ export class EffectsPanel extends DynamicPanel {
 				htmlEffect = createElement('unusual-effect', {
 					parent: this.#htmlEffectsList,
 					$click: () => {
-						Controller.dispatchEvent<EffectTemplate>(ControllerEvent.EffectClicked, { detail: template });
+						Controller.dispatchEvent<Tf2EffectTemplate>(ControllerEvent.EffectClicked, { detail: template });
 					},
 				}) as UnusualEffectElement;
 
@@ -233,8 +229,8 @@ export class EffectsPanel extends DynamicPanel {
 			return;
 		}
 
-		for (const effect of ItemManager.getSelectedEffects()) {
-			const template = ItemManager.getEffectTemplate(effect.getType(), effect.getId());
+		for (const effect of Tf2ItemManager.getSelectedEffects()) {
+			const template = Tf2ItemManager.getEffectTemplate(effect.getType(), effect.getId());
 			if (!template) {
 				continue;
 			}
@@ -247,7 +243,7 @@ export class EffectsPanel extends DynamicPanel {
 					createElement('img', {
 						class: 'thumb',
 						src: template.getImage(),
-						$click: () => Controller.dispatchEvent<Effect>(ControllerEvent.RemoveEffect, { detail: effect }),
+						$click: () => Controller.dispatchEvent<Tf2Effect>(ControllerEvent.RemoveEffect, { detail: effect }),
 					}),
 					offsets = createElement('div', {
 						class: 'offset',
@@ -269,7 +265,7 @@ export class EffectsPanel extends DynamicPanel {
 		}
 	}
 
-	#setOffset(effect: Effect, axis: number, offset: number): void {
+	#setOffset(effect: Tf2Effect, axis: number, offset: number): void {
 		const system = effect.system;
 		if (system) {
 			const cp = system.getControlPoint(0)!/*cp 0 is always defined*/;
@@ -287,7 +283,7 @@ export class EffectsPanel extends DynamicPanel {
 			hide(htmlItem);
 		}
 
-		for (const [id, template] of ItemManager.getEffects(EffectType.Killstreak)) {
+		for (const [id, template] of Tf2ItemManager.getEffects(Tf2EffectType.Killstreak)) {
 			const idN = Number(id);
 
 			if (idN == 2001 || idN > KILLSTREAK_HIGH_GLOW) {
@@ -366,7 +362,7 @@ export class EffectsPanel extends DynamicPanel {
 	#updateKillstreak(): void {
 		let effect = this.#killstreakEffect;
 		if (effect) {
-			const high = ItemManager.getEffectTemplate(EffectType.Killstreak, effect.id + (this.#killstreakHighGlow ? KILLSTREAK_HIGH_GLOW : 0))
+			const high = Tf2ItemManager.getEffectTemplate(Tf2EffectType.Killstreak, effect.id + (this.#killstreakHighGlow ? KILLSTREAK_HIGH_GLOW : 0))
 			if (high) {
 				effect = high;
 			}
@@ -385,7 +381,7 @@ export class EffectsPanel extends DynamicPanel {
 		}
 
 		const existing = new Set<string>();
-		for (const [id, template] of ItemManager.getEffects(EffectType.Taunt)) {
+		for (const [id, template] of Tf2ItemManager.getEffects(Tf2EffectType.Taunt)) {
 			// Discard BLU versions, as the effects automatically switches team
 			const name = template.getName();
 			if (existing.has(name)) {
@@ -401,7 +397,7 @@ export class EffectsPanel extends DynamicPanel {
 				htmlEffect = createElement('unusual-effect', {
 					parent: this.#htmlTauntList,
 					$click: () => {
-						Controller.dispatchEvent<EffectTemplate | null>(ControllerEvent.TauntEffectClicked, { detail: template });
+						Controller.dispatchEvent<Tf2EffectTemplate | null>(ControllerEvent.TauntEffectClicked, { detail: template });
 					},
 				}) as UnusualEffectElement;
 

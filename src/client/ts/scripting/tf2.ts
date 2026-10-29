@@ -1,9 +1,4 @@
-import { Ragdoll } from '../loadout/characters/character';
-import { Tf2Class } from '../loadout/characters/characters';
-import { Team } from '../loadout/enums';
-import { KillstreakColor } from '../paints/killstreaks';
-import { Paints } from '../paints/paints';
-
+import { KillstreakColor, Paints, Ragdoll, Team, Tf2Class } from 'loadout';
 
 export class Tf2 {
 

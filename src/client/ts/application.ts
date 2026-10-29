@@ -7,22 +7,19 @@ import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
 import { BugReport, BugReporter, setTimeoutPromise } from 'harmony-utils';
+import { Team, Tf2Character, Tf2Class, Tf2ItemManager } from 'loadout';
 import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
-import { PATREON_POWERUSER, HAS_ADVERTISEMENT, PATREON_IS_LOGGED, PRODUCTION, TESTING } from './bundleoptions';
+import { HAS_ADVERTISEMENT, PATREON_IS_LOGGED, PATREON_POWERUSER, PRODUCTION, TESTING } from './bundleoptions';
 import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, SHARE_LOADOUT_URL, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
 import { CameraType, Panel, UsePlayerModels } from './enums';
 import { importFile, restoreFiles } from './fileimporter';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
-import { Character } from './loadout/characters/character';
 import { CharacterManager } from './loadout/characters/charactermanager';
-import { Tf2Class } from './loadout/characters/characters';
 import { compareWarpaints } from './loadout/comparewarpaints';
-import { Team } from './loadout/enums';
-import { ItemManager } from './loadout/items/itemmanager';
 import { Loadout } from './loadout/loadout';
 import { activeCameraControl, addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, mapLightsContainer, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
 import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer';
@@ -489,7 +486,7 @@ class Application {
 		});
 
 		OptionsManagerEvents.addEventListener('app.character.autoselectanim', (event: Event) => {
-			Character.autoSelectAnim = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean;
+			Tf2Character.autoSelectAnim = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean;
 		});
 
 		OptionsManager.init({ json: optionsmanager }).then(() => this.#initOptions2());
@@ -928,9 +925,9 @@ class Application {
 		const response = await fetch(SHARE_LOADOUT_URL + loadoutId);
 		const responseJSON = await response.json();
 		if (responseJSON.success) {
-			await ItemManager.initItems();
-			await ItemManager.initTournamentMedals();
-			await ItemManager.initWorkshopItems();
+			await Tf2ItemManager.initItems();
+			await Tf2ItemManager.initTournamentMedals();
+			await Tf2ItemManager.initWorkshopItems();
 			importLoadout(responseJSON.result);
 		}
 	}
@@ -939,9 +936,9 @@ class Application {
 		try {
 			const json = JSON.parse(loadout);
 			if (json) {
-				await ItemManager.initItems();
-				await ItemManager.initTournamentMedals();
-				await ItemManager.initWorkshopItems();
+				await Tf2ItemManager.initItems();
+				await Tf2ItemManager.initTournamentMedals();
+				await Tf2ItemManager.initWorkshopItems();
 				importLoadout(json);
 			}
 		} catch (e) {

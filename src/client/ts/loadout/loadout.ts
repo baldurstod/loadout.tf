@@ -1,20 +1,15 @@
 import { MergeRepository, Repositories, Source1ModelInstance } from 'harmony-3d';
+import { KillstreakColor, Tf2Class, Tf2Effect, Tf2EffectTemplate, Tf2Item, Tf2ItemTemplate } from 'loadout';
 import { SFM_WORKSHOP_UGC_URL, STEAM_WORKSHOP_URL, TF2_CASUAL_BADGE, WORKSHOP_REPO } from '../constants';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { addRepo } from '../fileimporter';
-import { KillstreakColor } from '../paints/killstreaks';
 import { SfmItemRepository } from '../repositories/sfmitemrepository';
 import { CharacterManager } from './characters/charactermanager';
-import { Tf2Class } from './characters/characters';
-import { Effect } from './effects/effect';
-import { EffectTemplate } from './effects/effecttemplate';
-import { Item } from './items/item';
-import { ItemTemplate } from './items/itemtemplate';
 import { addTF2Model, loadoutScene } from './scene';
 
 export class Loadout {
 	static #badgeModel: Source1ModelInstance | null = null;
-	static #items = new Map<string, Item>();
+	static #items = new Map<string, Tf2Item>();
 	static #sfmRepos = new Map<string, SfmItemRepository>();
 	static #sfmMergeRepo = new MergeRepository('all_sfm');
 
@@ -23,12 +18,12 @@ export class Loadout {
 	}
 
 	static #initListeners(): void {
-		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { this.#handleItemClicked((event as CustomEvent<ItemTemplate>).detail) });
-		Controller.addEventListener(ControllerEvent.EffectClicked, (event: Event) => { this.#handleEffectClicked((event as CustomEvent<EffectTemplate>).detail) });
+		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { this.#handleItemClicked((event as CustomEvent<Tf2ItemTemplate>).detail) });
+		Controller.addEventListener(ControllerEvent.EffectClicked, (event: Event) => { this.#handleEffectClicked((event as CustomEvent<Tf2EffectTemplate>).detail) });
 		Controller.addEventListener(ControllerEvent.KillstreakClicked, (event: Event) => { this.#handleKillstreakClicked((event as CustomEvent<KillstreakClicked>).detail.effect, (event as CustomEvent<KillstreakClicked>).detail.color) });
 		Controller.addEventListener(ControllerEvent.SetDecapitationLevel, (event: Event) => { this.#handleSetDecapitationEffect((event as CustomEvent<number>).detail) });
-		Controller.addEventListener(ControllerEvent.TauntEffectClicked, (event: Event) => { this.#handleTauntEffectClicked((event as CustomEvent<EffectTemplate | null>).detail) });
-		Controller.addEventListener(ControllerEvent.RemoveEffect, (event: Event) => this.#handleRemoveEffect((event as CustomEvent<Effect>).detail),);
+		Controller.addEventListener(ControllerEvent.TauntEffectClicked, (event: Event) => { this.#handleTauntEffectClicked((event as CustomEvent<Tf2EffectTemplate | null>).detail) });
+		Controller.addEventListener(ControllerEvent.RemoveEffect, (event: Event) => this.#handleRemoveEffect((event as CustomEvent<Tf2Effect>).detail),);
 	}
 
 	static async showBadge(level: number, tier: number): Promise<void> {
@@ -103,7 +98,7 @@ export class Loadout {
 	}
 		*/
 
-	static async #handleItemClicked(template: ItemTemplate): Promise<void> {
+	static async #handleItemClicked(template: Tf2ItemTemplate): Promise<void> {
 		if (template.isSfmWorkshop()) {
 			this.#createSfmRepo(template);
 		} else {
@@ -115,7 +110,7 @@ export class Loadout {
 		}
 	}
 
-	static async #createSfmRepo(template: ItemTemplate): Promise<void> {
+	static async #createSfmRepo(template: Tf2ItemTemplate): Promise<void> {
 		let repo = this.#sfmRepos.get(template.id);
 		if (!repo) {
 			repo = new SfmItemRepository(WORKSHOP_REPO + template.id, SFM_WORKSHOP_UGC_URL + template.id + '/', true);
@@ -133,25 +128,25 @@ export class Loadout {
 		addRepo(repo);
 	}
 
-	static async #handleEffectClicked(template: EffectTemplate): Promise<void> {
+	static async #handleEffectClicked(template: Tf2EffectTemplate): Promise<void> {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
 			const addedEffect = await currentCharacter?.addEffect(template);
-			Controller.dispatchEvent<Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
+			Controller.dispatchEvent<Tf2Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
 		}
 	}
 
-	static #handleRemoveEffect(effect: Effect): void {
+	static #handleRemoveEffect(effect: Tf2Effect): void {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
 			currentCharacter?.removeEffect(effect);
-			Controller.dispatchEvent<Effect>(ControllerEvent.EffectRemoved, { detail: effect });
+			Controller.dispatchEvent<Tf2Effect>(ControllerEvent.EffectRemoved, { detail: effect });
 		}
 	}
 
-	static async #handleKillstreakClicked(effect: EffectTemplate | null, color: KillstreakColor): Promise<void> {
+	static async #handleKillstreakClicked(effect: Tf2EffectTemplate | null, color: KillstreakColor): Promise<void> {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
@@ -159,7 +154,7 @@ export class Loadout {
 
 			for (const addedEffect of addedEffects) {
 				if (addedEffect) {
-					Controller.dispatchEvent<Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
+					Controller.dispatchEvent<Tf2Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
 				}
 			}
 		}
@@ -173,19 +168,19 @@ export class Loadout {
 
 			for (const addedEffect of addedEffects) {
 				if (addedEffect) {
-					Controller.dispatchEvent<Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
+					Controller.dispatchEvent<Tf2Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
 				}
 			}
 		}
 	}
 
-	static async #handleTauntEffectClicked(template: EffectTemplate | null): Promise<void> {
+	static async #handleTauntEffectClicked(template: Tf2EffectTemplate | null): Promise<void> {
 		const currentCharacter = CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
 			const addedEffect = await currentCharacter?.setTauntEffect(template);
 			if (addedEffect) {
-				Controller.dispatchEvent<Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
+				Controller.dispatchEvent<Tf2Effect>(ControllerEvent.EffectAdded, { detail: addedEffect });
 			}
 		}
 	}

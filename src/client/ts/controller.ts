@@ -1,9 +1,6 @@
 import { Scene } from 'harmony-3d';
+import { KillstreakColor, Ragdoll, Tf2EffectTemplate, Tf2ItemTemplate } from 'loadout';
 import { BackgroundType } from './enums';
-import { Ragdoll } from './loadout/characters/character';
-import { EffectTemplate } from './loadout/effects/effecttemplate';
-import { ItemTemplate } from './loadout/items/itemtemplate';
-import { KillstreakColor } from './paints/killstreaks';
 
 export enum ControllerEvent {
 	UseBots = 'usebots',
@@ -114,7 +111,7 @@ export type SetItemFilter = {
 }
 
 export type ItemPinned = {
-	item: ItemTemplate;
+	item: Tf2ItemTemplate;
 	pinned: boolean;
 }
 /*
@@ -130,7 +127,7 @@ export type SetRagdoll = {
 */
 
 export type KillstreakClicked = {
-	effect: EffectTemplate | null;
+	effect: Tf2EffectTemplate | null;
 	color: KillstreakColor;
 }
 

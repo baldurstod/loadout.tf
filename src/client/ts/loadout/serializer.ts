@@ -1,15 +1,7 @@
 import { quat, vec3 } from 'gl-matrix';
+import { getKillstreakColor, KillstreakColor, npcToClass, Paints, Team, Tf2Character, Tf2Effect, Tf2EffectType, Tf2Item, Tf2ItemManager } from 'loadout';
 import { Controller, ControllerEvent } from '../controller';
-import { getKillstreakColor, KillstreakColor } from '../paints/killstreaks';
-import { Paints } from '../paints/paints';
-import { Character } from './characters/character';
 import { CharacterManager } from './characters/charactermanager';
-import { npcToClass } from './characters/characters';
-import { Effect } from './effects/effect';
-import { EffectType } from './effects/effecttemplate';
-import { Team } from './enums';
-import { Item } from './items/item';
-import { ItemManager } from './items/itemmanager';
 
 export const DEFAULT_WARPAINT_WEAR = 0;
 export const DEFAULT_WARPAINT_SEED = 0n;
@@ -125,7 +117,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 
 	}
 
-	const jsonToItem = new Map<itemJSON, Item>();
+	const jsonToItem = new Map<itemJSON, Tf2Item>();
 	if (characterJSON.items) {
 		// Phase 1: create the items
 		for (const itemJSON of characterJSON.items) {
@@ -161,7 +153,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 	}
 
 	if (characterJSON.killstreak_effect) {
-		const result = ItemManager.getEffectTemplateBySystem(characterJSON.killstreak_effect.effect);
+		const result = Tf2ItemManager.getEffectTemplateBySystem(characterJSON.killstreak_effect.effect);
 		const killstreakColor = getKillstreakColor(characterJSON.killstreak_effect.color);
 
 		if (result) {
@@ -174,7 +166,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 	}
 
 	if (characterJSON.taunt_effect) {
-		const result = ItemManager.getEffectTemplateBySystem(characterJSON.taunt_effect);
+		const result = Tf2ItemManager.getEffectTemplateBySystem(characterJSON.taunt_effect);
 
 		if (result) {
 			const [, , template] = result;
@@ -187,14 +179,14 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 	return true;
 }
 
-async function importItem1(context: ImportContext, character: Character, itemJSON: itemJSON): Promise<Item | null> {
+async function importItem1(context: ImportContext, character: Tf2Character, itemJSON: itemJSON): Promise<Tf2Item | null> {
 	let itemId = itemJSON.id;
 	if (itemJSON.style) {
 		itemId += '~' + itemJSON.style;
 	}
-	let itemTemplate = ItemManager.getItemTemplate(itemId);
+	let itemTemplate = Tf2ItemManager.getItemTemplate(itemId);
 	if (!itemTemplate) {
-		itemTemplate = ItemManager.getItemTemplate('w' + itemId);
+		itemTemplate = Tf2ItemManager.getItemTemplate('w' + itemId);
 	}
 
 	if (!itemTemplate) {
@@ -205,7 +197,7 @@ async function importItem1(context: ImportContext, character: Character, itemJSO
 	return item;
 }
 
-async function importItem2(context: ImportContext, item: Item, itemJSON: itemJSON): Promise<void> {
+async function importItem2(context: ImportContext, item: Tf2Item, itemJSON: itemJSON): Promise<void> {
 	const paintId = itemJSON.paint_id ?? itemJSON.paintId;
 	if (paintId !== undefined) {
 		item.setPaint(paintId);
@@ -231,8 +223,8 @@ async function importItem2(context: ImportContext, item: Item, itemJSON: itemJSO
 	}
 }
 
-function importEffect(context: ImportContext, character: Character, effectJSON: effectJSON): Effect | null {
-	const result = ItemManager.getEffectTemplateById(Number(effectJSON.id));
+function importEffect(context: ImportContext, character: Tf2Character, effectJSON: effectJSON): Tf2Effect | null {
+	const result = Tf2ItemManager.getEffectTemplateById(Number(effectJSON.id));
 
 	if (!result) {
 		return null;
@@ -241,13 +233,13 @@ function importEffect(context: ImportContext, character: Character, effectJSON: 
 	const [type, template] = result;
 
 	switch (type) {
-		case EffectType.Cosmetic:
+		case Tf2EffectType.Cosmetic:
 			character.addEffect(template);
 			break;
-		case EffectType.Killstreak:
+		case Tf2EffectType.Killstreak:
 			character.setKillsteakEffect(template, effectJSON.color);
 			break;
-		case EffectType.Taunt:
+		case Tf2EffectType.Taunt:
 			character.setTauntEffect(template);
 			break;
 	}
@@ -267,7 +259,7 @@ export async function exportLoadout(): Promise<loadoutJSON> {
 }
 
 
-async function exportCharacterLoadout(character: Character): Promise<characterJSON> {
+async function exportCharacterLoadout(character: Tf2Character): Promise<characterJSON> {
 	const characterJSON: characterJSON = { npc: character.npc, items: [], effects: [] };
 
 	let model = await character.getModel();
@@ -324,7 +316,7 @@ async function exportCharacterLoadout(character: Character): Promise<characterJS
 	return characterJSON;
 }
 
-function exportItem(item: Item): itemJSON {
+function exportItem(item: Tf2Item): itemJSON {
 	const idStyle = item.id.split('~');
 
 	const paintId = item.getPaint() ?? Paints.None;
@@ -345,7 +337,7 @@ function exportItem(item: Item): itemJSON {
 	};
 }
 
-function exportEffect(effect: Effect): effectJSON {
+function exportEffect(effect: Tf2Effect): effectJSON {
 	return {
 		id: effect.template.id,
 		offset: vec3.exactEquals(NULL_VECTOR, effect.offset) ? undefined : effect.offset,

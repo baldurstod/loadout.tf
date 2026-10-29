@@ -1,8 +1,8 @@
 import { OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement } from 'harmony-ui';
+import { CharactersList, CharactersType, Tf2Class } from 'loadout';
 import characterSelectorCSS from '../../css/characterselector.css';
 import { Controller, ControllerEvent } from '../controller';
-import { CharactersList, CharactersType, Tf2Class } from '../loadout/characters/characters';
 import { StaticPanel } from './staticpanel';
 
 export class CharacterSelector extends StaticPanel {

@@ -1,21 +1,19 @@
 import { OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, hide, show } from 'harmony-ui';
+import { PaintDefinition, paintList, Paints, Team, Tf2Item } from 'loadout';
 import itemCSS from '../../css/item.css';
 import paintPanelCSS from '../../css/paintpanel.css';
 import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { Team } from '../loadout/enums';
-import { Item } from '../loadout/items/item';
-import { PaintDefinition, paintList, Paints } from '../paints/paints';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 
 export class PaintPanel extends DynamicPanel {
 	#htmlPaintsDivPaints?: HTMLElement;
 	//#htmlPaintsDivOuter?: HTMLElement;
-	#currentItem?: Item;
+	#currentItem?: Tf2Item;
 	#currentPaint: Paints | null = null;
 	#htmlItemIcon?: HTMLElement;
 	#htmlPaintTitle?: HTMLElement;
@@ -136,7 +134,7 @@ export class PaintPanel extends DynamicPanel {
 		hide(this.getHTMLElement());
 	}
 
-	selectPaint(item: Item): void {
+	selectPaint(item: Tf2Item): void {
 		this.getHTMLElement();
 		this.#currentItem = item;
 		this.#currentPaint = item.getPaint();

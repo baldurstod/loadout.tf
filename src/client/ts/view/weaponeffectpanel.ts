@@ -1,15 +1,14 @@
 import { OptionsManager } from 'harmony-browser-utils';
 import { createElement, hide, show } from 'harmony-ui';
+import { COMMUNITY_SPARKLE_EFFECT, Tf2Item, weaponEffects } from 'loadout';
 import weaponEffectPanelCSS from '../../css/weaponeffectpanel.css';
 import { inventoryPath } from '../constants';
 import { Panel } from '../enums';
-import { COMMUNITY_SPARKLE_EFFECT, weaponEffects } from '../loadout/effects/effect';
-import { Item } from '../loadout/items/item';
 import { DynamicPanel } from './dynamicpanel';
 
 export class WeaponEffectPanel extends DynamicPanel {
 	#htmlEffects?: HTMLElement;
-	#currentItem?: Item;
+	#currentItem?: Tf2Item;
 	#htmlItemIcon?: HTMLElement;
 
 	constructor() {
@@ -76,7 +75,7 @@ export class WeaponEffectPanel extends DynamicPanel {
 		hide(this.getHTMLElement());
 	}
 
-	selectEffect(item: Item): void {
+	selectEffect(item: Tf2Item): void {
 		this.getHTMLElement();
 		this.#currentItem = item;
 

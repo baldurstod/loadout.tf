@@ -1,12 +1,12 @@
 import { saveFile } from 'harmony-browser-utils';
 import { closeSVG } from 'harmony-svg';
 import { createElement, defineHarmonyFileInput, hide, HTMLHarmonyFileInputElement } from 'harmony-ui';
+import { Tf2ItemManager } from 'loadout';
 import presetsCSS from '../../css/presets.css';
 import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { ItemManager } from '../loadout/items/itemmanager';
 import { DynamicPanel } from './dynamicpanel';
 
 export class PresetsPanel extends DynamicPanel {
@@ -153,13 +153,13 @@ export class PresetsPanel extends DynamicPanel {
 				for (const presetItem of preset.items) {
 					let id = presetItem.id;
 					if (presetItem.isWorkshop) {
-						await ItemManager.initWorkshopItems();
+						await Tf2ItemManager.initWorkshopItems();
 						id = 'w' + id;
 					}
 					if (presetItem.isTournamentMedal) {
-						await ItemManager.initTournamentMedals();
+						await Tf2ItemManager.initTournamentMedals();
 					}
-					const item = ItemManager.getItemTemplate(id);//this.#items.get(id);//ItemTemplates.get(presetItem.id);
+					const item = Tf2ItemManager.getItemTemplate(id);//this.#items.get(id);//ItemTemplates.get(presetItem.id);
 					if (!item) {
 						continue;
 					}

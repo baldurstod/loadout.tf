@@ -2,16 +2,13 @@ import { Repository } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, display, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, I18n, show, toggle } from 'harmony-ui';
+import { Tf2Class, Tf2Item, Tf2ItemManager, Tf2ItemTemplate } from 'loadout';
 import itemCSS from '../../css/item.css';
 import itemPanelCSS from '../../css/itempanel.css';
 import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
 import { CharacterManager } from '../loadout/characters/charactermanager';
-import { Tf2Class } from '../loadout/characters/characters';
-import { Item } from '../loadout/items/item';
-import { ItemManager } from '../loadout/items/itemmanager';
-import { ItemTemplate } from '../loadout/items/itemtemplate';
 import { SfmItemRepository } from '../repositories/sfmitemrepository';
 import { DynamicPanel } from './dynamicpanel';
 import { ItemManagerItem } from './itemmanageritem';
@@ -57,12 +54,12 @@ export class ItemsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.SfmItemsLoaded, () => this.#refreshItems());
 		Controller.addEventListener(ControllerEvent.FiltersUpdated, () => this.#refreshItems());
 		Controller.addEventListener(ControllerEvent.SetItemFilter, (event: Event) => this.#setItemFilter((event as CustomEvent<SetItemFilter>).detail));
-		Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, true));
-		Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Item>).detail, false));
-		Controller.addEventListener(ControllerEvent.PaintClick, (event: Event) => this.#handlePaintClick((event as CustomEvent<ItemTemplate>).detail));
-		Controller.addEventListener(ControllerEvent.SheenClick, (event: Event) => this.#handleSheenClick((event as CustomEvent<ItemTemplate>).detail));
-		Controller.addEventListener(ControllerEvent.WeaponEffectClick, (event: Event) => this.#handleWeaponEffectClick((event as CustomEvent<ItemTemplate>).detail));
-		Controller.addEventListener(ControllerEvent.WarpaintClick, (event: Event) => this.#handleWarpaintClick((event as CustomEvent<ItemTemplate>).detail));
+		Controller.addEventListener(ControllerEvent.ItemAdded, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Tf2Item>).detail, true));
+		Controller.addEventListener(ControllerEvent.ItemRemoved, (event: Event) => this.#handleItemAddedRemoved((event as CustomEvent<Tf2Item>).detail, false));
+		Controller.addEventListener(ControllerEvent.PaintClick, (event: Event) => this.#handlePaintClick((event as CustomEvent<Tf2ItemTemplate>).detail));
+		Controller.addEventListener(ControllerEvent.SheenClick, (event: Event) => this.#handleSheenClick((event as CustomEvent<Tf2ItemTemplate>).detail));
+		Controller.addEventListener(ControllerEvent.WeaponEffectClick, (event: Event) => this.#handleWeaponEffectClick((event as CustomEvent<Tf2ItemTemplate>).detail));
+		Controller.addEventListener(ControllerEvent.WarpaintClick, (event: Event) => this.#handleWarpaintClick((event as CustomEvent<Tf2ItemTemplate>).detail));
 		Controller.addEventListener(ControllerEvent.RepositoryAdded, (event: Event) => this.#handleRepositoryAdded((event as CustomEvent<Repository>).detail));
 
 		OptionsManagerEvents.addEventListener('app.css.variables.item-manager-item-size', () => this.#refreshItems());
@@ -523,9 +520,9 @@ export class ItemsPanel extends DynamicPanel {
 			hide(htmlItem);
 		}
 
-		const selectedItems = ItemManager.getSelectedItems();
+		const selectedItems = Tf2ItemManager.getSelectedItems();
 		const excludedItems = { e: 0 };
-		const [items, conflictingItems] = ItemManager.getFilteredItems(excludedItems);
+		const [items, conflictingItems] = Tf2ItemManager.getFilteredItems(excludedItems);
 
 		const w = this.#htmlItemsContainer!.clientWidth;
 		let elementSize = OptionsManager.getItem('app.css.variables.item-manager-item-size') as number ?? 150;
@@ -547,7 +544,7 @@ export class ItemsPanel extends DynamicPanel {
 					//parent: this.#htmlItemsContainer,
 					$click: (event: Event) => {
 						if (event.currentTarget == event.target) {
-							Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ItemClicked, { detail: item });
+							Controller.dispatchEvent<Tf2ItemTemplate>(ControllerEvent.ItemClicked, { detail: item });
 						}
 					},
 				}) as ItemManagerItem;
@@ -599,8 +596,8 @@ export class ItemsPanel extends DynamicPanel {
 	}
 
 	#refreshActiveListAndConflicts(): void {
-		const selectedItems = ItemManager.getSelectedItems();
-		const conflictingItems = ItemManager.getConflictingItems();
+		const selectedItems = Tf2ItemManager.getSelectedItems();
+		const conflictingItems = Tf2ItemManager.getConflictingItems();
 
 		// Set conficting for the item list
 		for (const [id, htmlItem] of this.#htmlItems) {
@@ -620,7 +617,7 @@ export class ItemsPanel extends DynamicPanel {
 		// Add active items icons
 		this.#htmlActiveItems?.replaceChildren();
 		for (const selectedItemId of selectedItems) {
-			const template = ItemManager.getItemTemplate(selectedItemId);
+			const template = Tf2ItemManager.getItemTemplate(selectedItemId);
 			if (template) {
 
 				const imageInventory = template.imageInventory;
@@ -637,7 +634,7 @@ export class ItemsPanel extends DynamicPanel {
 					class: 'active-item',
 					parent: this.#htmlActiveItems,
 					src: src,
-					$click: () => Controller.dispatchEvent<ItemTemplate>(ControllerEvent.ItemClicked, { detail: template }),
+					$click: () => Controller.dispatchEvent<Tf2ItemTemplate>(ControllerEvent.ItemClicked, { detail: template }),
 				});
 
 				if (conflictingItems.has(selectedItemId)) {
@@ -650,7 +647,7 @@ export class ItemsPanel extends DynamicPanel {
 		}
 	}
 
-	#handleItemAddedRemoved(item: Item, added: boolean): void {
+	#handleItemAddedRemoved(item: Tf2Item, added: boolean): void {
 		const htmlItem = this.#htmlItems.get(item.id);
 		if (added) {
 			htmlItem?.classList.add('item-selected');
@@ -660,7 +657,7 @@ export class ItemsPanel extends DynamicPanel {
 		this.#refreshActiveListAndConflicts();
 	}
 
-	#handlePaintClick(template: ItemTemplate): void {
+	#handlePaintClick(template: Tf2ItemTemplate): void {
 		/*
 		const htmlItem = this.#htmlItems.get(item.id);
 		if (added) {
@@ -681,7 +678,7 @@ export class ItemsPanel extends DynamicPanel {
 		}
 	}
 
-	#handleSheenClick(template: ItemTemplate): void {
+	#handleSheenClick(template: Tf2ItemTemplate): void {
 		const character = CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
@@ -692,7 +689,7 @@ export class ItemsPanel extends DynamicPanel {
 		}
 	}
 
-	#handleWeaponEffectClick(template: ItemTemplate): void {
+	#handleWeaponEffectClick(template: Tf2ItemTemplate): void {
 		const character = CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
@@ -703,7 +700,7 @@ export class ItemsPanel extends DynamicPanel {
 		}
 	}
 
-	#handleWarpaintClick(template: ItemTemplate): void {
+	#handleWarpaintClick(template: Tf2ItemTemplate): void {
 		Controller.dispatchEvent<void>(ControllerEvent.InitWarpaints);
 		const character = CharacterManager.getCurrentCharacter();
 		if (!character) {
@@ -711,7 +708,7 @@ export class ItemsPanel extends DynamicPanel {
 		}
 
 		if (character.characterClass == Tf2Class.CompareWarpaints) {
-			const items: Item[] = [];
+			const items: Tf2Item[] = [];
 			for (const [, item] of character.items) {
 				items.push(item);
 			}
@@ -731,7 +728,7 @@ export class ItemsPanel extends DynamicPanel {
 	}
 
 	#updateFilters(): void {
-		const collections = ItemManager.getCollections();
+		const collections = Tf2ItemManager.getCollections();
 
 		const sortType = OptionsManager.getItem('app.items.filter.collection.sort.type') as string;
 		switch (sortType) {

@@ -1,8 +1,8 @@
 import { createElement } from 'harmony-ui';
-import { EffectTemplate } from '../../loadout/effects/effecttemplate';
+import { Tf2EffectTemplate } from 'loadout';
 
 export class UnusualEffectElement extends HTMLElement {
-	#effectTemplate: EffectTemplate | null = null;
+	#effectTemplate: Tf2EffectTemplate | null = null;
 	#visible = false;
 	#initialized = false;
 	#intersectionObserver?: IntersectionObserver;
@@ -31,14 +31,14 @@ export class UnusualEffectElement extends HTMLElement {
 		}
 	}
 
-	setEffectTemplate(template: EffectTemplate | null): void {
+	setEffectTemplate(template: Tf2EffectTemplate | null): void {
 		this.#effectTemplate = template;
 		if (template) {
 			this.#refresh();
 		}
 	}
 
-	getEffectTemplate(): EffectTemplate | null {
+	getEffectTemplate(): Tf2EffectTemplate | null {
 		return this.#effectTemplate;
 	}
 
