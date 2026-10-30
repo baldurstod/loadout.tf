@@ -1,6 +1,6 @@
 import { OptionsManagerEvent, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement } from 'harmony-ui';
-import { CharactersList, CharactersType, Tf2Class } from 'loadout';
+import { Tf2CharactersList, Tf2CharactersType, Tf2Class } from 'loadout';
 import characterSelectorCSS from '../../css/characterselector.css';
 import { Controller, ControllerEvent } from '../controller';
 import { StaticPanel } from './staticpanel';
@@ -25,7 +25,7 @@ export class CharacterSelector extends StaticPanel {
 		this.#htmlBotsSelectorPanel = createElement('div', { class: 'bots', parent: this.getShadowRoot(), });
 		this.#htmlInfectedsSelectorPanel = createElement('div', { class: 'infecteds', parent: this.getShadowRoot(), });
 
-		for (const [tf2Class, character] of CharactersList) {
+		for (const [tf2Class, character] of Tf2CharactersList) {
 			switch (character.type) {
 				case 'human':
 					this.#htmlCharacterSelectorPanel.append(this.#createMiniIcon(tf2Class, character));
@@ -40,7 +40,7 @@ export class CharacterSelector extends StaticPanel {
 		}
 	}
 
-	#createMiniIcon(tf2Class: Tf2Class, character: CharactersType): HTMLElement {
+	#createMiniIcon(tf2Class: Tf2Class, character: Tf2CharactersType): HTMLElement {
 		const iconName = character.name.toLowerCase();
 		return createElement('img', {
 			//parent: htmlcharacterIconDiv,

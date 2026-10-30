@@ -3,7 +3,7 @@ import { KillstreakColor, Ragdoll, Tf2EffectTemplate, Tf2ItemTemplate } from 'lo
 import { BackgroundType } from './enums';
 
 export enum ControllerEvent {
-	UseBots = 'usebots',
+	//UseBots = 'usebots',
 	ShowCompetitiveStage = 'showcompetitivestage',
 	ChangeMap = 'changemap',
 	InitMapList = 'initmaplist',
@@ -22,10 +22,10 @@ export enum ControllerEvent {
 	ShowAboutNotification = 'showaboutotification',
 	ToggleOptionsManager = 'toggleoptionsmanager',
 	SetAnimSpeed = 'setanimspeed',
-	SetAnim = 'setanim',
+	//SetAnim = 'setanim',
 	PatreonClick = 'patreonclick',
 	SelectCharacter = 'selectcharacter',
-	CharacterChanged = 'characterchanged',
+	//CharacterChanged = 'characterchanged',
 	SelectCamera = 'selectcamera',
 	ResetCamera = 'resetcamera',
 	//SetItemFilter = 'setitemfilter',
@@ -54,17 +54,17 @@ export enum ControllerEvent {
 	WarpaintClick = 'warpaintclick',
 	InitWarpaints = 'initwarpaints',
 	WarpaintsLoaded = 'warpaintsloaded',
-	SetInvulnerable = 'setinvulnerable',
-	SetRagdoll = 'setragdoll',
-	SetApplyToAll = 'setapplytoall',
-	PresetsUpdated = 'presetsupdated',
-	ImportPresets = 'importpresets',
+	//SetInvulnerable = 'setinvulnerable',
+	//SetRagdoll = 'setragdoll',
+	//SetApplyToAll = 'setapplytoall',
+	//PresetsUpdated = 'presetsupdated',
+	//ImportPresets = 'importpresets',
 	UseLayout = 'uselayout',
 	SelectWarpaints = 'selectwarpaints',
 	RepositoryAdded = 'repositoryAdded',
-	ChangeAnimFrame = 'changeanimframe',
+	//ChangeAnimFrame = 'changeanimframe',
 	SetProductFilter = 'setproductfilter',
-	ActivateMeetTheTeamMap = 'activatemeettheteammap',
+	//ActivateMeetTheTeamMap = 'activatemeettheteammap',
 	DeleteCache = 'deletecache',
 	SetTitleModified = 'settitlemodified',
 	SceneExplorerVisible = 'sceneexplorervisible',
@@ -114,31 +114,10 @@ export type ItemPinned = {
 	item: Tf2ItemTemplate;
 	pinned: boolean;
 }
-/*
-export type SetInvulnerable = {
-	invulnerable: boolean;
-	applyToAll: boolean;
-}
-
-export type SetRagdoll = {
-	ragdoll: Ragdoll;
-	applyToAll: boolean;
-}
-*/
 
 export type KillstreakClicked = {
 	effect: Tf2EffectTemplate | null;
 	color: KillstreakColor;
-}
-
-export type SetInvulnerable = {
-	invulnerable: boolean;
-	scene?: Scene;
-}
-
-export type SetRagdoll = {
-	ragdoll: Ragdoll;
-	scene?: Scene;
 }
 
 export enum ProductFilterAttribute {

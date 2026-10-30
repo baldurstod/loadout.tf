@@ -25,7 +25,7 @@ const warpaintsLights = new Group({
 	],
 });
 
-Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => characterChanged((event as CustomEvent<Tf2Character>).detail));
+Tf2LoadoutController.addEventListener('characterchanged', (event: Event) => characterChanged((event as CustomEvent<Tf2Character>).detail));
 Tf2LoadoutController.addEventListener('itemadded', (event) => loadoutChanged((event).detail));
 Tf2LoadoutController.addEventListener('itemremoved', (event) => loadoutChanged((event).detail));
 GraphicsEvents.addEventListener('pick', (event: Event) => handlePick(event as CustomEvent<GraphicPickEvent>));

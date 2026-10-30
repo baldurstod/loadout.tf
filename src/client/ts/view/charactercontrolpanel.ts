@@ -1,8 +1,6 @@
 import { createElement, defineHarmonyRadio, HTMLHarmonySwitchElement } from 'harmony-ui';
-import { Ragdoll } from 'loadout';
+import { Ragdoll, Tf2CharacterManager, Tf2LoadoutController } from 'loadout';
 import characterControlCSS from '../../css/charactercontrol.css';
-import { Controller, ControllerEvent, SetInvulnerable, SetRagdoll } from '../controller';
-import { CharacterManager } from '../loadout/characters/charactermanager';
 import { loadoutScene } from '../loadout/scene';
 import { StaticPanel } from './staticpanel';
 import { TeamSelector } from './teamselector';
@@ -16,7 +14,7 @@ export class CharacterControlPanel extends StaticPanel {
 	constructor() {
 		super([characterControlCSS]);
 
-		Controller.addEventListener(ControllerEvent.CharacterChanged, () => this.#refreshAnimList());
+		Tf2LoadoutController.addEventListener('characterchanged', () => this.#refreshAnimList());
 	}
 
 	protected override initHTML(): void {
@@ -44,7 +42,7 @@ export class CharacterControlPanel extends StaticPanel {
 			min: 0,
 			max: 1,
 			step: 0.01,
-			$input: (event: Event) => Controller.dispatchEvent<number>(ControllerEvent.ChangeAnimFrame, { detail: Number((event.target as HTMLInputElement).value) }),
+			$input: (event: Event) => Tf2LoadoutController.dispatchEvent('changeanimframe', { detail: Number((event.target as HTMLInputElement).value) }),
 		});
 
 		createElement('harmony-radio', {
@@ -60,18 +58,18 @@ export class CharacterControlPanel extends StaticPanel {
 				//OptionsManager.setItem('app.css.theme', (event).detail.value);
 				switch (event.detail.value) {
 					case 'none':
-						Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: false, scene: loadoutScene } });
-						Controller.dispatchEvent<Ragdoll>(ControllerEvent.SetRagdoll, { detail: Ragdoll.None });
+						Tf2LoadoutController.dispatchEvent('setinvulnerable', { detail: { invulnerable: false, scene: loadoutScene } });
+						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: { ragdoll: Ragdoll.None, scene: loadoutScene } });
 						break;
 					case 'invulnerable':
-						Controller.dispatchEvent<SetInvulnerable>(ControllerEvent.SetInvulnerable, { detail: { invulnerable: event.detail.state, scene: loadoutScene } });
-						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.None, scene: loadoutScene } });
+						Tf2LoadoutController.dispatchEvent('setinvulnerable', { detail: { invulnerable: event.detail.state, scene: loadoutScene } });
+						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: { ragdoll: Ragdoll.None, scene: loadoutScene } });
 						break;
 					case 'gold':
-						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Gold, scene: loadoutScene } });
+						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: { ragdoll: Ragdoll.Gold, scene: loadoutScene } });
 						break;
 					case 'ice':
-						Controller.dispatchEvent<SetRagdoll>(ControllerEvent.SetRagdoll, { detail: { ragdoll: Ragdoll.Ice, scene: loadoutScene } });
+						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: { ragdoll: Ragdoll.Ice, scene: loadoutScene } });
 						break;
 				}
 			},
@@ -86,7 +84,7 @@ export class CharacterControlPanel extends StaticPanel {
 				attributes: {
 					state: 'true',
 				},
-				$change: (event: CustomEvent) => Controller.dispatchEvent<boolean>(ControllerEvent.SetApplyToAll, { detail: event.detail.state }),
+				$change: (event: CustomEvent) => Tf2LoadoutController.dispatchEvent('setapplytoall', { detail: event.detail.state }),
 			}) as HTMLHarmonySwitchElement,
 		});
 	}
@@ -95,17 +93,17 @@ export class CharacterControlPanel extends StaticPanel {
 		// First, try to get the option from the datalist
 		for (const option of this.#htmlAnimSelectorDataList!.options) {
 			if (option.innerText === this.#htmlAnimSelector!.value) {
-				Controller.dispatchEvent<string>(ControllerEvent.SetAnim, { detail: option.getAttribute('data-value') as string });
+				Tf2LoadoutController.dispatchEvent('setanim', { detail: option.getAttribute('data-value') as string });
 				return;
 			}
 		}
 
 		// If not found, submit the user input
-		Controller.dispatchEvent<string>(ControllerEvent.SetAnim, { detail: this.#htmlAnimSelector!.value });
+		Tf2LoadoutController.dispatchEvent('setanim', { detail: this.#htmlAnimSelector!.value });
 	}
 
 	#refreshAnimList(): void {
-		const animsList = CharacterManager.getAnimList();
+		const animsList = Tf2CharacterManager.getAnimList();
 		this.#htmlAnimSelectorDataList?.replaceChildren();
 		if (animsList) {
 			const list = animsList.animations;

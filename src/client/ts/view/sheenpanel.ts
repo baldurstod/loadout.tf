@@ -1,12 +1,10 @@
 import { OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, hide, show } from 'harmony-ui';
-import { KillstreakColor, KillstreakDefinition, killstreakList, Tf2Item } from 'loadout';
+import { KillstreakColor, KillstreakDefinition, killstreakList, Tf2CharacterManager, Tf2Item, Tf2LoadoutController } from 'loadout';
 import itemCSS from '../../css/item.css';
 import sheenPanelCSS from '../../css/sheenpanel.css';
 import { inventoryPath } from '../constants';
-import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
-import { CharacterManager } from '../loadout/characters/charactermanager';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -78,8 +76,8 @@ export class SheenPanel extends DynamicPanel {
 			}
 		});
 
-		Controller.addEventListener(ControllerEvent.CharacterChanged, () => {
-			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
+		Tf2LoadoutController.addEventListener('characterchanged', () => {
+			const team = Tf2CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
 			if (team == 'red') {
 				sheenOption.style.backgroundColor = colorToCss(sheen.sheenRed);
 			} else {

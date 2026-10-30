@@ -7,18 +7,17 @@ import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
 import { BugReport, BugReporter, setTimeoutPromise } from 'harmony-utils';
-import { Tf2Character, Tf2Class, Tf2ItemManager, Tf2LoadoutController, Tf2Team } from 'loadout';
+import { CameraType, TF2_COMPETITIVE_STAGE, Tf2Character, Tf2CharacterManager, Tf2Class, Tf2ItemManager, Tf2LoadoutController, Tf2Team, UsePlayerModels } from 'loadout';
 import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
 import optionsmanager from '../json/optionsmanager.json';
 import { HAS_ADVERTISEMENT, PATREON_IS_LOGGED, PATREON_POWERUSER, PRODUCTION, TESTING } from './bundleoptions';
-import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, SHARE_LOADOUT_URL, TF2_COMPETITIVE_STAGE, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
+import { ALYX_REPOSITORY, BROADCAST_CHANNEL_NAME, CSGO_REPOSITORY, DEADLOCK_REPOSITORY, DOTA2_REPOSITORY, SCOUT_BLUE_PANTS_DEST, SCOUT_BLUE_PANTS_ORIGIN, SHARE_LOADOUT_URL, TF2_GROUP_URL, TF2_REPOSITORY, TF2_WARPAINT_DEFINITIONS_URL, TF2_WARPAINT_ENGLISH_URL } from './constants';
 import { Controller, ControllerEvent, ShowBadge } from './controller';
-import { CameraType, Panel, UsePlayerModels } from './enums';
+import { Panel } from './enums';
 import { importFile, restoreFiles } from './fileimporter';
 import { GOOGLE_ANALYTICS_ID } from './googleconstants';
-import { CharacterManager } from './loadout/characters/charactermanager';
 import { compareWarpaints } from './loadout/comparewarpaints';
 import { Loadout } from './loadout/loadout';
 import { activeCameraControl, addTF2Model, customLightsContainer, lightsContainer, loadoutColorBackground, loadoutScene, mapLightsContainer, orbitCamera, orbitCameraControl, setActiveCamera, setCustomLightsContainer } from './loadout/scene';
@@ -165,7 +164,7 @@ class Application {
 			this.#updatedocumentStyleSheet();
 		});
 
-		Controller.addEventListener(ControllerEvent.UseBots, (event: Event) => {
+		Tf2LoadoutController.addEventListener('usebots', (event: Event) => {
 			this.#useBots = (event as CustomEvent<UsePlayerModels>).detail;
 			this.#updatedocumentStyleSheet();
 		});
@@ -175,7 +174,7 @@ class Application {
 		Controller.addEventListener(ControllerEvent.SelectCharacter, (event: Event) => {
 			const tf2Class = (event as CustomEvent<Tf2Class>).detail;
 
-			CharacterManager.selectCharacter(tf2Class);
+			Tf2CharacterManager.selectCharacter(tf2Class);
 		});
 
 		Controller.addEventListener(ControllerEvent.SelectCamera, (event: Event) => setActiveCamera((event as CustomEvent<CameraType>).detail));
@@ -196,7 +195,7 @@ class Application {
 		Controller.addEventListener(ControllerEvent.ShareLoadout, () => { this.#shareLoadout() });
 
 		Controller.addEventListener(ControllerEvent.ImportFiles, (event: Event) => { this.#importFiles((event as CustomEvent<File[]>).detail) });
-		Controller.addEventListener(ControllerEvent.ActivateMeetTheTeamMap, () => {
+		Tf2LoadoutController.addEventListener('activatemeettheteammap', () => {
 			lightsContainer.setVisible(false);
 			mapLightsContainer.setVisible(true && (!OptionsManager.getItem('app.lights.usecustomlights')));
 			this.#mapStartup('sfm_photostudio_lite.bsp');
@@ -670,12 +669,12 @@ class Application {
 		// TODO
 		//TextureCombiner.setTeam(team);
 		//CharacterManager.setSkin(team);
-		CharacterManager.setTeam(team);
+		Tf2CharacterManager.setTeam(team);
 		this.#setTeamBackground();
 	}
 
 	#setTeamBackground(): void {
-		if (CharacterManager.getTeam() == 'red') {
+		if (Tf2CharacterManager.getTeam() == 'red') {
 			loadoutColorBackground.setColor(this.#backgroundColorRed ?? this.#backgroundColor);
 		} else {
 			loadoutColorBackground.setColor(this.#backgroundColorBlu ?? this.#backgroundColor);
@@ -773,7 +772,7 @@ class Application {
 
 	async #initDefaultCharacter(): Promise<void> {
 		await Graphics.ready;
-		CharacterManager.selectCharacter(Tf2Class.None);
+		Tf2CharacterManager.selectCharacter(Tf2Class.None);
 	}
 
 	async #initWarpaints(): Promise<void> {

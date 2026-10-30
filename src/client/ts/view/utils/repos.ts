@@ -1,9 +1,9 @@
 import { Entity, Repository, RepositoryEntry } from 'harmony-3d';
 import { EntryCreated, HTMLRepositoryElement } from 'harmony-3d-utils';
 import { createElement, I18n } from 'harmony-ui';
+import { Tf2CharacterManager } from 'loadout';
 import optionsCSS from '../../../css/options.css';
 import { removeRepository } from '../../fileimporter';
-import { CharacterManager } from '../../loadout/characters/charactermanager';
 import { addTF2Model, loadoutScene } from '../../loadout/scene';
 
 const modelsByRepoEntry = new Map<RepositoryEntry, Entity[]>();
@@ -36,7 +36,7 @@ export function addRepository(repository: Repository, parent: HTMLElement, style
 							i18n: '#add_to_current_character',
 							events: {
 								// eslint-disable-next-line @typescript-eslint/no-misused-promises
-								click: async () => addModel((event).detail.entry, await CharacterManager.getCurrentCharacter()?.getModel()),
+								click: async () => addModel((event).detail.entry, await Tf2CharacterManager.getCurrentCharacter()?.getModel()),
 							}
 						}),
 						removeButton = createElement('button', {

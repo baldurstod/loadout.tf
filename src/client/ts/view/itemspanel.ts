@@ -2,13 +2,12 @@ import { Repository } from 'harmony-3d';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
 import { sortAlphabeticalReverseSVG, sortAlphabeticalSVG } from 'harmony-svg';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyToggleButton, display, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyToggleButtonElement, I18n, show, toggle } from 'harmony-ui';
-import { Tf2Class, Tf2Item, Tf2ItemManager, Tf2ItemTemplate, Tf2LoadoutController } from 'loadout';
+import { Tf2CharacterManager, Tf2Class, Tf2Item, Tf2ItemManager, Tf2ItemTemplate, Tf2LoadoutController } from 'loadout';
 import itemCSS from '../../css/item.css';
 import itemPanelCSS from '../../css/itempanel.css';
 import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
-import { CharacterManager } from '../loadout/characters/charactermanager';
 import { SfmItemRepository } from '../repositories/sfmitemrepository';
 import { DynamicPanel } from './dynamicpanel';
 import { ItemManagerItem } from './itemmanageritem';
@@ -668,7 +667,7 @@ export class ItemsPanel extends DynamicPanel {
 		this.#refreshActiveListAndConflicts();
 		*/
 		//show(this.#paintPanel.getHTMLElement());
-		const character = CharacterManager.getCurrentCharacter();
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}
@@ -679,7 +678,7 @@ export class ItemsPanel extends DynamicPanel {
 	}
 
 	#handleSheenClick(template: Tf2ItemTemplate): void {
-		const character = CharacterManager.getCurrentCharacter();
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}
@@ -690,7 +689,7 @@ export class ItemsPanel extends DynamicPanel {
 	}
 
 	#handleWeaponEffectClick(template: Tf2ItemTemplate): void {
-		const character = CharacterManager.getCurrentCharacter();
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}
@@ -702,7 +701,7 @@ export class ItemsPanel extends DynamicPanel {
 
 	#handleWarpaintClick(template: Tf2ItemTemplate): void {
 		Controller.dispatchEvent<void>(ControllerEvent.InitWarpaints);
-		const character = CharacterManager.getCurrentCharacter();
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}

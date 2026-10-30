@@ -19,11 +19,3 @@ export enum Panel {
 	Flexes = 'flexes',
 	SfmRepositories = 'sfmrepositories',
 }
-
-export enum CameraType {
-	FirstPerson = 'FirstPerson',
-	Orbit = 'orbit',
-	FreeFly = 'freefly',
-}
-
-export type UsePlayerModels = 'human' | 'bot' | 'infected';

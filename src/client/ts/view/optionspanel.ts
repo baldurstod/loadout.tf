@@ -2,15 +2,15 @@ import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { AudioMixer, createPassParameterUi, CrosshatchPass, Entity, GrainPass, Graphics, Line, OldMoviePass, PalettePass, Pass, PassParameterEvent, PassParameterEvents, PixelatePass, Repository, RepositoryEntry, SaturatePass, SceneExplorer, setCustomIncludeSource, ShaderEditor, ShaderManager, ShaderType, SketchPass, Sphere } from 'harmony-3d';
 import { defineRepository } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, PersistentStorage } from 'harmony-browser-utils';
-import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyPanel, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyPanelElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n } from 'harmony-ui';
+import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyPanel, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyPanelElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n, RadioChangedEventData } from 'harmony-ui';
 import { fileToImage } from 'harmony-utils';
+import { CameraType, CustomDisposition, Tf2CharacterManager, Tf2LoadoutController, UsePlayerModels } from 'loadout';
 import optionsCSS from '../../css/options.css';
 import repositoryEntryCSS from '../../css/repositoryentry.css';
 import sceneExplorerCSS from '../../css/sceneexplorer.css';
 import { PATREON_IS_LOGGED, TESTING } from '../bundleoptions';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
-import { BackgroundType, CameraType, Panel } from '../enums';
-import { CharacterManager, CustomDisposition } from '../loadout/characters/charactermanager';
+import { BackgroundType, Panel } from '../enums';
 import { loadoutScene } from '../loadout/scene';
 import { SfmItemRepository } from '../repositories/sfmitemrepository';
 import { getShaderToyList } from '../utils/shadertoy';
@@ -143,7 +143,7 @@ export class OptionsPanel extends DynamicPanel {
 				createElement('button', { 'i18n': '#infecteds', value: 'infected' }),
 			],
 			value: 'human',
-			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvent.UseBots, { detail: event.detail.state }),
+			$change: (event: CustomEvent<RadioChangedEventData>) => Tf2LoadoutController.dispatchEvent('usebots', { detail: event.detail.value as UsePlayerModels }),
 		});
 
 		createElement('harmony-switch', {
@@ -605,7 +605,7 @@ export class OptionsPanel extends DynamicPanel {
 		])
 
 		function setPoseParameter(name: string, value: number): void {
-			const currentCharacter = CharacterManager.getCurrentCharacter();
+			const currentCharacter = Tf2CharacterManager.getCurrentCharacter();
 			if (!currentCharacter) {
 				return;
 			}
@@ -619,23 +619,23 @@ export class OptionsPanel extends DynamicPanel {
 			'data-i18n': '#meet_the_team',
 			parent: this.#htmlTabGroup,
 			events: {
-				//activated: () => CharacterManager.initDispositions(),
+				//activated: () => Tf2CharacterManager.initDispositions(),
 			},
 			childs: [
-				//CharacterManager.htmlCharacterDisposition,
+				//Tf2CharacterManager.htmlCharacterDisposition,
 				this.#htmlCharacterDisposition = createElement('div', { class: 'dispositions' }),
 				createElement('div', {
 					class: 'option-button',
 					i18n: '#setup_meet_the_team',
 					events: {
-						click: () => { CharacterManager.setupMeetTheTeam() },
+						click: () => { Tf2CharacterManager.setupMeetTheTeam() },
 					}
 				}),
 				createElement('div', {
 					class: 'option-button',
 					i18n: '#remove_current_character',
 					events: {
-						click: () => CharacterManager.removeCharacter(),
+						click: () => Tf2CharacterManager.removeCharacter(),
 					},
 				}),
 				createElement('div', {
@@ -914,8 +914,8 @@ export class OptionsPanel extends DynamicPanel {
 				}),
 				select = createElement('select', {
 					id: 'character-disposition-select',
-					$change: (event: Event) => CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
-					//$click: (event: Event) => CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
+					$change: (event: Event) => Tf2CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
+					//$click: (event: Event) => Tf2CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
 				}) as HTMLSelectElement,
 			],
 
@@ -923,7 +923,7 @@ export class OptionsPanel extends DynamicPanel {
 		//this.htmlCharacterDisposition.append(select);
 
 		//for (let i = 0; i < this.#charactersDispositions.length; i++) {
-		for (const [position] of CharacterManager.getSlotsPositions()) {
+		for (const [position] of Tf2CharacterManager.getSlotsPositions()) {
 			const option: HTMLOptionElement = createElement('option') as HTMLOptionElement;
 			select.append(option);
 			option.innerText = position;
@@ -946,7 +946,7 @@ export class OptionsPanel extends DynamicPanel {
 					value: String(this.#customDisposition.countX),
 					$change: (event: InputEvent) => {
 						this.#customDisposition.countX = Number((event.target as HTMLInputElement).value);
-						CharacterManager.refreshCustomDisposition(this.#customDisposition);
+						Tf2CharacterManager.refreshCustomDisposition(this.#customDisposition);
 					},
 				})
 			],
@@ -964,7 +964,7 @@ export class OptionsPanel extends DynamicPanel {
 					value: String(this.#customDisposition.countY),
 					$change: (event: InputEvent) => {
 						this.#customDisposition.countY = Number((event.target as HTMLInputElement).value);
-						CharacterManager.refreshCustomDisposition(this.#customDisposition);
+						Tf2CharacterManager.refreshCustomDisposition(this.#customDisposition);
 					},
 				})
 			],
@@ -982,7 +982,7 @@ export class OptionsPanel extends DynamicPanel {
 					value: String(this.#customDisposition.countZ),
 					$change: (event: InputEvent) => {
 						this.#customDisposition.countZ = Number((event.target as HTMLInputElement).value);
-						CharacterManager.refreshCustomDisposition(this.#customDisposition);
+						Tf2CharacterManager.refreshCustomDisposition(this.#customDisposition);
 					},
 				})
 			],

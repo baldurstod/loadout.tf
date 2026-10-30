@@ -1,10 +1,9 @@
 import { MergeRepository, Repositories, Source1ModelInstance } from 'harmony-3d';
-import { KillstreakColor, Tf2Class, Tf2Effect, Tf2EffectTemplate, Tf2Item, Tf2ItemTemplate } from 'loadout';
-import { SFM_WORKSHOP_UGC_URL, STEAM_WORKSHOP_URL, TF2_CASUAL_BADGE, WORKSHOP_REPO } from '../constants';
+import { KillstreakColor, TF2_CASUAL_BADGE, Tf2CharacterManager, Tf2Class, Tf2Effect, Tf2EffectTemplate, Tf2Item, Tf2ItemTemplate } from 'loadout';
+import { SFM_WORKSHOP_UGC_URL, STEAM_WORKSHOP_URL, WORKSHOP_REPO } from '../constants';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { addRepo } from '../fileimporter';
 import { SfmItemRepository } from '../repositories/sfmitemrepository';
-import { CharacterManager } from './characters/charactermanager';
 import { addTF2Model, loadoutScene } from './scene';
 
 export class Loadout {
@@ -102,7 +101,7 @@ export class Loadout {
 		if (template.isSfmWorkshop()) {
 			this.#createSfmRepo(template);
 		} else {
-			const currentCharacter = CharacterManager.getCurrentCharacter();
+			const currentCharacter = Tf2CharacterManager.getCurrentCharacter();
 
 			if (currentCharacter && currentCharacter.characterClass != Tf2Class.None) {
 				await currentCharacter.toggleItem(template);
@@ -129,7 +128,7 @@ export class Loadout {
 	}
 
 	static async #handleEffectClicked(template: Tf2EffectTemplate): Promise<void> {
-		const currentCharacter = CharacterManager.getCurrentCharacter();
+		const currentCharacter = Tf2CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
 			const addedEffect = await currentCharacter?.addEffect(template);
@@ -138,7 +137,7 @@ export class Loadout {
 	}
 
 	static #handleRemoveEffect(effect: Tf2Effect): void {
-		const currentCharacter = CharacterManager.getCurrentCharacter();
+		const currentCharacter = Tf2CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
 			currentCharacter?.removeEffect(effect);
@@ -147,7 +146,7 @@ export class Loadout {
 	}
 
 	static async #handleKillstreakClicked(effect: Tf2EffectTemplate | null, color: KillstreakColor): Promise<void> {
-		const currentCharacter = CharacterManager.getCurrentCharacter();
+		const currentCharacter = Tf2CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
 			const addedEffects = await currentCharacter?.setKillsteakEffect(effect, color);
@@ -161,7 +160,7 @@ export class Loadout {
 	}
 
 	static async #handleSetDecapitationEffect(level: number): Promise<void> {
-		const currentCharacter = CharacterManager.getCurrentCharacter();
+		const currentCharacter = Tf2CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
 			const addedEffects = await currentCharacter?.setDecapitationLevel(level);
@@ -175,7 +174,7 @@ export class Loadout {
 	}
 
 	static async #handleTauntEffectClicked(template: Tf2EffectTemplate | null): Promise<void> {
-		const currentCharacter = CharacterManager.getCurrentCharacter();
+		const currentCharacter = Tf2CharacterManager.getCurrentCharacter();
 
 		if (currentCharacter) {
 			const addedEffect = await currentCharacter?.setTauntEffect(template);

@@ -1,7 +1,6 @@
 import { quat, vec3 } from 'gl-matrix';
-import { getKillstreakColor, KillstreakColor, npcToClass, Paints, Tf2Character, Tf2Effect, Tf2EffectType, Tf2Item, Tf2ItemManager, Tf2Team } from 'loadout';
+import { getKillstreakColor, KillstreakColor, npcToClass, Paints, Tf2Character, Tf2CharacterManager, Tf2Effect, Tf2EffectType, Tf2Item, Tf2ItemManager, Tf2Team } from 'loadout';
 import { Controller, ControllerEvent } from '../controller';
-import { CharacterManager } from './characters/charactermanager';
 
 export const DEFAULT_WARPAINT_WEAR = 0;
 export const DEFAULT_WARPAINT_SEED = 0n;
@@ -81,7 +80,7 @@ export async function importLoadout(json: loadoutJSON): Promise<boolean> {
 	let result = true;
 	const context: ImportContext = { slot: 0, errors: [] };
 
-	CharacterManager.setSlotsCount(json.characters.length, true);
+	Tf2CharacterManager.setSlotsCount(json.characters.length, true);
 	for (const characterJSON of json.characters) {
 		if (await importCharacterLoadout(context, characterJSON)) {
 			++context.slot;
@@ -98,7 +97,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 		return false;
 	}
 
-	const slot = CharacterManager.getSlot(context.slot);
+	const slot = Tf2CharacterManager.getSlot(context.slot);
 	if (slot) {
 		if (characterJSON.position) {
 			vec3.copy(slot.position, characterJSON.position);
@@ -110,7 +109,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 		}
 	}
 
-	const character = await CharacterManager.selectCharacter(tf2Class, context.slot);
+	const character = await Tf2CharacterManager.selectCharacter(tf2Class, context.slot);
 
 	if (characterJSON.team !== undefined) {
 		character.setTeam(characterJSON.team);
@@ -250,7 +249,7 @@ function importEffect(context: ImportContext, character: Tf2Character, effectJSO
 export async function exportLoadout(): Promise<loadoutJSON> {
 	const charactersJSON: characterJSON[] = [];
 
-	const characters = CharacterManager.getCharacters();
+	const characters = Tf2CharacterManager.getCharacters();
 	for (const character of characters) {
 		charactersJSON.push(await exportCharacterLoadout(character));
 	}

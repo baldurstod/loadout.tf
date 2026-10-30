@@ -1,5 +1,5 @@
 import { Camera, CameraControl, ColorBackground, Entity, FirstPersonControl, Group, HALF_PI, OrbitControl, PointLight, Scene, SceneExplorer, Source1ModelInstance, Source1ModelManager } from 'harmony-3d';
-import { CameraType } from '../enums';
+import { CameraType } from 'loadout';
 
 export const loadoutScene = new Scene();
 export const loadoutColorBackground = new ColorBackground();

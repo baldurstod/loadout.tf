@@ -1,12 +1,10 @@
 import { OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, hide, show } from 'harmony-ui';
-import { PaintDefinition, paintList, Paints, Tf2Item } from 'loadout';
+import { PaintDefinition, paintList, Paints, Tf2CharacterManager, Tf2Item, Tf2LoadoutController } from 'loadout';
 import itemCSS from '../../css/item.css';
 import paintPanelCSS from '../../css/paintpanel.css';
 import { inventoryPath } from '../constants';
-import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
-import { CharacterManager } from '../loadout/characters/charactermanager';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -97,8 +95,8 @@ export class PaintPanel extends DynamicPanel {
 			}
 		});
 
-		Controller.addEventListener(ControllerEvent.CharacterChanged, () => {
-			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
+		Tf2LoadoutController.addEventListener('characterchanged', () => {
+			const team = Tf2CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
 			if (team == 'red') {
 				paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 			} else {

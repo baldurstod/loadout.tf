@@ -1,11 +1,10 @@
 import { OptionsManager, OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, defineHarmonyRadio, defineHarmonyTab, defineHarmonyTabGroup, HarmonySwitchChange, hide, HTMLHarmonyRadioElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, show } from 'harmony-ui';
-import { COIN_SPIN_EFFECT, COMMUNITY_SPARKLE_EFFECT, KillstreakColor, KillstreakDefinition, killstreakList, Tf2Effect, Tf2EffectTemplate, Tf2EffectType, Tf2ItemManager, Tf2LoadoutController } from 'loadout';
+import { COIN_SPIN_EFFECT, COMMUNITY_SPARKLE_EFFECT, KillstreakColor, KillstreakDefinition, killstreakList, Tf2CharacterManager, Tf2Effect, Tf2EffectTemplate, Tf2EffectType, Tf2ItemManager, Tf2LoadoutController } from 'loadout';
 import effectsCSS from '../../css/effects.css';
 import effectsPanelCSS from '../../css/effectspanel.css';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { Panel } from '../enums';
-import { CharacterManager } from '../loadout/characters/charactermanager';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 import { UnusualEffectElement } from './elements/unusualeffect';
@@ -45,7 +44,7 @@ export class EffectsPanel extends DynamicPanel {
 		});
 		Controller.addEventListener(ControllerEvent.EffectAdded, () => this.#refreshActiveList());
 		Controller.addEventListener(ControllerEvent.EffectRemoved, () => this.#refreshActiveList());
-		Controller.addEventListener(ControllerEvent.CharacterChanged, () => this.#refreshActiveList());
+		Tf2LoadoutController.addEventListener('characterchanged', () => this.#refreshActiveList());
 	}
 
 	protected override initHTML(): void {
@@ -224,7 +223,7 @@ export class EffectsPanel extends DynamicPanel {
 
 		this.#htmlActiveEffects?.replaceChildren();
 
-		const character = CharacterManager.getCurrentCharacter();
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}
@@ -344,8 +343,8 @@ export class EffectsPanel extends DynamicPanel {
 			}
 		});
 
-		Controller.addEventListener(ControllerEvent.CharacterChanged, () => {
-			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
+		Tf2LoadoutController.addEventListener('characterchanged', () => {
+			const team = Tf2CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
 			if (team == 'red') {
 				killstreakOption.style.backgroundColor = colorToCss(killstreak.color1Red);
 			} else {

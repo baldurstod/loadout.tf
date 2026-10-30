@@ -1,12 +1,10 @@
 import { saveFile } from 'harmony-browser-utils';
 import { closeSVG } from 'harmony-svg';
 import { createElement, defineHarmonyFileInput, hide, HTMLHarmonyFileInputElement } from 'harmony-ui';
-import { Tf2ItemManager } from 'loadout';
+import { Tf2CharacterManager, Tf2ItemManager, Tf2LoadoutController } from 'loadout';
 import presetsCSS from '../../css/presets.css';
 import { inventoryPath } from '../constants';
-import { Controller, ControllerEvent } from '../controller';
 import { Panel } from '../enums';
-import { CharacterManager } from '../loadout/characters/charactermanager';
 import { DynamicPanel } from './dynamicpanel';
 
 export class PresetsPanel extends DynamicPanel {
@@ -16,8 +14,8 @@ export class PresetsPanel extends DynamicPanel {
 	constructor() {
 		super(Panel.Presets, [presetsCSS]);
 		hide(this.getShadowRoot());
-		Controller.addEventListener(ControllerEvent.PresetsUpdated, (): void => { this.#updatePresets() });
-		Controller.addEventListener(ControllerEvent.CharacterChanged, (): void => { this.#updatePresets() });
+		Tf2LoadoutController.addEventListener('presetsupdated', (): void => { this.#updatePresets() });
+		Tf2LoadoutController.addEventListener('characterchanged', (): void => { this.#updatePresets() });
 	}
 
 	protected override initHTML(): void {
@@ -38,9 +36,9 @@ export class PresetsPanel extends DynamicPanel {
 							click: () => {
 								let name = htmlPresetName.value;
 								if (name == '') {
-									name = CharacterManager.createPresetName();
+									name = Tf2CharacterManager.createPresetName();
 								}
-								CharacterManager.savePreset(name);
+								Tf2CharacterManager.savePreset(name);
 							},
 						}
 					}),
@@ -48,7 +46,7 @@ export class PresetsPanel extends DynamicPanel {
 						i18n: '#update_preset',
 						events: {
 							click: () => {
-								CharacterManager.savePreset();
+								Tf2CharacterManager.savePreset();
 								/*
 								if (!this.#currentCharacter) {
 									return;
@@ -73,7 +71,7 @@ export class PresetsPanel extends DynamicPanel {
 						'data-accept': '.json',
 						//'data-tooltip-i18n': '#import_models_zip_tooltip',
 						multiple: true,
-						$change: (event: Event) => Controller.dispatchEvent<File[]>(ControllerEvent.ImportPresets, { detail: [...((event.target as HTMLHarmonyFileInputElement).files ?? [])] }),
+						$change: (event: Event) => Tf2LoadoutController.dispatchEvent('importpresets', { detail: [...((event.target as HTMLHarmonyFileInputElement).files ?? [])] as File[] }),
 					}),
 				],
 			}),
@@ -99,7 +97,7 @@ export class PresetsPanel extends DynamicPanel {
 			this.#htmlPresets!.replaceChildren();
 
 			//const presets = this.#presets.get(this.#currentCharacter.npc);
-			const presets = CharacterManager.getPresets();
+			const presets = Tf2CharacterManager.getPresets();
 			if (!presets) {
 				return;
 			}
@@ -136,7 +134,7 @@ export class PresetsPanel extends DynamicPanel {
 							events: {
 								click: () => {
 									presets.removePreset(name);
-									CharacterManager.savePresets();
+									Tf2CharacterManager.savePresets();
 								}
 							},
 						}),
@@ -144,7 +142,7 @@ export class PresetsPanel extends DynamicPanel {
 					events: {
 						click: () => {
 							presets.selected = name;
-							CharacterManager.loadPreset(name);
+							Tf2CharacterManager.loadPreset(name);
 							this.#updatePresets();
 						}
 					}
