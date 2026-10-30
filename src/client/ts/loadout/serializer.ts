@@ -1,5 +1,5 @@
 import { quat, vec3 } from 'gl-matrix';
-import { getKillstreakColor, KillstreakColor, npcToClass, Paints, Team, Tf2Character, Tf2Effect, Tf2EffectType, Tf2Item, Tf2ItemManager } from 'loadout';
+import { getKillstreakColor, KillstreakColor, npcToClass, Paints, Tf2Character, Tf2Effect, Tf2EffectType, Tf2Item, Tf2ItemManager, Tf2Team } from 'loadout';
 import { Controller, ControllerEvent } from '../controller';
 import { CharacterManager } from './characters/charactermanager';
 
@@ -53,7 +53,7 @@ export type legacyKillstreakEffectJSON = {
 
 export type characterJSON = {
 	npc: string;
-	team?: Team;
+	team?: Tf2Team;
 	items?: itemJSON[];
 	effects?: effectJSON[];
 	position?: vec3;

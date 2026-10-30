@@ -1,6 +1,5 @@
 import { OptionsManager } from 'harmony-browser-utils';
 import { createElement } from 'harmony-ui';
-import { Team } from 'loadout';
 import teamSelectorCSS from '../../css/teamselector.css';
 import logoBlueWhite from '../../img/logo_blue_white.png';
 import logoRedWhite from '../../img/logo_red_white.png';
@@ -15,12 +14,12 @@ export class TeamSelector extends StaticPanel {
 		const htmlTeamPanelRed = createElement('img', {
 			class: 'team',
 			src: logoRedWhite,
-			$click: () => OptionsManager.setItem('app.loadout.team', Team.Red),
+			$click: () => OptionsManager.setItem('app.loadout.team', 'red'),
 		});
 		const htmlTeamPanelBlu = createElement('img', {
 			class: 'team',
 			src: logoBlueWhite,
-			$click: () => OptionsManager.setItem('app.loadout.team', Team.Blu),
+			$click: () => OptionsManager.setItem('app.loadout.team', 'blu'),
 		});
 
 		this.getShadowRoot().append(htmlTeamPanelRed, htmlTeamPanelBlu);

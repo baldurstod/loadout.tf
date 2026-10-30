@@ -1,6 +1,6 @@
 import { OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, hide, show } from 'harmony-ui';
-import { KillstreakColor, KillstreakDefinition, killstreakList, Team, Tf2Item } from 'loadout';
+import { KillstreakColor, KillstreakDefinition, killstreakList, Tf2Item } from 'loadout';
 import itemCSS from '../../css/item.css';
 import sheenPanelCSS from '../../css/sheenpanel.css';
 import { inventoryPath } from '../constants';
@@ -71,7 +71,7 @@ export class SheenPanel extends DynamicPanel {
 		const sheenOption = createElement('div', { class: 'sheen' });
 		sheenOption.style.backgroundColor = colorToCss(sheen.sheenRed);
 		OptionsManagerEvents.addEventListener('app.loadout.team', event => {
-			if ((event as CustomEvent).detail.value == Team.Red) {
+			if ((event as CustomEvent).detail.value == 'red') {
 				sheenOption.style.backgroundColor = colorToCss(sheen.sheenRed);
 			} else {
 				sheenOption.style.backgroundColor = colorToCss(sheen.sheenBlu);
@@ -79,8 +79,8 @@ export class SheenPanel extends DynamicPanel {
 		});
 
 		Controller.addEventListener(ControllerEvent.CharacterChanged, () => {
-			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? Team.Red;
-			if (team == Team.Red) {
+			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
+			if (team == 'red') {
 				sheenOption.style.backgroundColor = colorToCss(sheen.sheenRed);
 			} else {
 				sheenOption.style.backgroundColor = colorToCss(sheen.sheenBlu);

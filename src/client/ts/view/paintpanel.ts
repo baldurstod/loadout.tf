@@ -1,6 +1,6 @@
 import { OptionsManagerEvents } from 'harmony-browser-utils';
 import { createElement, hide, show } from 'harmony-ui';
-import { PaintDefinition, paintList, Paints, Team, Tf2Item } from 'loadout';
+import { PaintDefinition, paintList, Paints, Tf2Item } from 'loadout';
 import itemCSS from '../../css/item.css';
 import paintPanelCSS from '../../css/paintpanel.css';
 import { inventoryPath } from '../constants';
@@ -90,7 +90,7 @@ export class PaintPanel extends DynamicPanel {
 		const paintOption = createElement('div', { class: 'paint' });
 		paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 		OptionsManagerEvents.addEventListener('app.loadout.team', event => {
-			if ((event as CustomEvent).detail.value == Team.Red) {
+			if ((event as CustomEvent).detail.value == 'red') {
 				paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 			} else {
 				paintOption.style.backgroundColor = colorToCss(paint.tintBlu);
@@ -98,8 +98,8 @@ export class PaintPanel extends DynamicPanel {
 		});
 
 		Controller.addEventListener(ControllerEvent.CharacterChanged, () => {
-			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? Team.Red;
-			if (team == Team.Red) {
+			const team = CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
+			if (team == 'red') {
 				paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 			} else {
 				paintOption.style.backgroundColor = colorToCss(paint.tintBlu);

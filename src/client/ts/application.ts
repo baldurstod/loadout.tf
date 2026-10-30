@@ -7,7 +7,7 @@ import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
 import { BugReport, BugReporter, setTimeoutPromise } from 'harmony-utils';
-import { Team, Tf2Character, Tf2Class, Tf2ItemManager, Tf2LoadoutController } from 'loadout';
+import { Tf2Character, Tf2Class, Tf2ItemManager, Tf2LoadoutController, Tf2Team } from 'loadout';
 import htmlCSS from '../css/html.css';
 import varsCSS from '../css/vars.css';
 import english from '../json/i18n/english.json';
@@ -313,7 +313,7 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.#setVerticalFov((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
 		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#setLang((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 		OptionsManagerEvents.addEventListener('warpaints.texture.size', (event: Event) => TextureCombiner.setTextureSize((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
-		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => this.setTeam((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => this.setTeam((event as CustomEvent<OptionsManagerEvent<'red' | 'blu'>>).detail.value));
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.position', (event: Event) => this.#setPerspectiveCameraPosition((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.quaternion', (event: Event) => this.#setPerspectiveCameraQuaternion((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.target', (event: Event) => this.#setPerspectiveCameraTarget((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
@@ -666,7 +666,7 @@ class Application {
 		this.#setTeamBackground();
 	}
 
-	setTeam(team: Team): void {
+	setTeam(team: Tf2Team): void {
 		// TODO
 		//TextureCombiner.setTeam(team);
 		//CharacterManager.setSkin(team);
@@ -675,7 +675,7 @@ class Application {
 	}
 
 	#setTeamBackground(): void {
-		if (CharacterManager.getTeam() == Team.Red) {
+		if (CharacterManager.getTeam() == 'red') {
 			loadoutColorBackground.setColor(this.#backgroundColorRed ?? this.#backgroundColor);
 		} else {
 			loadoutColorBackground.setColor(this.#backgroundColorBlu ?? this.#backgroundColor);

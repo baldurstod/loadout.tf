@@ -1,4 +1,4 @@
-import { KillstreakColor, Paints, Ragdoll, Team, Tf2Class } from 'loadout';
+import { KillstreakColor, Paints, Ragdoll, Tf2Class } from 'loadout';
 
 export class Tf2 {
 
@@ -27,8 +27,8 @@ export class Tf2 {
 	Empty = Tf2Class.Empty;
 	CompareWarpaints = Tf2Class.CompareWarpaints;
 
-	Blu = Team.Blu;
-	Red = Team.Red;
+	Blu = 'blu';
+	Red = 'red';
 
 	Paints = Paints;
 
