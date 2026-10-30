@@ -202,6 +202,7 @@ class Application {
 			this.#mapStartup('sfm_photostudio_lite.bsp');
 		});
 
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		Controller.addEventListener(ControllerEvent.DeleteCache, () => this.#tf2WebRepository.purge());
 
 		Controller.addEventListener(ControllerEvent.SetTitleModified, (event: Event) => this.#setTitleModified((event as CustomEvent<boolean>).detail));
@@ -305,34 +306,34 @@ class Application {
 	}
 
 	#initOptions(): void {
-		OptionsManagerEvents.addEventListener('app.css.theme', (event: Event) => this.setCssTheme((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
-		OptionsManagerEvents.addEventListener('app.backgroundcolor', (event: Event) => this.#setBackgroundColor((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
-		OptionsManagerEvents.addEventListener('app.backgroundcolor.red', (event: Event) => this.#setBackGroundColorRed((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
-		OptionsManagerEvents.addEventListener('app.backgroundcolor.blu', (event: Event) => this.#setBackGroundColorBlu((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.#setVerticalFov((event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number));
-		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#setLang((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
-		OptionsManagerEvents.addEventListener('warpaints.texture.size', (event: Event) => TextureCombiner.setTextureSize((event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number));
-		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => this.setTeam((event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.position', (event: Event) => this.#setPerspectiveCameraPosition((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.quaternion', (event: Event) => this.#setPerspectiveCameraQuaternion((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.target', (event: Event) => this.#setPerspectiveCameraTarget((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.zoom', (event: Event) => orbitCamera.orthoZoom = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.nearplane', (event: Event) => orbitCamera.nearPlane = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.farplane', (event: Event) => orbitCamera.farPlane = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.polarrotation', (event: Event) => this.#setPolarRotation((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.orthographic', (event: Event) => orbitCamera.setProjection(((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean) ? CameraProjection.Orthographic : CameraProjection.Perspective));
-		OptionsManagerEvents.addEventListener('app.cameras.orbit.replicate', (event: Event) => this.#replicateCamera = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
-		OptionsManagerEvents.addEventListener('engine.render.silhouettemode', (event: Event) => this.#setSilhouetteMode((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean));
-		OptionsManagerEvents.addEventListener('engine.render.silhouettecolor', (event: Event) => this.#setSilhouetteColor((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
+		OptionsManagerEvents.addEventListener('app.css.theme', (event: Event) => this.setCssTheme((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.backgroundcolor', (event: Event) => this.#setBackgroundColor((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.backgroundcolor.red', (event: Event) => this.#setBackGroundColorRed((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.backgroundcolor.blu', (event: Event) => this.#setBackGroundColorBlu((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.#setVerticalFov((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#setLang((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
+		OptionsManagerEvents.addEventListener('warpaints.texture.size', (event: Event) => TextureCombiner.setTextureSize((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => this.setTeam((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.position', (event: Event) => this.#setPerspectiveCameraPosition((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.quaternion', (event: Event) => this.#setPerspectiveCameraQuaternion((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.target', (event: Event) => this.#setPerspectiveCameraTarget((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.zoom', (event: Event) => orbitCamera.orthoZoom = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value);
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.nearplane', (event: Event) => orbitCamera.nearPlane = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value);
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.farplane', (event: Event) => orbitCamera.farPlane = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value);
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.polarrotation', (event: Event) => this.#setPolarRotation((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.orthographic', (event: Event) => orbitCamera.setProjection(((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value) ? CameraProjection.Orthographic : CameraProjection.Perspective));
+		OptionsManagerEvents.addEventListener('app.cameras.orbit.replicate', (event: Event) => this.#replicateCamera = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value);
+		OptionsManagerEvents.addEventListener('engine.render.silhouettemode', (event: Event) => this.#setSilhouetteMode((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value));
+		OptionsManagerEvents.addEventListener('engine.render.silhouettecolor', (event: Event) => this.#setSilhouetteColor((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 
 
-		const func = (event: Event): void => ShortcutHandler.setShortcut((event as CustomEvent<OptionsManagerEvent<string>>).detail.context ?? 'loadout,3dview,scene-explorer', (event as CustomEvent<OptionsManagerEvent<string>>).detail.name, (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string);
+		const func = (event: Event): void => ShortcutHandler.setShortcut((event as CustomEvent<OptionsManagerEvent<string>>).detail.context ?? 'loadout,3dview,scene-explorer', (event as CustomEvent<OptionsManagerEvent<string>>).detail.name, (event as CustomEvent<OptionsManagerEvent<string>>).detail.value);
 		OptionsManagerEvents.addEventListener('app.shortcuts.*', func);
 		OptionsManagerEvents.addEventListener('engine.shortcuts.*', func);
 
 
-		OptionsManagerEvents.addEventListener('app.lights.ambient.color', (event: Event) => this.#ambientLight.color = hexToRgba(vec4.create(), (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string) as vec3);
-		OptionsManagerEvents.addEventListener('app.lights.ambient.intensity', (event: Event) => this.#ambientLight.intensity = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
+		OptionsManagerEvents.addEventListener('app.lights.ambient.color', (event: Event) => this.#ambientLight.color = hexToRgba(vec4.create(), (event as CustomEvent<OptionsManagerEvent<string>>).detail.value) as vec3);
+		OptionsManagerEvents.addEventListener('app.lights.ambient.intensity', (event: Event) => this.#ambientLight.intensity = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value);
 
 		OptionsManagerEvents.addEventListener('app.lights.pointlights.*', (event: Event) => {
 			const lightParams = (event as CustomEvent<OptionsManagerEvent<string>>).detail.name.replace('app.lights.pointlights.', '').split('.');
@@ -340,10 +341,10 @@ class Application {
 			if (light) {
 				switch (lightParams[1]) {
 					case 'position':
-						light.setPosition(stringToVec3((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
+						light.setPosition(stringToVec3((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 						break;
 					case 'color':
-						light.color = hexToRgba(vec4.create(), (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string) as vec3;
+						light.color = hexToRgba(vec4.create(), (event as CustomEvent<OptionsManagerEvent<string>>).detail.value) as vec3;
 						break;
 					case 'visible':
 						light.setVisible((event as CustomEvent<OptionsManagerEvent<string>>).detail.value ? undefined : false);
@@ -370,7 +371,7 @@ class Application {
 					}
 				} else {
 					//Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase() + ' ' + ((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
-					Graphics.setDefine(defineName.toUpperCase(), ((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
+					Graphics.setDefine(defineName.toUpperCase(), ((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 				}
 			})()
 		});
@@ -385,7 +386,7 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.characters.highlightselected', () => this.#showHighLights(true));
 
 		OptionsManagerEvents.addEventListener('app.lights.renderlights', (event: Event) => {
-			if ((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean) {
+			if ((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value) {
 				Graphics.removeDefine('SKIP_LIGHTING');
 			} else {
 				Graphics.setDefine('SKIP_LIGHTING');
@@ -399,27 +400,27 @@ class Application {
 		});
 
 
-		OptionsManagerEvents.addEventListener('app.effects.renderparticles', (event: Event) => setRenderParticles((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean));
+		OptionsManagerEvents.addEventListener('app.effects.renderparticles', (event: Event) => setRenderParticles((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value));
 
 		OptionsManagerEvents.addEventListener('engine.shadows.quality', (event: Event) => {
-			Light.defaultTextureSize = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number;
+			Light.defaultTextureSize = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value;
 			const lightList = loadoutScene.getChildList('Light');
 
 			for (const light of lightList) {
-				(light as Light).shadowTextureSize = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number;
+				(light as Light).shadowTextureSize = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value;
 			}
 		});
 
 		OptionsManagerEvents.addEventListener('*', (event: Event) => {
 			if ((event as CustomEvent<OptionsManagerEvent<string>>).detail.name.startsWith('app.css.variables.')) {
-				document.documentElement.style.setProperty('--' + (event as CustomEvent<OptionsManagerEvent<string>>).detail.name.split('app.css.variables.')[1], (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string);
+				document.documentElement.style.setProperty('--' + (event as CustomEvent<OptionsManagerEvent<string>>).detail.name.split('app.css.variables.')[1], (event as CustomEvent<OptionsManagerEvent<string>>).detail.value);
 			}
 		});
 
 		OptionsManagerEvents.addEventListener('app.lights.customlights', (event: Event) => {
 			(async (): Promise<void> => {
 				loadoutScene.removeChild(customLightsContainer);
-				setCustomLightsContainer(await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string)) as Entity);
+				setCustomLightsContainer(await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent<string>>).detail.value)) as Entity);
 				loadoutScene.addChild(customLightsContainer);
 				customLightsContainer?.setVisible(OptionsManager.getItem('app.lights.usecustomlights') as boolean);
 			})()
@@ -429,16 +430,16 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.sceneexplorer.misc.serialized', (event: Event) => {
 			(async (): Promise<void> => {
 				loadoutScene.removeChild(this.#serializedEntity);
-				this.#serializedEntity = await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string)) as Entity;
+				this.#serializedEntity = await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent<string>>).detail.value)) as Entity;
 				loadoutScene.addChild(this.#serializedEntity);
 			})()
 		});
 
-		OptionsManagerEvents.addEventListener('app.sceneexplorer.skeleton.jointradius', (event: Event) => getSceneExplorer().setJointsRadius((event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number));
+		OptionsManagerEvents.addEventListener('app.sceneexplorer.skeleton.jointradius', (event: Event) => getSceneExplorer().setJointsRadius((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
 
 		OptionsManagerEvents.addEventListener('app.lights.usecustomlights', (event: Event) => {
 			if (customLightsContainer) {
-				customLightsContainer.setVisible((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
+				customLightsContainer.setVisible((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value);
 			}
 			if ((event as CustomEvent<OptionsManagerEvent<string>>).detail.value) {
 				lightsContainer?.setVisible(false);
@@ -468,16 +469,16 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.postprocessing.oldmovie.enabled', (event: Event) => this.#oldMoviePass.enabled = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value);
 
 		*/
-		OptionsManagerEvents.addEventListener('engine.particles.speed', (event: Event) => Source1ParticleSystem.setSpeed((event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number));
-		OptionsManagerEvents.addEventListener('engine.particles.simulationsteps', (event: Event) => Source1ParticleSystem.setSimulationSteps((event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number));
+		OptionsManagerEvents.addEventListener('engine.particles.speed', (event: Event) => Source1ParticleSystem.setSpeed((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
+		OptionsManagerEvents.addEventListener('engine.particles.simulationsteps', (event: Event) => Source1ParticleSystem.setSimulationSteps((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
 		OptionsManagerEvents.addEventListener('engine.particles.simulationrate', () => this.#setParticlesRate());
 		OptionsManagerEvents.addEventListener('engine.particles.usefixedrate', () => this.#setParticlesRate());
 
-		OptionsManagerEvents.addEventListener('app.ui.class.menuorder', (event: Event) => this.#setClassOrder((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean));
+		OptionsManagerEvents.addEventListener('app.ui.class.menuorder', (event: Event) => this.#setClassOrder((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value));
 
-		OptionsManagerEvents.addEventListener('app.characters.scout.bluepants', (event: Event) => this.#setScoutBluePants((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean));
+		OptionsManagerEvents.addEventListener('app.characters.scout.bluepants', (event: Event) => this.#setScoutBluePants((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value));
 
-		OptionsManagerEvents.addEventListener('app.warpainteditor.filter.node', (event: Event) => WarpaintEditor.getGui().setNodeFilter((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
+		OptionsManagerEvents.addEventListener('app.warpainteditor.filter.node', (event: Event) => WarpaintEditor.getGui().setNodeFilter((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 
 		OptionsManagerEvents.addEventListener('app.usespeechrecognition', (event: Event) => {
 			if ((event as CustomEvent<OptionsManagerEvent<string>>).detail.value) {
@@ -488,11 +489,11 @@ class Application {
 		});
 
 		OptionsManagerEvents.addEventListener('app.engine.source1.newanimationsystem', (event: Event) => {
-			Source1ModelInstance.useNewAnimSystem = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean;
+			Source1ModelInstance.useNewAnimSystem = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value;
 		});
 
 		OptionsManagerEvents.addEventListener('app.character.autoselectanim', (event: Event) => {
-			Tf2Character.autoSelectAnim = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean;
+			Tf2Character.autoSelectAnim = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value;
 		});
 
 		OptionsManager.init({ json: optionsmanager }).then(() => this.#initOptions2());
@@ -501,7 +502,7 @@ class Application {
 	#initOptions2(): void {
 		//change the default value in optionsmanager.json accordingly
 
-		let storedVersion = OptionsManager.getItem('app.options.version') as number ?? 0;
+		const storedVersion = OptionsManager.getItem('app.options.version') as number ?? 0;
 		if (storedVersion <= 0) {
 			this.#resetCamera();
 			OptionsManager.resetItem('app.lights.ambient.intensity');
@@ -525,7 +526,7 @@ class Application {
 		//ShortcutHandler.addEventListener('app.shortcuts.warpaints.openeditor', () => this.#toggleWarpaintEditor());
 	}
 
-	async #initSounds() {
+	#initSounds(): void {
 		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds_vo.txt');
 		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds_vo_handmade.txt');
 		Source1SoundManager.loadManifest('tf2', 'scripts/game_sounds_player.txt');
@@ -709,7 +710,7 @@ class Application {
 	}
 
 	#setVerticalFov(fov: number): void {
-		orbitCamera.verticalFov = fov;
+		orbitCamera.setVerticalFovAsDegree(fov);
 	}
 
 	#setPerspectiveCameraPosition(position: string): void {
@@ -717,7 +718,7 @@ class Application {
 	}
 
 	#setPerspectiveCameraQuaternion(quaternion: string): void {
-		orbitCamera.setQuaternion(stringToQuat(quaternion));
+		orbitCamera.setOrientation(stringToQuat(quaternion));
 	}
 
 	#setPerspectiveCameraTarget(target: string): void {
@@ -732,7 +733,7 @@ class Application {
 			}
 			prop.name = 'Competitive stage';
 			prop.setPosition([0, -20, -36]);
-			prop.setQuaternion([0, 0, -1, 1]);
+			prop.setOrientation([0, 0, -1, 1]);
 			this.#competitiveStage = prop;
 			prop.setVisible(true);
 		} else {
@@ -861,7 +862,7 @@ class Application {
 	async #exportToFBX(): Promise<void> {
 		if (PATREON_POWERUSER) {
 			const binaryFBX = await exportToBinaryFBX(loadoutScene);
-			saveFile(new File([binaryFBX as ArrayBuffer], 'loadout.tf.fbx'));
+			saveFile(new File([binaryFBX], 'loadout.tf.fbx'));
 		} else {
 			addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10);
 		}
@@ -1049,7 +1050,7 @@ class Application {
 		}
 	}
 
-	#setTitleModified(modified: boolean) {
+	#setTitleModified(modified: boolean): void {
 		document.title = (modified ? '● ' : '') + 'Loadout.tf - Test TF2 loadouts';
 	}
 }

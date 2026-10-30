@@ -14,7 +14,6 @@ import { categoryHasProducts, categoryHasSubCategories, getCategories, isParent,
 import { GetMockupStyle, GetMockupStyles } from '../printful/mockupstyles';
 import { GetMockupTemplate } from '../printful/mockuptemplates';
 import { Category } from '../printful/model/category';
-import { ProductColor } from '../printful/model/color';
 import { Pattern, Positioning, Techniques } from '../printful/model/enums';
 import { MockupTemplate } from '../printful/model/mockuptemplate';
 import { Product } from '../printful/model/product';
@@ -370,6 +369,7 @@ export class PrintfulPanel extends DynamicPanel {
 									i18n: '#filter',
 								}),
 								this.#htmlProductFilter = createElement('input', {
+									// eslint-disable-next-line @typescript-eslint/no-misused-promises
 									$input: (event: InputEvent) => this.#setNameFilter((event.target as HTMLInputElement).value),
 								}) as HTMLInputElement,
 							],
@@ -1385,7 +1385,7 @@ export class PrintfulPanel extends DynamicPanel {
 		//Note: Camera is by default facing -Z. Switch Y and Z to get an expected behavior
 		const v = vec3.fromValues(x, z, -y);
 
-		vec3.transformQuat(v, v, this.#camera.getQuaternion());
+		vec3.transformQuat(v, v, this.#camera.getOrientation());
 		this.#sceneContainer.translate(v);
 		this.#regenerateSelectedPlacement();
 		this.#generateTemplates();
@@ -1400,7 +1400,7 @@ export class PrintfulPanel extends DynamicPanel {
 	}
 
 	#resetRotation(): void {
-		this.#sceneContainer.setQuaternion(quat.create());
+		this.#sceneContainer.setOrientation(quat.create());
 		this.#regenerateSelectedPlacement();
 		this.#generateTemplates();
 	}
@@ -1922,7 +1922,7 @@ export class PrintfulPanel extends DynamicPanel {
 		const products = await getAvailableProducts();
 		const categories = await getCategories();
 
-		const item = { name: 'All items', opened: true, submenu: [], f: () => this.#selectCategory(0) };
+		const item = { name: 'All items', opened: true, submenu: [], f: (): Promise<void> => this.#selectCategory(0) };
 		this.#htmlCategoryMenuItems.set(0, item);
 
 		for (const category of categories) {
@@ -2061,7 +2061,8 @@ export class PrintfulPanel extends DynamicPanel {
 							class: 'color',
 							...(colorCode2) && { style: `background:linear-gradient(to right, ${colorCode} 0%, ${colorCode} 50%, ${colorCode2} 50%, ${colorCode2} 100%)` },
 							...(!colorCode2) && { style: `background-color:${colorCode}` },
-							$click: async () => {
+							// eslint-disable-next-line @typescript-eslint/no-misused-promises
+							$click: async (): Promise<void> => {
 								await this.#selectVariant(variant.id);
 
 								this.#dirtyBackground = true;
@@ -2456,7 +2457,7 @@ export class PrintfulPanel extends DynamicPanel {
 		if (matchColor) {
 			let found = false;
 			outer:
-			for (const color of product.colors as ProductColor[]) {
+			for (const color of product.colors) {
 				const value = color.value;
 				colorA.setHex(value);
 				for (const c of this.#productFilter.colors) {

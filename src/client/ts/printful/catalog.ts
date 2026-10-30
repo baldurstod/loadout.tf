@@ -159,7 +159,7 @@ const productResponses = new Map<number, Promise<ApiResponse>>();
 async function getPrintfulProduct(productId: number): Promise<ApiResponse> {
 
 	if (!productResponses.get(productId)) {
-		productResponses.set(productId, new Promise<ApiResponse>(async resolve => resolve(fetchShopAPI('get-printful-product', 1, { 'product_id': productId }))));
+		productResponses.set(productId, new Promise<ApiResponse>(resolve => resolve(fetchShopAPI('get-printful-product', 1, { 'product_id': productId }))));
 	}
 
 	return productResponses.get(productId)!;
@@ -258,7 +258,7 @@ const productPricesResponses = new Map2<number, string, Promise<ApiResponse>>();
 async function getPrintfulProductPrices(productId: number): Promise<ApiResponse> {
 
 	if (!productPricesResponses.get(productId, currency)) {
-		productPricesResponses.set(productId, currency, new Promise<ApiResponse>(async resolve => resolve(fetchShopAPI('get-printful-product-prices', 1, { 'product_id': productId, currency: currency }))));
+		productPricesResponses.set(productId, currency, new Promise<ApiResponse>(resolve => resolve(fetchShopAPI('get-printful-product-prices', 1, { 'product_id': productId, currency: currency }))));
 	}
 
 	return productPricesResponses.get(productId, currency)!;

@@ -71,7 +71,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 		}
 	}
 
-	get item() {
+	get item(): Tf2ItemTemplate | undefined {
 		return this.#item;
 	}
 

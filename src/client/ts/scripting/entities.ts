@@ -1,4 +1,4 @@
-import { Box, Camera, ColorBackground, Cone, Cylinder, FirstPersonControl, FullScreenQuad, Group, Line, LineSegments, OrbitControl, Plane, Scene, Sphere, Text3D } from 'harmony-3d';
+import { Camera, ColorBackground, FirstPersonControl, Group, OrbitControl, Scene, Text3D } from 'harmony-3d';
 
 export class Entities {
 	// Basic entities

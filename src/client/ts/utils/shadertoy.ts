@@ -22,7 +22,7 @@ export async function getShaderToyList(): Promise<Set<string>> {
 		return list;
 	}
 
-	for (let key in shaders) {
+	for (const key in shaders) {
 		list.add(key);
 	}
 

@@ -32,7 +32,7 @@ export class Loadout {
 				//this.#badgeModel.visible = false;
 				this.#badgeModel = await addTF2Model(loadoutScene, TF2_CASUAL_BADGE);
 				if (this.#badgeModel) {
-					this.#badgeModel.setQuaternion([0, 0, -1, 1]);
+					this.#badgeModel.setOrientation([0, 0, -1, 1]);
 					this.#badgeModel.setPosition([0, 0, 40]);
 				}
 			} else {
@@ -40,7 +40,7 @@ export class Loadout {
 			}
 
 			if (this.#badgeModel) {
-				this.#badgeModel.skin = String(Math.floor((level - 1) / 25) + (tier - 1) * 6);
+				this.#badgeModel.setSkinName(String(Math.floor((level - 1) / 25) + (tier - 1) * 6));
 				const stars = (level - 1) % 5 + 1;
 				const bullets = Math.floor(((level - 1) % 25) / 5);
 				const plates = Math.floor(((level - 1) % 25) / 5) - 1;
@@ -110,7 +110,7 @@ export class Loadout {
 		}
 	}
 
-	static async #createSfmRepo(template: Tf2ItemTemplate): Promise<void> {
+	static #createSfmRepo(template: Tf2ItemTemplate): void {
 		let repo = this.#sfmRepos.get(template.id);
 		if (!repo) {
 			repo = new SfmItemRepository(WORKSHOP_REPO + template.id, SFM_WORKSHOP_UGC_URL + template.id + '/', true);

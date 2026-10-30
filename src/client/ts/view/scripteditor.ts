@@ -172,7 +172,7 @@ export class ScriptEditor extends HTMLElement {
 			}
 		} else {
 			//this.#addTab('script1', '');
-			await this.#newScript();
+			this.#newScript();
 		}
 	}
 
@@ -214,7 +214,7 @@ export class ScriptEditor extends HTMLElement {
 		this.#refreshTitle();
 	}
 
-	#refreshTitle() {
+	#refreshTitle(): void {
 		let detail = false;
 		for (const [, knownScript] of this.#knownScripts) {
 			if (knownScript.modified) {
@@ -382,6 +382,7 @@ export class ScriptEditor extends HTMLElement {
 	}
 
 	#addLineWidget(session: EditSession, element: HTMLElement): LineWidget {
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		const LineWidgets = require("ace/line_widgets").LineWidgets;
 		if (!session.widgetManager) {
 			session.widgetManager = new LineWidgets(session);

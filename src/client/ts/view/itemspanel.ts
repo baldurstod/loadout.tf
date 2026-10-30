@@ -335,7 +335,7 @@ export class ItemsPanel extends DynamicPanel {
 			OptionsManager.getList(optionName).then(universeList => {
 				if (universeList) {
 					select.innerText = '';
-					for (let currency of universeList) {
+					for (const currency of universeList) {
 						createElement('option', {
 							parent: select,
 							innerText: String(currency),
@@ -426,7 +426,7 @@ export class ItemsPanel extends DynamicPanel {
 			this.#warpaintPanel.getHTMLElement(),
 		);
 
-		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlCollapsableFiltersButton.state = value as boolean; this.#htmlCollapsableFiltersContainer!.style.maxHeight = value ? '400px' : '0px' });
+		OptionsManagerEvents.addEventListener('app.items.displayfilters', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlCollapsableFiltersButton.state = value; this.#htmlCollapsableFiltersContainer!.style.maxHeight = value ? '400px' : '0px' });
 
 		//OptionsManagerEvents.addEventListener('app.items.filter.restoretext', (event: Event) => { if ((event as CustomEvent<OptionsManagerEvent<string>>).detail.value) { this.#htmlFilterInput!.value = OptionsManager.getItem('app.items.filter.text'); } });
 		const populateName = (): void => {
@@ -439,42 +439,42 @@ export class ItemsPanel extends DynamicPanel {
 		OptionsManagerEvents.addEventListener('app.items.filter.restoretext', () => populateName());
 		OptionsManagerEvents.addEventListener('app.items.filter.text', () => populateName());
 
-		OptionsManagerEvents.addEventListener('app.items.filter.displaymedals', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlTypeRadio.select('medals', value as boolean); /*this.#setFilterMedals(value); */ });
-		OptionsManagerEvents.addEventListener('app.items.filter.displayweapons', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlTypeRadio.select('weapons', value as boolean); /*this.#setFilterWeapons(value);*/ });
-		OptionsManagerEvents.addEventListener('app.items.filter.displaycosmetics', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlTypeRadio.select('cosmetics', value as boolean);/* this.#setFilterCosmetics(value);*/ });
-		OptionsManagerEvents.addEventListener('app.items.filter.displaytaunts', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlTypeRadio.select('taunts', value as boolean); /*this.#setFilterTaunts(value); */ });
+		OptionsManagerEvents.addEventListener('app.items.filter.displaymedals', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlTypeRadio.select('medals', value); /*this.#setFilterMedals(value); */ });
+		OptionsManagerEvents.addEventListener('app.items.filter.displayweapons', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlTypeRadio.select('weapons', value); /*this.#setFilterWeapons(value);*/ });
+		OptionsManagerEvents.addEventListener('app.items.filter.displaycosmetics', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlTypeRadio.select('cosmetics', value);/* this.#setFilterCosmetics(value);*/ });
+		OptionsManagerEvents.addEventListener('app.items.filter.displaytaunts', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value; htmlTypeRadio.select('taunts', value); /*this.#setFilterTaunts(value); */ });
 
-		OptionsManagerEvents.addEventListener('app.items.filter.filterallclass', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value; htmlSwitchFilterPerClass.state = value as boolean | undefined; /*this.#applyFilter();*/ });
+		OptionsManagerEvents.addEventListener('app.items.filter.filterallclass', (event: Event) => { const value = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value; htmlSwitchFilterPerClass.state = value; /*this.#applyFilter();*/ });
 
 		//OptionsManagerEvents.addEventListener('app.items.sort.type', (event: Event) => this.#htmlSortType!.value = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string);
 		OptionsManagerEvents.addEventListener('app.items.sort.type', (event: Event) => {
-			const sortType = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string;
+			const sortType = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value;
 			htmlSortType.value = sortType;
 			Tf2LoadoutController.dispatchEvent('setitemsorttype', { detail: sortType });
 			this.#refreshItems();
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.filter.sfm.universe', (event: Event) => {
-			const universe = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string;
-			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.SfmUniverse, value: universe } }),
-				this.#refreshItems();
+			const universe = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value;
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.SfmUniverse, value: universe } });
+			this.#refreshItems();
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.filter.sfm.models', (event: Event) => {
-			const models = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string;
-			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.SfmModel, value: models } }),
-				this.#refreshItems();
+			const models = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value;
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.SfmModel, value: models } });
+			this.#refreshItems();
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.sfm.sort.field', (event: Event) => {
-			const sortType = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string;
+			const sortType = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value;
 			htmlSfmSortType.value = sortType;
 			Tf2LoadoutController.dispatchEvent('setsfmsortfield', { detail: sortType });
 			this.#refreshItems();
 		});
 
 		OptionsManagerEvents.addEventListener('app.items.filter.collection', (event: Event) => {
-			const collectionFilter = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string;
+			const collectionFilter = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value;
 			this.#htmlFilterCollection!.value = collectionFilter;
 			setCollectionFilter(collectionFilter);
 		});
@@ -498,16 +498,16 @@ export class ItemsPanel extends DynamicPanel {
 		//OptionsManagerEvents.addEventListener('app.items.warpaints.sort.ascending', (event: Event) => this.#htmlWarpaintsSortDirection.state = ascending);
 
 		OptionsManagerEvents.addEventListener('app.items.filter.halloween', (event: Event) => {
-			htmlShowHalloween.state = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value as boolean | undefined;
-			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Halloween, value: htmlShowHalloween.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean } });
+			htmlShowHalloween.state = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value;
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Halloween, value: htmlShowHalloween.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value } });
 		});
 		OptionsManagerEvents.addEventListener('app.items.filter.paintable', (event: Event) => {
-			htmlShowPaintable.state = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value as boolean | undefined;
-			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Paintable, value: (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean } });
+			htmlShowPaintable.state = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value;
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Paintable, value: (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value } });
 		});
 		OptionsManagerEvents.addEventListener('app.items.filter.warpaintable', (event: Event) => {
-			htmlShowWarpaintable.state = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value as boolean | undefined;
-			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Warpaintable, value: (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean } });
+			htmlShowWarpaintable.state = (event as CustomEvent<OptionsManagerEvent<boolean | undefined>>).detail.value;
+			Tf2LoadoutController.dispatchEvent('setitemfilter', { detail: { attribute: ItemFilterAttribute.Warpaintable, value: (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value } });
 		});
 		//OptionsManagerEvents.addEventListener('app.items.filter.*', () => this.#refreshItems());
 	}
@@ -525,7 +525,7 @@ export class ItemsPanel extends DynamicPanel {
 		const [items, conflictingItems] = Tf2ItemManager.getFilteredItems(excludedItems);
 
 		const w = this.#htmlItemsContainer!.clientWidth;
-		let elementSize = OptionsManager.getItem('app.css.variables.item-manager-item-size') as number ?? 150;
+		const elementSize = OptionsManager.getItem('app.css.variables.item-manager-item-size') as number ?? 150;
 		const columns = w / elementSize;
 		const offset = (columns % 1) * elementSize / 2;
 

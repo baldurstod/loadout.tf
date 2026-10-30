@@ -22,7 +22,7 @@ export class SfmItemRepository extends WebRepository {
 	async #initRepo(): Promise<void> {
 		const url = this.base + `manifest.json?t=${new Date().getTime()}`;
 
-		const populateFiles = (level: JSONObject, path: string) => {
+		const populateFiles = (level: JSONObject, path: string): void => {
 			for (const segment in level) {
 				const f = level[segment];
 				if ((f as number) > 0) {

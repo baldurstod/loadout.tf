@@ -17,3 +17,6 @@ prod:
 
 clean:
 	go clean
+
+lint:
+	npx eslint ./src/client/ts/**

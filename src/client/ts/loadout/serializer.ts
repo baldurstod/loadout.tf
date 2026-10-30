@@ -262,10 +262,10 @@ export async function exportLoadout(): Promise<loadoutJSON> {
 async function exportCharacterLoadout(character: Tf2Character): Promise<characterJSON> {
 	const characterJSON: characterJSON = { npc: character.npc, items: [], effects: [] };
 
-	let model = await character.getModel();
+	const model = await character.getModel();
 
 	const modelPosition = model?.getWorldPosition();
-	const modelQuaternion = model?.getWorldQuaternion();
+	const modelQuaternion = model?.getWorldOrientation();
 	const modelScale = model?.getWorldScale();
 
 	for (const [, item] of character.items) {

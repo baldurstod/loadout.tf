@@ -44,7 +44,7 @@ export function addRepository(repository: Repository, parent: HTMLElement, style
 							style: 'opacity:0',
 							//hidden: true,
 							events: {
-								// eslint-disable-next-line @typescript-eslint/no-misused-promises
+
 								click: () => removeModel((event).detail.entry),
 							}
 						}),
@@ -54,6 +54,7 @@ export function addRepository(repository: Repository, parent: HTMLElement, style
 				buttonByRepoEntry.set((event).detail.entry, removeButton);
 			},
 		},
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		$close: () => removeRepository(repository),
 	}) as HTMLRepositoryElement;
 	repositoryView.setFilter({ extension: 'mdl', directories: false });
@@ -79,7 +80,7 @@ async function addModel(entry: RepositoryEntry, parent?: Entity | null): Promise
 	}
 }
 
-async function removeModel(entry: RepositoryEntry): Promise<void> {
+function removeModel(entry: RepositoryEntry): void {
 	const m = modelsByRepoEntry.get(entry);
 	if (m) {
 		m.pop()?.remove();

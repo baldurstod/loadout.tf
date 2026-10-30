@@ -26,8 +26,8 @@ const warpaintsLights = new Group({
 });
 
 Controller.addEventListener(ControllerEvent.CharacterChanged, (event: Event) => characterChanged((event as CustomEvent<Tf2Character>).detail));
-Tf2LoadoutController.addEventListener('itemadded', (event) => loadoutChanged((event as CustomEvent<Tf2Item>).detail));
-Tf2LoadoutController.addEventListener('itemremoved', (event) => loadoutChanged((event as CustomEvent<Tf2Item>).detail));
+Tf2LoadoutController.addEventListener('itemadded', (event) => loadoutChanged((event).detail));
+Tf2LoadoutController.addEventListener('itemremoved', (event) => loadoutChanged((event).detail));
 GraphicsEvents.addEventListener('pick', (event: Event) => handlePick(event as CustomEvent<GraphicPickEvent>));
 GraphicsEvents.addEventListener('tick', animate);
 
@@ -139,7 +139,7 @@ async function initWeaponLayout(weapons: Map<string, Tf2Item>): Promise<void> {
 function centerModel(model: Source1ModelInstance): void {
 	const boundingBox = new BoundingBox();
 	const pos = model.getWorldPosition();
-	const rot = model.getWorldQuaternion();
+	const rot = model.getWorldOrientation();
 	quat.invert(rot, rot);
 	model.getBoundingBox(boundingBox);
 	vec3.sub(pos, boundingBox.center, pos);

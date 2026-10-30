@@ -106,7 +106,7 @@ export class OptionsPanel extends DynamicPanel {
 			class: 'language-selector',
 			$input: () => OptionsManager.setItem('app.lang', this.#htmlLanguageSelector!.value),
 		}) as HTMLSelectElement;
-		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#htmlLanguageSelector!.value = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string);
+		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#htmlLanguageSelector!.value = (event as CustomEvent<OptionsManagerEvent<string>>).detail.value);
 
 		const languageAuthors = createElement('div', { class: 'option-language-authors' });
 		/*I18n.addEventListener('translationsloaded', () => {
@@ -143,7 +143,7 @@ export class OptionsPanel extends DynamicPanel {
 				createElement('button', { 'i18n': '#infecteds', value: 'infected' }),
 			],
 			value: 'human',
-			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvent.UseBots, { detail: event.detail.value }),
+			$change: (event: CustomEvent<HarmonySwitchChange>) => Controller.dispatchEvent<boolean>(ControllerEvent.UseBots, { detail: event.detail.state }),
 		});
 
 		createElement('harmony-switch', {
@@ -156,13 +156,13 @@ export class OptionsPanel extends DynamicPanel {
 			'data-i18n': '#mute_sounds',
 			$change: () => OptionsManager.setItem('app.audio.mute.master', this.#htmlMuteSounds.state),
 		}) as HTMLHarmonySwitchElement;
-		OptionsManagerEvents.addEventListener('app.audio.mute.master', (event: Event) => this.#htmlMuteSounds.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.audio.mute.master', (event: Event) => this.#htmlMuteSounds.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value);
 
 		const htmlSpeech: HTMLHarmonySwitchElement = createElement('harmony-switch', {
 			'data-i18n': '#speech_recognition',
 			$change: () => OptionsManager.setItem('app.usespeechrecognition', htmlSpeech.state),
 		}) as HTMLHarmonySwitchElement;
-		OptionsManagerEvents.addEventListener('app.usespeechrecognition', (event: Event) => htmlSpeech.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.usespeechrecognition', (event: Event) => htmlSpeech.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value);
 
 		createElement('div', {
 			childs: [
@@ -268,8 +268,8 @@ export class OptionsPanel extends DynamicPanel {
 						if (!shaders) {
 							return;
 						}
-						for (let name of shaders) {
-							let option = createElement('option', { innerHTML: name, value: name }) as HTMLOptionElement;
+						for (const name of shaders) {
+							const option = createElement('option', { innerHTML: name, value: name }) as HTMLOptionElement;
 							this.#htmlShaderToyList?.append(option);
 						}
 					});
@@ -489,7 +489,7 @@ export class OptionsPanel extends DynamicPanel {
 
 	#initHtmlGraphicOptions(): void {
 		let htmlGraphicOptionsPanel: HTMLElement;
-		const htmlGraphicOptionsTab = createElement('harmony-tab', {
+		createElement('harmony-tab', {
 			class: 'loadout-application-options-graphics',
 			parent: this.#htmlTabGroup,
 			'data-i18n': '#graphic_options',
@@ -563,7 +563,7 @@ export class OptionsPanel extends DynamicPanel {
 		});
 
 		const addPassParameters = (pass: typeof Pass, name: string, parent: HTMLElement): void => {
-			const optionName = 'app.postprocessing.';
+			//const optionName = 'app.postprocessing.';
 			const params = pass.getParameters();
 			for (const param of params) {
 				const element = createPassParameterUi(name, param);
@@ -681,6 +681,7 @@ export class OptionsPanel extends DynamicPanel {
 					hidden: !TESTING,
 					//'data-accept': '.zip,.vpk',
 					'data-tooltip-i18n': '#import_image',
+					// eslint-disable-next-line @typescript-eslint/no-misused-promises
 					$change: async (event: Event) => {
 						for (const file of (event.target as HTMLHarmonyFileInputElement).files ?? []) {
 
@@ -729,7 +730,7 @@ export class OptionsPanel extends DynamicPanel {
 				}),
 			],
 		});
-		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => showHiddenCharacters.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean);
+		OptionsManagerEvents.addEventListener('app.characters.showhidden', (event: Event) => showHiddenCharacters.state = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value);
 
 		this.#initDispositions();
 	}
@@ -765,7 +766,7 @@ export class OptionsPanel extends DynamicPanel {
 		}) as HTMLHarmonyTabElement;
 
 
-		const callback: IntersectionObserverCallback = (entries, observer) => {
+		const callback: IntersectionObserverCallback = (entries) => {
 			entries.forEach(entry => {
 				if (entry.target === sceneExplorerElement) {
 					Controller.dispatchEvent<boolean>(ControllerEvent.SceneExplorerVisible, { detail: entry.isIntersecting });
@@ -890,8 +891,8 @@ export class OptionsPanel extends DynamicPanel {
 	}
 
 	#initListeners(): void {
-		OptionsManagerEvents.addEventListener('engine.shadereditor.recompiledelay', (event: Event) => this.#shaderEditor.recompileDelay = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value as number);
-		OptionsManagerEvents.addEventListener('app.audio.mute.*', (event: Event) => this.#muteSound((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.name.replace('app.audio.mute.', ''), (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value as boolean));
+		OptionsManagerEvents.addEventListener('engine.shadereditor.recompiledelay', (event: Event) => this.#shaderEditor.recompileDelay = (event as CustomEvent<OptionsManagerEvent<number>>).detail.value);
+		OptionsManagerEvents.addEventListener('app.audio.mute.*', (event: Event) => this.#muteSound((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.name.replace('app.audio.mute.', ''), (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value));
 	}
 
 	#muteSound(group: string, mute: boolean): void {
@@ -990,8 +991,8 @@ export class OptionsPanel extends DynamicPanel {
 		I18n.i18n();
 	}
 
-	#initShaderOptions() {
-		function getOptionName(detail: any/*TODO: improve type*/) {
+	#initShaderOptions(): void {
+		function getOptionName(detail: any/*TODO: improve type*/): 'engine.shaders.customshaders' | 'engine.shaders.customincludes' {
 			switch (detail.type) {
 				case 'shader':
 				default:
@@ -1001,10 +1002,10 @@ export class OptionsPanel extends DynamicPanel {
 			}
 		}
 
-		let saveCustomShader = (event: Event) => {
+		const saveCustomShader = (event: Event): void => {
 			OptionsManager.setSubItem(getOptionName((event as CustomEvent).detail), (event as CustomEvent).detail.name, (event as CustomEvent).detail.source)
 		};
-		let reloadCustomShader = (event: Event, source: string) => {
+		const reloadCustomShader = (event: Event, source: string): void => {
 			if ((event as CustomEvent).detail.type == 'shader') {
 				ShaderManager.setCustomSource((event as CustomEvent).detail.shaderType, (event as CustomEvent).detail.name, source);
 				this.#shaderEditor.setEditorShaderName(this.#shaderEditor.getEditorShaderName());
@@ -1016,18 +1017,19 @@ export class OptionsPanel extends DynamicPanel {
 			Graphics.invalidateShaders();
 		}
 
-		let loadCustomShader = async (event: Event) => {
-			let source = (await OptionsManager.getSubItem(getOptionName((event as CustomEvent).detail), (event as CustomEvent).detail.name)) as string;
+		const loadCustomShader = async (event: Event): Promise<void> => {
+			const source = (await OptionsManager.getSubItem(getOptionName((event as CustomEvent).detail), (event as CustomEvent).detail.name)) as string;
 			if (source) {
 				reloadCustomShader(event, source);
 			}
 		};
-		let removeCustomShader = (event: Event) => {
+		const removeCustomShader = (event: Event): void => {
 			OptionsManager.removeSubItem(getOptionName((event as CustomEvent).detail), (event as CustomEvent).detail.name);
 			reloadCustomShader(event, '');
 		};
 
 		this.#shaderEditor.addEventListener('save-custom-shader', saveCustomShader);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		this.#shaderEditor.addEventListener('load-custom-shader', loadCustomShader);
 		this.#shaderEditor.addEventListener('remove-custom-shader', removeCustomShader);
 	}

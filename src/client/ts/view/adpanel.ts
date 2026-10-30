@@ -35,6 +35,7 @@ export class AdPanel {
 
 		try {
 			this.#initObserver();
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (e) { }
 
 		I18n.addEventListener(I18nEvents.Any, () => this.#updateStrings());

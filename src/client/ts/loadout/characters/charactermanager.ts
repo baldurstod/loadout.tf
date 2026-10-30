@@ -22,7 +22,7 @@ class CharacterSlot {
 
 	async setOrientation(orientation: quat): Promise<void> {
 		quat.copy(this.orientation, orientation);
-		(await this.character?.getModel())?.setQuaternion(orientation);
+		(await this.character?.getModel())?.setOrientation(orientation);
 	}
 }
 
@@ -96,7 +96,7 @@ export class CharacterManager {
 					//model.playSequence(startAnim);
 					//model.setAnimation(0, startAnim, 1);
 					model.setPosition(slot.position);
-					model.setQuaternion(slot.orientation);
+					model.setOrientation(slot.orientation);
 				}
 			}
 		}
@@ -314,7 +314,7 @@ export class CharacterManager {
 				if (slot.character) {
 					slot.character.getModel().then((model) => {
 						model?.setPosition(disposition.position);
-						model?.setQuaternion(disposition.orientation);
+						model?.setOrientation(disposition.orientation);
 					});
 				}
 			}
@@ -346,11 +346,12 @@ export class CharacterManager {
 		const toolbox = await engy.addExtraModel(TF2_TOOLBOX_MODEL);
 		if (toolbox) {
 			toolbox.setPosition(TOOLBOX_POSITION);
-			toolbox.setQuaternion(TOOLBOX_ORIENTATION);
+			toolbox.setOrientation(TOOLBOX_ORIENTATION);
 		}
 		Controller.dispatchEvent(ControllerEvent.ActivateMeetTheTeamMap);
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	static #selectAnim(anim: string, applyToAll: boolean, force = false, scene: Scene = loadoutScene): void {
 		/*
 		if (!force && this.#htmlAnimSelector.value != '') {
