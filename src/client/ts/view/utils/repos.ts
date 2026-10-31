@@ -36,7 +36,7 @@ export function addRepository(repository: Repository, parent: HTMLElement, style
 							i18n: '#add_to_current_character',
 							events: {
 								// eslint-disable-next-line @typescript-eslint/no-misused-promises
-								click: async () => addModel((event).detail.entry, await Tf2CharacterManager.getCurrentCharacter()?.getModel()),
+								click: async () => addModel((event).detail.entry, await Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getModel()),
 							}
 						}),
 						removeButton = createElement('button', {

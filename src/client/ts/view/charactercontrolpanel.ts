@@ -42,7 +42,12 @@ export class CharacterControlPanel extends StaticPanel {
 			min: 0,
 			max: 1,
 			step: 0.01,
-			$input: (event: Event) => Tf2LoadoutController.dispatchEvent('changeanimframe', { detail: Number((event.target as HTMLInputElement).value) }),
+			$input: (event: Event) => Tf2LoadoutController.dispatchEvent('changeanimframe', {
+				detail: {
+					frame: Number((event.target as HTMLInputElement).value),
+					scene: loadoutScene,
+				}
+			}),
 		});
 
 		createElement('harmony-radio', {
@@ -93,17 +98,27 @@ export class CharacterControlPanel extends StaticPanel {
 		// First, try to get the option from the datalist
 		for (const option of this.#htmlAnimSelectorDataList!.options) {
 			if (option.innerText === this.#htmlAnimSelector!.value) {
-				Tf2LoadoutController.dispatchEvent('setanim', { detail: option.getAttribute('data-value') as string });
+				Tf2LoadoutController.dispatchEvent('setanim', {
+					detail: {
+						anim: option.getAttribute('data-value') as string,
+						scene: loadoutScene,
+					}
+				});
 				return;
 			}
 		}
 
 		// If not found, submit the user input
-		Tf2LoadoutController.dispatchEvent('setanim', { detail: this.#htmlAnimSelector!.value });
+		Tf2LoadoutController.dispatchEvent('setanim', {
+			detail: {
+				anim: this.#htmlAnimSelector!.value,
+				scene: loadoutScene,
+			}
+		});
 	}
 
 	#refreshAnimList(): void {
-		const animsList = Tf2CharacterManager.getAnimList();
+		const animsList = Tf2CharacterManager.getAnimList(loadoutScene);
 		this.#htmlAnimSelectorDataList?.replaceChildren();
 		if (animsList) {
 			const list = animsList.animations;

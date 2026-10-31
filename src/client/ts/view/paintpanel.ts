@@ -5,6 +5,7 @@ import itemCSS from '../../css/item.css';
 import paintPanelCSS from '../../css/paintpanel.css';
 import { inventoryPath } from '../constants';
 import { Panel } from '../enums';
+import { loadoutScene } from '../loadout/scene';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -96,7 +97,7 @@ export class PaintPanel extends DynamicPanel {
 		});
 
 		Tf2LoadoutController.addEventListener('characterchanged', () => {
-			const team = Tf2CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
+			const team = Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getTeam() ?? 'red';
 			if (team == 'red') {
 				paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 			} else {

@@ -5,6 +5,7 @@ import effectsCSS from '../../css/effects.css';
 import effectsPanelCSS from '../../css/effectspanel.css';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { Panel } from '../enums';
+import { loadoutScene } from '../loadout/scene';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 import { UnusualEffectElement } from './elements/unusualeffect';
@@ -223,7 +224,7 @@ export class EffectsPanel extends DynamicPanel {
 
 		this.#htmlActiveEffects?.replaceChildren();
 
-		const character = Tf2CharacterManager.getCurrentCharacter();
+		const character = Tf2CharacterManager.getCurrentCharacter(loadoutScene);
 		if (!character) {
 			return;
 		}
@@ -344,7 +345,7 @@ export class EffectsPanel extends DynamicPanel {
 		});
 
 		Tf2LoadoutController.addEventListener('characterchanged', () => {
-			const team = Tf2CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
+			const team = Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getTeam() ?? 'red';
 			if (team == 'red') {
 				killstreakOption.style.backgroundColor = colorToCss(killstreak.color1Red);
 			} else {

@@ -1,5 +1,5 @@
 import { Camera, CameraControl, ColorBackground, Entity, FirstPersonControl, Group, HALF_PI, OrbitControl, PointLight, Scene, SceneExplorer, Source1ModelInstance, Source1ModelManager } from 'harmony-3d';
-import { CameraType } from 'loadout';
+import { CameraType, Tf2CharacterManager } from 'loadout';
 
 export const loadoutScene = new Scene();
 export const loadoutColorBackground = new ColorBackground();
@@ -18,6 +18,10 @@ export const firstPersonCameraControl = new FirstPersonControl(orbitCamera);
 firstPersonCameraControl.movementSpeed = 100;
 firstPersonCameraControl.lookSpeed = 0.1;
 export let activeCameraControl: CameraControl = orbitCameraControl;
+
+
+Tf2CharacterManager.setScene(loadoutScene);
+Tf2CharacterManager.setFirstPersonCamera(firstPersonCamera);
 
 loadoutScene.addChild(orbitCameraControl.target);
 

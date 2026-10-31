@@ -605,7 +605,7 @@ export class OptionsPanel extends DynamicPanel {
 		])
 
 		function setPoseParameter(name: string, value: number): void {
-			const currentCharacter = Tf2CharacterManager.getCurrentCharacter();
+			const currentCharacter = Tf2CharacterManager.getCurrentCharacter(loadoutScene);
 			if (!currentCharacter) {
 				return;
 			}
@@ -628,14 +628,14 @@ export class OptionsPanel extends DynamicPanel {
 					class: 'option-button',
 					i18n: '#setup_meet_the_team',
 					events: {
-						click: () => { Tf2CharacterManager.setupMeetTheTeam() },
+						click: () => { Tf2CharacterManager.setupMeetTheTeam(loadoutScene) },
 					}
 				}),
 				createElement('div', {
 					class: 'option-button',
 					i18n: '#remove_current_character',
 					events: {
-						click: () => Tf2CharacterManager.removeCharacter(),
+						click: () => Tf2CharacterManager.removeCharacter(loadoutScene),
 					},
 				}),
 				createElement('div', {
@@ -914,7 +914,7 @@ export class OptionsPanel extends DynamicPanel {
 				}),
 				select = createElement('select', {
 					id: 'character-disposition-select',
-					$change: (event: Event) => Tf2CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
+					$change: (event: Event) => Tf2CharacterManager.useDisposition((event.target as HTMLSelectElement).value, loadoutScene),
 					//$click: (event: Event) => Tf2CharacterManager.useDisposition((event.target as HTMLSelectElement).value),
 				}) as HTMLSelectElement,
 			],
@@ -946,7 +946,7 @@ export class OptionsPanel extends DynamicPanel {
 					value: String(this.#customDisposition.countX),
 					$change: (event: InputEvent) => {
 						this.#customDisposition.countX = Number((event.target as HTMLInputElement).value);
-						Tf2CharacterManager.refreshCustomDisposition(this.#customDisposition);
+						Tf2CharacterManager.refreshCustomDisposition(this.#customDisposition, loadoutScene);
 					},
 				})
 			],
@@ -964,7 +964,7 @@ export class OptionsPanel extends DynamicPanel {
 					value: String(this.#customDisposition.countY),
 					$change: (event: InputEvent) => {
 						this.#customDisposition.countY = Number((event.target as HTMLInputElement).value);
-						Tf2CharacterManager.refreshCustomDisposition(this.#customDisposition);
+						Tf2CharacterManager.refreshCustomDisposition(this.#customDisposition, loadoutScene);
 					},
 				})
 			],
@@ -982,7 +982,7 @@ export class OptionsPanel extends DynamicPanel {
 					value: String(this.#customDisposition.countZ),
 					$change: (event: InputEvent) => {
 						this.#customDisposition.countZ = Number((event.target as HTMLInputElement).value);
-						Tf2CharacterManager.refreshCustomDisposition(this.#customDisposition);
+						Tf2CharacterManager.refreshCustomDisposition(this.#customDisposition, loadoutScene);
 					},
 				})
 			],

@@ -174,7 +174,7 @@ class Application {
 		Controller.addEventListener(ControllerEvent.SelectCharacter, (event: Event) => {
 			const tf2Class = (event as CustomEvent<Tf2Class>).detail;
 
-			Tf2CharacterManager.selectCharacter(tf2Class);
+			Tf2CharacterManager.selectCharacter(tf2Class, loadoutScene);
 		});
 
 		Controller.addEventListener(ControllerEvent.SelectCamera, (event: Event) => setActiveCamera((event as CustomEvent<CameraType>).detail));
@@ -669,7 +669,7 @@ class Application {
 		// TODO
 		//TextureCombiner.setTeam(team);
 		//CharacterManager.setSkin(team);
-		Tf2CharacterManager.setTeam(team);
+		Tf2CharacterManager.setTeam(team, loadoutScene);
 		this.#setTeamBackground();
 	}
 
@@ -772,7 +772,7 @@ class Application {
 
 	async #initDefaultCharacter(): Promise<void> {
 		await Graphics.ready;
-		Tf2CharacterManager.selectCharacter(Tf2Class.None);
+		Tf2CharacterManager.selectCharacter(Tf2Class.None, loadoutScene);
 	}
 
 	async #initWarpaints(): Promise<void> {

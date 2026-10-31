@@ -5,6 +5,7 @@ import itemCSS from '../../css/item.css';
 import sheenPanelCSS from '../../css/sheenpanel.css';
 import { inventoryPath } from '../constants';
 import { Panel } from '../enums';
+import { loadoutScene } from '../loadout/scene';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 
@@ -77,7 +78,7 @@ export class SheenPanel extends DynamicPanel {
 		});
 
 		Tf2LoadoutController.addEventListener('characterchanged', () => {
-			const team = Tf2CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
+			const team = Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getTeam() ?? 'red';
 			if (team == 'red') {
 				sheenOption.style.backgroundColor = colorToCss(sheen.sheenRed);
 			} else {

@@ -2,6 +2,7 @@ import { createElement, hide } from 'harmony-ui';
 import { Tf2Character, Tf2CharacterManager, Tf2LoadoutController } from 'loadout';
 import flexesPanelCSS from '../../css/flexespanel.css';
 import { Panel } from '../enums';
+import { loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 
 export class FlexesPanel extends DynamicPanel {
@@ -32,7 +33,7 @@ export class FlexesPanel extends DynamicPanel {
 	}
 
 	async #resetFlexesAnims(): Promise<void> {
-		await Tf2CharacterManager.getCurrentCharacter()?.resetFlexes();
+		await Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.resetFlexes();
 	}
 
 	async #onCharacterChanged(character: Tf2Character): Promise<void> {
