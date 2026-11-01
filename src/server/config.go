@@ -21,12 +21,14 @@ type Patreon struct {
 	CreatorCents int    `json:"creator_cents"`
 }
 
+type Database struct {
+	Datasource string `json:"datasource"`
+}
+
 type Sessions struct {
-	ConnectURI  string `json:"connect_uri"`
-	DBName      string `json:"db_name"`
-	Collection  string `json:"collection"`
-	Secret      string `json:"secret"`
-	SessionName string `json:"session_name"`
+	DB          Database `json:"db"`
+	Secret      string   `json:"secret"`
+	SessionName string   `json:"session_name"`
 }
 
 type Steam struct {

@@ -12,9 +12,9 @@
 		"creator_cents": 10000000
 	},
 	"sessions": {
-		"connect_uri": "mongodb://localhost:27017",
-		"db_name": "",
-		"collection": "",
+		"db": {
+			"datasource": "postgres://user:pass@localhost/db_name"
+		},
 		"secret": "",
 		"session_name": "session"
 	},

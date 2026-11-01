@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	"database/sql"
 	"io/fs"
 	"log"
 	"net/http"
@@ -12,12 +12,16 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/mongo/mongodriver"
+	"github.com/gin-contrib/sessions/postgres"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	assets "loadout.tf"
 )
+
+var sessionsDb *sql.DB
+
+func initsessionsDB(config Database) {
+	sessionsDb = openPostgre(config.Datasource)
+}
 
 func startServer(config Config) {
 	/*
@@ -63,13 +67,10 @@ func initEngine(config Config) *gin.Engine {
 	pm := newPatreonMiddleware(p.ClientID, p.ClientSecret, p.RedirectURL, p.CreatorID, p.CreatorCents)
 
 	// Init sessions store
-	mongoOptions := options.Client().ApplyURI(config.Sessions.ConnectURI)
-	client, err := mongo.Connect(context.Background(), mongoOptions)
+	store, err := postgres.NewStore(sessionsDb, []byte(config.Sessions.Secret))
 	if err != nil {
 		log.Fatal(err)
 	}
-	c := client.Database(config.Sessions.DBName).Collection(config.Sessions.Collection)
-	store := mongodriver.NewStore(c, 86400*30, true, []byte(config.Sessions.Secret))
 
 	r.Use(sessions.Sessions(config.Sessions.SessionName, store))
 	r.Use(pm.middleware(r))
