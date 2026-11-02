@@ -1,21 +1,22 @@
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
 import { AudioMixer, createPassParameterUi, CrosshatchPass, Entity, GrainPass, Graphics, Line, OldMoviePass, PalettePass, Pass, PassParameterEvent, PassParameterEvents, PixelatePass, Repository, RepositoryEntry, SaturatePass, SceneExplorer, setCustomIncludeSource, ShaderEditor, ShaderManager, ShaderType, SketchPass, Sphere } from 'harmony-3d';
-import { defineRepository } from 'harmony-3d-utils';
+import { defineRepository, ScriptEditor } from 'harmony-3d-utils';
 import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, PersistentStorage } from 'harmony-browser-utils';
-import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyPanel, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyPanelElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n, RadioChangedEventData } from 'harmony-ui';
+import { createElement, defineHarmonyColorPicker, defineHarmonyFileInput, defineHarmonyPanel, defineHarmonyTab, defineHarmonyTabGroup, display, HarmonySwitchChange, hide, HTMLHarmonyColorPickerElement, HTMLHarmonyFileInputElement, HTMLHarmonyInfoBoxElementType, HTMLHarmonyPanelElement, HTMLHarmonyRadioElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyTabGroupElement, I18n, RadioChangedEventData } from 'harmony-ui';
 import { fileToImage } from 'harmony-utils';
 import { CameraType, CustomDisposition, Tf2CharacterManager, Tf2LoadoutController, UsePlayerModels } from 'loadout';
 import optionsCSS from '../../css/options.css';
 import repositoryEntryCSS from '../../css/repositoryentry.css';
 import sceneExplorerCSS from '../../css/sceneexplorer.css';
 import { PATREON_IS_LOGGED, TESTING } from '../bundleoptions';
+import { SNIPPET_URL } from '../constants';
 import { Controller, ControllerEvent, SetBackgroundType, ShowBadge } from '../controller';
 import { BackgroundType, Panel } from '../enums';
 import { loadoutScene } from '../loadout/scene';
 import { SfmItemRepository } from '../repositories/sfmitemrepository';
+import { initPyodideModules } from '../scripting/pyodide';
 import { getShaderToyList } from '../utils/shadertoy';
 import { DynamicPanel } from './dynamicpanel';
-import { ScriptEditor } from './scripteditor';
 import { addRepository } from './utils/repos';
 
 export class OptionsPanel extends DynamicPanel {
@@ -47,6 +48,7 @@ export class OptionsPanel extends DynamicPanel {
 		hide(this.getShadowRoot());
 		this.#initListeners();
 		this.#initShaderOptions();
+		this.#scriptEditor.addEventListener('has-modified-script', (event: Event) => Controller.dispatchEvent<boolean>(ControllerEvent.SetTitleModified, { detail: (event as CustomEvent<boolean>).detail }));
 	}
 
 	protected override initHTML(): void {
@@ -791,9 +793,19 @@ export class OptionsPanel extends DynamicPanel {
 		const htmlScriptEditorTab = createElement('harmony-tab', { 'data-i18n': '#script_editor' });
 		this.#htmlTabGroup?.append(htmlScriptEditorTab);
 
-		htmlScriptEditorTab.addEventListener('activated', () => {
+		htmlScriptEditorTab.addEventListener('activated', async () => {
 			this.#scriptEditor.initEditor({ aceUrl: './assets/js/ace-builds/src-min/ace.js' });
-			htmlScriptEditorTab.append(this.#scriptEditor);
+			htmlScriptEditorTab.append(this.#scriptEditor.htmlElement);
+
+
+			this.#scriptEditor.addInfo(HTMLHarmonyInfoBoxElementType.Ok,
+				[
+					createElement('span', { i18n: '#script_snippets', }),
+					createElement('a', { href: SNIPPET_URL, innerText: SNIPPET_URL, target: '_blank', style: 'color:white;' }),
+				]
+			);
+
+			await initPyodideModules();
 		});
 	}
 
