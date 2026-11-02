@@ -19,8 +19,6 @@ firstPersonCameraControl.movementSpeed = 100;
 firstPersonCameraControl.lookSpeed = 0.1;
 export let activeCameraControl: CameraControl = orbitCameraControl;
 
-
-Tf2CharacterManager.setScene(loadoutScene);
 Tf2CharacterManager.setFirstPersonCamera(firstPersonCamera);
 
 loadoutScene.addChild(orbitCameraControl.target);

@@ -97,7 +97,7 @@ export class PaintPanel extends DynamicPanel {
 		});
 
 		Tf2LoadoutController.addEventListener('characterchanged', () => {
-			const team = Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getTeam() ?? 'red';
+			const team = Tf2CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
 			if (team == 'red') {
 				paintOption.style.backgroundColor = colorToCss(paint.tintRed);
 			} else {

@@ -1,7 +1,6 @@
 import { createElement, defineHarmonyRadio, HTMLHarmonySwitchElement } from 'harmony-ui';
 import { Ragdoll, Tf2CharacterManager, Tf2LoadoutController } from 'loadout';
 import characterControlCSS from '../../css/charactercontrol.css';
-import { loadoutScene } from '../loadout/scene';
 import { StaticPanel } from './staticpanel';
 import { TeamSelector } from './teamselector';
 
@@ -43,10 +42,7 @@ export class CharacterControlPanel extends StaticPanel {
 			max: 1,
 			step: 0.01,
 			$input: (event: Event) => Tf2LoadoutController.dispatchEvent('changeanimframe', {
-				detail: {
-					frame: Number((event.target as HTMLInputElement).value),
-					scene: loadoutScene,
-				}
+				detail: Number((event.target as HTMLInputElement).value),
 			}),
 		});
 
@@ -63,18 +59,18 @@ export class CharacterControlPanel extends StaticPanel {
 				//OptionsManager.setItem('app.css.theme', (event).detail.value);
 				switch (event.detail.value) {
 					case 'none':
-						Tf2LoadoutController.dispatchEvent('setinvulnerable', { detail: { invulnerable: false, scene: loadoutScene } });
-						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: { ragdoll: Ragdoll.None, scene: loadoutScene } });
+						Tf2LoadoutController.dispatchEvent('setinvulnerable', { detail: false, });
+						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: Ragdoll.None, });
 						break;
 					case 'invulnerable':
-						Tf2LoadoutController.dispatchEvent('setinvulnerable', { detail: { invulnerable: event.detail.state, scene: loadoutScene } });
-						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: { ragdoll: Ragdoll.None, scene: loadoutScene } });
+						Tf2LoadoutController.dispatchEvent('setinvulnerable', { detail: event.detail.state, });
+						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: Ragdoll.None, });
 						break;
 					case 'gold':
-						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: { ragdoll: Ragdoll.Gold, scene: loadoutScene } });
+						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: Ragdoll.Gold, });
 						break;
 					case 'ice':
-						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: { ragdoll: Ragdoll.Ice, scene: loadoutScene } });
+						Tf2LoadoutController.dispatchEvent('setragdoll', { detail: Ragdoll.Ice, });
 						break;
 				}
 			},
@@ -99,10 +95,7 @@ export class CharacterControlPanel extends StaticPanel {
 		for (const option of this.#htmlAnimSelectorDataList!.options) {
 			if (option.innerText === this.#htmlAnimSelector!.value) {
 				Tf2LoadoutController.dispatchEvent('setanim', {
-					detail: {
-						anim: option.getAttribute('data-value') as string,
-						scene: loadoutScene,
-					}
+					detail: option.getAttribute('data-value') as string,
 				});
 				return;
 			}
@@ -110,15 +103,12 @@ export class CharacterControlPanel extends StaticPanel {
 
 		// If not found, submit the user input
 		Tf2LoadoutController.dispatchEvent('setanim', {
-			detail: {
-				anim: this.#htmlAnimSelector!.value,
-				scene: loadoutScene,
-			}
+			detail: this.#htmlAnimSelector!.value,
 		});
 	}
 
 	#refreshAnimList(): void {
-		const animsList = Tf2CharacterManager.getAnimList(loadoutScene);
+		const animsList = Tf2CharacterManager.getAnimList();
 		this.#htmlAnimSelectorDataList?.replaceChildren();
 		if (animsList) {
 			const list = animsList.animations;

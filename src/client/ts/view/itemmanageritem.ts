@@ -22,7 +22,6 @@ import viewmodeSpookyPNG from '../../img/items/viewmode_spooky.png';
 import viewmodeUnusualVtfPNG from '../../img/items/viewmode_unusual.vtf.png';
 import { inventoryPath, STEAM_PROFILE_URL, STEAM_WORKSHOP_URL } from '../constants';
 import { Controller, ControllerEvent } from '../controller';
-import { loadoutScene } from '../loadout/scene';
 
 const SELECTED_CLASS = 'item-manager-item-selected';
 const CLASS_ICONS: Record<string, string> = {
@@ -256,7 +255,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			this.#detail!.append(divStattrak);
 			//divStattrak.itemName = item;
 			divStattrak.addEventListener('input', event => {
-				const i = Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getItemById(item.id);
+				const i = Tf2CharacterManager.getCurrentCharacter()?.getItemById(item.id);
 				if (i) {
 					i.setKillCount(Number((event.target as HTMLInputElement).value));
 				}
@@ -339,7 +338,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 					title: '#festivizer',
 				},
 				$click: (event: Event) => {
-					const item = Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getItemById(itemTemplate.id);
+					const item = Tf2CharacterManager.getCurrentCharacter()?.getItemById(itemTemplate.id);
 					if (item) {
 						item.toggleFestivizer();
 					}
@@ -370,7 +369,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 					if (image) {
 						const { name: textureName, texture: texture } = Source1TextureManager.addInternalTexture('tf2'/*TODO: get repository from item*/);
 						await TextureManager.fillTextureWithImage(texture.getFrame(0)!, image);
-						Tf2CharacterManager.setCustomTexture(itemTemplate.id, textureName, loadoutScene);
+						Tf2CharacterManager.setCustomTexture(itemTemplate.id, textureName);
 					}
 				}
 			}
@@ -404,7 +403,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 				parent: this,
 				src: mvmPowCritPNG,
 				$click: (event: Event) => {
-					const item = Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getItemById(itemTemplate.id);
+					const item = Tf2CharacterManager.getCurrentCharacter()?.getItemById(itemTemplate.id);
 					if (item) {
 						item.critBoost();
 					}

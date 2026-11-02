@@ -81,7 +81,7 @@ export async function importLoadout(json: loadoutJSON): Promise<boolean> {
 	let result = true;
 	const context: ImportContext = { slot: 0, errors: [] };
 
-	Tf2CharacterManager.setSlotsCount(json.characters.length, true, loadoutScene);
+	Tf2CharacterManager.setSlotsCount(json.characters.length, true);
 	for (const characterJSON of json.characters) {
 		if (await importCharacterLoadout(context, characterJSON)) {
 			++context.slot;
@@ -98,7 +98,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 		return false;
 	}
 
-	const slot = Tf2CharacterManager.getSlot(loadoutScene, context.slot);
+	const slot = Tf2CharacterManager.getSlot(context.slot);
 	if (slot) {
 		if (characterJSON.position) {
 			vec3.copy(slot.position, characterJSON.position);
@@ -250,7 +250,7 @@ function importEffect(context: ImportContext, character: Tf2Character, effectJSO
 export async function exportLoadout(): Promise<loadoutJSON> {
 	const charactersJSON: characterJSON[] = [];
 
-	const characters = Tf2CharacterManager.getCharacters(loadoutScene);
+	const characters = Tf2CharacterManager.getCharacters();
 	for (const character of characters) {
 		charactersJSON.push(await exportCharacterLoadout(character));
 	}

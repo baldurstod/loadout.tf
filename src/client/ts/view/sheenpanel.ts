@@ -78,7 +78,7 @@ export class SheenPanel extends DynamicPanel {
 		});
 
 		Tf2LoadoutController.addEventListener('characterchanged', () => {
-			const team = Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getTeam() ?? 'red';
+			const team = Tf2CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
 			if (team == 'red') {
 				sheenOption.style.backgroundColor = colorToCss(sheen.sheenRed);
 			} else {

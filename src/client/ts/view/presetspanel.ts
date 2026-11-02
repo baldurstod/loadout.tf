@@ -5,7 +5,6 @@ import { Tf2CharacterManager, Tf2ItemManager, Tf2LoadoutController } from 'loado
 import presetsCSS from '../../css/presets.css';
 import { inventoryPath } from '../constants';
 import { Panel } from '../enums';
-import { loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 
 export class PresetsPanel extends DynamicPanel {
@@ -37,9 +36,9 @@ export class PresetsPanel extends DynamicPanel {
 							click: () => {
 								let name = htmlPresetName.value;
 								if (name == '') {
-									name = Tf2CharacterManager.createPresetName(loadoutScene);
+									name = Tf2CharacterManager.createPresetName();
 								}
-								Tf2CharacterManager.savePreset(loadoutScene, name);
+								Tf2CharacterManager.savePreset(name);
 							},
 						}
 					}),
@@ -47,7 +46,7 @@ export class PresetsPanel extends DynamicPanel {
 						i18n: '#update_preset',
 						events: {
 							click: () => {
-								Tf2CharacterManager.savePreset(loadoutScene);
+								Tf2CharacterManager.savePreset();
 								/*
 								if (!this.#currentCharacter) {
 									return;
@@ -73,10 +72,7 @@ export class PresetsPanel extends DynamicPanel {
 						//'data-tooltip-i18n': '#import_models_zip_tooltip',
 						multiple: true,
 						$change: (event: Event) => Tf2LoadoutController.dispatchEvent('importpresets', {
-							detail: {
-								files: [...((event.target as HTMLHarmonyFileInputElement).files ?? [])],
-								scene: loadoutScene,
-							}
+							detail: [...((event.target as HTMLHarmonyFileInputElement).files ?? [])],
 						}),
 					}),
 				],
@@ -103,7 +99,7 @@ export class PresetsPanel extends DynamicPanel {
 			this.#htmlPresets!.replaceChildren();
 
 			//const presets = this.#presets.get(this.#currentCharacter.npc);
-			const presets = Tf2CharacterManager.getPresets(loadoutScene);
+			const presets = Tf2CharacterManager.getPresets();
 			if (!presets) {
 				return;
 			}
@@ -148,7 +144,7 @@ export class PresetsPanel extends DynamicPanel {
 					events: {
 						click: () => {
 							presets.selected = name;
-							Tf2CharacterManager.loadPreset(name, loadoutScene);
+							Tf2CharacterManager.loadPreset(name);
 							this.#updatePresets();
 						}
 					}

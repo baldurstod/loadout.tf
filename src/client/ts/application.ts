@@ -669,7 +669,7 @@ class Application {
 		// TODO
 		//TextureCombiner.setTeam(team);
 		//CharacterManager.setSkin(team);
-		Tf2CharacterManager.setTeam(team, loadoutScene);
+		Tf2CharacterManager.setTeam(team);
 		this.#setTeamBackground();
 	}
 

@@ -33,7 +33,7 @@ export class FlexesPanel extends DynamicPanel {
 	}
 
 	async #resetFlexesAnims(): Promise<void> {
-		await Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.resetFlexes();
+		await Tf2CharacterManager.getCurrentCharacter()?.resetFlexes();
 	}
 
 	async #onCharacterChanged(character: Tf2Character): Promise<void> {

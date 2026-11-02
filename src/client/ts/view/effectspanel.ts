@@ -224,7 +224,7 @@ export class EffectsPanel extends DynamicPanel {
 
 		this.#htmlActiveEffects?.replaceChildren();
 
-		const character = Tf2CharacterManager.getCurrentCharacter(loadoutScene);
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}
@@ -345,7 +345,7 @@ export class EffectsPanel extends DynamicPanel {
 		});
 
 		Tf2LoadoutController.addEventListener('characterchanged', () => {
-			const team = Tf2CharacterManager.getCurrentCharacter(loadoutScene)?.getTeam() ?? 'red';
+			const team = Tf2CharacterManager.getCurrentCharacter()?.getTeam() ?? 'red';
 			if (team == 'red') {
 				killstreakOption.style.backgroundColor = colorToCss(killstreak.color1Red);
 			} else {

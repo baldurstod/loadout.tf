@@ -88,4 +88,4 @@ export const MID_QUALITY_TEXTURE_SIZE = 512;
 
 export const MAIN_CANVAS = 'main_canvas';
 
-export const SNIPPET_URL = 'https://github.com/baldurstod/pyodide-snippets';
+export const SNIPPET_URL = 'https://github.com/baldurstod/pyodide-snippets/tree/main/loadout.tf';

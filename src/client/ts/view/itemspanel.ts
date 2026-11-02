@@ -668,7 +668,7 @@ export class ItemsPanel extends DynamicPanel {
 		this.#refreshActiveListAndConflicts();
 		*/
 		//show(this.#paintPanel.getHTMLElement());
-		const character = Tf2CharacterManager.getCurrentCharacter(loadoutScene);
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}
@@ -679,7 +679,7 @@ export class ItemsPanel extends DynamicPanel {
 	}
 
 	#handleSheenClick(template: Tf2ItemTemplate): void {
-		const character = Tf2CharacterManager.getCurrentCharacter(loadoutScene);
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}
@@ -690,7 +690,7 @@ export class ItemsPanel extends DynamicPanel {
 	}
 
 	#handleWeaponEffectClick(template: Tf2ItemTemplate): void {
-		const character = Tf2CharacterManager.getCurrentCharacter(loadoutScene);
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}
@@ -702,7 +702,7 @@ export class ItemsPanel extends DynamicPanel {
 
 	#handleWarpaintClick(template: Tf2ItemTemplate): void {
 		Controller.dispatchEvent<void>(ControllerEvent.InitWarpaints);
-		const character = Tf2CharacterManager.getCurrentCharacter(loadoutScene);
+		const character = Tf2CharacterManager.getCurrentCharacter();
 		if (!character) {
 			return;
 		}
