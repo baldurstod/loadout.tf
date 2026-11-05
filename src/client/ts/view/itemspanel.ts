@@ -8,7 +8,6 @@ import itemPanelCSS from '../../css/itempanel.css';
 import { inventoryPath } from '../constants';
 import { Controller, ControllerEvent, ItemFilterAttribute, SetItemFilter } from '../controller';
 import { Panel } from '../enums';
-import { loadoutScene } from '../loadout/scene';
 import { SfmItemRepository } from '../repositories/sfmitemrepository';
 import { DynamicPanel } from './dynamicpanel';
 import { ItemManagerItem } from './itemmanageritem';
@@ -63,6 +62,10 @@ export class ItemsPanel extends DynamicPanel {
 		Controller.addEventListener(ControllerEvent.RepositoryAdded, (event: Event) => this.#handleRepositoryAdded((event as CustomEvent<Repository>).detail));
 
 		OptionsManagerEvents.addEventListener('app.css.variables.item-manager-item-size', () => this.#refreshItems());
+
+		Controller.addEventListener(ControllerEvent.SelectCharacter, () => {
+			this.#warpaintPanel.hide();
+		});
 	}
 
 	protected override initHTML(): void {

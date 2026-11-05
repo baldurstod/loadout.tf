@@ -9,10 +9,6 @@ export default tseslint.config(
       "@typescript-eslint/explicit-function-return-type": "error",
       "@typescript-eslint/no-deprecated": "error",
       "@typescript-eslint/consistent-type-definitions": "off",
-      "@typescript-eslint/no-floating-promises": ["error", {
-        // No Promise in harmony-3d rejects
-        "allowForKnownSafePromises": [{ "from": "lib", "name": "Promise" }]
-      }],
       "@typescript-eslint/no-this-alias": ["error", {
         // generator functions doen't exist as arrow functions
         "allowedNames": ["self"]
