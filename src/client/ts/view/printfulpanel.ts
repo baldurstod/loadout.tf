@@ -364,11 +364,13 @@ export class PrintfulPanel extends DynamicPanel {
 					class: 'filters',
 					childs: [
 						createElement('label', {
+							class: 'filter-name-text',
 							childs: [
 								createElement('span', {
 									i18n: '#filter',
 								}),
 								this.#htmlProductFilter = createElement('input', {
+									'@placeholder': 'T-Shirt, Mug, Pullover, Hat',
 									// eslint-disable-next-line @typescript-eslint/no-misused-promises
 									$input: (event: InputEvent) => this.#setNameFilter((event.target as HTMLInputElement).value),
 								}) as HTMLInputElement,
