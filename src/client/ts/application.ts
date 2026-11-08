@@ -5,7 +5,7 @@ import { addNotification, NotificationsPlacement, NotificationType, OptionsManag
 import { SfmExporter } from 'harmony-sfm';
 import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
-import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, I18n, I18nTranslation } from 'harmony-ui';
+import { createElement, defineHarmonyRadio, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, documentStyle, enableHelp, I18n, I18nTranslation } from 'harmony-ui';
 import { BugReport, BugReporter, setTimeoutPromise } from 'harmony-utils';
 import { CameraType, TF2_COMPETITIVE_STAGE, Tf2Character, Tf2CharacterManager, Tf2Class, Tf2ItemManager, Tf2LoadoutController, Tf2Team, UsePlayerModels } from 'loadout';
 import htmlCSS from '../css/html.css';
@@ -61,6 +61,7 @@ class Application {
 	static {
 		I18n.setOptions({ translations: [english as I18nTranslation] });
 		I18n.start();
+		enableHelp();
 		defineHarmonySwitch();
 		defineHarmonyRadio();
 		defineHarmonyTab();
