@@ -8,6 +8,9 @@ build:
 run: build
 	dist/${BINARY_NAME}
 
+translations:
+	rollup -c --environment TRANSLATIONS:true
+
 prod:
 	go env -w CGO_ENABLED=0
 	@echo 'Bundling loadout.tf'
