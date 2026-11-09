@@ -266,7 +266,7 @@ export class OptionsPanel extends DynamicPanel {
 				if (type == BackgroundType.ShaderToy) {
 					param = this.#htmlShaderToyList!.value;
 
-					getShaderToyList().then(shaders => {
+					void getShaderToyList().then(shaders => {
 						if (!shaders) {
 							return;
 						}
@@ -630,7 +630,7 @@ export class OptionsPanel extends DynamicPanel {
 					class: 'option-button',
 					i18n: '#setup_meet_the_team',
 					events: {
-						click: () => { Tf2CharacterManager.setupMeetTheTeam(loadoutScene) },
+						click: () => { void Tf2CharacterManager.setupMeetTheTeam(loadoutScene) },
 					}
 				}),
 				createElement('div', {
@@ -793,6 +793,7 @@ export class OptionsPanel extends DynamicPanel {
 		const htmlScriptEditorTab = createElement('harmony-tab', { 'data-i18n': '#script_editor' });
 		this.#htmlTabGroup?.append(htmlScriptEditorTab);
 
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		htmlScriptEditorTab.addEventListener('activated', async () => {
 			this.#scriptEditor.initEditor({ aceUrl: './assets/js/ace-builds/src-min/ace.js' });
 			htmlScriptEditorTab.append(this.#scriptEditor.htmlElement);
@@ -1015,7 +1016,7 @@ export class OptionsPanel extends DynamicPanel {
 		}
 
 		const saveCustomShader = (event: Event): void => {
-			OptionsManager.setSubItem(getOptionName((event as CustomEvent).detail), (event as CustomEvent).detail.name, (event as CustomEvent).detail.source)
+			void OptionsManager.setSubItem(getOptionName((event as CustomEvent).detail), (event as CustomEvent).detail.name, (event as CustomEvent).detail.source)
 		};
 		const reloadCustomShader = (event: Event, source: string): void => {
 			if ((event as CustomEvent).detail.type == 'shader') {

@@ -96,7 +96,7 @@ export class Viewer {
 					loadoutScene.background = loadoutColorBackground;
 					break;
 				case BackgroundType.ShaderToy:
-					this.#setupShaderToyBackground(param as string);
+					void this.#setupShaderToyBackground(param as string);
 					break;
 				case BackgroundType.Picture:
 					this.#setupPictureBackground(param as FileList);
@@ -111,7 +111,7 @@ export class Viewer {
 			this.#toggleVideo((event as CustomEvent<boolean>).detail);
 		});
 
-		Controller.addEventListener(ControllerEvent.SavePicture, () => this.#savePicture());
+		Controller.addEventListener(ControllerEvent.SavePicture, () => { void this.#savePicture() });
 
 		Controller.addEventListener(ControllerEvent.UseLayout, (event: Event) => this.#useLayout((event as CustomEvent<string>).detail));
 
@@ -345,10 +345,10 @@ export class Viewer {
 		return this.#orbitControl.target.getPosition();
 	}
 	*/
-	#savePicture(): void {
+	async #savePicture(): Promise<void> {
 		const value = this.#getPictureSize();
 		this.#showHighLights(false);
-		Graphics.exportCanvas(MAIN_CANVAS, 'loadout.png', value?.w, value?.h);
+		await Graphics.exportCanvas(MAIN_CANVAS, 'loadout.png', value?.w, value?.h);
 		this.#showHighLights(true);
 	}
 

@@ -17,11 +17,11 @@ export class Loadout {
 	}
 
 	static #initListeners(): void {
-		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { this.#handleItemClicked((event as CustomEvent<Tf2ItemTemplate>).detail) });
-		Controller.addEventListener(ControllerEvent.EffectClicked, (event: Event) => { this.#handleEffectClicked((event as CustomEvent<Tf2EffectTemplate>).detail) });
-		Controller.addEventListener(ControllerEvent.KillstreakClicked, (event: Event) => { this.#handleKillstreakClicked((event as CustomEvent<KillstreakClicked>).detail.effect, (event as CustomEvent<KillstreakClicked>).detail.color) });
-		Controller.addEventListener(ControllerEvent.SetDecapitationLevel, (event: Event) => { this.#handleSetDecapitationEffect((event as CustomEvent<number>).detail) });
-		Controller.addEventListener(ControllerEvent.TauntEffectClicked, (event: Event) => { this.#handleTauntEffectClicked((event as CustomEvent<Tf2EffectTemplate | null>).detail) });
+		Controller.addEventListener(ControllerEvent.ItemClicked, (event: Event) => { void this.#handleItemClicked((event as CustomEvent<Tf2ItemTemplate>).detail) });
+		Controller.addEventListener(ControllerEvent.EffectClicked, (event: Event) => { void this.#handleEffectClicked((event as CustomEvent<Tf2EffectTemplate>).detail) });
+		Controller.addEventListener(ControllerEvent.KillstreakClicked, (event: Event) => { void this.#handleKillstreakClicked((event as CustomEvent<KillstreakClicked>).detail.effect, (event as CustomEvent<KillstreakClicked>).detail.color) });
+		Controller.addEventListener(ControllerEvent.SetDecapitationLevel, (event: Event) => { void this.#handleSetDecapitationEffect((event as CustomEvent<number>).detail) });
+		Controller.addEventListener(ControllerEvent.TauntEffectClicked, (event: Event) => { void this.#handleTauntEffectClicked((event as CustomEvent<Tf2EffectTemplate | null>).detail) });
 		Controller.addEventListener(ControllerEvent.RemoveEffect, (event: Event) => this.#handleRemoveEffect((event as CustomEvent<Tf2Effect>).detail),);
 	}
 
@@ -39,7 +39,7 @@ export class Loadout {
 			}
 
 			if (this.#badgeModel) {
-				this.#badgeModel.setSkinName(String(Math.floor((level - 1) / 25) + (tier - 1) * 6));
+				await this.#badgeModel.setSkinName(String(Math.floor((level - 1) / 25) + (tier - 1) * 6));
 				const stars = (level - 1) % 5 + 1;
 				const bullets = Math.floor(((level - 1) % 25) / 5);
 				const plates = Math.floor(((level - 1) % 25) / 5) - 1;

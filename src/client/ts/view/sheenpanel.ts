@@ -5,7 +5,6 @@ import itemCSS from '../../css/item.css';
 import sheenPanelCSS from '../../css/sheenpanel.css';
 import { inventoryPath } from '../constants';
 import { Panel } from '../enums';
-import { loadoutScene } from '../loadout/scene';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 

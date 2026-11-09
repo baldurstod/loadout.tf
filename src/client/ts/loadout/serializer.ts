@@ -113,7 +113,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 	const character = await Tf2CharacterManager.selectCharacter(tf2Class, loadoutScene, context.slot);
 
 	if (characterJSON.team !== undefined) {
-		character.setTeam(characterJSON.team);
+		await character.setTeam(characterJSON.team);
 
 	}
 
@@ -131,24 +131,24 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 		for (const itemJSON of characterJSON.items) {
 			const item = jsonToItem.get(itemJSON);
 			if (item) {
-				importItem2(context, item, itemJSON);
+				await importItem2(context, item, itemJSON);
 			}
 		}
 	}
 
 	if (characterJSON.decapitation_level) {
-		character.setDecapitationLevel(characterJSON.decapitation_level);
+		await character.setDecapitationLevel(characterJSON.decapitation_level);
 	}
 
 	if (characterJSON.effects) {
 		for (const effect of characterJSON.effects) {
-			importEffect(context, character, effect);
+			await importEffect(context, character, effect);
 		}
 	}
 
 	if (characterJSON.unusualEffects) {
 		for (const effect of characterJSON.unusualEffects) {
-			importEffect(context, character, effect);
+			await importEffect(context, character, effect);
 		}
 	}
 
@@ -160,7 +160,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 			//console.info(template, killstreakColor);
 			const [, , template] = result;
 			if (template && killstreakColor) {
-				character.setKillsteakEffect(template, killstreakColor);
+				await character.setKillsteakEffect(template, killstreakColor);
 			}
 		}
 	}
@@ -171,7 +171,7 @@ async function importCharacterLoadout(context: ImportContext, characterJSON: cha
 		if (result) {
 			const [, , template] = result;
 			if (template) {
-				character.setTauntEffect(template);
+				await character.setTauntEffect(template);
 			}
 		}
 	}
@@ -210,10 +210,10 @@ async function importItem2(context: ImportContext, item: Tf2Item, itemJSON: item
 
 	const showFestivizer = itemJSON.show_festivizer;
 	if (showFestivizer !== undefined) {
-		item.showFestivizer(showFestivizer);
+		await item.showFestivizer(showFestivizer);
 	}
 
-	item.setKillCount(itemJSON.kill_count ?? itemJSON.killCount ?? null);
+	await item.setKillCount(itemJSON.kill_count ?? itemJSON.killCount ?? null);
 
 	item.setWeaponEffectId(itemJSON.weapon_effect_id ?? itemJSON.weaponEffectId ?? null);
 	const warpaint = itemJSON.warpaint_id ?? itemJSON.paint_kit_id ?? itemJSON.warpaintId;
@@ -223,7 +223,7 @@ async function importItem2(context: ImportContext, item: Tf2Item, itemJSON: item
 	}
 }
 
-function importEffect(context: ImportContext, character: Tf2Character, effectJSON: effectJSON): Tf2Effect | null {
+async function importEffect(context: ImportContext, character: Tf2Character, effectJSON: effectJSON): Promise<Tf2Effect | null> {
 	const result = Tf2ItemManager.getEffectTemplateById(Number(effectJSON.id));
 
 	if (!result) {
@@ -234,13 +234,13 @@ function importEffect(context: ImportContext, character: Tf2Character, effectJSO
 
 	switch (type) {
 		case Tf2EffectType.Cosmetic:
-			character.addEffect(template);
+			await character.addEffect(template);
 			break;
 		case Tf2EffectType.Killstreak:
-			character.setKillsteakEffect(template, effectJSON.color);
+			await character.setKillsteakEffect(template, effectJSON.color);
 			break;
 		case Tf2EffectType.Taunt:
-			character.setTauntEffect(template);
+			await character.setTauntEffect(template);
 			break;
 	}
 

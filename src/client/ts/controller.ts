@@ -1,5 +1,4 @@
-import { Scene } from 'harmony-3d';
-import { KillstreakColor, Ragdoll, Tf2EffectTemplate, Tf2ItemTemplate } from 'loadout';
+import { KillstreakColor, Tf2EffectTemplate, Tf2ItemTemplate } from 'loadout';
 import { BackgroundType } from './enums';
 
 export enum ControllerEvent {

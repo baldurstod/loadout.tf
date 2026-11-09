@@ -31,7 +31,7 @@ export class AdPanel {
 		});
 		this.#updateStrings();
 		I18n.observeElement(this.#shadowRoot);
-		this.#setupAd();
+		void this.#setupAd();
 
 		try {
 			this.#initObserver();

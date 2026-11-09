@@ -2,7 +2,6 @@ import { createElement, hide } from 'harmony-ui';
 import { Tf2Character, Tf2CharacterManager, Tf2LoadoutController } from 'loadout';
 import flexesPanelCSS from '../../css/flexespanel.css';
 import { Panel } from '../enums';
-import { loadoutScene } from '../loadout/scene';
 import { DynamicPanel } from './dynamicpanel';
 
 export class FlexesPanel extends DynamicPanel {
@@ -13,7 +12,7 @@ export class FlexesPanel extends DynamicPanel {
 		hide(this.getShadowRoot());
 
 		Tf2LoadoutController.addEventListener('characterchanged', (event: Event) => {
-			this.#onCharacterChanged((event as CustomEvent<Tf2Character>).detail)
+			void this.#onCharacterChanged((event as CustomEvent<Tf2Character>).detail)
 		});
 	}
 
@@ -23,7 +22,7 @@ export class FlexesPanel extends DynamicPanel {
 			i18n: '#reset_all',
 			parent: this.getShadowRoot(),
 			events: {
-				click: () => { this.#resetFlexesAnims() },
+				click: () => { void this.#resetFlexesAnims() },
 			},
 		});
 		this.#htmlControllers = createElement('div', {
@@ -56,7 +55,7 @@ export class FlexesPanel extends DynamicPanel {
 					max: controllerValue.max * 100,
 					value: '0',
 					events: {
-						input: () => { character.setFlexControllerValue(controllerName, Number(htmlControllerInput.value) * 0.01) },
+						input: () => { void character.setFlexControllerValue(controllerName, Number(htmlControllerInput.value) * 0.01) },
 					},
 					innerText: controllerName,
 				}) as HTMLInputElement;

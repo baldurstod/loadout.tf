@@ -335,7 +335,7 @@ export class ItemsPanel extends DynamicPanel {
 		});
 
 		function fillSelect(optionName: string, select: HTMLSelectElement): void {
-			OptionsManager.getList(optionName).then(universeList => {
+			void OptionsManager.getList(optionName).then(universeList => {
 				if (universeList) {
 					select.innerText = '';
 					for (const currency of universeList) {

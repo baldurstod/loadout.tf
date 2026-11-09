@@ -25,8 +25,8 @@ import { exportLoadout, importLoadout, loadoutJSON } from './loadout/serializer'
 import { LoadoutSpeech } from './loadout/speech/speech';
 import { ApplicationPanel } from './view/applicationpanel';
 
-documentStyle(htmlCSS);
-documentStyle(varsCSS);
+void documentStyle(htmlCSS);
+void documentStyle(varsCSS);
 
 BugReporter.addEventListener('report', (event: Event) => {
 	console.info('bug report', (event as CustomEvent<BugReport>).detail);
@@ -71,7 +71,7 @@ class Application {
 	}
 
 	constructor() {
-		this.#init();
+		void this.#init();
 	}
 
 	async #init(): Promise<void> {
@@ -85,13 +85,13 @@ class Application {
 		this.#start();
 		this.#initLights();
 		this.#initOptions();
-		this.#initShortcuts();
+		await this.#initShortcuts();
 		this.#initSounds();
 		this.#setupAnalytics();
-		this.#initDefaultCharacter();
+		await this.#initDefaultCharacter();
 
 		if (OptionsManager.getItem('app.repositories.import.restorefiles') as boolean) {
-			restoreFiles(OptionsManager.getItem('app.repositories.import.overridemodels') as boolean);
+			await restoreFiles(OptionsManager.getItem('app.repositories.import.overridemodels') as boolean);
 		}
 
 		setFetchFunction(async (resource, options) => {
@@ -149,10 +149,10 @@ class Application {
 			const paintDone = (event as CustomEvent<WarpaintDoneEvent>).detail;
 			const name = `weapon_${String(paintDone.weaponDefIndex).padStart(5, '0')}_paint_${String(paintDone.warpaintDefId).padStart(4, '0')}_wear_${paintDone.wearLevel}_seed_${paintDone.seed}`;
 			if (OptionsManager.getItem('app.warpaints.texture.save.png')) {
-				paintDone.node.savePicture(name + '.png');
+				void paintDone.node.savePicture(name + '.png');
 			}
 			if (OptionsManager.getItem('app.warpaints.texture.save.vtf')) {
-				paintDone.node.saveVTF(name + '.vtf');
+				void paintDone.node.saveVTF(name + '.vtf');
 			}
 		});
 
@@ -175,31 +175,31 @@ class Application {
 		Controller.addEventListener(ControllerEvent.SelectCharacter, (event: Event) => {
 			const tf2Class = (event as CustomEvent<Tf2Class>).detail;
 
-			Tf2CharacterManager.selectCharacter(tf2Class, loadoutScene);
+			void Tf2CharacterManager.selectCharacter(tf2Class, loadoutScene);
 		});
 
 		Controller.addEventListener(ControllerEvent.SelectCamera, (event: Event) => setActiveCamera((event as CustomEvent<CameraType>).detail));
 		Controller.addEventListener(ControllerEvent.ResetCamera, () => this.#resetCamera());
 
-		Controller.addEventListener(ControllerEvent.ShowCompetitiveStage, (event: Event) => { this.#showCompetitiveStage((event as CustomEvent<boolean>).detail); return; });
+		Controller.addEventListener(ControllerEvent.ShowCompetitiveStage, (event: Event) => { void this.#showCompetitiveStage((event as CustomEvent<boolean>).detail); return; });
 
-		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => { Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier); return; });
+		Controller.addEventListener(ControllerEvent.ShowBadge, (event: Event) => { void Loadout.showBadge((event as CustomEvent<ShowBadge>).detail.level, (event as CustomEvent<ShowBadge>).detail.tier); return; });
 
-		Controller.addEventListener(ControllerEvent.InitWarpaints, () => { this.#initWarpaints(); return; });
+		Controller.addEventListener(ControllerEvent.InitWarpaints, () => { void this.#initWarpaints(); return; });
 
 		Controller.addEventListener(ControllerEvent.ShowAboutNotification, () => this.#showAboutLayer());
 		Controller.addEventListener(ControllerEvent.ShowBugNotification, () => this.#showBugNotification());
 		Controller.addEventListener(ControllerEvent.PatreonClick, () => { this.#handlePatreonClick() });
-		Controller.addEventListener(ControllerEvent.ExportFbx, () => { this.#exportToFBX() });
-		Controller.addEventListener(ControllerEvent.Export3d, (event: Event) => { this.#export3D((event as CustomEvent<boolean>).detail) });
-		Controller.addEventListener(ControllerEvent.ExportSfm, () => { this.#exportSfm() });
-		Controller.addEventListener(ControllerEvent.ShareLoadout, () => { this.#shareLoadout() });
+		Controller.addEventListener(ControllerEvent.ExportFbx, () => { void this.#exportToFBX() });
+		Controller.addEventListener(ControllerEvent.Export3d, (event: Event) => { void this.#export3D((event as CustomEvent<boolean>).detail) });
+		Controller.addEventListener(ControllerEvent.ExportSfm, () => { void this.#exportSfm() });
+		Controller.addEventListener(ControllerEvent.ShareLoadout, () => { void this.#shareLoadout() });
 
-		Controller.addEventListener(ControllerEvent.ImportFiles, (event: Event) => { this.#importFiles((event as CustomEvent<File[]>).detail) });
+		Controller.addEventListener(ControllerEvent.ImportFiles, (event: Event) => { void this.#importFiles((event as CustomEvent<File[]>).detail) });
 		Tf2LoadoutController.addEventListener('activatemeettheteammap', () => {
 			lightsContainer.setVisible(false);
 			mapLightsContainer.setVisible(true && (!OptionsManager.getItem('app.lights.usecustomlights')));
-			this.#mapStartup('sfm_photostudio_lite.bsp');
+			void this.#mapStartup('sfm_photostudio_lite.bsp');
 		});
 
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -249,7 +249,7 @@ class Application {
 		this.#tf2WebRepository.supportedExtensions.add('vmt');
 		this.#tf2WebRepository.supportedExtensions.add('vtf');
 
-		fetch(TF2_REPOSITORY + `materials_manifest.json?t=${new Date().getTime()}`).then(async (response) => {
+		void fetch(TF2_REPOSITORY + `materials_manifest.json?t=${new Date().getTime()}`).then(async (response) => {
 			const j = await response.json();
 			if (!j) {
 				return;
@@ -267,7 +267,7 @@ class Application {
 
 		this.#startupRenderer();
 
-		this.#loadUrlLoadout();
+		void this.#loadUrlLoadout();
 	}
 
 	#beforeUnload(): void {
@@ -313,7 +313,7 @@ class Application {
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.verticalfov', (event: Event) => this.#setVerticalFov((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
 		OptionsManagerEvents.addEventListener('app.lang', (event: Event) => this.#setLang((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 		OptionsManagerEvents.addEventListener('warpaints.texture.size', (event: Event) => TextureCombiner.setTextureSize((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
-		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => this.setTeam((event as CustomEvent<OptionsManagerEvent<'red' | 'blu'>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.loadout.team', (event: Event) => { void this.#setTeam((event as CustomEvent<OptionsManagerEvent<'red' | 'blu'>>).detail.value); });
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.position', (event: Event) => this.#setPerspectiveCameraPosition((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.quaternion', (event: Event) => this.#setPerspectiveCameraQuaternion((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 		OptionsManagerEvents.addEventListener('app.cameras.orbit.target', (event: Event) => this.#setPerspectiveCameraTarget((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
@@ -359,7 +359,7 @@ class Application {
 		});
 
 		OptionsManagerEvents.addEventListener('engine.shaders.defines.*', (event: Event): void => {
-			(async (): Promise<void> => {
+			void (async (): Promise<void> => {
 				const defineName = (event as CustomEvent<OptionsManagerEvent<string>>).detail.name.replace('engine.shaders.defines.', '');
 				const defineType = await OptionsManager.getOptionType((event as CustomEvent<OptionsManagerEvent<string>>).detail.name);
 				if (defineType == 'boolean') {
@@ -373,7 +373,7 @@ class Application {
 					//Graphics.setIncludeCode('option_' + defineName, '#define ' + defineName.toUpperCase() + ' ' + ((event as CustomEvent<OptionsManagerEvent<string>>).detail.value as string));
 					Graphics.setDefine(defineName.toUpperCase(), ((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 				}
-			})()
+			})();
 		});
 
 		/*
@@ -418,21 +418,21 @@ class Application {
 		});
 
 		OptionsManagerEvents.addEventListener('app.lights.customlights', (event: Event) => {
-			(async (): Promise<void> => {
+			void (async (): Promise<void> => {
 				loadoutScene.removeChild(customLightsContainer);
 				setCustomLightsContainer(await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent<string>>).detail.value)) as Entity);
 				loadoutScene.addChild(customLightsContainer);
 				customLightsContainer?.setVisible(OptionsManager.getItem('app.lights.usecustomlights') as boolean);
-			})()
+			})();
 		});
 
 
 		OptionsManagerEvents.addEventListener('app.sceneexplorer.misc.serialized', (event: Event) => {
-			(async (): Promise<void> => {
+			void (async (): Promise<void> => {
 				loadoutScene.removeChild(this.#serializedEntity);
 				this.#serializedEntity = await JSONLoader.fromJSON(JSON.parse((event as CustomEvent<OptionsManagerEvent<string>>).detail.value)) as Entity;
 				loadoutScene.addChild(this.#serializedEntity);
-			})()
+			})();
 		});
 
 		OptionsManagerEvents.addEventListener('app.sceneexplorer.skeleton.jointradius', (event: Event) => getSceneExplorer().setJointsRadius((event as CustomEvent<OptionsManagerEvent<number>>).detail.value));
@@ -476,7 +476,7 @@ class Application {
 
 		OptionsManagerEvents.addEventListener('app.ui.class.menuorder', (event: Event) => this.#setClassOrder((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value));
 
-		OptionsManagerEvents.addEventListener('app.characters.scout.bluepants', (event: Event) => this.#setScoutBluePants((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value));
+		OptionsManagerEvents.addEventListener('app.characters.scout.bluepants', (event: Event) => { void this.#setScoutBluePants((event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value); });
 
 		OptionsManagerEvents.addEventListener('app.warpainteditor.filter.node', (event: Event) => WarpaintEditor.getGui().setNodeFilter((event as CustomEvent<OptionsManagerEvent<string>>).detail.value));
 
@@ -496,7 +496,7 @@ class Application {
 			Tf2Character.autoSelectAnim = (event as CustomEvent<OptionsManagerEvent<boolean>>).detail.value;
 		});
 
-		OptionsManager.init({ json: optionsmanager }).then(() => this.#initOptions2());
+		void OptionsManager.init({ json: optionsmanager }).then(() => this.#initOptions2());
 	}
 
 	#initOptions2(): void {
@@ -666,11 +666,11 @@ class Application {
 		this.#setTeamBackground();
 	}
 
-	setTeam(team: Tf2Team): void {
+	async #setTeam(team: Tf2Team): Promise<void> {
 		// TODO
 		//TextureCombiner.setTeam(team);
 		//CharacterManager.setSkin(team);
-		Tf2CharacterManager.setTeam(team);
+		await Tf2CharacterManager.setTeam(team);
 		this.#setTeamBackground();
 	}
 
@@ -685,7 +685,7 @@ class Application {
 	#setLang(lang: string): void {
 		//ItemManager.lang = lang;
 
-		this.#getLanguage(lang).then(json => {
+		void this.#getLanguage(lang).then(json => {
 			I18n.setOptions({ translations: [json as I18nTranslation] });
 			I18n.setLang(lang);
 		});
@@ -773,7 +773,7 @@ class Application {
 
 	async #initDefaultCharacter(): Promise<void> {
 		await Graphics.ready;
-		Tf2CharacterManager.selectCharacter(Tf2Class.None, loadoutScene);
+		await Tf2CharacterManager.selectCharacter(Tf2Class.None, loadoutScene);
 	}
 
 	async #initWarpaints(): Promise<void> {
@@ -803,14 +803,14 @@ class Application {
 		orbitCameraControl.update();
 	}
 
-	#setScoutBluePants(blue: boolean): void {
+	async #setScoutBluePants(blue: boolean): Promise<void> {
 		if (blue) {
 			this.#fetchRedirect.set(SCOUT_BLUE_PANTS_ORIGIN, SCOUT_BLUE_PANTS_DEST);
 		} else {
 			this.#fetchRedirect.delete(SCOUT_BLUE_PANTS_ORIGIN);
 
 		}
-		this.#tf2WebRepository.delete(new URL(TF2_REPOSITORY + SCOUT_BLUE_PANTS_ORIGIN));
+		await this.#tf2WebRepository.delete(new URL(TF2_REPOSITORY + SCOUT_BLUE_PANTS_ORIGIN));
 	}
 
 	#setParticlesRate(): void {
@@ -935,7 +935,7 @@ class Application {
 			await Tf2ItemManager.initItems();
 			await Tf2ItemManager.initTournamentMedals();
 			await Tf2ItemManager.initWorkshopItems();
-			importLoadout(responseJSON.result);
+			await importLoadout(responseJSON.result);
 		}
 	}
 
@@ -946,7 +946,7 @@ class Application {
 				await Tf2ItemManager.initItems();
 				await Tf2ItemManager.initTournamentMedals();
 				await Tf2ItemManager.initWorkshopItems();
-				importLoadout(json);
+				await importLoadout(json);
 			}
 		} catch (e) {
 			console.error(e);

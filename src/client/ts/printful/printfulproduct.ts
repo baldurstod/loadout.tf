@@ -36,14 +36,14 @@ export class PrintfulProductElement extends HTMLElement {
 	setProduct(product: any/*TODO: improve type*/): void {
 		this.#product = product;
 		if (product) {
-			this.#refresh();
+			void this.#refresh();
 		}
 	}
 
 	setVisible(visible: boolean): void {
 		this.#visible = visible;
 		if (visible) {
-			this.#refresh();
+			void this.#refresh();
 		}
 	}
 
@@ -111,7 +111,7 @@ export class PrintfulProductElement extends HTMLElement {
 		this.#initialized = true;
 
 		this.#shadowRoot = this.attachShadow({ mode: 'closed' });
-		shadowRootStyle(this.#shadowRoot, printfulProductCSS);
+		void shadowRootStyle(this.#shadowRoot, printfulProductCSS);
 
 		this.#htmlProductImage = createElement('img', {
 			class: 'image',

@@ -34,7 +34,7 @@ GraphicsEvents.addEventListener('tick', animate);
 function characterChanged(character: Tf2Character): void {
 	if (character.characterClass == Tf2Class.CompareWarpaints) {
 		Controller.dispatchEvent<string>(ControllerEvent.UseLayout, { detail: COMPARE_WARPAINTS_LAYOUT });
-		initWeaponLayout(character.items);
+		void initWeaponLayout(character.items);
 		compareWarpaints = true;
 	} else {
 		const compareWarpaintsOld = compareWarpaints;
@@ -53,7 +53,7 @@ function loadoutChanged(item: Tf2Item): void {
 		return;
 	}
 
-	initWeaponLayout(character.items);
+	void initWeaponLayout(character.items);
 }
 
 let backgroundTextureSize = LOW_QUALITY_TEXTURE_SIZE;

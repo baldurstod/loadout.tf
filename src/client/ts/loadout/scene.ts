@@ -65,7 +65,7 @@ export async function addTF2Model(parent: Entity | null, path: string, repositor
 	const itemStartSeq = model.sourceModel.mdl.getSequenceById(0);
 	if (itemStartSeq) {
 		model.playSequence(itemStartSeq.name);
-		model.setAnimation(0, itemStartSeq.name, 1);
+		await model.setAnimation(0, itemStartSeq.name, 1);
 	}
 	model.frame = 0.;
 	return model;

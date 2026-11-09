@@ -396,7 +396,7 @@ export class PrintfulPanel extends DynamicPanel {
 							events: {
 								change: () => {
 									if (this.#htmlProducts!.selectedOptions[0]) {
-										this.#selectProduct(this.#productOption.get(this.#htmlProducts!.selectedOptions[0])?.id as number);
+										void this.#selectProduct(this.#productOption.get(this.#htmlProducts!.selectedOptions[0])?.id as number);
 									}
 								},
 							}
@@ -573,7 +573,7 @@ export class PrintfulPanel extends DynamicPanel {
 							i18n: '#regenerate_placement',
 							$click: () => {
 								this.#productPreset.getSelectedPreset().regeneratePlacement();
-								this.#generateTemplates();
+								void this.#generateTemplates();
 							},
 						}) as HTMLButtonElement,
 
@@ -645,7 +645,7 @@ export class PrintfulPanel extends DynamicPanel {
 							//hidden: true,
 							$input: (event: Event) => {
 								this.#setTemplateWidth(Number((event.target as HTMLInputElement).value));
-								this.#generateTemplates();
+								void this.#generateTemplates();
 							},
 						}) as HTMLHarmonySliderElement,
 
@@ -660,7 +660,7 @@ export class PrintfulPanel extends DynamicPanel {
 							//hidden: true,
 							$input: (event: Event) => {
 								this.#setTemplateHeight(Number((event.target as HTMLInputElement).value));
-								this.#generateTemplates();
+								void this.#generateTemplates();
 							},
 						}) as HTMLHarmonySliderElement,
 
@@ -674,7 +674,7 @@ export class PrintfulPanel extends DynamicPanel {
 							value: '0',
 							$input: (event: Event) => {
 								this.#setTemplateRotation(Number((event.target as HTMLInputElement).value) * DEG_TO_RAD);
-								this.#generateTemplates();
+								void this.#generateTemplates();
 							},
 						}) as HTMLHarmonySliderElement,
 
@@ -867,7 +867,7 @@ export class PrintfulPanel extends DynamicPanel {
 					help: '#help_printful_create_product',
 					parent: htmlTemplate,
 					events: {
-						click: () => { this.#createProduct() }
+						click: () => { void this.#createProduct() }
 					},
 				}) as HTMLButtonElement,
 			]
@@ -971,7 +971,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 							this.#setTemplateHorizontalOffset(((event.detail.position.x) - (template.printAreaLeft + template.printAreaWidth * 0.5)) / template.printAreaWidth);
 							this.#setTemplateVerticalOffset(((event.detail.position.y) - (template.printAreaTop + template.printAreaHeight * 0.5)) / template.printAreaHeight);
-							this.#generateTemplates();
+							void this.#generateTemplates();
 							this.#updatePatternInputs(event.detail, template);
 						}
 					},
@@ -1078,7 +1078,7 @@ export class PrintfulPanel extends DynamicPanel {
 			events: {
 				click: () => {
 					hide(this.#htmlEnableNotificationsButton);
-					Notification.requestPermission().then((permission) => {
+					void Notification.requestPermission().then((permission) => {
 						this.#notificationPromiseResolve?.(permission);
 					});
 				}
@@ -1119,7 +1119,7 @@ export class PrintfulPanel extends DynamicPanel {
 		const success = await this.#generatePrintFiles();
 
 		if (success) {
-			this.#createShopProduct();
+			void this.#createShopProduct();
 		} else {
 			addNotification(I18n.getString('#failed_to_generate_images'), NotificationType.Error, 0);
 		}
@@ -1136,7 +1136,7 @@ export class PrintfulPanel extends DynamicPanel {
 			if (this.#originalCamera) {
 				this.#camera.copy(this.#originalCamera);
 			}
-			this.#generateTemplates();
+			void this.#generateTemplates();
 		} finally {
 			this.#refreshing = false;
 		}
@@ -1157,12 +1157,12 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#composer = composer;
 		this.show();
 		//this.#initProducts();
-		initProducts();
+		void initProducts();
 
-		//this.#generateTemplates();
-		this.#initCategories();
-		this.#refreshProducts();
-		this.#refreshTemplate();
+		//void this.#generateTemplates();
+		void this.#initCategories();
+		void this.#refreshProducts();
+		void this.#refreshTemplate();
 		this.#htmlProductFilter!.focus();
 	}
 
@@ -1238,7 +1238,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 		this.#productPreset.getSelectedPreset().setTransparent(transparent);
 		this.#updateControls();
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	#setTemplatePattern(pattern: Pattern): void {
@@ -1264,7 +1264,7 @@ export class PrintfulPanel extends DynamicPanel {
 				}
 				break;
 		}
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	#setTemplateScale(scale: number): void {
@@ -1273,7 +1273,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 		//this.#template.scale = scale;
 		this.#productPreset.getSelectedPreset().setScale(scale);
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	#setTemplateRotation(rotation: Radian): void {
@@ -1283,8 +1283,8 @@ export class PrintfulPanel extends DynamicPanel {
 
 		this.#productPreset.getSelectedPreset().setRotation(rotation);
 		//this.#htmlTemplateControlRotation?.setValue(rotation * RAD_TO_DEG);
-		this.#updateManipulator(undefined, undefined, rotation);
-		this.#updateControls();
+		void this.#updateManipulator(undefined, undefined, rotation);
+		void this.#updateControls();
 	}
 
 	#setTemplateWidth(width: number): void {
@@ -1298,7 +1298,7 @@ export class PrintfulPanel extends DynamicPanel {
 		//this.#template.width = width;
 		this.#productPreset.getSelectedPreset().setWidth(width);
 		//this.#htmlTemplateControlWidth!.setValue(width);
-		this.#updateManipulator(width, undefined, undefined);
+		void this.#updateManipulator(width, undefined, undefined);
 		this.#updateControls();
 	}
 
@@ -1312,8 +1312,8 @@ export class PrintfulPanel extends DynamicPanel {
 		//this.#template.height = height;
 		this.#productPreset.getSelectedPreset().setHeight(height);
 		//this.#htmlTemplateControlHeight!.setValue(height);
-		this.#updateManipulator(undefined, height, undefined);
-		this.#updateControls();
+		void this.#updateManipulator(undefined, height, undefined);
+		void this.#updateControls();
 	}
 
 	async #updateManipulator(width: number | undefined, height: number | undefined, rotation: Radian | undefined): Promise<void> {
@@ -1335,7 +1335,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 		this.#productPreset.getSelectedPreset().setHorizontalGap(gap);
 		this.#updateControls();
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	#setTemplateVerticalGap(gap: number): void {
@@ -1345,7 +1345,7 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 		this.#productPreset.getSelectedPreset().setVerticalGap(gap);
 		this.#updateControls();
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	#setTemplateVerticalOffset(verticalOffset: number): void {
@@ -1369,13 +1369,13 @@ export class PrintfulPanel extends DynamicPanel {
 	#setTemplateSymmetry(symmetry: boolean): void {
 		//this.#template.symmetry = symmetry;
 		this.#productPreset.getSelectedPreset().setSymmetry(symmetry);
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	/*
 	#setTemplateSpaceBetween(spaceBetween: number) {
 		this.#template.spaceBetween = isNaN(spaceBetween) ? 0 : spaceBetween;
-		this.#generateTemplates();
+		void this.#generateTemplates();
 		if (!isNaN(spaceBetween)) {
 			if (this.#htmlTemplateControlsSpaceBetweenInput) {
 				this.#htmlTemplateControlsSpaceBetweenInput.value = String(spaceBetween);
@@ -1392,7 +1392,7 @@ export class PrintfulPanel extends DynamicPanel {
 		vec3.transformQuat(v, v, this.#camera.getOrientation());
 		this.#sceneContainer.translate(v);
 		this.#regenerateSelectedPlacement();
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	#rotateTemplate(x: number, y: number, z: number): void {
@@ -1400,19 +1400,19 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#sceneContainer.rotateY(y);
 		this.#sceneContainer.rotateZ(z);
 		this.#regenerateSelectedPlacement();
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	#resetRotation(): void {
 		this.#sceneContainer.setOrientation(quat.create());
 		this.#regenerateSelectedPlacement();
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	#resetPosition(): void {
 		this.#sceneContainer.setPosition(vec3.create());
 		this.#regenerateSelectedPlacement();
-		this.#generateTemplates();
+		void this.#generateTemplates();
 	}
 
 	#regenerateSelectedPlacement(): void {
@@ -1433,7 +1433,7 @@ export class PrintfulPanel extends DynamicPanel {
 			if (this.#generateAgain) {
 				this.#generateAgain = false;
 				console.info('generate again');
-				this.#generateTemplates();
+				await this.#generateTemplates();
 			}
 		}
 		return ret;
@@ -1966,7 +1966,7 @@ export class PrintfulPanel extends DynamicPanel {
 			}
 
 			if (this.#initOnce) {
-				this.#selectCategory(1);
+				await this.#selectCategory(1);
 				this.#initOnce = false;
 			}
 
@@ -2004,7 +2004,7 @@ export class PrintfulPanel extends DynamicPanel {
 		this.#htmlProductPrice!.innerText = '';
 
 		if (product) {
-			this.#initProduct(product.id);
+			await this.#initProduct(product.id);
 
 			this.#htmlProductTitle!.innerText = product.name;
 			this.#htmlProductPrice!.innerText = await getProductPrice(this.#productPreset.productId);
@@ -2072,7 +2072,7 @@ export class PrintfulPanel extends DynamicPanel {
 								this.#dirtyBackground = true;
 								this.#dirtyForeground = true;
 								this.#regenerateSelectedPlacement();
-								this.#generateTemplates();
+								await this.#generateTemplates();
 							},
 						});
 					}
@@ -2095,7 +2095,7 @@ export class PrintfulPanel extends DynamicPanel {
 
 		//this.#htmlProductTitle!.innerText = variant.name as string;
 
-		this.#refreshTechniques(/*this.#selection.product?. ?? []*/);
+		await this.#refreshTechniques(/*this.#selection.product?. ?? []*/);
 		return true;
 	}
 
@@ -2104,7 +2104,7 @@ export class PrintfulPanel extends DynamicPanel {
 			return;
 		}
 		this.#productPreset.setTechnique(technique);
-		this.#refreshPlacements();
+		void this.#refreshPlacements();
 	}
 
 	async #refreshTechniques(): Promise<void> {
@@ -2159,10 +2159,10 @@ export class PrintfulPanel extends DynamicPanel {
 		//GetPlacementPrice(this.#productPreset.productId, this.#productPreset.technique, this.#productPreset.getSelectedPlacement());
 		this.#placeManipulator = true;
 
-		this.#refreshControls();
-		this.#updateControls();
-		this.#refreshTemplate();
-		this.#refreshPlacementsPrice();
+		void this.#refreshControls();
+		void this.#updateControls();
+		void this.#refreshTemplate();
+		void this.#refreshPlacementsPrice();
 	}
 
 	#setPlacementSource(source: PlacementSource): void {
@@ -2172,9 +2172,9 @@ export class PrintfulPanel extends DynamicPanel {
 		}
 
 		preset.setSource(source);
-		this.#refreshControls();
-		this.#refreshTemplate();
-		this.#refreshPlacementsPrice();
+		void this.#refreshControls();
+		void this.#refreshTemplate();
+		void this.#refreshPlacementsPrice();
 	}
 
 	#refreshControls(): void {
@@ -2282,8 +2282,8 @@ export class PrintfulPanel extends DynamicPanel {
 			this.#selectPlacement(firstPlacement.getPlacement());
 		}
 
-		this.#refreshPlacementsPrice();
-		this.#generateTemplates();
+		await this.#refreshPlacementsPrice();
+		await this.#generateTemplates();
 	}
 
 	async #refreshPlacementsPrice(): Promise<void> {
@@ -2334,7 +2334,7 @@ export class PrintfulPanel extends DynamicPanel {
 			this.#htmlProductPrice!.innerText += ` +${formatPrice(totalPrice)}`;
 		}
 
-		this.#refreshPlacementsButton();
+		await this.#refreshPlacementsButton();
 	}
 
 	async #refreshPlacementsButton(): Promise<void> {
@@ -2374,7 +2374,7 @@ export class PrintfulPanel extends DynamicPanel {
 			}
 		}
 		if (firstVariant !== undefined) {
-			this.#selectVariant(firstVariant);
+			await this.#selectVariant(firstVariant);
 		}
 		/*} else {
 			//TODO
@@ -2406,7 +2406,7 @@ export class PrintfulPanel extends DynamicPanel {
 					(element as PrintfulProductElement).setProduct(product);
 				},
 				$click: () => {
-					this.#selectProduct(product.id);
+					void this.#selectProduct(product.id);
 					this.#displayTemplateTab();
 				}
 			}) as PrintfulProductElement;

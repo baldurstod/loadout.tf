@@ -93,7 +93,7 @@ export class LoadoutSpeech extends EventTarget {
 				}
 			});
 			this.#recognition.addEventListener('result', (event: SpeechRecognitionEvent) => {
-				this.#onResult(event);
+				void this.#onResult(event);
 			});
 			this.dispatchEvent(new CustomEvent('speech-init'));
 		} catch (e) {

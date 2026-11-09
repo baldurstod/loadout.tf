@@ -14,8 +14,8 @@ export class PresetsPanel extends DynamicPanel {
 	constructor() {
 		super(Panel.Presets, [presetsCSS]);
 		hide(this.getShadowRoot());
-		Tf2LoadoutController.addEventListener('presetsupdated', (): void => { this.#updatePresets() });
-		Tf2LoadoutController.addEventListener('characterchanged', (): void => { this.#updatePresets() });
+		Tf2LoadoutController.addEventListener('presetsupdated', (): void => { void this.#updatePresets() });
+		Tf2LoadoutController.addEventListener('characterchanged', (): void => { void this.#updatePresets() });
 	}
 
 	protected override initHTML(): void {
@@ -85,7 +85,7 @@ export class PresetsPanel extends DynamicPanel {
 				click: (event: Event) => event.stopPropagation(),
 			}
 		});
-		this.#updatePresets();
+		void this.#updatePresets();
 	}
 
 	async #updatePresets(): Promise<void> {
@@ -145,7 +145,7 @@ export class PresetsPanel extends DynamicPanel {
 						click: () => {
 							presets.selected = name;
 							Tf2CharacterManager.loadPreset(name);
-							this.#updatePresets();
+							void this.#updatePresets();
 						}
 					}
 				});

@@ -7,8 +7,8 @@ import { Controller, ControllerEvent } from '../controller';
 import { MainPanel } from './mainpanel';
 import { WarpaintEditorPanel } from './warpainteditorpanel';
 
-documentStyle(htmlCSS);
-documentStyle(varsCSS);
+void documentStyle(htmlCSS);
+void documentStyle(varsCSS);
 
 export class ApplicationPanel {
 	#shadowRoot!: ShadowRoot;

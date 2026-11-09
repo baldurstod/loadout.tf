@@ -29,7 +29,7 @@ export function addRepository(repository: Repository, parent: HTMLElement, style
 							class: 'option-button',
 							i18n: '#add_to_scene',
 							events: {
-								click: () => { addModel((event).detail.entry) },
+								click: () => { void addModel((event).detail.entry); },
 							}
 						}),
 						createElement('button', {

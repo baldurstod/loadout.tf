@@ -37,8 +37,8 @@ export class WarpaintPanel extends DynamicPanel {
 	constructor() {
 		super(Panel.Warpaints, [warpaintPanelCSS]);
 		hide(this.getShadowRoot());
-		Controller.addEventListener(ControllerEvent.SelectWarpaints, (event: Event): void => { this.selectWarpaint((event as CustomEvent<Tf2Item[]>).detail); });
-		Controller.addEventListener(ControllerEvent.WarpaintsLoaded, (): void => { this.#fillWarpaints(); });
+		Controller.addEventListener(ControllerEvent.SelectWarpaints, (event: Event): void => { void this.selectWarpaint((event as CustomEvent<Tf2Item[]>).detail); });
+		Controller.addEventListener(ControllerEvent.WarpaintsLoaded, (): void => { void this.#fillWarpaints(); });
 	}
 
 	protected override initHTML(): void {
@@ -134,10 +134,10 @@ export class WarpaintPanel extends DynamicPanel {
 								const reader = new FileReader();
 
 								reader.addEventListener('load', () => {
-									(async (): Promise<void> => {
+									void (async (): Promise<void> => {
 										WarpaintDefinitions.setWarpaintDefinitions(JSON.parse(reader.result as string));
 										await WeaponManager.refreshWarpaintDefinitions();
-										this.#fillWarpaints();
+										await this.#fillWarpaints();
 									})();
 								});
 
@@ -196,7 +196,7 @@ export class WarpaintPanel extends DynamicPanel {
 			this.#currentItems.add(item);
 		}
 
-		this.#fillWarpaints();
+		void this.#fillWarpaints();
 		show(this.getHTMLElement());
 	}
 
@@ -309,7 +309,7 @@ export class WarpaintPanel extends DynamicPanel {
 		if (!this.#warpaintPicsPromise) {
 
 			this.#warpaintPicsPromise = new Promise<JSONObject>((resolve): void => {
-				(async (): Promise<void> => {
+				void (async (): Promise<void> => {
 					const response = await customFetch(TF2_WARPAINT_PICTURES_URL);
 					const json = await response.json();
 					if (!json || !json.success) {

@@ -257,7 +257,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 			divStattrak.addEventListener('input', event => {
 				const i = Tf2CharacterManager.getCurrentCharacter()?.getItemById(item.id);
 				if (i) {
-					i.setKillCount(Number((event.target as HTMLInputElement).value));
+					void i.setKillCount(Number((event.target as HTMLInputElement).value));
 				}
 				event.stopPropagation();
 			});
@@ -340,7 +340,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 				$click: (event: Event) => {
 					const item = Tf2CharacterManager.getCurrentCharacter()?.getItemById(itemTemplate.id);
 					if (item) {
-						item.toggleFestivizer();
+						void item.toggleFestivizer();
 					}
 					event.stopPropagation();
 				},
@@ -384,7 +384,7 @@ export class ItemManagerItem/*TODO: rename class*/ extends HTMLElement {
 					createElement('input', {
 						type: 'file',
 						accept: 'image/*',
-						$change: (event: Event) => { processCustomImageDrop(event) },
+						$change: (event: Event) => { void processCustomImageDrop(event) },
 						$click: (event: Event) => event.stopPropagation(),
 						$keydown: (event: Event) => event.stopPropagation(),
 					}),

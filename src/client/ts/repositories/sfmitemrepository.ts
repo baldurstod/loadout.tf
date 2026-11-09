@@ -16,7 +16,7 @@ export class SfmItemRepository extends WebRepository {
 		this.supportedExtensions.add('vmt');
 		this.supportedExtensions.add('vtf');
 
-		this.#initRepo();
+		void this.#initRepo();
 	}
 
 	async #initRepo(): Promise<void> {

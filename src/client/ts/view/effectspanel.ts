@@ -5,7 +5,6 @@ import effectsCSS from '../../css/effects.css';
 import effectsPanelCSS from '../../css/effectspanel.css';
 import { Controller, ControllerEvent, KillstreakClicked } from '../controller';
 import { Panel } from '../enums';
-import { loadoutScene } from '../loadout/scene';
 import { colorToCss } from '../utils/colors';
 import { DynamicPanel } from './dynamicpanel';
 import { UnusualEffectElement } from './elements/unusualeffect';
