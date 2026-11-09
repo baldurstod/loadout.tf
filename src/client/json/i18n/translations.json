@@ -472,8 +472,11 @@
 		"#help_printful_product_colors",
 		"#help_printful_product_sizes",
 		"#help_printful_product_techniques",
+		"#help_printful_product_technique_dtg",
+		"#help_printful_product_technique_dtfilm",
 		"#help_printful_transparent_background",
 		"#help_printful_create_product",
+		"#help_printful_grid",
 		""
 	]
 }

@@ -542,9 +542,11 @@ export class PrintfulPanel extends DynamicPanel {
 						this.#htmlProductColors = createElement('div', { class: 'colors', hidden: true, help: '#help_printful_product_colors', }),
 
 						createElement('label', {
+							/*
 							help: {
 								innerHTML: '#help_printful_product_techniques',
 							},
+							*/
 							childs: [
 								createElement('span', { i18n: '#techniques' }),
 
@@ -880,13 +882,13 @@ export class PrintfulPanel extends DynamicPanel {
 					class: 'printful-template-2',
 				}),
 
-
 				this.#htmlTemplateControlsContainer = createElement('div', {
 					parent: htmlTemplate,
 					class: 'printful-canvas-controls',
 					childs: [
 						this.#htmlDrawGrid = createElement('harmony-toggle-button', {
 							class: 'toggle-grid',
+							help: '#help_printful_grid',
 							state: '0',
 							child: createElement('div', {
 								slot: 'on',
@@ -2120,6 +2122,9 @@ export class PrintfulPanel extends DynamicPanel {
 				innerText: technique.displayName,
 				value: technique.key,
 				parent: this.#htmlTechniques,
+				help: {
+					innerHTML: `#help_printful_product_technique_${technique.key}`,
+				},
 			}) as HTMLOptionElement;
 
 			if (!firstTechnique) {
