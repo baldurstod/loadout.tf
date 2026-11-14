@@ -746,101 +746,6 @@ export class PrintfulPanel extends DynamicPanel {
 					class: 'camera-controls',
 					childs: [
 						createElement('div', {
-							class: 'rotation-controls',
-							childs: [
-								createElement('span', {
-									class: 'rotate-left camera-control',
-									help: '#help_printful_camera_rotate_ccw',
-									innerHTML: rotateLeftSVG,
-									events: {
-										click: () => this.#rotateTemplate(0, 0, ROTATE_SCALE * DEG_TO_RAD)
-									},
-								}),
-								createElement('span', {
-									class: 'rotate-right camera-control',
-									help: '#help_printful_camera_rotate_cw',
-									innerHTML: rotateRightSVG,
-									events: {
-										click: () => this.#rotateTemplate(0, 0, -ROTATE_SCALE * DEG_TO_RAD)
-									},
-								}),
-								createElement('span', {
-									class: 'camera-control',
-									help: '#help_printful_camera_zoom_in',
-									innerHTML: zoomInSVG,
-									events: {
-										click: () => this.#moveTemplate(0, -MOVE_SCALE, 0)
-									}
-								}),
-								createElement('span', {
-									class: 'camera-control',
-									help: '#help_printful_camera_zoom_out',
-									innerHTML: zoomOutSVG,
-									events: {
-										click: () => this.#moveTemplate(0, MOVE_SCALE, 0)
-									}
-								}),
-								/*createElement('span', {
-									class: 'rotate-up',
-									i18n: '#rotate_up',
-									events: {
-										click: event => this.#rotateTemplate(ROTATE_SCALE * DEG_TO_RAD, 0, 0)
-									},
-								}),
-								createElement('span', {
-									class: 'rotate-down',
-									i18n: '#rotate_down',
-									events: {
-										click: event => this.#rotateTemplate(-ROTATE_SCALE * DEG_TO_RAD, 0, 0)
-									},
-								}),*/
-								/*createElement('button', {
-									class: 'reset-rotation',
-									i18n: '#reset_rotation',
-									events: {
-										click: event => this.#resetRotation()
-									},
-								}),*/
-							],
-						}),
-						createElement('div', {
-							class: 'translation-controls',
-							childs: [
-								createElement('span', {
-									class: 'camera-control',
-									help: '#help_printful_scene_pan_left',
-									innerHTML: arrowLeftAltSVG,
-									events: {
-										click: () => this.#moveTemplate(-MOVE_SCALE, 0, 0)
-									}
-								}),
-								createElement('span', {
-									class: 'camera-control',
-									help: '#help_printful_scene_pan_right',
-									innerHTML: arrowRightAltSVG,
-									events: {
-										click: () => this.#moveTemplate(MOVE_SCALE, 0, 0)
-									}
-								}),
-								createElement('span', {
-									class: 'camera-control',
-									help: '#help_printful_scene_pan_up',
-									innerHTML: arrowUpwardAltSVG,
-									events: {
-										click: () => this.#moveTemplate(0, 0, MOVE_SCALE)
-									}
-								}),
-								createElement('span', {
-									class: 'camera-control',
-									help: '#help_printful_scene_pan_down',
-									innerHTML: arrowDownwardAltSVG,
-									events: {
-										click: () => this.#moveTemplate(0, 0, -MOVE_SCALE)
-									}
-								}),
-							],
-						}),
-						createElement('div', {
 							class: 'reset-controls',
 							childs: [
 								createElement('button', {
@@ -917,6 +822,107 @@ export class PrintfulPanel extends DynamicPanel {
 							],
 							$change: (event: CustomEvent) => { if (event.detail.state) { this.#setPlacementSource(event.detail.value) } },
 						}) as HTMLHarmonyRadioElement,
+						createElement('div', {
+							class: 'printful-camera-controls',
+							childs: [
+								createElement('div', {
+									class: 'rotation-controls',
+									childs: [
+										createElement('span', {
+											class: 'rotate-left camera-control',
+											help: '#help_printful_camera_rotate_ccw',
+											innerHTML: rotateLeftSVG,
+											events: {
+												click: () => this.#rotateTemplate(0, 0, ROTATE_SCALE * DEG_TO_RAD)
+											},
+										}),
+										createElement('span', {
+											class: 'rotate-right camera-control',
+											help: '#help_printful_camera_rotate_cw',
+											innerHTML: rotateRightSVG,
+											events: {
+												click: () => this.#rotateTemplate(0, 0, -ROTATE_SCALE * DEG_TO_RAD)
+											},
+										}),
+										createElement('span', {
+											class: 'camera-control',
+											help: '#help_printful_camera_zoom_in',
+											innerHTML: zoomInSVG,
+											events: {
+												click: () => this.#moveTemplate(0, -MOVE_SCALE, 0)
+											}
+										}),
+										createElement('span', {
+											class: 'camera-control',
+											help: '#help_printful_camera_zoom_out',
+											innerHTML: zoomOutSVG,
+											events: {
+												click: () => this.#moveTemplate(0, MOVE_SCALE, 0)
+											}
+										}),
+										/*createElement('span', {
+											class: 'rotate-up',
+											i18n: '#rotate_up',
+											events: {
+												click: event => this.#rotateTemplate(ROTATE_SCALE * DEG_TO_RAD, 0, 0)
+											},
+										}),
+										createElement('span', {
+											class: 'rotate-down',
+											i18n: '#rotate_down',
+											events: {
+												click: event => this.#rotateTemplate(-ROTATE_SCALE * DEG_TO_RAD, 0, 0)
+											},
+										}),*/
+										/*createElement('button', {
+											class: 'reset-rotation',
+											i18n: '#reset_rotation',
+											events: {
+												click: event => this.#resetRotation()
+											},
+										}),*/
+									],
+								}),
+								createElement('div', {
+									class: 'translation-controls',
+									childs: [
+										createElement('span', {
+											class: 'camera-control',
+											help: '#help_printful_scene_pan_left',
+											innerHTML: arrowLeftAltSVG,
+											events: {
+												click: () => this.#moveTemplate(-MOVE_SCALE, 0, 0)
+											}
+										}),
+										createElement('span', {
+											class: 'camera-control',
+											help: '#help_printful_scene_pan_right',
+											innerHTML: arrowRightAltSVG,
+											events: {
+												click: () => this.#moveTemplate(MOVE_SCALE, 0, 0)
+											}
+										}),
+										createElement('span', {
+											class: 'camera-control',
+											help: '#help_printful_scene_pan_up',
+											innerHTML: arrowUpwardAltSVG,
+											events: {
+												click: () => this.#moveTemplate(0, 0, MOVE_SCALE)
+											}
+										}),
+										createElement('span', {
+											class: 'camera-control',
+											help: '#help_printful_scene_pan_down',
+											innerHTML: arrowDownwardAltSVG,
+											events: {
+												click: () => this.#moveTemplate(0, 0, -MOVE_SCALE)
+											}
+										}),
+									],
+								}),
+
+							]
+						})
 					]
 				}),
 			]
@@ -933,6 +939,7 @@ export class PrintfulPanel extends DynamicPanel {
 		resizeObserver.observe(this.#htmlTemplateContainer);
 
 		this.#htmlTemplateCameraControls = createElement('div', {
+			class: 'printful-camera-controls',
 			childs: [
 
 			]
