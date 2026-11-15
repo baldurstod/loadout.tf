@@ -436,8 +436,8 @@
 		"#help_placement_price_included": "The placement with the highest price is included in the base price.",
 		"#help_placement_price_extra": "This placement will add an extra ${price} to the base price.",
 		"#help_lock_emplacement": "Lock this placement to prevent any modification",
-		"#help_printful_camera_rotate_ccw": "Rotate camera counter clockwise",
-		"#help_printful_camera_rotate_cw": "Rotate camera clockwise",
+		"#help_printful_camera_rotate_ccw": "Rotate camera counter clockwise around vertical axis",
+		"#help_printful_camera_rotate_cw": "Rotate camera clockwise around vertical axis",
 		"#help_printful_camera_zoom_in": "Zoom in",
 		"#help_printful_camera_zoom_out": "Zoom out",
 		"#help_printful_scene_pan_left": "Move scene left",
@@ -457,7 +457,15 @@
 		"#help_printful_product_technique_dtfilm": "<h2>DTF printing</h2>DTF (direct-to-film) printing is a printing method that uses a specialized film transfer process. It lets you apply full-color designs – including gradients and fine detail – on several types of fabrics, like cotton, polyester, and blends.<br>",
 		"#help_printful_transparent_background": "Use a transparent background. If disabled, will use background option color",
 		"#help_printful_create_product": "Create the product",
-		"#help_printful_grid": "Activate the grid",
+		"#help_printful_print_area": "Display the print area",
+		"#help_printful_remove_placement": "Remove this placement from the final product. Products must have at least one placement.",
+		"#help_printful_use_placement": "Use this placement in the final product. Some placements may disable other placements",
+		"#help_printful_pattern_single": "Use a single design",
+		"#help_printful_pattern_horizontal": "Repeat the design horizontally",
+		"#help_printful_pattern_vertical": "Repeat the design vertically",
+		"#help_printful_pattern_fulldrop": "Repeat the design horizontally and vertically",
+		"#help_printful_pattern_halfdrop": "Repeat the design horizontally and vertically with an offset every other column",
+		"#help_printful_pattern_brick": "Repeat the design horizontally and vertically with an offset every other row",
 		"": ""
 	}
 }

@@ -456,7 +456,15 @@
 		"#help_printful_product_technique_dtg": "<h2>DTG</h2>L’impression numérique textile, ou impression DTG, est une méthode qui vaporise de l’encre sur les vêtements, de la même façon que l’impression sur papier.<br>Les designs imprimés en DTG pénètrent dans les fibres du vêtement, de cette façon les impressions :<ul><li>ne restent pas sur la surface du tissu</li><li>ne se fissurent pas au fil du temps</li><li>ne sont pas raides, procurent ainsi un meilleur confort à celle.celui qui le porte.</li></ul>",
 		"#help_printful_product_technique_dtfilm": "<h2>DTF</h2>L’impression DTF permet de gérer des designs ultra-détaillés, des visuels réalistes, des lignes fines et des textes minuscules. Résultat ? Des créations audacieuses qui se démarquent sur presque tous les tissus.<br>Là où l’impression DTG atteint ses limites, l’impression DTF excelle : elle est idéale pour les vêtements de sport résistants, les tenues de performance ou les matières plus difficiles à imprimer.",
 		"#help_printful_transparent_background": "Utiliser un arrière plan transparent. Si désactivé, utilise l'option de couleur d'arrière plan",
-		"#help_printful_grid": "Activer la grille",
+		"#help_printful_print_area": "Afficher le gabarit d'impression",
+		"#help_printful_remove_placement": "Retirer cet emplacement du produit final. Les produits nécessitent au moins un emplacement",
+		"#help_printful_use_placement": "Utiliser cet emplacement dans le produit final. Certains emplacements sont incompatibles avec d'autres",
+		"#help_printful_pattern_single": "Utiliser un design unique",
+		"#help_printful_pattern_horizontal": "Répéter le motif horizontalement",
+		"#help_printful_pattern_vertical": "Répéter le motif verticalement",
+		"#help_printful_pattern_fulldrop": "Répéter le motif horizontalement et verticalement",
+		"#help_printful_pattern_halfdrop": "Répéter le motif horizontalement et verticalement avec un décalage de moitié pour chaque nouvelle colonne",
+		"#help_printful_pattern_brick": "Répéter le motif horizontalement et verticalement avec un décalage de moitié pour chaque nouvelle ligne",
 		"": ""
 	}
 }

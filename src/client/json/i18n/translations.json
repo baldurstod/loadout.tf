@@ -476,7 +476,15 @@
 		"#help_printful_product_technique_dtfilm",
 		"#help_printful_transparent_background",
 		"#help_printful_create_product",
-		"#help_printful_grid",
+		"#help_printful_print_area",
+		"#help_printful_remove_placement",
+		"#help_printful_use_placement",
+		"#help_printful_pattern_single",
+		"#help_printful_pattern_horizontal",
+		"#help_printful_pattern_vertical",
+		"#help_printful_pattern_fulldrop",
+		"#help_printful_pattern_halfdrop",
+		"#help_printful_pattern_brick",
 		""
 	]
 }
