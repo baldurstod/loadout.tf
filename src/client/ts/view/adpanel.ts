@@ -1,4 +1,4 @@
-import { addNotification, NotificationType } from 'harmony-browser-utils';
+import { addNotificationI18n, NotificationType } from 'harmony-browser-utils';
 import { createElement, createShadowRoot, I18n, I18nEvents } from 'harmony-ui';
 import { setTimeoutPromise } from 'harmony-utils';
 import adCSS from '../../css/ad.css';
@@ -22,7 +22,7 @@ export class AdPanel {
 						this.#htmlHeader1 = createElement('div'/*, { i18n: '#advertisement', class: 'title' }*/),
 						this.#htmlHeader2 = createElement('div'/*, { i18n: '#how_to_remove' }*/)
 					],
-					$click: () => addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10),
+					$click: () => addNotificationI18n('#feature_patreon', NotificationType.Warning, 10),
 				}),
 				this.#htmlAdContent = createShadowRoot('div', {
 					adoptStyles: [adContentCSS],

@@ -823,12 +823,31 @@ class Application {
 	}
 
 	#showAboutLayer(): void {
-		const html = `${I18n.getString('#loadout_tf_service_provided')}<a href="http://steamcommunity.com/id/baldurstod/" target="_blank">Baldurs Tod</a><br>
-		<a href="https://www.redbubble.com/people/Loadout/shop?asc=u" target="_blank">${I18n.getString('#redbubble_shop')}</a><br>
-		${I18n.getString('#model_texture_files_property')}<a href="http://www.valvesoftware.com/" target="_blank">Valve Corporation</a><br>
-		${I18n.getString('#valve_tf_trademarks')}`;
-
-		addNotification(html, NotificationType.Info, 15);
+		addNotification(createElement('div', {
+			childs: [
+				createElement('span', {
+					innerText: `${I18n.getString('#loadout_tf_service_provided')}`,
+				}),
+				createElement('a', {
+					href: 'https://steamcommunity.com/id/baldurstod/',
+					target: '_blank',
+					innerText: 'Baldurs Tod',
+				}),
+				createElement('br'),
+				createElement('span', {
+					innerText: `${I18n.getString('#model_texture_files_property')}`,
+				}),
+				createElement('a', {
+					href: 'https://www.valvesoftware.com/',
+					target: '_blank',
+					innerText: 'Valve Corporation',
+				}),
+				createElement('br'),
+				createElement('span', {
+					innerText: `${I18n.getString('#valve_tf_trademarks')}`,
+				}),
+			],
+		}), NotificationType.Info, 15);
 	}
 
 	#showBugNotification(): void {
@@ -865,7 +884,7 @@ class Application {
 			const binaryFBX = await exportToBinaryFBX(loadoutScene);
 			saveFile(new File([binaryFBX], 'loadout.tf.fbx'));
 		} else {
-			addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10);
+			addNotificationI18n('#feature_patreon', NotificationType.Warning, 10);
 		}
 	}
 
@@ -877,7 +896,7 @@ class Application {
 				await this.#export3D2();
 			}
 		} else {
-			addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10);
+			addNotificationI18n('#feature_patreon', NotificationType.Warning, 10);
 		}
 	}
 
@@ -906,7 +925,7 @@ class Application {
 			const file = await SfmExporter.exportSFM(loadoutScene, 'itemtest.bsp', 0);
 			saveFile(file);
 		} else {
-			addNotification(I18n.getString('#feature_patreon'), NotificationType.Warning, 10);
+			addNotificationI18n('#feature_patreon', NotificationType.Warning, 10);
 		}
 	}
 
@@ -966,7 +985,7 @@ class Application {
 		const result = await this.#uploadLoadout(loadoutJSON);
 
 		if (!result) {
-			addNotification(I18n.getString('#failed_to_upload_this_loadout'), NotificationType.Error, 5);
+			addNotificationI18n('#failed_to_upload_this_loadout', NotificationType.Error, 5);
 			return;
 		}
 		if (TESTING) {
@@ -977,7 +996,7 @@ class Application {
 		const notificationText = `${I18n.getString('#share_this_loadout')}<input value='${loadoutUrl}'>`;
 		try {
 			navigator.clipboard.writeText(loadoutUrl).then(
-				() => addNotification(I18n.getString('#share_link_clipboard_ok'), NotificationType.Info, 5),
+				() => addNotificationI18n('#share_link_clipboard_ok', NotificationType.Info, 5),
 				() => addNotification(notificationText, NotificationType.Info, 15)
 			);
 		} catch (e) {

@@ -1,6 +1,6 @@
 import { quat, vec2, vec3, vec4 } from 'gl-matrix';
 import { Camera, Composer, DEG_TO_RAD, Graphics, Group, RAD_TO_DEG, Scene } from 'harmony-3d';
-import { addNotification, NotificationType, ShortcutHandler } from 'harmony-browser-utils';
+import { addNotificationI18n, NotificationType, ShortcutHandler } from 'harmony-browser-utils';
 import { arrowDownwardAltSVG, arrowLeftAltSVG, arrowRightAltSVG, arrowUpwardAltSVG, borderClearSVG, brickLayoutSVG, checkOutlineSVG, cropPortraitSVG, gridOffsetSVG, gridRegularSVG, lockOpenRightSVG, lockSVG, rotateLeftSVG, rotateRightSVG, tableRowsSVG, viewColumnSVG, zoomInSVG, zoomOutSVG } from 'harmony-svg';
 import { JSONArray, JSONObject, Radian } from 'harmony-types';
 import { createElement, defineHarmony2dManipulator, defineHarmonyMenu, defineHarmonySlider, defineHarmonySwitch, defineHarmonyTab, defineHarmonyTabGroup, defineHarmonyToggleButton, display, HarmonyMenuItem, hide, HTMLHarmony2dManipulatorElement, HTMLHarmonyMenuElement, HTMLHarmonyRadioElement, HTMLHarmonySliderElement, HTMLHarmonySwitchElement, HTMLHarmonyTabElement, HTMLHarmonyToggleButtonElement, I18n, ManipulatorUpdatedEventData, ManipulatorUpdatedEventType, RadioChangedEventData, show, updateElement } from 'harmony-ui';
@@ -135,7 +135,7 @@ export class PrintfulPanel extends DynamicPanel {
 	//#typeNameOptionPool = new Set<HTMLOptionElement>();
 	#productOption = new Map<HTMLOptionElement, Product>();
 	#productList = new Map<PrintfulProductElement, Product>();
-	#techniqueOptions = new Map<HTMLOptionElement, Technique>();
+	#techniqueOptions = new Map<HTMLButtonElement, Technique>();
 	//#placementOptions = new Map<HTMLOptionElement, Placement>();
 	//#renderTarget?: RenderTarget;
 	//#shadowRoot?: ShadowRoot;
@@ -1135,7 +1135,7 @@ export class PrintfulPanel extends DynamicPanel {
 		if (success) {
 			void this.#createShopProduct();
 		} else {
-			addNotification(I18n.getString('#failed_to_generate_images'), NotificationType.Error, 0);
+			addNotificationI18n('#failed_to_generate_images', NotificationType.Error, 0);
 		}
 	}
 
@@ -1213,7 +1213,7 @@ export class PrintfulPanel extends DynamicPanel {
 		const { response: createProductResponse } = await fetchShopAPI('create-product', 1, createProductRequest);
 
 		if (!createProductResponse.success) {
-			addNotification(I18n.getString('#failed_to_create_the_product'), NotificationType.Error, 0);
+			addNotificationI18n('#failed_to_create_the_product', NotificationType.Error, 0);
 			this.#enableCreateProductButton();
 			return;
 		}
@@ -2139,7 +2139,7 @@ export class PrintfulPanel extends DynamicPanel {
 				help: {
 					innerHTML: `#help_printful_product_technique_${technique.key}`,
 				},
-			}) as HTMLOptionElement;
+			});
 
 			if (!firstTechnique) {
 				firstTechnique = technique.key;
