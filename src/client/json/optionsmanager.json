@@ -446,6 +446,11 @@
 			"default": "SHIFT+P"
 		},
 		{
+			"name": "app.shortcuts.copypicture",
+			"type": "shortcut",
+			"default": "SHIFT+O"
+		},
+		{
 			"name": "app.shortcuts.warpaints.openeditor",
 			"type": "shortcut",
 			"default": "SHIFT+W"

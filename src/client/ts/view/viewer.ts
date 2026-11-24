@@ -1,5 +1,5 @@
 import { CanvasAttributes, CanvasLayout, CanvasView, Composer, CrosshatchPass, FullScreenQuad, GrainPass, Graphics, GraphicsEvents, MeshFlatMaterial, OldMoviePass, OrbitGizmo, PalettePass, PixelatePass, RenderPass, SaturatePass, setCustomIncludeSource, ShaderManager, ShaderToyMaterial, ShaderType, SketchPass, TextureManager, WebGLStats } from 'harmony-3d';
-import { OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler } from 'harmony-browser-utils';
+import { addNotificationI18n, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, ShortcutHandler, writeBlobToClipboard } from 'harmony-browser-utils';
 import { JSONObject } from 'harmony-types';
 import { createElement, createShadowRoot, display } from 'harmony-ui';
 import viewerCSS from '../../css/viewer.css';
@@ -112,6 +112,7 @@ export class Viewer {
 		});
 
 		Controller.addEventListener(ControllerEvent.SavePicture, () => { void this.#savePicture() });
+		Controller.addEventListener(ControllerEvent.CopyPicture, () => { void this.#copyPicture() });
 
 		Controller.addEventListener(ControllerEvent.UseLayout, (event: Event) => this.#useLayout((event as CustomEvent<string>).detail));
 
@@ -349,6 +350,19 @@ export class Viewer {
 		const value = this.#getPictureSize();
 		this.#showHighLights(false);
 		await Graphics.exportCanvas(MAIN_CANVAS, 'loadout.png', value?.w, value?.h);
+		this.#showHighLights(true);
+	}
+
+	async #copyPicture(): Promise<void> {
+		const value = this.#getPictureSize();
+		this.#showHighLights(false);
+		const blob = await Graphics.exportCanvasToBlob(MAIN_CANVAS, { width: value?.w, height: value?.h });
+		if (blob) {
+			const err = await writeBlobToClipboard(blob);
+			if (err === null) {
+				addNotificationI18n('#picture_copied_to_clipboard', NotificationType.Success, 3);
+			}
+		}
 		this.#showHighLights(true);
 	}
 

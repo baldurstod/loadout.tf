@@ -1,7 +1,7 @@
 import { vec3, vec4 } from 'gl-matrix';
 import { AmbientLight, CameraProjection, ContextType, Entity, EntityObserver, EntityObserverEventType, EntityObserverPropertyChangedEvent, exportToBinaryFBX, FontManager, getSceneExplorer, Graphics, GraphicsEvents, GraphicTickEvent, HALF_PI, JSONLoader, Light, MergeRepository, ObjExporter, PointLight, Repositories, setFetchFunction, setRenderParticles, ShaderPrecision, Source1BspLoader, Source1MaterialManager, Source1ModelInstance, Source1ModelManager, Source1ParticleControler, Source1ParticleSystem, Source1SoundManager, Source2ModelManager, SourceBSP, stringToQuat, stringToVec3, WebGLStats, WebRepository } from 'harmony-3d';
 import { TextureCombiner, TextureCombinerEventTarget, WarpaintDoneEvent, WarpaintEditor, WeaponManager } from 'harmony-3d-utils';
-import { addNotification, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
+import { addNotification, addNotificationI18n, NotificationsPlacement, NotificationType, OptionsManager, OptionsManagerEvent, OptionsManagerEvents, saveFile, setNotificationsPlacement, ShortcutHandler } from 'harmony-browser-utils';
 import { SfmExporter } from 'harmony-sfm';
 import { WarpaintDefinitions } from 'harmony-tf2-utils';
 import { JSONObject } from 'harmony-types';
@@ -523,6 +523,7 @@ class Application {
 		ShortcutHandler.addEventListener('app.shortcuts.currentcamera.reset', () => this.#resetCamera());
 		ShortcutHandler.addEventListener('app.shortcuts.itemlist.open', () => Controller.dispatchEvent<Panel>(ControllerEvent.TogglePanel, { detail: Panel.Items }));
 		ShortcutHandler.addEventListener('app.shortcuts.picture', () => Controller.dispatchEvent(ControllerEvent.SavePicture));
+		ShortcutHandler.addEventListener('app.shortcuts.copypicture', () => Controller.dispatchEvent(ControllerEvent.CopyPicture));
 		//ShortcutHandler.addEventListener('app.shortcuts.warpaints.openeditor', () => this.#toggleWarpaintEditor());
 	}
 

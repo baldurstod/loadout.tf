@@ -452,6 +452,7 @@
 		"#use_image",
 		"#conflicting_with_other_placement",
 		"#select_at_least_one_placement",
+		"#picture_copied_to_clipboard",
 		"#help_placement_price_included",
 		"#help_placement_price_extra",
 		"#help_lock_emplacement",

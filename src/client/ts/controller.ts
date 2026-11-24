@@ -14,6 +14,7 @@ export enum ControllerEvent {
 	TogglePanel = 'togglepanel',
 	ShareLoadout = 'shareloadout',
 	SavePicture = 'savepicture',
+	CopyPicture = 'copypicture',
 	ExportSfm = 'exportsfm',
 	ExportFbx = 'exportfbx',
 	Export3d = 'export3d',
