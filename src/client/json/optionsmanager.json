@@ -487,11 +487,6 @@
 			"default": "1.0"
 		},
 		{
-			"name": "app.lights.pointlights.count",
-			"type": "integer",
-			"default": "1"
-		},
-		{
 			"name": "app.lights.pointlights.0.color",
 			"type": "color",
 			"default": "#FFFFFFFF"

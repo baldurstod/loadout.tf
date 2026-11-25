@@ -1,4 +1,4 @@
-export const HTML_NAMESPACE_URI = 'http://www.w3.org/1999/xhtml';
+import { STEAM_PROFILE_URL } from 'loadout';
 
 export const CHARACTERS_SKINS = ['red', 'blue'];
 export const MAX_UNUSUAL_EFFECTS_PER_CHARACTER = 5;
@@ -10,7 +10,6 @@ export const baseAnimDataPath = './json/animations/';
 //export const TF2_CASUAL_BADGE = 'models/vgui/12v12_badge';
 //export const TF2_TOOLBOX_MODEL = 'models/weapons/w_models/w_toolbox';
 export const RECORDER_DEFAULT_FILENAME = 'Loadout.tf recording.webm';
-export const STEAM_PROFILE_URL = 'https://steamcommunity.com/profiles/';
 export const STEAM_DEFAULT_PROFILE_URL = STEAM_PROFILE_URL + '76561197960265728';
 export const TF2_GROUP_URL = 'https://steamcommunity.com/groups/tf2loadout/discussions/1';
 

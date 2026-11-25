@@ -112,7 +112,7 @@ class Application {
 				return fetch(entry2, options);
 			}
 			return fetch(resource, options);
-		})
+		});
 	}
 
 	async #initGraphics(): Promise<void> {
